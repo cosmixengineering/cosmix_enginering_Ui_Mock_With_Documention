@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+const fs = require('fs');
+const path = require('path');
+
+const reqDetailPath = path.join(__dirname, 'hr', 'warehouse', 'request-detail.html');
+
+const htmlContent = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,7 +23,7 @@
     <script src="../../assets/js/shared.js"></script>
     <script>
         renderLayout('outward');
-        setPageContent('Request Detail: REQ-8890', `
+        setPageContent('Request Detail: REQ-8890', \`
             <div class="mb-4 flex items-center justify-between">
                 <div>
                     <a href="outward.html" class="text-sm text-indigo-600 hover:underline mb-2 inline-block"><i class="fas fa-arrow-left mr-1"></i> Back to Pending Demands</a>
@@ -83,7 +88,7 @@
                                 <tbody class="divide-y divide-gray-100">
                                     <tr class="hover:bg-indigo-50/30 transition-colors">
                                         <td class="px-4 py-4 text-center">
-                                            <input type="checkbox" class="item-checkbox rounded border-gray-300 text-[#242b5f] focus:ring-[#242b5f]" value="Copper Coil Tube 5/8\" data-qty="10 Coils" onchange="updatePRList()">
+                                            <input type="checkbox" class="item-checkbox rounded border-gray-300 text-[#242b5f] focus:ring-[#242b5f]" value="Copper Coil Tube 5/8\\" data-qty="10 Coils" onchange="updatePRList()">
                                         </td>
                                         <td class="px-4 py-4">
                                             <p class="font-bold text-gray-900">Copper Coil Tube 5/8"</p>
@@ -117,7 +122,7 @@
                                     </tr>
                                     <tr class="hover:bg-indigo-50/30 transition-colors">
                                         <td class="px-4 py-4 text-center">
-                                            <input type="checkbox" class="item-checkbox rounded border-gray-300 text-[#242b5f] focus:ring-[#242b5f]" value="Aeroflex Insulation 5/8\" data-qty="20 Pcs" onchange="updatePRList()">
+                                            <input type="checkbox" class="item-checkbox rounded border-gray-300 text-[#242b5f] focus:ring-[#242b5f]" value="Aeroflex Insulation 5/8\\" data-qty="20 Pcs" onchange="updatePRList()">
                                         </td>
                                         <td class="px-4 py-4">
                                             <p class="font-bold text-gray-900">Aeroflex Insulation 5/8"</p>
@@ -195,7 +200,7 @@
 
                 </div>
             </div>
-        `);
+        \`);
 
         // JS for interactivity in the detail page
         window.toggleAllCheckboxes = function(source) {
@@ -238,13 +243,13 @@
                     
                     const div = document.createElement('div');
                     div.className = 'bg-white p-2.5 rounded border border-indigo-100 shadow-sm text-xs flex justify-between items-center';
-                    div.innerHTML = `
+                    div.innerHTML = \`
                         <div class="w-2/3">
-                            <p class="font-bold text-gray-800 truncate" title="${itemName}">${itemName}</p>
-                            <p class="text-indigo-600 font-semibold mt-0.5">Req: ${reqQty}</p>
+                            <p class="font-bold text-gray-800 truncate" title="\${itemName}">\${itemName}</p>
+                            <p class="text-indigo-600 font-semibold mt-0.5">Req: \${reqQty}</p>
                         </div>
                         <button onclick="removePRItem(this)" class="text-gray-400 hover:text-red-500 p-1"><i class="fas fa-times"></i></button>
-                    `;
+                    \`;
                     prList.appendChild(div);
                 });
                 
@@ -268,7 +273,7 @@
         window.sendToAdmin = function() {
             const checkboxes = document.querySelectorAll('.item-checkbox:checked');
             if(checkboxes.length > 0) {
-                alert(`Purchase Requisition (PR) generated for ${checkboxes.length} item(s) and forwarded to System Administrator for procurement.`);
+                alert(\`Purchase Requisition (PR) generated for \${checkboxes.length} item(s) and forwarded to System Administrator for procurement.\`);
                 // Reset
                 document.getElementById('selectAll').checked = false;
                 checkboxes.forEach(cb => cb.checked = false);
@@ -287,4 +292,7 @@
         };
     </script>
 </body>
-</html>
+</html>`;
+
+fs.writeFileSync(reqDetailPath, htmlContent);
+console.log('request-detail.html rewritten successfully.');
