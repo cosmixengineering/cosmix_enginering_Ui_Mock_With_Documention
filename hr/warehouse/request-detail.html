@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Details | Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 h-screen overflow-hidden">
+    <div id="app-layout"></div>
+    <script src="../../assets/js/shared.js"></script>
+    <script>
+        renderLayout('outward');
+        setPageContent('Request Details', `
+            <div class="mb-4">
+                <a href="outward.html" class="text-[#242b5f] hover:underline text-sm font-semibold"><i class="fas fa-arrow-left mr-1"></i> Back to Outward (Dispatch)</a>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Main Details Column -->
+                <div class="w-full lg:w-2/3 space-y-6">
+                    
+                    <!-- Header Card -->
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-4 border-b border-gray-100 pb-4">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-900">REQ-8890</h2>
+                                <p class="text-gray-500 text-sm mt-1">Material Request for Site Construction</p>
+                            </div>
+                            <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded text-xs">Approved by HO</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-500 text-xs font-bold uppercase mb-1">Site Information</p>
+                                <p class="font-bold text-gray-800"><i class="fas fa-building mr-1 text-gray-400"></i> DHA Phase 8 Site</p>
+                                <p class="text-gray-600 mt-1 text-xs">Plot 42, Block A, Commercial Area.</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-xs font-bold uppercase mb-1">Supervisor Details</p>
+                                <p class="font-bold text-gray-800"><i class="fas fa-user-hard-hat mr-1 text-gray-400"></i> Ali Raza</p>
+                                <p class="text-gray-600 mt-1 text-xs"><i class="fas fa-phone mr-1 text-gray-400"></i> 0300-1234567</p>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-gray-500 text-xs font-bold uppercase mb-1">Request Date</p>
+                                <p class="font-semibold text-gray-800">10-Sep-2026 09:45 AM</p>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-gray-500 text-xs font-bold uppercase mb-1">Priority</p>
+                                <p class="font-semibold text-red-600"><i class="fas fa-flag mr-1"></i> High Priority</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items Table -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                            <h3 class="font-bold text-gray-800">Requested Items Breakdown</h3>
+                        </div>
+                        <table class="w-full text-left text-sm text-gray-600">
+                            <thead class="bg-gray-50 text-gray-700 border-b border-gray-200 text-xs uppercase font-bold">
+                                <tr>
+                                    <th class="px-6 py-3">SKU</th>
+                                    <th class="px-6 py-3">Item Description</th>
+                                    <th class="px-6 py-3 text-center">Requested Qty</th>
+                                    <th class="px-6 py-3 text-center">In Stock</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-mono text-xs text-gray-500 font-bold">ITM-CIV-001</td>
+                                    <td class="px-6 py-4 font-semibold text-gray-900">OPC Cement (Lucky)</td>
+                                    <td class="px-6 py-4 text-center font-bold">200 Bags</td>
+                                    <td class="px-6 py-4 text-center text-emerald-600 font-bold">1,250 Bags</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-mono text-xs text-gray-500 font-bold">ITM-SAF-021</td>
+                                    <td class="px-6 py-4 font-semibold text-gray-900">Safety Helmets</td>
+                                    <td class="px-6 py-4 text-center font-bold">15 Pcs</td>
+                                    <td class="px-6 py-4 text-center text-red-600 font-bold">5 Pcs</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right Column: Actions & Workflow -->
+                <div class="w-full lg:w-1/3 space-y-6">
+                    
+                    <!-- Action Panel -->
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <h3 class="font-bold text-gray-800 mb-4 border-b border-gray-100 pb-2">Process Request</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Assign Delivery / Handover</label>
+                                <select class="w-full border border-gray-300 text-gray-700 py-2 px-3 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2">
+                                    <option>Select Supply Guy...</option>
+                                    <option>Imran Khan (Rider)</option>
+                                    <option>Kamran Ahmed (Driver)</option>
+                                </select>
+                            </div>
+                            <button onclick="openModal('dispatchModal')" class="w-full bg-[#242b5f] text-white font-bold py-2.5 rounded hover:bg-blue-800 transition shadow-sm text-sm flex justify-center items-center gap-2">
+                                <i class="fas fa-truck-fast"></i> Hand Over Delivery
+                            </button>
+                            
+                            <div class="relative py-2">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-gray-200"></div>
+                                </div>
+                                <div class="relative flex justify-center">
+                                    <span class="bg-white px-2 text-xs text-gray-400 font-bold uppercase">OR</span>
+                                </div>
+                            </div>
+
+                            <button class="w-full bg-white border border-red-200 text-red-600 font-bold py-2.5 rounded hover:bg-red-50 transition shadow-sm text-sm flex justify-center items-center gap-2">
+                                <i class="fas fa-file-invoice"></i> Send to Administrator (Purchase)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Workflow History -->
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <h3 class="font-bold text-gray-800 mb-4 border-b border-gray-100 pb-2">Approval Timeline</h3>
+                        <div class="relative border-l-2 border-gray-200 ml-3 space-y-6 mt-4">
+                            <div class="relative pl-6">
+                                <span class="absolute -left-[9px] top-1 bg-emerald-500 w-4 h-4 rounded-full border-2 border-white"></span>
+                                <p class="font-bold text-sm text-gray-800">Requested by Site</p>
+                                <p class="text-xs text-gray-500">10-Sep-2026 09:45 AM - Ali Raza</p>
+                            </div>
+                            <div class="relative pl-6">
+                                <span class="absolute -left-[9px] top-1 bg-emerald-500 w-4 h-4 rounded-full border-2 border-white"></span>
+                                <p class="font-bold text-sm text-gray-800">PM Approval</p>
+                                <p class="text-xs text-gray-500">10-Sep-2026 10:30 AM - Engr. Salman</p>
+                            </div>
+                            <div class="relative pl-6">
+                                <span class="absolute -left-[9px] top-1 bg-emerald-500 w-4 h-4 rounded-full border-2 border-white"></span>
+                                <p class="font-bold text-sm text-gray-800">HO Final Approval</p>
+                                <p class="text-xs text-gray-500">10-Sep-2026 11:15 AM - Operations Dept</p>
+                            </div>
+                            <div class="relative pl-6">
+                                <span class="absolute -left-[9px] top-1 bg-blue-500 w-4 h-4 rounded-full border-2 border-white animate-pulse"></span>
+                                <p class="font-bold text-sm text-[#242b5f]">Pending Dispatch</p>
+                                <p class="text-xs text-gray-500">Awaiting Warehouse Action</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Dispatch Modal -->
+            <div id="dispatchModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 flex items-center justify-center transition-opacity">
+                <div class="bg-white w-full max-w-3xl rounded-xl shadow-xl flex flex-col max-h-[90vh]">
+                    <div class="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-xl">
+                        <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-truck-fast mr-2 text-indigo-600"></i> Generate Material Issue Slip (MIS)</h3>
+                        <button onclick="closeModal('dispatchModal')" class="text-gray-400 hover:text-red-500 transition-colors"><i class="fas fa-times text-lg"></i></button>
+                    </div>
+                    <div class="p-6 overflow-y-auto space-y-4">
+                        <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-4 flex justify-between items-center mb-2">
+                            <div>
+                                <p class="text-xs text-indigo-600 font-bold uppercase mb-1">Requesting Site</p>
+                                <p class="font-bold text-gray-800">DHA Phase 8 Site</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-indigo-600 font-bold uppercase mb-1">Approved By</p>
+                                <p class="text-gray-800 font-bold">Engr. Salman</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1 uppercase">Dispatch Date</label>
+                                <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1 uppercase">Vehicle / Driver Details</label>
+                                <input type="text" placeholder="e.g. Company Truck T-01" class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        
+                        <h4 class="font-bold text-gray-800 mt-4 mb-2 text-sm border-b pb-2">Issuing Items</h4>
+                        <table class="w-full text-sm text-left text-gray-600 border border-gray-200">
+                            <thead class="bg-gray-50 text-xs uppercase font-semibold text-gray-700">
+                                <tr>
+                                    <th class="px-3 py-2">Item</th>
+                                    <th class="px-3 py-2 text-center">Requested</th>
+                                    <th class="px-3 py-2 text-center">Current Stock</th>
+                                    <th class="px-3 py-2">Issue Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-t border-gray-200">
+                                    <td class="px-3 py-2 font-semibold text-gray-800">Cement Bags (OPC)</td>
+                                    <td class="px-3 py-2 text-center bg-gray-50">200 Bags</td>
+                                    <td class="px-3 py-2 text-center text-emerald-600 font-bold">1,250 Bags</td>
+                                    <td class="px-3 py-2"><input type="number" value="200" max="1250" class="w-20 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-1 focus:ring-blue-500"></td>
+                                </tr>
+                                <tr class="border-t border-gray-200">
+                                    <td class="px-3 py-2 font-semibold text-gray-800">Safety Helmets</td>
+                                    <td class="px-3 py-2 text-center bg-gray-50">15 Pcs</td>
+                                    <td class="px-3 py-2 text-center text-red-600 font-bold">5 Pcs</td>
+                                    <td class="px-3 py-2"><input type="number" value="5" max="5" class="w-20 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-1 focus:ring-blue-500"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mt-4 mb-1 uppercase">Gate Pass Remarks</label>
+                            <textarea rows="2" placeholder="Add any special instructions for the gate..." class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </div>
+                    <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end gap-3 rounded-b-xl">
+                        <button onclick="closeModal('dispatchModal')" class="px-4 py-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-100 font-semibold text-sm transition">Cancel</button>
+                        <button onclick="closeModal('dispatchModal')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold text-sm transition shadow-sm">Hand Over & Print MIS</button>
+                    </div>
+                </div>
+            </div>
+        \`);
+        
+        window.openModal = function(id) { 
+            const modal = document.getElementById(id);
+            if(modal) { modal.classList.remove('hidden'); }
+        };
+        window.closeModal = function(id) { 
+            const modal = document.getElementById(id);
+            if(modal) { modal.classList.add('hidden'); }
+        };
+    </script>
+</body>
+</html>
