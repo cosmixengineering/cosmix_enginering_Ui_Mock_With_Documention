@@ -1,9 +1,18 @@
 const renderLayout = (activePage) => {
     // Determine path depth and active department
     const pathNorm = window.location.pathname.replace(/\\/g, '/');
-    const matched = pathNorm.match(/\/(hr|sales|finance|accounts|inventory|admin|administrator|engineering|procurement)(\/|$)/i);
-    const currentDeptId = matched ? matched[1].toLowerCase() : (pathNorm.includes('/accounts/') ? 'accounts' : (pathNorm.includes('/hr/') ? 'hr' : 'root'));
-    const isSubfolder = Boolean(matched) || pathNorm.includes('/hr/') || pathNorm.includes('/accounts/');
+    let currentDeptId = 'root';
+    if (pathNorm.includes('/warehouse/')) {
+        currentDeptId = 'warehouse';
+    } else if (pathNorm.includes('/accounts/') || pathNorm.includes('/finance/')) {
+        currentDeptId = 'accounts';
+    } else if (pathNorm.includes('/hr/')) {
+        currentDeptId = 'hr';
+    } else {
+        const matched = pathNorm.match(/\/(sales|admin|administrator|engineering|procurement)(\/|$)/i);
+        currentDeptId = matched ? matched[1].toLowerCase() : 'root';
+    }
+    const isSubfolder = pathNorm.includes('/hr/') || pathNorm.includes('/accounts/') || pathNorm.includes('/warehouse/');
     const p = pathNorm.includes('/warehouse/') ? '../../' : isSubfolder ? '../' : './';
 
     const DEPARTMENTS = [
