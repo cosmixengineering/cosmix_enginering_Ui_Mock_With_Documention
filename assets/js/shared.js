@@ -11,7 +11,7 @@ const renderLayout = (activePage) => {
         { id: 'accounts', name: 'Accounts & Finance', badge: 'Accounts', icon: 'fas fa-file-invoice-dollar', color: 'text-purple-600', bg: 'bg-purple-50', url: p + 'accounts/index.html' },
         { id: 'sales', name: 'Sales & CRM', badge: 'Sales', icon: 'fas fa-chart-line', color: 'text-emerald-600', bg: 'bg-emerald-50', url: p + 'sales/index.html' },
         { id: 'finance', name: 'Finance & Accounts', badge: 'Finance', icon: 'fas fa-calculator', color: 'text-purple-600', bg: 'bg-purple-50', url: p + 'accounts/index.html' },
-        { id: 'inventory', name: 'Warehouse & Stock', badge: 'Stores', icon: 'fas fa-boxes', color: 'text-amber-600', bg: 'bg-amber-50', url: p + 'inventory/index.html' },
+        { id: 'warehouse', name: 'Warehouse & Stock', badge: 'Stores', icon: 'fas fa-boxes', color: 'text-amber-600', bg: 'bg-amber-50', url: p + 'hr/warehouse/index.html' },
         { id: 'admin', name: 'Admin & Fleet', badge: 'Admin', icon: 'fas fa-building', color: 'text-blue-600', bg: 'bg-blue-50', url: p + 'admin/index.html' },
         { id: 'administrator', name: 'System Administrator', badge: 'SuperAdmin', icon: 'fas fa-user-shield', color: 'text-red-600', bg: 'bg-red-50', url: p + 'administrator/index.html' },
         { id: 'engineering', name: 'MEP Operations', badge: 'Engr', icon: 'fas fa-hard-hat', color: 'text-orange-600', bg: 'bg-orange-50', url: p + 'engineering/index.html' },
@@ -172,8 +172,8 @@ const renderLayout = (activePage) => {
                         <div class="py-1">
                             ${DEPARTMENTS.map(d => {
                                 const isThisDeptActive = d.id === currentDeptId || (d.id === 'accounts' && isAccounts);
-                                if (d.id === 'hr' || d.id === 'accounts' || d.id === 'finance') {
-                                    const targetUrl = (d.id === 'hr') ? `${p}hr/index.html` : `${p}accounts/index.html`;
+                                if (d.id === 'hr' || d.id === 'accounts' || d.id === 'finance' || d.id === 'warehouse') {
+                                    const targetUrl = d.url;
                                     return `
                                         <a href="${targetUrl}" class="flex items-center gap-2.5 px-3 py-1.5 text-xs ${isThisDeptActive ? 'bg-blue-50/70 text-[#242b5f] font-bold' : 'text-gray-700 hover:bg-gray-50'} transition">
                                             <span class="w-5 h-5 rounded flex items-center justify-center ${d.bg} ${d.color} text-[10px]"><i class="${d.icon}"></i></span>
