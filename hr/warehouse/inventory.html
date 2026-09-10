@@ -22,25 +22,30 @@
             <!-- Content -->
             
                 
-                <!-- Filters -->
-                <div class="bg-white rounded-t-xl border-b border-gray-100 p-4 flex gap-4 items-center">
-                    <div class="relative flex-1 max-w-md">
-                        <i class="fa-solid fa-search absolute left-3 top-3 text-gray-400"></i>
-                        <input type="text" placeholder="Search by SKU, Item Name..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <!-- Filters and Actions -->
+                <div class="bg-white rounded-t-xl border-b border-gray-100 p-4 flex flex-wrap gap-4 items-center justify-between">
+                    <div class="flex flex-1 gap-4 items-center min-w-[300px]">
+                        <div class="relative flex-1 max-w-md">
+                            <i class="fa-solid fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <input type="text" placeholder="Search by SKU, Item Name..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <select class="border border-gray-300 text-gray-700 py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option>All Categories</option>
+                            <option>Civil & Construction</option>
+                            <option>Electrical</option>
+                            <option>Plumbing</option>
+                            <option>Tools & Equipment</option>
+                        </select>
+                        <select class="border border-gray-300 text-gray-700 py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option>Stock Status: All</option>
+                            <option>In Stock</option>
+                            <option>Low Stock</option>
+                            <option>Out of Stock</option>
+                        </select>
                     </div>
-                    <select class="border border-gray-300 text-gray-700 py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option>All Categories</option>
-                        <option>Civil & Construction</option>
-                        <option>Electrical</option>
-                        <option>Plumbing</option>
-                        <option>Tools & Equipment</option>
-                    </select>
-                    <select class="border border-gray-300 text-gray-700 py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option>Stock Status: All</option>
-                        <option>In Stock</option>
-                        <option>Low Stock</option>
-                        <option>Out of Stock</option>
-                    </select>
+                    <button class="bg-[#242b5f] hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm font-bold shadow-sm transition flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Add New Item
+                    </button>
                 </div>
 
                 <!-- Table -->
