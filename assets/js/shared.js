@@ -72,6 +72,7 @@ const renderLayout = (activePage) => {
                 ${createNavLink(p + 'hr/warehouse/inventory.html', 'Master Inventory', 'fas fa-boxes-stacked', activePage === 'inventory', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '1,245' })}
                 ${createNavLink(p + 'hr/warehouse/inward.html', 'Inward (GRN)', 'fas fa-arrow-right-to-bracket', activePage === 'inward')}
                 ${createNavLink(p + 'hr/warehouse/outward.html', 'Outward (Dispatch)', 'fas fa-truck-ramp-box', activePage === 'outward', { bg: 'bg-red-50 border border-red-200', text: 'text-red-700', label: '12' })}
+                  ${createNavLink(p + 'hr/warehouse/equipment.html', 'Tools & Equipment', 'fas fa-tools', activePage === 'equipment', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Assign' })}
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'hr/index.html', 'HR Operations Portal', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
