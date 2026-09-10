@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Banking & Cash Flow Operations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; } 
+        body { font-family: 'Inter', sans-serif; } 
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; } 
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('banking');
+        setPageContent('Corporate Banking & Liquid Cash Flow', `
+            <div class="space-y-4">
+                
+                <!-- Banking Header -->
+                <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl shadow-xs border border-gray-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm font-bold text-gray-800">Corporate Bank Accounts & Real-Time Cash Position</h2>
+                            <span class="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+                                1-Link Host-to-Host Connected
+                            </span>
+                        </div>
+                        <p class="text-[10.5px] text-gray-400 mt-0.5">Corporate accounts in Meezan Bank, HBL, MCB and Allied Bank for client collections, payroll and project escrows.</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="showToast('Bank reconciliation updated for today', 'success')" class="bg-[#242b5f] hover:bg-opacity-90 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-sync-alt text-xs"></i> Refresh Bank Balances
+                        </button>
+                        <button onclick="exportToExcel('Cosmix_Bank_Ledger_Sep_2026')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-2xs transition flex items-center gap-1.5">
+                            <i class="fas fa-file-excel text-green-600"></i> Export Ledger
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4 Bank Accounts Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    
+                    <!-- Bank 1: Meezan Bank (Main Ops & Payroll) -->
+                    <div class="bg-white p-3.5 rounded-xl border border-gray-100 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 font-bold flex items-center justify-center text-xs">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-900 leading-tight">Meezan Bank Ltd</h4>
+                                    <p class="text-[9px] text-gray-400">Corporate Main Operations</p>
+                                </div>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Available Balance</p>
+                            <h3 class="text-lg font-black text-emerald-700">Rs. 16,800,000</h3>
+                        </div>
+                        <div class="pt-1.5 border-t border-gray-50 text-[9.5px] text-gray-500 space-y-0.5">
+                            <p class="font-mono text-gray-700">PK36 MEZN 0001 0982 3471 01</p>
+                            <p class="text-emerald-600 font-semibold"><i class="fas fa-check-circle mr-0.5"></i> Primary Payroll Disbursal Account</p>
+                        </div>
+                    </div>
+
+                    <!-- Bank 2: HBL (Project Escrow) -->
+                    <div class="bg-white p-3.5 rounded-xl border border-gray-100 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 font-bold flex items-center justify-center text-xs">
+                                    <i class="fas fa-building"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-900 leading-tight">Habib Bank Ltd (HBL)</h4>
+                                    <p class="text-[9px] text-gray-400">Project Milestone Escrow</p>
+                                </div>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Available Balance</p>
+                            <h3 class="text-lg font-black text-[#242b5f]">Rs. 6,200,000</h3>
+                        </div>
+                        <div class="pt-1.5 border-t border-gray-50 text-[9.5px] text-gray-500 space-y-0.5">
+                            <p class="font-mono text-gray-700">PK45 HABB 0022 1094 1102 01</p>
+                            <p class="text-blue-600 font-semibold"><i class="fas fa-shield-alt mr-0.5"></i> Client IPC Collections Dedicated</p>
+                        </div>
+                    </div>
+
+                    <!-- Bank 3: MCB Bank (Operational Reserve) -->
+                    <div class="bg-white p-3.5 rounded-xl border border-gray-100 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-orange-50 text-orange-700 font-bold flex items-center justify-center text-xs">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-900 leading-tight">MCB Bank Ltd</h4>
+                                    <p class="text-[9px] text-gray-400">Operational & SCM Reserve</p>
+                                </div>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Available Balance</p>
+                            <h3 class="text-lg font-black text-gray-900">Rs. 2,450,000</h3>
+                        </div>
+                        <div class="pt-1.5 border-t border-gray-50 text-[9.5px] text-gray-500 space-y-0.5">
+                            <p class="font-mono text-gray-700">PK12 MUCB 0009 2134 1955 01</p>
+                            <p class="text-gray-400">Vendor & Subcontractor Payouts</p>
+                        </div>
+                    </div>
+
+                    <!-- Bank 4: Allied Bank (Site Imprest & Petty Cash) -->
+                    <div class="bg-white p-3.5 rounded-xl border border-gray-100 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-purple-50 text-purple-700 font-bold flex items-center justify-center text-xs">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-900 leading-tight">Allied Bank (ABL)</h4>
+                                    <p class="text-[9px] text-gray-400">Site Imprest & Petty Cash</p>
+                                </div>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Available Balance</p>
+                            <h3 class="text-lg font-black text-purple-700">Rs. 1,000,000</h3>
+                        </div>
+                        <div class="pt-1.5 border-t border-gray-50 text-[9.5px] text-gray-500 space-y-0.5">
+                            <p class="font-mono text-gray-700">PK55 ABPA 0011 9283 7465 01</p>
+                            <p class="text-purple-600 font-semibold">Allocated across 8 Project Sites</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Recent Bank Clearance Ledger -->
+                <div class="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
+                    <div class="p-3.5 border-b border-gray-100 flex items-center justify-between">
+                        <h3 class="text-xs font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-receipt text-[#242b5f]"></i>
+                            Recent Corporate Bank Settlements & Cleared Vouchers
+                        </h3>
+                        <span class="text-[9.5px] text-gray-400">Real-time RTGS / Raast Sync</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50/80 border-b border-gray-100 text-gray-500 font-bold">
+                                    <th>Date</th>
+                                    <th>Voucher #</th>
+                                    <th>Bank Account</th>
+                                    <th>Transaction Description</th>
+                                    <th>Instrument Ref</th>
+                                    <th class="text-right">Debit (Inflow)</th>
+                                    <th class="text-right">Credit (Outflow)</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-xs">
+                                <tr>
+                                    <td class="text-gray-500">28 Sep 2026</td>
+                                    <td class="font-mono font-bold text-[#242b5f]">RV-2026-112</td>
+                                    <td class="font-semibold text-gray-800">Meezan Bank Ltd</td>
+                                    <td>Engro Fertilizers Complex - Electrical Milestone Payment</td>
+                                    <td class="font-mono text-gray-600">RTGS-ENGRO-9912</td>
+                                    <td class="text-right font-bold text-emerald-700">Rs. 5,992,000</td>
+                                    <td class="text-right text-gray-400">-</td>
+                                    <td class="text-center"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[9px] font-bold">Cleared</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500">25 Sep 2026</td>
+                                    <td class="font-mono font-bold text-[#242b5f]">BPV-2026-084</td>
+                                    <td class="font-semibold text-gray-800">MCB Bank Ltd</td>
+                                    <td>Pakistan Cables Ltd - Site Heavy Copper Cables Procurement</td>
+                                    <td class="font-mono text-gray-600">CHQ-MCB-419082</td>
+                                    <td class="text-right text-gray-400">-</td>
+                                    <td class="text-right font-bold text-red-600">Rs. 1,850,000</td>
+                                    <td class="text-center"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[9px] font-bold">Cleared</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500">20 Sep 2026</td>
+                                    <td class="font-mono font-bold text-[#242b5f]">RV-2026-111</td>
+                                    <td class="font-semibold text-gray-800">HBL Project Escrow</td>
+                                    <td>DHA City Sector 3 - Mobilization Advance Receipt</td>
+                                    <td class="font-mono text-gray-600">PO-DHA-118273</td>
+                                    <td class="text-right font-bold text-emerald-700">Rs. 9,222,500</td>
+                                    <td class="text-right text-gray-400">-</td>
+                                    <td class="text-center"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[9px] font-bold">Cleared</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500">15 Sep 2026</td>
+                                    <td class="font-mono font-bold text-[#242b5f]">BPV-2026-083</td>
+                                    <td class="font-semibold text-gray-800">Allied Bank (ABL)</td>
+                                    <td>Site Petty Cash Imprest Replenishment (8 Sites)</td>
+                                    <td class="font-mono text-gray-600">TRF-ABL-88192</td>
+                                    <td class="text-right text-gray-400">-</td>
+                                    <td class="text-right font-bold text-red-600">Rs. 400,000</td>
+                                    <td class="text-center"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[9px] font-bold">Cleared</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        `);
+    </script>
+</body>
+</html>

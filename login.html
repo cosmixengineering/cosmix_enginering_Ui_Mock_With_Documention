@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Corporate Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; }
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono, [class*="font-mono"] { font-family: 'JetBrains Mono', monospace !important; font-variant-numeric: tabular-nums; }
+        .slide-fade {
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-[#0b0f24] text-gray-800 antialiased selection:bg-[#242b5f] selection:text-white">
+
+    <div class="flex min-h-screen w-full flex-col lg:flex-row">
+        
+        <!-- ========================================== -->
+        <!-- LEFT HALF: PREMIUM ENGINEERING SHOWCASE   -->
+        <!-- ========================================== -->
+        <div id="left-showcase" class="relative hidden lg:flex lg:w-1/2 xl:w-7/12 flex-col justify-between p-10 xl:p-14 overflow-hidden text-white bg-cover bg-center transition-all duration-1000" style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1800&q=85');">
+            
+            <!-- High-End Dark Gradient Overlay - lets engineering structures show through vibrantly -->
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0b0f24] via-[#141b47]/75 to-[#1f265c]/65 z-0"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.18),transparent_50%)] z-0"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,_rgba(16,185,129,0.12),transparent_50%)] z-0"></div>
+            
+            <!-- Top Branding & PEC Certification -->
+            <div class="relative z-10 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="h-11 px-3 py-1.5 bg-white/95 rounded-xl flex items-center shadow-xl backdrop-blur-md">
+                        <img src="assets/images/cosmix-logo.png" onerror="this.src='cosmix-logo.png'; this.onerror=function(){this.src='https://cosmixengineering.com/wp-content/uploads/2024/09/cropped-Cosmix-Logo-PNG-File-300x90.png'}" alt="Cosmix Engineering" class="h-7 w-auto object-contain">
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase tracking-widest font-black text-blue-200 block leading-tight">Cosmix Engineering</span>
+                        <span class="text-[8.5px] text-gray-300 font-medium">Enterprise Resource Planning (ERP)</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15 text-[10.5px] font-semibold text-emerald-300 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>PEC & ISO 9001:2015 Certified</span>
+                </div>
+            </div>
+
+            <!-- Middle: Hero Engineering Narrative -->
+            <div class="relative z-10 max-w-xl my-auto py-10">
+                <div id="slide-badge" class="inline-flex items-center gap-1.5 bg-blue-500/20 border border-blue-400/30 text-blue-200 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider mb-4 backdrop-blur-sm">
+                    <i class="fas fa-bolt text-blue-300"></i>
+                    <span id="slide-tag">Turnkey MEP Contracting</span>
+                </div>
+                
+                <h1 id="slide-title" class="text-3xl xl:text-4xl font-black text-white tracking-tight leading-tight mb-3.5 slide-fade">
+                    Engineering Precision for Pakistan's Landmark Infrastructure
+                </h1>
+                
+                <p id="slide-desc" class="text-xs xl:text-sm text-gray-200/90 font-normal leading-relaxed slide-fade max-w-lg mb-6">
+                    Premier turnkey execution across Central HVAC Chillers, 11kV Substations, Fire Suppression & Industrial Automation for landmark commercial towers and industrial sites.
+                </p>
+
+                <!-- Interactive Slide Indicator Dots & Counter -->
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeSlide(0)" id="dot-0" class="w-8 h-1.5 rounded-full bg-white transition-all duration-300"></button>
+                        <button onclick="changeSlide(1)" id="dot-1" class="w-2.5 h-1.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300"></button>
+                        <button onclick="changeSlide(2)" id="dot-2" class="w-2.5 h-1.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300"></button>
+                    </div>
+                    <span class="text-[9.5px] text-gray-300 font-bold ml-2 tracking-wider font-mono" id="slide-counter">01 / 03</span>
+                </div>
+            </div>
+
+            <!-- Bottom: Clean Subtle Footer Note -->
+            <div class="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between text-[10px] text-gray-300/80">
+                <span>PEC Registered MEP Contractor • License Category C-1</span>
+                <span>Industrial & Commercial Turnkey Solutions</span>
+            </div>
+
+        </div>
+
+        <!-- ========================================== -->
+        <!-- RIGHT HALF: CLEAN EXECUTIVE LOGIN FORM    -->
+        <!-- ========================================== -->
+        <div class="w-full lg:w-1/2 xl:w-5/12 bg-white flex flex-col justify-between p-8 sm:p-12 xl:p-16 min-h-screen">
+            
+            <!-- Top Mobile Bar (visible only on small screens) -->
+            <div class="flex items-center justify-between lg:hidden mb-6 pb-4 border-b border-gray-100">
+                <img src="assets/images/cosmix-logo.png" onerror="this.src='cosmix-logo.png'; this.onerror=function(){this.src='https://cosmixengineering.com/wp-content/uploads/2024/09/cropped-Cosmix-Logo-PNG-File-300x90.png'}" alt="Cosmix Logo" class="h-8 object-contain">
+                <span class="text-[9px] font-bold bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">ERP Online</span>
+            </div>
+
+            <!-- Form Container -->
+            <div class="w-full max-w-sm mx-auto my-auto py-4">
+                
+                <!-- Cosmix Official Logo on Top of Form -->
+                <div class="mb-8">
+                    <div class="inline-block p-2.5 bg-gray-50 rounded-xl border border-gray-100 shadow-xs mb-4">
+                        <img src="assets/images/cosmix-logo.png" onerror="this.src='cosmix-logo.png'; this.onerror=function(){this.src='https://cosmixengineering.com/wp-content/uploads/2024/09/cropped-Cosmix-Logo-PNG-File-300x90.png'}" alt="Cosmix Engineering" class="h-10 w-auto object-contain">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight">Sign in to Cosmix ERP</h2>
+                        <span class="bg-blue-50 text-[#242b5f] text-[9.5px] font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-blue-100">v2.4</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Enter your corporate credentials to access the enterprise system.</p>
+                </div>
+
+                <!-- Clean, Focused Login Form -->
+                <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                    
+                    <!-- Username / Email Field -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5 tracking-wide">
+                            Corporate Email or User ID
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-xs">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input id="email-input" type="email" value="admin@cosmixengineering.com" required class="w-full pl-9 pr-3 py-2.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#242b5f] focus:ring-1 focus:ring-[#242b5f] bg-white transition text-gray-800 font-medium" placeholder="name@cosmixengineering.com">
+                        </div>
+                    </div>
+
+                    <!-- Password Field with Show/Hide Toggle -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label class="block text-xs font-bold text-gray-700 tracking-wide">Password</label>
+                            <a href="javascript:void(0)" onclick="openForgotModal()" class="text-xs font-semibold text-[#242b5f] hover:underline">
+                                Forgot password?
+                            </a>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-xs">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input id="password-input" type="password" value="cosmix2026" required class="w-full pl-9 pr-10 py-2.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-[#242b5f] focus:ring-1 focus:ring-[#242b5f] bg-white transition text-gray-800 font-medium" placeholder="••••••••">
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none" title="Toggle password visibility">
+                                <i id="eye-icon" class="fas fa-eye text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Remember Me -->
+                    <div class="flex items-center text-xs pt-1">
+                        <label class="flex items-center gap-2 cursor-pointer text-gray-600 select-none">
+                            <input type="checkbox" checked class="rounded text-[#242b5f] focus:ring-0 border-gray-300 w-3.5 h-3.5">
+                            <span class="text-[11px] font-medium">Keep me signed in</span>
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button id="submit-btn" type="submit" class="w-full bg-[#242b5f] hover:bg-[#1b214a] active:scale-[0.99] text-white py-3 rounded-lg text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-blue-950/20 flex items-center justify-center gap-2 mt-4 cursor-pointer">
+                        <span>Sign In to Platform</span>
+                        <i class="fas fa-arrow-right text-[10px]"></i>
+                    </button>
+
+                </form>
+
+                <!-- Security Footnote -->
+                <div class="mt-6 pt-5 border-t border-gray-100 flex items-center justify-center gap-1.5 text-[10px] text-gray-400">
+                    <i class="fas fa-lock text-gray-400"></i>
+                    <span>Authorized Personnel Only • Enterprise Encryption</span>
+                </div>
+
+            </div>
+
+            <!-- Footer Details -->
+            <div class="pt-6 border-t border-gray-100 flex flex-wrap justify-between items-center text-[10px] text-gray-400 gap-2">
+                <div>
+                    © 2026 <strong class="text-gray-700">Cosmix Engineering (Pvt) Ltd</strong>. All Rights Reserved.
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="hover:text-gray-600 cursor-pointer">Security Policy</span>
+                    <span>•</span>
+                    <span class="hover:text-gray-600 cursor-pointer">IT Support</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Password Assistance Modal -->
+    <div id="forgot-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-gray-100 transform scale-95 transition-transform duration-300" id="forgot-modal-box">
+            <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-3">
+                <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fas fa-key text-[#242b5f]"></i> Corporate Sign-In Help
+                </h3>
+                <button onclick="closeForgotModal()" class="text-gray-400 hover:text-red-500 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <p class="text-xs text-gray-600 mb-3">
+                Default credentials configured for this system:
+            </p>
+            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 text-xs font-mono mb-4 space-y-1">
+                <p><strong>Email:</strong> admin@cosmixengineering.com</p>
+                <p><strong>Password:</strong> cosmix2026</p>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeForgotModal()" class="px-3 py-1.5 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded">Cancel</button>
+                <button onclick="useDefaultCreds()" class="px-3 py-1.5 text-xs font-bold text-white bg-[#242b5f] rounded">Use Credentials</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Script -->
+    <script>
+        // High-Quality Engineering Showcase Slides
+        const slides = [
+            {
+                tag: "Turnkey MEP Contracting",
+                title: "Engineering Precision for Pakistan's Landmark Infrastructure",
+                desc: "Premier turnkey execution across Central HVAC Chillers, 11kV Substations, Fire Suppression & Industrial Automation for landmark commercial towers and industrial sites.",
+                bg: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1800&q=85"
+            },
+            {
+                tag: "Mega Site Execution",
+                title: "Multidisciplinary Site Execution & Industrial Projects",
+                desc: "High-voltage Schneider switchgear, NFPA compliant fire hydrants, chilled water piping networks and automated BMS controllers engineered to international standards.",
+                bg: "https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=1800&q=85"
+            },
+            {
+                tag: "Industrial Excellence",
+                title: "Integrated Supply Chain, Warehouse & Technical Operations",
+                desc: "Unified enterprise operations connecting central Korangi warehouse stores, daily engineering progress reports (DPR), and commercial MEP client tendering.",
+                bg: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1800&q=85"
+            }
+        ];
+
+        let currentSlide = 0;
+        let slideInterval = null;
+
+        function changeSlide(index) {
+            currentSlide = index;
+            const s = slides[index];
+            const showcase = document.getElementById('left-showcase');
+            const title = document.getElementById('slide-title');
+            const desc = document.getElementById('slide-desc');
+            const tag = document.getElementById('slide-tag');
+            const counter = document.getElementById('slide-counter');
+
+            if (showcase) {
+                showcase.style.backgroundImage = `url('${s.bg}')`;
+            }
+            if (title) title.innerText = s.title;
+            if (desc) desc.innerText = s.desc;
+            if (tag) tag.innerText = s.tag;
+            if (counter) counter.innerText = `0${index + 1} / 03`;
+
+            // Update dot indicators
+            for (let i = 0; i < 3; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if (dot) {
+                    if (i === index) {
+                        dot.className = "w-8 h-1.5 rounded-full bg-white transition-all duration-300";
+                    } else {
+                        dot.className = "w-2.5 h-1.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300";
+                    }
+                }
+            }
+        }
+
+        function startSlideTimer() {
+            if (slideInterval) clearInterval(slideInterval);
+            slideInterval = setInterval(() => {
+                currentSlide = (currentSlide + 1) % slides.length;
+                changeSlide(currentSlide);
+            }, 5500);
+        }
+
+        startSlideTimer();
+
+        // Password Show/Hide Toggle
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password-input');
+            const eyeIcon = document.getElementById('eye-icon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Form Submit
+        function handleLoginSubmit(event) {
+            event.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Authenticating...`;
+            btn.disabled = true;
+
+            // Direct login into the Cosmix ERP portal
+            const targetUrl = 'accounts/index.html';
+
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 500);
+        }
+
+        function openForgotModal() {
+            const m = document.getElementById('forgot-modal');
+            const box = document.getElementById('forgot-modal-box');
+            m.classList.remove('hidden');
+            setTimeout(() => {
+                m.classList.remove('opacity-0');
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeForgotModal() {
+            const m = document.getElementById('forgot-modal');
+            const box = document.getElementById('forgot-modal-box');
+            m.classList.add('opacity-0');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => {
+                m.classList.add('hidden');
+            }, 300);
+        }
+
+        function useDefaultCreds() {
+            document.getElementById('email-input').value = 'admin@cosmixengineering.com';
+            document.getElementById('password-input').value = 'cosmix2026';
+            closeForgotModal();
+        }
+    </script>
+
+</body>
+</html>

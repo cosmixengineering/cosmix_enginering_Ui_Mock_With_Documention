@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Attendance & Time-Tracking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('attendance');
+        
+        setPageContent('2. Attendance & Time-Tracking', `
+            <div class="space-y-4">
+                
+                <!-- Compact Top Stat Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Workers Present</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">142 <span class="text-[10px] text-green-600 font-normal">/ 150</span></h4>
+                            <p class="text-[9px] text-green-600 font-semibold"><i class="fas fa-arrow-up mr-0.5"></i> 94.6% Turnout</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Biometric & GPS</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">8 Sites <span class="text-[10px] text-blue-600 font-normal">Online</span></h4>
+                            <p class="text-[9px] text-blue-600 font-semibold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Auto-Sync Live</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
+                            <i class="fas fa-satellite-dish"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Exceptions Reqd</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">3 Cases <span class="text-[10px] text-orange-500 font-normal">Unresolved</span></h4>
+                            <p class="text-[9px] text-orange-600 font-medium">Late & radius alerts</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center text-sm">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Overtime Logged</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">46.5 <span class="text-[10px] text-gray-500 font-normal">Hrs</span></h4>
+                            <p class="text-[9px] text-gray-500 font-medium">This pay period</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-business-time"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar: View Switcher + Export / Import Buttons -->
+                <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    
+                    <!-- Left: View Toggle Tabs -->
+                    <div class="flex items-center gap-1 bg-gray-100 p-0.5 rounded-md text-xs font-bold">
+                        <button id="tab-btn-both" onclick="switchView('both')" class="px-3 py-1.5 rounded text-xs font-bold transition shadow-sm bg-white text-[#242b5f] flex items-center gap-1.5">
+                            <i class="fas fa-layer-group"></i> All (Matrix & Log)
+                        </button>
+                        <button id="tab-btn-table" onclick="switchView('table')" class="px-3 py-1.5 rounded text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5">
+                            <i class="fas fa-list"></i> Daily Log Only <span class="bg-red-100 text-red-700 text-[9px] px-1.5 py-0.2 rounded-full font-bold">3</span>
+                        </button>
+                        <a href="shifts.html" class="px-3 py-1.5 rounded text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5" title="Manage Work Shifts & Timings">
+                            <i class="fas fa-business-time text-indigo-600"></i> Shifts & Master Timings <span class="bg-indigo-100 text-[#242b5f] text-[9px] px-1.5 py-0.2 rounded-full font-bold">4 Active</span>
+                        </a>
+                    </div>
+
+                    <!-- Right: Excel / PDF / Import Actions -->
+                    <div class="flex items-center gap-1.5">
+                        <a href="shifts.html" class="bg-white border border-indigo-200 text-[#242b5f] hover:bg-indigo-50 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Configure Shift Rules & Master Timings">
+                            <i class="fas fa-clock text-indigo-600 text-xs"></i> Manage Shifts
+                        </a>
+                        <button onclick="exportToExcel('Attendance_Daily_Log')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export to Excel">
+                            <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel
+                        </button>
+                        <button onclick="exportToPDF('Attendance_Report')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export to PDF">
+                            <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF
+                        </button>
+                        <button onclick="openImportModal('Attendance Biometric')" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Import from Machine">
+                            <i class="fas fa-file-import text-blue-600 text-xs"></i> Import Logs
+                        </button>
+                        <button onclick="openModal('Bulk Attendance Sync', '<p class=text-xs>Force pull latest check-ins from all 8 site fingerprint biometric machines?</p>', () => showToast('Biometric machines synced! 142 records refreshed.', 'success'))" class="bg-[#242b5f] text-white hover:opacity-90 px-3 py-1.5 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-sync-alt text-[10px]"></i> Sync All
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECTION 1: ATTENDANCE CALENDAR & DIRECT ACTIONS (Commented out per request) -->
+                <!-- 
+                <div id="view-calendar" class="space-y-3">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3.5">
+                        <div class="flex flex-wrap items-center justify-between pb-3 border-b border-gray-100 gap-2.5">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center font-bold text-sm">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Attendance Calendar & Direct Marking Roster</h3>
+                                        <span class="text-[9px] bg-blue-50 text-[#242b5f] border border-blue-200 px-1.5 py-0.5 rounded font-bold">September 2026 Cycle</span>
+                                    </div>
+                                    <p class="text-[9.5px] text-gray-400 mt-0.5">Click any date tile below to execute <strong>Direct Attendance Actions</strong> (Mark Present, Waive Lates, Declare Holiday, Add OT)</p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <button onclick="markAllDaysPresent()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-xs font-bold shadow-sm transition flex items-center gap-1.5" title="Direct 1-click mark 150 present for today">
+                                    <i class="fas fa-check-double text-[11px]"></i> Mark Today All Present
+                                </button>
+                                <button onclick="openAddHolidayModal()" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-2.5 py-1.5 rounded text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                                    <i class="fas fa-umbrella-beach text-blue-600"></i> Declare Holiday
+                                </button>
+                                <button onclick="quickWaiveToday()" class="bg-white border border-gray-200 hover:border-orange-400 text-gray-700 hover:text-orange-700 px-2.5 py-1.5 rounded text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                                    <i class="fas fa-hand-holding-heart text-orange-500"></i> Waive Today's Lates
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-between py-2 border-b border-gray-50 gap-2">
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="showToast('Showing August 2026', 'info')" class="w-6 h-6 rounded border border-gray-200 hover:bg-gray-50 flex items-center justify-center text-[10px] text-gray-600"><i class="fas fa-chevron-left"></i></button>
+                                <span class="text-xs font-extrabold text-[#242b5f] px-1">September 2026</span>
+                                <button onclick="showToast('Showing October 2026', 'info')" class="w-6 h-6 rounded border border-gray-200 hover:bg-gray-50 flex items-center justify-center text-[10px] text-gray-600"><i class="fas fa-chevron-right"></i></button>
+                                <span class="text-[9.5px] text-gray-400 ml-1">Total: 150 Active Workers • 8 Sites Online</span>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-2 text-[9.5px]">
+                                <span class="flex items-center gap-1 font-semibold text-gray-700"><span class="w-2 h-2 rounded-full bg-green-500"></span> Present (P)</span>
+                                <span class="flex items-center gap-1 font-semibold text-gray-700"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Late (L)</span>
+                                <span class="flex items-center gap-1 font-semibold text-gray-700"><span class="w-2 h-2 rounded-full bg-red-500"></span> Absent (A)</span>
+                                <span class="flex items-center gap-1 font-semibold text-gray-700"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Leave (LV)</span>
+                                <span class="flex items-center gap-1 font-semibold text-blue-600"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Holiday</span>
+                                <span class="flex items-center gap-1 font-semibold text-gray-400"><span class="w-2 h-2 rounded-full bg-gray-300"></span> Off</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-2.5">
+                            <div class="grid grid-cols-7 gap-1.5 text-center text-[9.5px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1.5" id="calendar-grid">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                -->
+
+                <!-- SECTION 1B: EMPLOYEE ATTENDANCE ROSTER MATRIX (Individual Employee x Date Grid) -->
+                <div id="view-roster" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <!-- Roster Header -->
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex flex-wrap justify-between items-center bg-gray-50/50 gap-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center text-xs"><i class="fas fa-th"></i></div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Employee Attendance Roster</h3>
+                                    <span class="text-[9px] bg-green-50 text-green-700 border border-green-200 px-1.5 py-0.5 rounded font-bold">September 2026</span>
+                                    <span class="text-[9px] bg-blue-50 text-[#242b5f] border border-blue-200 px-1.5 py-0.5 rounded font-bold">150 Workers</span>
+                                </div>
+                                <p class="text-[9.5px] text-gray-400 mt-0.5">Individual employee attendance matrix — <strong>P</strong> Present, <strong>L</strong> Late, <strong>A</strong> Absent, <strong>LV</strong> Leave, <strong>H</strong> Holiday, <strong>-</strong> Off</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="markAllDaysPresent()" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-bold shadow-sm transition flex items-center gap-1">
+                                <i class="fas fa-check-double text-[10px]"></i> Mark All Present
+                            </button>
+                            <button onclick="openAddHolidayModal()" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-2 py-1 rounded text-xs font-semibold shadow-sm transition flex items-center gap-1">
+                                <i class="fas fa-umbrella-beach text-blue-600 text-[10px]"></i> Holiday
+                            </button>
+                            <button onclick="quickWaiveToday()" class="bg-white border border-gray-200 hover:border-orange-400 text-gray-700 hover:text-orange-700 px-2 py-1 rounded text-xs font-semibold shadow-sm transition flex items-center gap-1">
+                                <i class="fas fa-hand-holding-heart text-orange-500 text-[10px]"></i> Waive Lates
+                            </button>
+                            <div class="w-px h-5 bg-gray-200 mx-1"></div>
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                                <input type="text" oninput="filterRosterRows(this)" placeholder="Search..." class="text-xs border border-gray-200 rounded-md pl-6 pr-2 py-1 focus:outline-none focus:border-[#242b5f] w-32 bg-white">
+                            </div>
+                            <select class="text-xs border border-gray-200 rounded-md px-1.5 py-1 bg-white focus:outline-none text-gray-700 max-w-[110px] truncate">
+                                <option>All Depts</option>
+                                <option>MEP & Execution</option>
+                                <option>Sales & CRM</option>
+                            </select>
+                            <button onclick="exportToExcel('Employee_Roster_Sep_2026')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2 py-1 rounded text-xs font-semibold shadow-sm transition flex items-center gap-1"><i class="fas fa-file-excel text-green-600 text-[10px]"></i> Export</button>
+                        </div>
+                    </div>
+
+                    <!-- Roster Grid Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-[10px] whitespace-nowrap border-collapse" id="roster-matrix-table">
+                            <thead class="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-2.5 py-2 font-bold text-[8.5px] text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-20 min-w-[180px] border-r border-gray-200">Employee</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">1</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">2</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">3</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">4</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100 bg-blue-50/50">5</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-100 bg-gray-100">6</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-[#242b5f] text-center w-7 border-r border-gray-200 bg-blue-50 font-extrabold">7</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">8</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">9</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">10</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">11</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">12</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-100 bg-gray-100">13</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-200 bg-gray-100">14</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">15</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">16</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">17</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">18</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">19</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-100 bg-gray-100">20</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-200 bg-gray-100">21</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">22</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">23</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">24</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">25</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">26</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-100 bg-gray-100">27</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-200 bg-gray-100">28</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">29</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-200">30</th>
+                                    <th class="px-2 py-2 font-bold text-[8.5px] text-green-700 text-center border-r border-gray-200 bg-green-50/50 min-w-[32px]">P</th>
+                                    <th class="px-2 py-2 font-bold text-[8.5px] text-orange-700 text-center border-r border-gray-200 bg-orange-50/50 min-w-[32px]">L</th>
+                                    <th class="px-2 py-2 font-bold text-[8.5px] text-red-700 text-center border-r border-gray-200 bg-red-50/50 min-w-[32px]">A</th>
+                                    <th class="px-2 py-2 font-bold text-[8.5px] text-purple-700 text-center border-r border-gray-200 bg-purple-50/50 min-w-[32px]">LV</th>
+                                    <th class="px-2 py-2 font-bold text-[8.5px] text-gray-500 text-center min-w-[40px]">Act</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roster-matrix-body" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: TABLE VIEW (Daily Log & Exceptions) -->
+                <div id="view-table" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex flex-wrap justify-between items-center bg-gray-50/50 gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                            <h3 id="table-date-title" class="text-xs font-bold text-gray-800 uppercase tracking-wider">Live Exceptions & Daily Log (07 Sep, 2026 - Today)</h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                                <input type="text" oninput="filterTableRows(this, 'attendance-table-body')" placeholder="Filter employee or site..." class="text-xs border border-gray-200 rounded-md pl-7 pr-2.5 py-1 focus:outline-none focus:border-[#242b5f] w-48 bg-white">
+                            </div>
+                            <select onchange="filterTableRows({ value: this.value.includes('All') ? '' : this.value }, 'attendance-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white focus:outline-none text-gray-700">
+                                <option value="All Sites">All Sites (8)</option>
+                                <option value="Karachi">Karachi High-Rise</option>
+                                <option value="Islamabad">Islamabad Govt Complex</option>
+                                <option value="Lahore">Head Office (Lahore)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto min-h-[350px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[8.5px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-3 py-2.5 font-bold">Emp ID</th>
+                                    <th class="px-3 py-2.5 font-bold">Employee</th>
+                                    <th class="px-3 py-2.5 font-bold">Department / Role</th>
+                                    <th class="px-3 py-2.5 font-bold">Project Site</th>
+                                    <th class="px-3 py-2.5 font-bold">Shift Schedule</th>
+                                    <th class="px-3 py-2.5 font-bold">Punch-In</th>
+                                    <th class="px-3 py-2.5 font-bold">Punch-Out</th>
+                                    <th class="px-3 py-2.5 font-bold">Work Hours</th>
+                                    <th class="px-3 py-2.5 font-bold text-blue-700">Overtime</th>
+                                    <th class="px-3 py-2.5 font-bold">Variance</th>
+                                    <th class="px-3 py-2.5 font-bold">GPS Geofence</th>
+                                    <th class="px-3 py-2.5 font-bold">Exception Alert</th>
+                                    <th class="px-3 py-2.5 font-bold text-center">Status</th>
+                                    <th class="px-3 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-table-body" class="divide-y divide-gray-100 bg-white">
+                                
+                                <!-- Row 1: Ali Khan -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-3 py-2.5"><span class="text-[9.5px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1042</span></td>
+                                    <td class="px-3 py-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-6 h-6 rounded-full bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center font-bold text-[9px]">AK</div>
+                                            <a href="javascript:void(0)" onclick="openMonthHistoryModal('Ali Khan', 'HVAC Engineer', 'EMP-1042')" class="font-bold text-[#242b5f] hover:underline leading-tight" title="Click to view 30-Day Timecard">Ali Khan</a>
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-600 font-medium">MEP • HVAC Engineer</td>
+                                    <td class="px-3 py-2.5">
+                                        <span class="text-gray-700 font-medium">Karachi High-Rise</span>
+                                        <span class="text-[8px] text-gray-400 block">Sector 4</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-600">09:00 - 18:00 (9h)</td>
+                                    <td class="px-3 py-2.5">
+                                        <span class="font-bold text-red-600">10:00 AM</span>
+                                        <span class="text-[8px] text-gray-400 block"><i class="fas fa-fingerprint text-blue-500 mr-0.5"></i> Biometric</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-400 italic">In-Progress</td>
+                                    <td class="px-3 py-2.5 font-semibold text-gray-700">7h 15m</td>
+                                    <td class="px-3 py-2.5 text-gray-400 font-medium">0.0h</td>
+                                    <td class="px-3 py-2.5"><span class="bg-red-50 text-red-700 px-1 py-0.2 rounded text-[8.5px] font-bold">+60m Late</span></td>
+                                    <td class="px-3 py-2.5"><span class="text-green-600 font-bold text-[9px]"><i class="fas fa-check-circle mr-0.5"></i> Inside (20m)</span></td>
+                                    <td class="px-3 py-2.5"><span class="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded text-[9px] font-semibold border border-orange-200">Late Arrival</span></td>
+                                    <td class="px-3 py-2.5 text-center" id="status-row-1">
+                                        <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider">Pending</span>
+                                    </td>
+                                     <td class="px-3 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1.5 rounded-lg hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-3 top-8 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                                            <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                                <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Ali Khan — Late Arrival</p>
+                                            </div>
+                                            <button onclick="openModal('Waive Late', '<p class=text-xs>Waive late arrival for Ali Khan?</p>', () => { showToast('Late waived', 'success'); document.getElementById('status-row-1').innerHTML = '<span class=\\'bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase\\'>Waived</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-green-700 hover:bg-green-50 flex items-center gap-2 font-semibold"><i class="fas fa-hand-holding-heart w-4 text-green-600"></i> Waive Late</button>
+                                            <button onclick="openModal('Deduct Late', '<p class=text-xs>Mark half-day deduction for Ali Khan?</p>', () => { showToast('Deduction recorded', 'error'); document.getElementById('status-row-1').innerHTML = '<span class=\\'bg-red-100 text-red-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase\\'>Deducted</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"><i class="fas fa-minus-circle w-4 text-red-500"></i> Deduct Late</button>
+                                            <button onclick="openMonthHistoryModal('Ali Khan', 'HVAC Engineer', 'EMP-1042')" class="w-full text-left px-3 py-1.5 text-xs text-purple-700 hover:bg-purple-50 flex items-center gap-2 font-semibold"><i class="fas fa-history w-4 text-purple-600"></i> View History (30 Days)</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge w-4 text-[#242b5f]"></i> View Employee Profile</a>
+                                            <button onclick="showToast('Attendance exception flagged for review', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-flag w-4 text-amber-500"></i> Flag for Review</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 2: Usman Tariq -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-3 py-2.5"><span class="text-[9.5px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1044</span></td>
+                                    <td class="px-3 py-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-[9px]">UT</div>
+                                            <a href="javascript:void(0)" onclick="openMonthHistoryModal('Usman Tariq', 'AC Technician', 'EMP-1044')" class="font-bold text-[#242b5f] hover:underline leading-tight" title="Click to view 30-Day Timecard">Usman Tariq</a>
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-600 font-medium">Field Maintenance • AC Tech</td>
+                                    <td class="px-3 py-2.5">
+                                        <span class="text-gray-700 font-medium">Islamabad Govt Complex</span>
+                                        <span class="text-[8px] text-gray-400 block">Zone B Central</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-600">08:00 - 17:00 (9h)</td>
+                                    <td class="px-3 py-2.5">
+                                        <span class="font-bold text-gray-800">08:00 AM</span>
+                                        <span class="text-[8px] text-gray-400 block"><i class="fas fa-fingerprint text-blue-500 mr-0.5"></i> Biometric #2</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-red-500 font-bold"><i class="fas fa-times-circle mr-0.5"></i> Missing Punch</td>
+                                    <td class="px-3 py-2.5 font-semibold text-gray-400">Incomplete</td>
+                                    <td class="px-3 py-2.5 text-gray-400 font-medium">0.0h</td>
+                                    <td class="px-3 py-2.5"><span class="text-gray-400 text-[8.5px]">-</span></td>
+                                    <td class="px-3 py-2.5"><span class="text-green-600 font-bold text-[9px]"><i class="fas fa-check-circle mr-0.5"></i> Inside Site</span></td>
+                                    <td class="px-3 py-2.5"><span class="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded text-[9px] font-semibold border border-orange-200">Missing Check-out</span></td>
+                                    <td class="px-3 py-2.5 text-center" id="status-row-2">
+                                        <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider">Pending</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1.5 rounded-lg hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-3 top-8 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                                            <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                                <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Usman Tariq — Missing Checkout</p>
+                                            </div>
+                                            <button onclick="openModal('Insert 5:00 PM Out', '<p class=text-xs>Insert standard 05:00 PM site check-out for Usman Tariq?</p>', () => { showToast('Check-out recorded.', 'success'); document.getElementById('status-row-2').innerHTML = '<span class=\\'bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase\\'>Resolved</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 flex items-center gap-2 font-semibold"><i class="fas fa-sign-out-alt w-4 text-blue-600"></i> Set Check-out Time</button>
+                                            <button onclick="openModal('Mark Half Day', '<p class=text-xs>Record as Half Day due to missing checkout for Usman Tariq?</p>', () => { showToast('Half-day recorded', 'info'); document.getElementById('status-row-2').innerHTML = '<span class=\\'bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase\\'>Half Day</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-orange-700 hover:bg-orange-50 flex items-center gap-2 font-medium"><i class="fas fa-adjust w-4 text-orange-500"></i> Mark ½ Day</button>
+                                            <button onclick="openMonthHistoryModal('Usman Tariq', 'AC Technician', 'EMP-1044')" class="w-full text-left px-3 py-1.5 text-xs text-purple-700 hover:bg-purple-50 flex items-center gap-2 font-semibold"><i class="fas fa-history w-4 text-purple-600"></i> View History (30 Days)</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge w-4 text-[#242b5f]"></i> View Employee Profile</a>
+                                            <button onclick="showToast('Missing punch flagged for investigation', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-flag w-4 text-amber-500"></i> Flag for Review</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 3: Sara Ahmed -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-3 py-2.5"><span class="text-[9.5px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1043</span></td>
+                                    <td class="px-3 py-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[9px]">SA</div>
+                                            <a href="javascript:void(0)" onclick="openMonthHistoryModal('Sara Ahmed', 'Sales Executive', 'EMP-1043')" class="font-bold text-[#242b5f] hover:underline leading-tight" title="Click to view 30-Day Timecard">Sara Ahmed</a>
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-600 font-medium">Sales & CRM • Sales Exec</td>
+                                    <td class="px-3 py-2.5">
+                                        <span class="text-gray-700 font-medium">Head Office (Lahore)</span>
+                                        <span class="text-[8px] text-gray-400 block">Client Field Visit</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-600">09:00 - 18:00 (9h)</td>
+                                    <td class="px-3 py-2.5">
+                                        <span class="font-bold text-gray-800">09:05 AM</span>
+                                        <span class="text-[8px] text-blue-500 block"><i class="fas fa-mobile-alt mr-0.5"></i> Mobile App</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-400 italic">Field Active</td>
+                                    <td class="px-3 py-2.5 font-semibold text-gray-700">8h 10m</td>
+                                    <td class="px-3 py-2.5 text-gray-400 font-medium">0.0h</td>
+                                    <td class="px-3 py-2.5"><span class="text-green-700 bg-green-50 px-1 py-0.2 rounded text-[8.5px] font-bold">On-Time</span></td>
+                                    <td class="px-3 py-2.5"><span class="bg-red-50 text-red-700 px-1.5 py-0.5 rounded text-[8.5px] font-bold"><i class="fas fa-map-marker-alt mr-0.5"></i> 5.2km Out</span></td>
+                                    <td class="px-3 py-2.5"><span class="bg-red-50 text-red-700 px-1.5 py-0.5 rounded text-[9px] font-semibold border border-red-200">Out of Radius</span></td>
+                                    <td class="px-3 py-2.5 text-center" id="status-row-3">
+                                        <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider">Pending</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1.5 rounded-lg hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-3 top-8 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                                            <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                                <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Sara Ahmed — Out of Radius</p>
+                                            </div>
+                                            <button onclick="openModal('Approve Field Location', '<p class=text-xs>Approve Sara Ahmed client visit location outside office geofence?</p>', () => { showToast('Field visit approved.', 'success'); document.getElementById('status-row-3').innerHTML = '<span class=\\'bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase\\'>Approved</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-green-700 hover:bg-green-50 flex items-center gap-2 font-semibold"><i class="fas fa-check-circle w-4 text-green-600"></i> Approve Location</button>
+                                            <button onclick="openModal('Reject Location', '<p class=text-xs>Reject punch as invalid location for Sara Ahmed?</p>', () => { showToast('Punch rejected.', 'error'); document.getElementById('status-row-3').innerHTML = '<span class=\\'bg-red-100 text-red-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase\\'>Rejected</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"><i class="fas fa-times-circle w-4 text-red-500"></i> Reject Punch</button>
+                                            <button onclick="openMonthHistoryModal('Sara Ahmed', 'Sales Executive', 'EMP-1043')" class="w-full text-left px-3 py-1.5 text-xs text-purple-700 hover:bg-purple-50 flex items-center gap-2 font-semibold"><i class="fas fa-history w-4 text-purple-600"></i> View History (30 Days)</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge w-4 text-[#242b5f]"></i> View Employee Profile</a>
+                                            <button onclick="showToast('Location breach flagged for HR review', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-map-pin w-4 text-amber-500"></i> Flag Location Breach</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 4: Bilal Ahmed (Overtime Site Case) -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-3 py-2.5"><span class="text-[9.5px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1046</span></td>
+                                    <td class="px-3 py-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center font-bold text-[9px]">BA</div>
+                                            <a href="javascript:void(0)" onclick="openMonthHistoryModal('Bilal Ahmed', 'Field Electrician', 'EMP-1046')" class="font-bold text-[#242b5f] hover:underline leading-tight" title="Click to view 30-Day Timecard">Bilal Ahmed</a>
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-600 font-medium">MEP • Field Electrician</td>
+                                    <td class="px-3 py-2.5">
+                                        <span class="text-gray-700 font-medium">Peshawar Industrial</span>
+                                        <span class="text-[8px] text-gray-400 block">Substation 11kV</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-600">08:00 - 17:00 (9h)</td>
+                                    <td class="px-3 py-2.5">
+                                        <span class="font-bold text-gray-800">08:15 AM</span>
+                                        <span class="text-[8px] text-gray-400 block"><i class="fas fa-fingerprint text-blue-500 mr-0.5"></i> Biometric #1</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 font-bold text-blue-700">07:00 PM</td>
+                                    <td class="px-3 py-2.5 font-bold text-gray-800">10h 45m</td>
+                                    <td class="px-3 py-2.5"><span class="bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded text-[8.5px] font-bold">+2.0h OT</span></td>
+                                    <td class="px-3 py-2.5"><span class="bg-yellow-50 text-yellow-700 px-1 py-0.2 rounded text-[8.5px] font-semibold">+15m Grace</span></td>
+                                    <td class="px-3 py-2.5"><span class="text-green-600 font-bold text-[9px]"><i class="fas fa-check-circle mr-0.5"></i> Inside Site</span></td>
+                                    <td class="px-3 py-2.5"><span class="bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded text-[9px] font-semibold border border-purple-200">Overtime Logged</span></td>
+                                    <td class="px-3 py-2.5 text-center" id="status-row-4">
+                                        <span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider">Review OT</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1.5 rounded-lg hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-3 top-8 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                                            <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                                <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Bilal Ahmed — Overtime</p>
+                                            </div>
+                                            <button onclick="openModal('Approve Overtime', '<p class=text-xs>Approve +2.0 hours overtime (Rs. 800) for Bilal Ahmed?</p>', () => { showToast('Overtime approved!', 'success'); document.getElementById('status-row-4').innerHTML = '<span class=\\'bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase\\'>Approved</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 flex items-center gap-2 font-semibold"><i class="fas fa-business-time w-4 text-blue-600"></i> Approve OT (+2h)</button>
+                                            <button onclick="openModal('Reject Overtime', '<p class=text-xs>Reject overtime claim for Bilal Ahmed? Hours will not be paid.</p>', () => { showToast('Overtime rejected.', 'error'); document.getElementById('status-row-4').innerHTML = '<span class=\\'bg-red-100 text-red-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase\\'>OT Rejected</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"><i class="fas fa-times-circle w-4 text-red-500"></i> Reject Overtime</button>
+                                            <button onclick="openMonthHistoryModal('Bilal Ahmed', 'Field Electrician', 'EMP-1046')" class="w-full text-left px-3 py-1.5 text-xs text-purple-700 hover:bg-purple-50 flex items-center gap-2 font-semibold"><i class="fas fa-history w-4 text-purple-600"></i> View History (30 Days)</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge w-4 text-[#242b5f]"></i> View Employee Profile</a>
+                                            <button onclick="showToast('OT rate adjusted and saved', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-edit w-4 text-gray-500"></i> Adjust OT Rate</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 5: Kamran Naqvi (Clean Shift) -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-3 py-2.5"><span class="text-[9.5px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1047</span></td>
+                                    <td class="px-3 py-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold text-[9px]">KN</div>
+                                            <a href="javascript:void(0)" onclick="openMonthHistoryModal('Kamran Naqvi', 'Sales Executive', 'EMP-1047')" class="font-bold text-[#242b5f] hover:underline leading-tight" title="Click to view 30-Day Timecard">Kamran Naqvi</a>
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-600 font-medium">Sales & CRM • Executive</td>
+                                    <td class="px-3 py-2.5">
+                                        <span class="text-gray-700 font-medium">Head Office (Lahore)</span>
+                                        <span class="text-[8px] text-gray-400 block">HQ Floor 3</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-gray-600">09:00 - 18:00 (9h)</td>
+                                    <td class="px-3 py-2.5">
+                                        <span class="font-bold text-green-700">08:55 AM</span>
+                                        <span class="text-[8px] text-gray-400 block"><i class="fas fa-fingerprint text-blue-500 mr-0.5"></i> Biometric</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 font-semibold text-gray-700">06:05 PM</td>
+                                    <td class="px-3 py-2.5 font-bold text-gray-800">9h 10m</td>
+                                    <td class="px-3 py-2.5 text-gray-400 font-medium">0.0h</td>
+                                    <td class="px-3 py-2.5"><span class="text-green-700 bg-green-50 px-1 py-0.2 rounded text-[8.5px] font-bold">On-Time</span></td>
+                                    <td class="px-3 py-2.5"><span class="text-green-600 font-bold text-[9px]"><i class="fas fa-check-circle mr-0.5"></i> HQ Desk</span></td>
+                                    <td class="px-3 py-2.5"><span class="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[9px] font-semibold border border-green-100">Normal Punch</span></td>
+                                    <td class="px-3 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider">Present</span>
+                                    </td>
+                                    <td class="px-3 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1.5 rounded-lg hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-3 top-8 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                                            <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                                <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Kamran Naqvi — Present</p>
+                                            </div>
+                                            <button onclick="openMonthHistoryModal('Kamran Naqvi', 'Sales Executive', 'EMP-1047')" class="w-full text-left px-3 py-1.5 text-xs text-purple-700 hover:bg-purple-50 flex items-center gap-2 font-semibold"><i class="fas fa-history w-4 text-purple-600"></i> View History (30 Days)</button>
+                                            <button onclick="showToast('Attendance PDF downloaded for Kamran Naqvi', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-file-download w-4 text-blue-500"></i> Download Day Log</button>
+                                            <button onclick="openModal('Add Overtime', '<p class=text-xs>Add overtime hours for Kamran Naqvi today?</p>', () => showToast('OT hours added for Kamran Naqvi', 'success'))" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-plus-circle w-4 text-purple-500"></i> Add Overtime</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge w-4 text-[#242b5f]"></i> View Employee Profile</a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Worker Attendance Matrix & Shortcut Bar -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3 flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-info-circle text-[#242b5f]"></i>
+                        <span class="text-xs text-gray-700 font-medium">Click on any date tile in the <strong>Attendance Calendar</strong> above to execute <strong>Direct Actions</strong> (Mark Present, Waive Lates, Add Overtime, Declare Holiday).</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportToExcel('Full_Monthly_Matrix_Sep_2026')" class="text-xs font-bold text-[#242b5f] hover:underline flex items-center gap-1">
+                            <i class="fas fa-file-excel text-green-600"></i> Download 30-Day Master Matrix
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        `);
+
+        // Render interactive calendar days immediately on page load
+        renderCalendarDays();
+        renderRosterMatrix();
+
+        // ===== EMPLOYEE ATTENDANCE ROSTER MATRIX =====
+        function renderRosterMatrix() {
+            const tbody = document.getElementById('roster-matrix-body');
+            if (!tbody || tbody.children.length > 0) return;
+
+            // September 2026: Sat=6,13,20,27  Sun=7,14,21,28
+            const offDays = new Set([6,7,13,14,20,21,27,28]);
+
+            const employees = [
+                { name: 'Ali Khan',       initials: 'AK', role: 'HVAC Engineer',     empId: 'EMP-1042', dept: 'MEP & Execution',     site: 'Karachi High-Rise',     color: 'bg-[#242b5f] text-white',  pattern: {3:'L',7:'P', lateChance:.08} },
+                { name: 'Sara Ahmed',     initials: 'SA', role: 'Sales Executive',   empId: 'EMP-1043', dept: 'Sales & CRM',          site: 'Head Office (Lahore)',   color: 'bg-blue-100 text-blue-600',  pattern: {8:'LV',9:'LV', lateChance:.05} },
+                { name: 'Usman Tariq',    initials: 'UT', role: 'AC Technician',     empId: 'EMP-1044', dept: 'Field Maintenance',    site: 'Islamabad Complex',     color: 'bg-orange-100 text-orange-600', pattern: {5:'A', lateChance:.12} },
+                { name: 'Zainab Ali',     initials: 'ZA', role: 'HR Assistant',      empId: 'EMP-1045', dept: 'HR Operations',        site: 'Head Office (Lahore)',   color: 'bg-purple-100 text-purple-600', pattern: {15:'LV',16:'LV',17:'LV', lateChance:.03} },
+                { name: 'Bilal Ahmed',    initials: 'BA', role: 'Field Electrician', empId: 'EMP-1046', dept: 'MEP & Execution',      site: 'Peshawar Industrial',   color: 'bg-gray-100 text-gray-600',  pattern: {2:'L',10:'L', lateChance:.15} },
+                { name: 'Kamran Naqvi',   initials: 'KN', role: 'Sales Executive',   empId: 'EMP-1047', dept: 'Sales & CRM',          site: 'Head Office (Lahore)',   color: 'bg-green-100 text-green-700', pattern: {lateChance:.02} },
+                { name: 'Fahad Hussain',  initials: 'FH', role: 'Project Manager',  empId: 'EMP-1039', dept: 'Project Management',   site: 'Head Office (Lahore)',   color: 'bg-blue-100 text-blue-600',  pattern: {22:'LV', lateChance:.04} },
+                { name: 'John Doe',       initials: 'JD', role: 'Project Manager',  empId: 'EMP-1039', dept: 'Project Management',   site: 'Head Office (Lahore)',   color: 'bg-gray-100 text-gray-600',  pattern: {4:'A',18:'L', lateChance:.06} },
+                { name: 'Hamza Tariq',    initials: 'HT', role: 'Site Electrician', empId: 'EMP-1028', dept: 'MEP & Execution',       site: 'Peshawar Industrial',   color: 'bg-blue-100 text-[#242b5f]', pattern: {12:'A',25:'L', lateChance:.10} },
+                { name: 'Taha Yaseen',    initials: 'TY', role: 'Store Officer',    empId: 'EMP-1031', dept: 'Inventory & Store',     site: 'Head Office (Lahore)',   color: 'bg-yellow-100 text-yellow-700', pattern: {1:'L',19:'A', lateChance:.08} },
+                { name: 'Farhan Malik',   initials: 'FM', role: 'Senior Accountant', empId: 'EMP-1048', dept: 'Finance & Accounts',  site: 'Head Office (Lahore)',   color: 'bg-emerald-100 text-emerald-700', pattern: {lateChance:.02} },
+                { name: 'Babar Siddiqui', initials: 'BS', role: 'Procurement Manager', empId: 'EMP-1049', dept: 'Procurement & SCM', site: 'Head Office (Lahore)',   color: 'bg-purple-100 text-purple-700', pattern: {11:'LV', lateChance:.03} },
+            ];
+
+            const statusMap = {
+                'P': { label: 'P',  cls: 'bg-green-100 text-green-700 font-bold', title: 'Present' },
+                'L': { label: 'L',  cls: 'bg-orange-100 text-orange-700 font-bold', title: 'Late Arrival' },
+                'A': { label: 'A',  cls: 'bg-red-100 text-red-700 font-bold', title: 'Absent' },
+                'LV':{ label: 'LV', cls: 'bg-purple-100 text-purple-700 font-bold', title: 'On Leave' },
+                'H': { label: 'H',  cls: 'bg-blue-100 text-blue-700 font-bold', title: 'Holiday' },
+                '-': { label: '-',  cls: 'bg-gray-50 text-gray-300', title: 'Weekly Off' },
+            };
+
+            let html = '';
+            employees.forEach((emp, idx) => {
+                // Generate 30-day attendance data
+                const days = [];
+                let pCount=0, lCount=0, aCount=0, lvCount=0;
+                for (let d = 1; d <= 30; d++) {
+                    let st;
+                    if (offDays.has(d)) {
+                        st = '-';
+                    } else if (emp.pattern[d]) {
+                        st = emp.pattern[d];
+                    } else if (d > 7) {
+                        st = ''; // future days blank
+                    } else {
+                        // Seed-based pseudo random for consistent display
+                        const seed = (idx * 31 + d * 7) % 100;
+                        if (seed < (emp.pattern.lateChance || 0.05) * 100) st = 'L';
+                        else st = 'P';
+                    }
+                    days.push(st);
+                    if (st === 'P') pCount++;
+                    else if (st === 'L') lCount++;
+                    else if (st === 'A') aCount++;
+                    else if (st === 'LV') lvCount++;
+                }
+
+                // Build cells
+                let cellsHTML = '';
+                days.forEach((st, i) => {
+                    const d = i + 1;
+                    const isToday = d === 7;
+                    const isOff = offDays.has(d);
+                    const isFuture = d > 7 && st === '';
+                    const todayBorder = isToday ? 'border-l-2 border-r-2 border-[#242b5f]' : '';
+                    const offBg = isOff ? 'bg-gray-50' : '';
+
+                    if (isFuture) {
+                        cellsHTML += '<td class="px-0.5 py-1.5 text-center border-r border-gray-50 ' + offBg + '"><span class="text-[8px] text-gray-200">—</span></td>';
+                    } else {
+                        const s = statusMap[st] || statusMap['P'];
+                        cellsHTML += '<td class="px-0.5 py-1.5 text-center border-r border-gray-50 ' + todayBorder + ' ' + offBg + '" title="' + d + ' Sep: ' + s.title + '"><span class="inline-block w-5 h-4 leading-4 rounded text-[7.5px] ' + s.cls + '">' + s.label + '</span></td>';
+                    }
+                });
+
+                // Summary cells
+                const summaryHTML = `
+                    <td class="px-1 py-1.5 text-center border-r border-gray-100 bg-green-50/30 font-bold text-[9px] text-green-700">${pCount}</td>
+                    <td class="px-1 py-1.5 text-center border-r border-gray-100 bg-orange-50/30 font-bold text-[9px] text-orange-700">${lCount}</td>
+                    <td class="px-1 py-1.5 text-center border-r border-gray-100 bg-red-50/30 font-bold text-[9px] text-red-700">${aCount}</td>
+                    <td class="px-1 py-1.5 text-center border-r border-gray-100 bg-purple-50/30 font-bold text-[9px] text-purple-700">${lvCount}</td>
+                `;
+
+                // Action dropdown
+                const actionHTML = `
+                    <td class="px-1 py-1.5 text-center relative dropdown">
+                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded-lg hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                            <i class="fas fa-ellipsis-v text-[10px]"></i>
+                        </button>
+                        <div class="dropdown-menu absolute right-2 top-7 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                            <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">${emp.name} — Attendance</p>
+                            </div>
+                            <button onclick="openMonthHistoryModal('${emp.name}', '${emp.role}', '${emp.empId}')" class="w-full text-left px-3 py-1.5 text-xs text-purple-700 hover:bg-purple-50 flex items-center gap-2 font-semibold"><i class="fas fa-history w-4 text-purple-600"></i> View 30-Day Timecard</button>
+                            <button onclick="openModal('Mark Absent', '<p class=text-xs>Mark ${emp.name} absent for today (7 Sep)?</p>', () => showToast('${emp.name} marked absent', 'error'))" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"><i class="fas fa-user-times w-4 text-red-500"></i> Mark Absent Today</button>
+                            <button onclick="openModal('Waive Late', '<p class=text-xs>Waive all late arrivals for ${emp.name} this month?</p>', () => showToast('Lates waived for ${emp.name}', 'success'))" class="w-full text-left px-3 py-1.5 text-xs text-green-700 hover:bg-green-50 flex items-center gap-2"><i class="fas fa-hand-holding-heart w-4 text-green-600"></i> Waive Month Lates</button>
+                            <button onclick="showToast('Attendance report downloaded for ${emp.name}', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-file-download w-4 text-blue-500"></i> Download Report</button>
+                            <div class="h-px bg-gray-100 my-1"></div>
+                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge w-4 text-[#242b5f]"></i> View Profile</a>
+                            <button onclick="openPayslipModal({ name: '${emp.name}', role: '${emp.role}', empId: '${emp.empId}', site: '${emp.site}', base: 85000, allowance: 5000, ot: 8000, advanceEmi: 10000, tax: 2500, bank: 'Meezan Bank', iban: 'PK36MEZN0001098234' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-file-invoice-dollar w-4 text-teal-600"></i> Salary Invoice</button>
+                        </div>
+                    </td>
+                `;
+
+                html += `
+                    <tr class="hover:bg-blue-50/20 transition group roster-row" data-name="${emp.name.toLowerCase()}" data-dept="${emp.dept.toLowerCase()}">
+                        <td class="px-2.5 py-1.5 sticky left-0 bg-white group-hover:bg-blue-50/20 z-10 border-r border-gray-200">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full ${emp.color} flex items-center justify-center font-bold text-[8px] flex-shrink-0">${emp.initials}</div>
+                                <div class="min-w-0">
+                                    <a href="employee-profile.html" class="font-bold text-[10px] text-[#242b5f] hover:underline block leading-tight truncate">${emp.name}</a>
+                                    <p class="text-[8px] text-gray-400 truncate">${emp.empId} • ${emp.role}</p>
+                                </div>
+                            </div>
+                        </td>
+                        ${cellsHTML}
+                        ${summaryHTML}
+                        ${actionHTML}
+                    </tr>
+                `;
+            });
+
+            // Footer summary row
+            html += `
+                <tr class="bg-gray-50 border-t-2 border-gray-200 font-bold">
+                    <td class="px-2.5 py-2 sticky left-0 bg-gray-50 z-10 border-r border-gray-200">
+                        <span class="text-[9px] font-extrabold text-[#242b5f] uppercase tracking-wider">Total / Org Summary</span>
+                    </td>
+                    ${Array.from({length:30}, (_,i) => {
+                        const d = i+1;
+                        if (offDays.has(d)) return '<td class="px-0.5 py-2 text-center border-r border-gray-100 bg-gray-100"><span class="text-[7.5px] text-gray-400 font-bold">OFF</span></td>';
+                        if (d > 7) return '<td class="px-0.5 py-2 text-center border-r border-gray-100"><span class="text-[7.5px] text-gray-300">—</span></td>';
+                        const counts = [142,143,141,142,144,0,145];
+                        const c = counts[d-1] || 142;
+                        return '<td class="px-0.5 py-2 text-center border-r border-gray-100"><span class="text-[7.5px] text-green-700 font-extrabold">' + c + '</span></td>';
+                    }).join('')}
+                    <td class="px-1 py-2 text-center border-r border-gray-100 bg-green-50/30"><span class="text-[9px] text-green-800 font-extrabold">95%</span></td>
+                    <td class="px-1 py-2 text-center border-r border-gray-100 bg-orange-50/30"><span class="text-[9px] text-orange-800 font-extrabold">3%</span></td>
+                    <td class="px-1 py-2 text-center border-r border-gray-100 bg-red-50/30"><span class="text-[9px] text-red-800 font-extrabold">1.5%</span></td>
+                    <td class="px-1 py-2 text-center border-r border-gray-100 bg-purple-50/30"><span class="text-[9px] text-purple-800 font-extrabold">0.5%</span></td>
+                    <td class="px-1 py-2 text-center"></td>
+                </tr>
+            `;
+
+            tbody.innerHTML = html;
+        }
+
+        // Filter roster rows by search
+        window.filterRosterRows = (input) => {
+            const q = (input.value || '').toLowerCase();
+            document.querySelectorAll('.roster-row').forEach(row => {
+                const name = row.getAttribute('data-name') || '';
+                const dept = row.getAttribute('data-dept') || '';
+                row.style.display = (name.includes(q) || dept.includes(q)) ? '' : 'none';
+            });
+        };
+
+        // Switch between Combined, Calendar Only, and Daily Log views
+        window.switchView = (view) => {
+            const tableDiv = document.getElementById('view-table');
+            const calDiv = document.getElementById('view-calendar');
+            const rosterDiv = document.getElementById('view-roster');
+            const btnBoth = document.getElementById('tab-btn-both');
+            const btnTable = document.getElementById('tab-btn-table');
+
+            btnBoth.className = 'px-3 py-1.5 rounded text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5';
+            btnTable.className = 'px-3 py-1.5 rounded text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5';
+
+            if (view === 'table') {
+                if (calDiv) calDiv.classList.add('hidden');
+                rosterDiv.classList.add('hidden');
+                tableDiv.classList.remove('hidden');
+                btnTable.className = 'px-3 py-1.5 rounded text-xs font-bold transition shadow-sm bg-white text-[#242b5f] flex items-center gap-1.5';
+            } else {
+                // Both visible by default
+                if (calDiv) calDiv.classList.remove('hidden');
+                rosterDiv.classList.remove('hidden');
+                tableDiv.classList.remove('hidden');
+                btnBoth.className = 'px-3 py-1.5 rounded text-xs font-bold transition shadow-sm bg-white text-[#242b5f] flex items-center gap-1.5';
+            }
+        };
+
+        // Render interactive calendar days
+        function renderCalendarDays() {
+            const grid = document.getElementById('calendar-grid');
+            if (!grid || grid.children.length > 0) return; // Already rendered
+
+            let html = '';
+            // 30 days of September 2026
+            for (let d = 1; d <= 30; d++) {
+                const isSunday = (d % 7 === 0);
+                const isSaturday = (d % 7 === 6);
+                const isToday = (d === 7);
+                
+                let dayBadge = '<span class="bg-green-50 text-green-700 border border-green-200 text-[8.5px] px-1 py-0.2 rounded font-bold">142/145 P</span>';
+                let subText = '<span class="text-[8px] text-gray-400">Normal Shift</span>';
+                let borderClass = 'border-gray-200 hover:border-[#242b5f]';
+
+                if (isSunday || isSaturday) {
+                    dayBadge = '<span class="bg-gray-100 text-gray-400 text-[8.5px] px-1 py-0.2 rounded font-bold">OFF</span>';
+                    subText = '<span class="text-[8px] text-gray-400">Weekly Rest</span>';
+                } else if (isToday) {
+                    borderClass = 'border-2 border-[#242b5f] bg-blue-50/20';
+                    dayBadge = '<span class="bg-orange-100 text-orange-800 text-[8.5px] px-1 py-0.2 rounded font-bold">3 Exceptions</span>';
+                    subText = '<span class="text-[8px] text-red-600 font-bold">Today</span>';
+                } else if (d === 3) {
+                    dayBadge = '<span class="bg-yellow-50 text-yellow-700 text-[8.5px] px-1 py-0.2 rounded font-bold">1 Late</span>';
+                }
+
+                html += `
+                    <div id="cal-day-${d}" onclick="openDayActionModal(${d})" class="bg-white border ${borderClass} rounded-lg p-2 text-left cursor-pointer transition hover:shadow-md relative group flex flex-col justify-between min-h-[72px]">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold ${isToday ? 'text-[#242b5f]' : 'text-gray-700'}">${d}</span>
+                            <span class="text-[8px] bg-gray-100 group-hover:bg-[#242b5f] group-hover:text-white px-1 py-0.2 rounded font-semibold text-gray-500 transition">Mark</span>
+                        </div>
+                        <div class="mt-1" id="cal-badge-${d}">
+                            ${dayBadge}
+                        </div>
+                        <div class="mt-0.5 flex justify-between items-center">
+                            ${subText}
+                            <span class="text-[8px] text-[#242b5f] opacity-0 group-hover:opacity-100 font-bold"><i class="fas fa-edit text-[7.5px]"></i></span>
+                        </div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        // Master Modal: Direct day actions selection on the calendar
+        window.openDayActionModal = (day) => {
+            const body = `
+                <div class="space-y-3">
+                    <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-200 flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-[#242b5f] text-white flex items-center justify-center font-bold text-xs shadow-sm">${day}</div>
+                            <div>
+                                <p class="font-bold text-xs text-gray-800">${day} September 2026</p>
+                                <p class="text-[10px] text-gray-500">Roster: Full Organization (8 Sites • 150 Workers)</p>
+                            </div>
+                        </div>
+                        <span class="text-[9px] bg-blue-100 text-[#242b5f] font-bold px-2 py-0.5 rounded border border-blue-200">Active Roster</span>
+                    </div>
+
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Choose Direct Attendance Action to Configure:</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="actionMarkAllPresentModal(${day})" class="p-2.5 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 text-left transition group">
+                            <p class="text-xs font-bold text-green-700 flex items-center justify-between">
+                                <span><i class="fas fa-check-circle mr-1"></i> Mark All Present</span>
+                                <i class="fas fa-arrow-right text-[9px] opacity-0 group-hover:opacity-100 transition"></i>
+                            </p>
+                            <p class="text-[9.5px] text-gray-400 mt-0.5">150/150 Present with 9h credit</p>
+                        </button>
+                        
+                        <button onclick="actionWaiveLatesModal(${day})" class="p-2.5 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left transition group">
+                            <p class="text-xs font-bold text-blue-700 flex items-center justify-between">
+                                <span><i class="fas fa-check-double mr-1"></i> Waive All Lates</span>
+                                <i class="fas fa-arrow-right text-[9px] opacity-0 group-hover:opacity-100 transition"></i>
+                            </p>
+                            <p class="text-[9.5px] text-gray-400 mt-0.5">Forgive late minutes & flags</p>
+                        </button>
+
+                        <button onclick="actionDeclareHolidayModal(${day})" class="p-2.5 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 text-left transition group">
+                            <p class="text-xs font-bold text-purple-700 flex items-center justify-between">
+                                <span><i class="fas fa-umbrella-beach mr-1"></i> Declare Holiday</span>
+                                <i class="fas fa-arrow-right text-[9px] opacity-0 group-hover:opacity-100 transition"></i>
+                            </p>
+                            <p class="text-[9.5px] text-gray-400 mt-0.5">Paid Gazetted public off</p>
+                        </button>
+
+                        <button onclick="actionDeclareHalfDayModal(${day})" class="p-2.5 border border-gray-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 text-left transition group">
+                            <p class="text-xs font-bold text-orange-700 flex items-center justify-between">
+                                <span><i class="fas fa-adjust mr-1"></i> Declare Half-Day</span>
+                                <i class="fas fa-arrow-right text-[9px] opacity-0 group-hover:opacity-100 transition"></i>
+                            </p>
+                            <p class="text-[9.5px] text-gray-400 mt-0.5">Shift closes at 2:00 PM</p>
+                        </button>
+
+                        <button onclick="actionAddOvertimeModal(${day})" class="p-2.5 border border-gray-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 text-left transition group">
+                            <p class="text-xs font-bold text-indigo-700 flex items-center justify-between">
+                                <span><i class="fas fa-business-time mr-1"></i> Add Overtime (+2h)</span>
+                                <i class="fas fa-arrow-right text-[9px] opacity-0 group-hover:opacity-100 transition"></i>
+                            </p>
+                            <p class="text-[9.5px] text-gray-400 mt-0.5">Authorize site technician OT</p>
+                        </button>
+
+                        <button onclick="filterLogToDate(${day})" class="p-2.5 border border-gray-200 rounded-lg hover:bg-gray-100 text-left transition group">
+                            <p class="text-xs font-bold text-gray-700 flex items-center justify-between">
+                                <span><i class="fas fa-list-alt mr-1"></i> View Date Punch Log</span>
+                                <i class="fas fa-arrow-down text-[9px] opacity-0 group-hover:opacity-100 transition"></i>
+                            </p>
+                            <p class="text-[9.5px] text-gray-400 mt-0.5">Scroll & inspect daily table</p>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            openModal(`Direct Attendance Actions: Day ${day} Sep 2026`, body, null);
+        };
+
+        // Sub-Modal 1: Mark All Present
+        window.actionMarkAllPresentModal = (day) => {
+            const body = `
+                <div class="space-y-3">
+                    <div class="p-2.5 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-xs text-green-800">Bulk Attendance Clear: ${day} Sep 2026</p>
+                            <p class="text-[10px] text-green-600">Active Organization: 8 Sites • 150 Workers</p>
+                        </div>
+                        <span class="bg-green-600 text-white text-[9px] px-2 py-0.5 rounded font-bold">100% Present</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <label class="block font-bold text-gray-700 text-[10px] mb-1">Standard Punch-In Time</label>
+                            <input type="text" id="bulk-in-time" class="w-full border rounded p-1.5 text-xs bg-white focus:outline-none focus:border-[#242b5f]" value="09:00 AM">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-700 text-[10px] mb-1">Standard Punch-Out Time</label>
+                            <input type="text" id="bulk-out-time" class="w-full border rounded p-1.5 text-xs bg-white focus:outline-none focus:border-[#242b5f]" value="06:00 PM">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5 text-[11px] bg-gray-50 p-2.5 rounded border border-gray-200">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked class="rounded text-[#242b5f] focus:ring-0">
+                            <span class="text-gray-700">Auto-resolve missing check-ins and late arrival flags</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked class="rounded text-[#242b5f] focus:ring-0">
+                            <span class="text-gray-700">Sync with payroll engine (Full daily wage credited)</span>
+                        </label>
+                    </div>
+                </div>
+            `;
+            openModal(`Confirm Mark All Present - ${day} Sep 2026`, body, () => {
+                applyDayStatus(day, '150/150 Present', 'bg-green-100 text-green-800 border border-green-300');
+                if (day === 7) {
+                    const s1 = document.getElementById('status-row-1');
+                    const s2 = document.getElementById('status-row-2');
+                    const s3 = document.getElementById('status-row-3');
+                    if (s1) s1.innerHTML = '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase">Present</span>';
+                    if (s2) s2.innerHTML = '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase">Present</span>';
+                    if (s3) s3.innerHTML = '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase">Present</span>';
+                }
+                showToast(`All 150 workers marked Present for ${day} September!`, 'success');
+            });
+        };
+
+        // Sub-Modal 2: Waive All Late Arrivals
+        window.actionWaiveLatesModal = (day) => {
+            const body = `
+                <div class="space-y-3">
+                    <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p class="font-bold text-xs text-[#242b5f]">Waive Exceptions for ${day} Sep 2026</p>
+                        <p class="text-[10px] text-gray-500">Pending Cases: 3 (Ali Khan +60m, Usman Tariq missing punch, Sara Ahmed radius alert)</p>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[10px] mb-1">Reason for HR Waiver</label>
+                        <select id="waiver-reason" class="w-full border border-gray-200 rounded p-1.5 text-xs bg-white text-gray-700 focus:border-[#242b5f]">
+                            <option>Severe Road Traffic / Monsoon Rain Delay</option>
+                            <option>Approved Direct Client Emergency Dispatch</option>
+                            <option>Biometric Machine Time Synchronization Lag</option>
+                            <option>CEO / Executive Management Special Approval</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[10px] mb-1">HR Officer Remarks</label>
+                        <input type="text" class="w-full border border-gray-200 rounded p-1.5 text-xs focus:border-[#242b5f]" placeholder="e.g. Approved as one-time grace by HR Desk" value="Approved grace waiver for transit delay">
+                    </div>
+
+                    <div class="p-2 bg-blue-50/70 rounded border border-blue-100 text-[10px] text-[#242b5f] flex items-center gap-1.5">
+                        <i class="fas fa-shield-alt text-blue-600"></i> Penalties reversed. Full 9h shift will be counted in payroll.
+                    </div>
+                </div>
+            `;
+            openModal(`Waive Late Penalties - ${day} Sep 2026`, body, () => {
+                applyDayStatus(day, '145/145 Waived', 'bg-blue-100 text-blue-800 border border-blue-300');
+                if (day === 7) {
+                    const s1 = document.getElementById('status-row-1');
+                    const s2 = document.getElementById('status-row-2');
+                    const s3 = document.getElementById('status-row-3');
+                    if (s1) s1.innerHTML = '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase">Waived</span>';
+                    if (s2) s2.innerHTML = '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase">Resolved</span>';
+                    if (s3) s3.innerHTML = '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase">Approved</span>';
+                }
+                showToast(`Late arrival penalties waived for ${day} September!`, 'success');
+            });
+        };
+
+        // Sub-Modal 3: Declare Gazetted Holiday
+        window.actionDeclareHolidayModal = (day) => {
+            const body = `
+                <div class="space-y-3">
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[10px] mb-1">Date</label>
+                        <input type="text" class="w-full border border-gray-200 rounded p-1.5 text-xs bg-gray-50 font-bold text-gray-700" value="${day} September 2026" readonly>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[10px] mb-1">Holiday Title / Occasion</label>
+                        <input type="text" id="modal-holiday-name" class="w-full border border-gray-200 rounded p-1.5 text-xs focus:border-[#242b5f]" placeholder="e.g. Eid Milad-un-Nabi (12 Rabi-ul-Awwal)" value="Eid Milad-un-Nabi">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[10px] mb-1">Applicable Scope</label>
+                        <select class="w-full border border-gray-200 rounded p-1.5 text-xs bg-white text-gray-700">
+                            <option>Full Organization (All 8 Sites & HQ Staff)</option>
+                            <option>Site Technicians Only</option>
+                            <option>Lahore Head Office Only</option>
+                        </select>
+                    </div>
+
+                    <div class="p-2 bg-purple-50 rounded border border-purple-100 text-[10px] text-purple-800 flex items-center gap-1.5">
+                        <i class="fas fa-umbrella-beach"></i> Roster will mark all 150 workers with Paid Gazetted Holiday status.
+                    </div>
+                </div>
+            `;
+            openModal(`Declare Gazetted Holiday - ${day} Sep 2026`, body, () => {
+                const name = document.getElementById('modal-holiday-name').value || 'Public Holiday';
+                applyDayStatus(day, `Holiday: ${name}`, 'bg-purple-100 text-purple-800 border border-purple-300');
+                showToast(`Gazetted Holiday applied: ${name} on ${day} Sep!`, 'success');
+            });
+        };
+
+        // Sub-Modal 4: Declare Half-Day
+        window.actionDeclareHalfDayModal = (day) => {
+            const body = `
+                <div class="space-y-3">
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[10px] mb-1">Date</label>
+                        <input type="text" class="w-full border border-gray-200 rounded p-1.5 text-xs bg-gray-50 font-bold text-gray-700" value="${day} September 2026" readonly>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-bold text-gray-700 text-[10px] mb-1">Shift Early Close Time</label>
+                            <input type="text" id="halfday-time" class="w-full border border-gray-200 rounded p-1.5 text-xs bg-white focus:border-[#242b5f]" value="02:00 PM">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-700 text-[10px] mb-1">Shift Hours</label>
+                            <input type="text" class="w-full border border-gray-200 rounded p-1.5 text-xs bg-gray-50" value="4.5 Hours" readonly>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[10px] mb-1">Reason for Half-Day</label>
+                        <select class="w-full border border-gray-200 rounded p-1.5 text-xs bg-white text-gray-700">
+                            <option>Friday Early Prayer & Townhall Session</option>
+                            <option>Company Annual Strategy Briefing</option>
+                            <option>Severe Weather & Heavy Rain Advisory</option>
+                            <option>Facility Disinfection & MEP Maintenance</option>
+                        </select>
+                    </div>
+
+                    <div class="p-2 bg-orange-50 rounded border border-orange-100 text-[10px] text-orange-800 flex items-center gap-1.5">
+                        <i class="fas fa-clock"></i> Biometric checkouts after 02:00 PM will be marked complete without deductions.
+                    </div>
+                </div>
+            `;
+            openModal(`Declare Half-Day Schedule - ${day} Sep 2026`, body, () => {
+                applyDayStatus(day, 'Half-Day (2 PM Close)', 'bg-orange-100 text-orange-800 border border-orange-200');
+                showToast(`Half-Day declared for ${day} Sep! Shift ends at 02:00 PM.`, 'success');
+            });
+        };
+
+        // Sub-Modal 5: Add Bulk Overtime
+        window.actionAddOvertimeModal = (day) => {
+            const body = `
+                <div class="space-y-3">
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[10px] mb-1">Date</label>
+                        <input type="text" class="w-full border border-gray-200 rounded p-1.5 text-xs bg-gray-50 font-bold text-gray-700" value="${day} September 2026" readonly>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-bold text-gray-700 text-[10px] mb-1">Overtime Duration</label>
+                            <select id="ot-hours" class="w-full border border-gray-200 rounded p-1.5 text-xs bg-white text-gray-700 focus:border-[#242b5f]">
+                                <option value="2.0">+2.0 Hours (1.5x Standard Rate)</option>
+                                <option value="3.0">+3.0 Hours (1.5x Standard Rate)</option>
+                                <option value="4.0">+4.0 Hours (2.0x Double Rate)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-700 text-[10px] mb-1">Target Sites</label>
+                            <select class="w-full border border-gray-200 rounded p-1.5 text-xs bg-white text-gray-700 focus:border-[#242b5f]">
+                                <option>All 8 Sites (48 Technicians)</option>
+                                <option>Karachi High-Rise Site Only (16 workers)</option>
+                                <option>Islamabad Govt Complex (20 workers)</option>
+                                <option>Peshawar Substation (12 workers)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[10px] mb-1">Project Justification</label>
+                        <input type="text" class="w-full border border-gray-200 rounded p-1.5 text-xs focus:border-[#242b5f]" placeholder="e.g. Night Chiller Pressure Testing & Ducting" value="Night Chiller Pressure Testing & Ducting Work">
+                    </div>
+
+                    <div class="p-2 bg-blue-50 rounded border border-blue-100 text-[10px] text-[#242b5f] flex justify-between items-center">
+                        <span><i class="fas fa-coins text-amber-500 mr-1"></i> Estimated Overtime Wages:</span>
+                        <span class="font-bold">Rs. 38,400 (Rs. 800/worker)</span>
+                    </div>
+                </div>
+            `;
+            openModal(`Authorize Bulk Overtime - ${day} Sep 2026`, body, () => {
+                const hours = document.getElementById('ot-hours').value;
+                applyDayStatus(day, `+${hours}h Overtime`, 'bg-blue-100 text-blue-800 border border-blue-300');
+                showToast(`+${hours}h Overtime authorized for site technicians on ${day} Sep!`, 'success');
+            });
+        };
+
+        window.applyDayStatus = (day, label, pillClass) => {
+            const badgeEl = document.getElementById(`cal-badge-${day}`);
+            if (badgeEl) {
+                badgeEl.innerHTML = `<span class="${pillClass} text-[8.5px] px-1 py-0.2 rounded font-bold">${label}</span>`;
+            }
+            closeModal();
+            showToast(`Day ${day} Sep updated: ${label}!`, 'success');
+        };
+
+        window.filterLogToDate = (day) => {
+            closeModal();
+            const titleEl = document.getElementById('table-date-title');
+            if (titleEl) {
+                titleEl.innerText = `Live Exceptions & Daily Log (${day} Sep, 2026 - Selected Roster)`;
+            }
+            const tableSection = document.getElementById('view-table');
+            if (tableSection) {
+                tableSection.scrollIntoView({ behavior: 'smooth' });
+                tableSection.classList.add('ring-2', 'ring-[#242b5f]', 'ring-offset-2');
+                setTimeout(() => {
+                    tableSection.classList.remove('ring-2', 'ring-[#242b5f]', 'ring-offset-2');
+                }, 1500);
+            }
+            showToast(`Loaded daily punch records for ${day} September 2026`, 'info');
+        };
+
+        window.openAddHolidayModal = () => {
+            actionDeclareHolidayModal(16);
+        };
+
+        window.quickWaiveToday = () => {
+            actionWaiveLatesModal(7);
+        };
+
+        window.markAllDaysPresent = () => {
+            actionMarkAllPresentModal(7);
+        };
+    </script>
+</body>
+</html>
+

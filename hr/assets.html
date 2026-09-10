@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Asset & Tool Custody</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('assets');
+        setPageContent('7. Site Asset & Tool Custody', `
+            <div class="space-y-4">
+                
+                <!-- Top Metric Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Company Assets</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">320 <span class="text-[10px] text-green-600 font-normal">Items</span></h4>
+                            <p class="text-[9px] text-green-600 font-semibold">Valued at Rs. 6.8M</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Assigned to Field</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">245 <span class="text-[10px] text-blue-600 font-normal">Active</span></h4>
+                            <p class="text-[9px] text-gray-500 font-medium">In custody of 150 workers</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-hard-hat"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">In Store / Available</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">62 <span class="text-[10px] text-orange-500 font-normal">Spare</span></h4>
+                            <p class="text-[9px] text-orange-600 font-medium">Ready for deployment</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center text-sm">
+                            <i class="fas fa-warehouse"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Under Maintenance</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">13 <span class="text-[10px] text-red-500 font-normal">Units</span></h4>
+                            <p class="text-[9px] text-gray-500 font-medium">Calibration & repair</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center text-sm">
+                            <i class="fas fa-wrench"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar: Search + Category Filter + Excel, PDF, Import, + Assign Asset -->
+                <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2 flex-1 max-w-md">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input type="text" oninput="filterTableRows(this, 'assets-table-body')" placeholder="Search asset name, tag #, worker, site..." class="w-full text-xs border border-gray-200 rounded-md pl-7 pr-3 py-1 focus:outline-none focus:border-[#242b5f] bg-white">
+                        </div>
+                        <select onchange="filterTableRows({ value: this.value.includes('All') ? '' : this.value }, 'assets-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none shrink-0">
+                            <option value="All Categories">All Categories</option>
+                            <option value="HVAC Tools">HVAC Tools</option>
+                            <option value="IT & Electronics">IT & Electronics</option>
+                            <option value="Safety & PPE">Safety & PPE</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="exportToExcel('Asset_Inventory_Register')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export Excel">
+                            <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel
+                        </button>
+                        <button onclick="exportToPDF('Asset_Custody_Report')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export PDF">
+                            <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF
+                        </button>
+                        <button onclick="openImportModal('Asset Inventory')" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-file-import text-blue-600 text-xs"></i> Import
+                        </button>
+                        <button onclick="openModal('Assign Asset / Equipment', '<div class=space-y-3><label class=\\'text-xs font-bold\\'>Select Employee</label><select class=\\'w-full border rounded p-1.5 text-xs\\'><option>Ali Khan (EMP-1042 - Karachi High-Rise)</option><option>Usman Tariq (EMP-1044 - Islamabad Complex)</option><option>Sara Ahmed (EMP-1043 - Lahore HQ)</option></select><div class=\\'grid grid-cols-2 gap-2\\'><div><label class=\\'text-xs font-bold\\'>Asset Item</label><input type=text placeholder=\\'e.g. Fluke Multimeter Kit\\' class=\\'w-full border rounded p-1.5 text-xs\\'></div><div><label class=\\'text-xs font-bold\\'>Asset Tag #</label><input type=text placeholder=\\'CMX-TOOL-098\\' class=\\'w-full border rounded p-1.5 text-xs\\'></div></div><div class=\\'grid grid-cols-2 gap-2\\'><div><label class=\\'text-xs font-bold\\'>Category</label><select class=\\'w-full border rounded p-1.5 text-xs\\'><option>HVAC Tools</option><option>IT & Electronics</option><option>Safety & PPE</option></select></div><div><label class=\\'text-xs font-bold\\'>Issue Date</label><input type=date value=\\'2026-09-07\\' class=\\'w-full border rounded p-1.5 text-xs\\'></div></div></div>', () => showToast('Asset assigned successfully! Handover voucher generated.', 'success'))" class="bg-[#242b5f] text-white hover:opacity-90 px-3 py-1 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-plus text-[10px]"></i> Issue Asset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Asset Custody Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-clipboard-check text-[#242b5f]"></i> Site Asset & Custody Register
+                        </h3>
+                        <span class="text-[10px] text-gray-400 font-medium">Clearance verification integrated with Offboarding</span>
+                    </div>
+
+                    <div class="overflow-x-auto min-h-[300px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Asset Tag & Name</th>
+                                    <th class="px-4 py-2.5 font-bold">Category</th>
+                                    <th class="px-4 py-2.5 font-bold">Assigned Custodian</th>
+                                    <th class="px-4 py-2.5 font-bold">Site Deployment</th>
+                                    <th class="px-4 py-2.5 font-bold">Issue Date</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assets-table-body" class="divide-y divide-gray-100 bg-white">
+                                
+                                <!-- Row 1: Ali Khan HVAC Gauge -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Digital Manifold Gauge Set (Testo 550s)</div>
+                                        <span class="text-[9.5px] font-mono text-[#242b5f] font-bold bg-blue-50 px-1.5 py-0.2 rounded border border-blue-100">CMX-HVAC-041</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600">
+                                        <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[9.5px] font-semibold">HVAC Tools</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-6 h-6 rounded-full bg-[#242b5f] text-white flex items-center justify-center font-bold text-[9px]">AK</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Ali Khan</a>
+                                                <span class="text-[9px] text-gray-400">EMP-1042 • HVAC Eng</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Karachi High-Rise Project</td>
+                                    <td class="px-4 py-2.5 text-gray-500">15 Jan, 2026</td>
+                                    <td class="px-4 py-2.5 text-center" id="asset-status-1">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">In Custody</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="openModal('Return Asset', '<p class=text-xs>Accept return of Digital Manifold Gauge Set from Ali Khan?</p><p class=\\'text-[10px] text-gray-500 mt-1\\'>Item will be returned to Head Office Store after physical inspection.</p>', () => { showToast('Asset returned to central inventory!', 'success'); document.getElementById('asset-status-1').innerHTML = '<span class=\\'bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-200 uppercase\\'>Returned / In Store</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50 flex items-center gap-2"><i class="fas fa-undo w-4"></i> Return to Store</button>
+                                            <button onclick="showToast('Verification certificate printed for CMX-HVAC-041', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-print w-4"></i> Print Handover Slip</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <button onclick="openModal('Report Damage', '<textarea class=\\'w-full border rounded p-1.5 text-xs\\' placeholder=\\'Describe physical damage or calibration error\\'></textarea>', () => showToast('Flagged for technician repair.', 'error'))" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"><i class="fas fa-exclamation-triangle w-4"></i> Flag Defective</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 2: Sara Ahmed Laptop -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Dell Latitude 5420 Laptop + Charger</div>
+                                        <span class="text-[9.5px] font-mono text-[#242b5f] font-bold bg-blue-50 px-1.5 py-0.2 rounded border border-blue-100">CMX-IT-018</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600">
+                                        <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[9.5px] font-semibold">IT & Electronics</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[9px]">SA</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Sara Ahmed</a>
+                                                <span class="text-[9px] text-gray-400">EMP-1043 • Sales Exec</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Head Office (Lahore)</td>
+                                    <td class="px-4 py-2.5 text-gray-500">01 Feb, 2026</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">In Custody</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="showToast('Asset audited and confirmed in working order.', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2"><i class="fas fa-check-circle w-4"></i> Audit Verified</button>
+                                            <button onclick="showToast('Asset handover slip printed', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-print w-4"></i> Print Receipt</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 3: Usman Tariq Safety Harness -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">High-Rise Fall Arrest Harness + Double Lanyard</div>
+                                        <span class="text-[9.5px] font-mono text-[#242b5f] font-bold bg-blue-50 px-1.5 py-0.2 rounded border border-blue-100">CMX-PPE-109</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600">
+                                        <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-[9.5px] font-semibold">Safety & PPE</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-[9px]">UT</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Usman Tariq</a>
+                                                <span class="text-[9px] text-gray-400">EMP-1044 • AC Tech</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Islamabad Govt Complex</td>
+                                    <td class="px-4 py-2.5 text-gray-500">10 Mar, 2026</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">In Custody</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="showToast('Safety harness certified for 6 months', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2"><i class="fas fa-shield-alt w-4"></i> Safety Inspection</button>
+                                            <button onclick="showToast('Handover slip downloaded', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-file-pdf w-4"></i> Custody Slip</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 4: Spare Vacuum Pump in Store -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Robinair 2-Stage HVAC Vacuum Pump (6 CFM)</div>
+                                        <span class="text-[9.5px] font-mono text-[#242b5f] font-bold bg-blue-50 px-1.5 py-0.2 rounded border border-blue-100">CMX-PUMP-005</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600">
+                                        <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[9.5px] font-semibold">HVAC Tools</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="text-gray-400 italic">Unassigned (Central Store)</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-500 font-medium">Head Office Central Store</td>
+                                    <td class="px-4 py-2.5 text-gray-400">-</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-200 uppercase tracking-wide">Available</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="openModal('Quick Dispatch to Site', '<div class=space-y-2><label class=\\'text-xs font-bold\\'>Assign to Site</label><select class=\\'w-full border rounded p-1.5 text-xs\\'><option>Karachi High-Rise</option><option>Islamabad Govt Complex</option><option>Peshawar Site</option></select></div>', () => showToast('Pump dispatched to site!', 'success'))" class="w-full text-left px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50 flex items-center gap-2"><i class="fas fa-truck w-4"></i> Dispatch to Site</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        `);
+    </script>
+</body>
+</html>

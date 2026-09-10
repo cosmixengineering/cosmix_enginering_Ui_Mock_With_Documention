@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Employee Master Directory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('employee');
+        
+        const pageHTML = `
+            <div class="space-y-4">
+                
+                <!-- VIEW 1: Master Employee Directory Table -->
+                <div id="employee-directory-view" class="space-y-4">
+                    
+                    <!-- Quick Stats Row -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Headcount</p>
+                                <h4 class="text-lg font-bold text-gray-800 mt-0.5">150 <span class="text-[10px] text-green-600 font-normal">Active</span></h4>
+                                <p class="text-[9px] text-green-600 font-semibold"><i class="fas fa-arrow-up mr-0.5"></i> +6 this month</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Field Engineers</p>
+                                <h4 class="text-lg font-bold text-gray-800 mt-0.5">92 <span class="text-[10px] text-blue-600 font-normal">On Sites</span></h4>
+                                <p class="text-[9px] text-gray-500 font-medium">8 active project sites</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm">
+                                <i class="fas fa-hard-hat"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                            <div>
+                                <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Pending CEO Approvals</p>
+                                <h4 class="text-lg font-bold text-gray-800 mt-0.5" id="stat-pending-ceo">2 <span class="text-[10px] text-orange-500 font-normal">Drafts</span></h4>
+                                <p class="text-[9px] text-orange-600 font-medium">Onboarding negotiation</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center text-sm">
+                                <i class="fas fa-user-clock"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Monthly Payroll Cost</p>
+                                <h4 class="text-lg font-bold text-gray-800 mt-0.5">Rs. 4.52M</h4>
+                                <p class="text-[9px] text-gray-500 font-medium">Avg Rs. 30.1K / worker</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Toolbar: Search + Excel, PDF, Import, + Add New Employee -->
+                    <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                        <div class="flex items-center gap-2 flex-1 max-w-xl">
+                            <div class="relative w-full">
+                                <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                                <input type="text" oninput="filterTableRows(this, 'employee-table-body')" placeholder="Search employees by name, ID, role, site, city..." class="w-full border border-gray-200 rounded-md pl-7 pr-3 py-1 text-xs outline-none focus:border-[#242b5f] bg-white">
+                            </div>
+                            <select onchange="filterTableRows({ value: this.value === 'All Cities' ? '' : this.value }, 'employee-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none shrink-0" title="Filter by City Base">
+                                <option value="All Cities">All Pakistan Cities</option>
+                                <optgroup label="Federal & Twin Cities">
+                                    <option value="Islamabad">Islamabad</option>
+                                    <option value="Rawalpindi">Rawalpindi</option>
+                                </optgroup>
+                                <optgroup label="Punjab">
+                                    <option value="Lahore">Lahore</option>
+                                    <option value="Faisalabad">Faisalabad</option>
+                                    <option value="Multan">Multan</option>
+                                    <option value="Gujranwala">Gujranwala</option>
+                                    <option value="Sialkot">Sialkot</option>
+                                    <option value="Gujrat">Gujrat</option>
+                                    <option value="Bahawalpur">Bahawalpur</option>
+                                    <option value="Sargodha">Sargodha</option>
+                                    <option value="Sahiwal">Sahiwal</option>
+                                    <option value="Rahim Yar Khan">Rahim Yar Khan</option>
+                                </optgroup>
+                                <optgroup label="Sindh">
+                                    <option value="Karachi">Karachi</option>
+                                    <option value="Hyderabad">Hyderabad</option>
+                                    <option value="Sukkur">Sukkur</option>
+                                    <option value="Larkana">Larkana</option>
+                                    <option value="Nawabshah">Nawabshah</option>
+                                </optgroup>
+                                <optgroup label="KPK">
+                                    <option value="Peshawar">Peshawar</option>
+                                    <option value="Abbottabad">Abbottabad</option>
+                                    <option value="Mardan">Mardan</option>
+                                    <option value="Swat">Swat</option>
+                                </optgroup>
+                                <optgroup label="Balochistan">
+                                    <option value="Quetta">Quetta</option>
+                                    <option value="Gwadar">Gwadar</option>
+                                    <option value="Hub">Hub</option>
+                                </optgroup>
+                                <optgroup label="AJK & Gilgit-Baltistan">
+                                    <option value="Muzaffarabad">Muzaffarabad</option>
+                                    <option value="Mirpur">Mirpur AJK</option>
+                                    <option value="Gilgit">Gilgit</option>
+                                    <option value="Skardu">Skardu</option>
+                                </optgroup>
+                            </select>
+                            <select onchange="filterTableRows({ value: this.value === 'All Workplaces' ? '' : this.value }, 'employee-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none shrink-0" title="Filter by Workplace">
+                                <option value="All Workplaces">All Workplaces</option>
+                                <option value="Head Office">🏢 Corporate HQ & Offices</option>
+                                <option value="High-Rise">🏗️ High-Rise Commercial Sites</option>
+                                <option value="Industrial">🏗️ Industrial & Chiller Plants</option>
+                            </select>
+                            <select onchange="filterTableRows({ value: this.value === 'All Roles' ? '' : this.value }, 'employee-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none shrink-0" title="Filter by Designation">
+                                <option value="All Roles">All Roles & Depts</option>
+                                <option value="HR">👥 Human Resources (HR)</option>
+                                <option value="Finance">💰 Finance & Accounts</option>
+                                <option value="Procurement">📦 Procurement & SCM</option>
+                                <option value="Sales">📈 Sales & CRM</option>
+                                <option value="Project Engineer">🏗️ Project Engineers</option>
+                                <option value="HVAC">❄️ HVAC Engineers</option>
+                                <option value="AC Technician">🔧 AC Technicians</option>
+                                <option value="Electrician">⚡ Electricians</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="exportToExcel('Employee_Master_Directory')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export to Excel">
+                                <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel
+                            </button>
+                            <button onclick="exportToPDF('Employee_Directory_Report')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export to PDF">
+                                <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF
+                            </button>
+                            <button onclick="openImportModal('Employee Master')" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                                <i class="fas fa-file-import text-blue-600 text-xs"></i> Import Excel
+                            </button>
+                            <button onclick="showOnboardForm()" class="bg-[#242b5f] text-white px-3 py-1 rounded-md text-xs font-bold shadow-sm hover:opacity-90 transition flex items-center gap-1.5">
+                                <i class="fas fa-user-plus text-[10px]"></i> Add New Employee
+                            </button>
+                        </div>
+                    </div>
+
+                <!-- Employee Directory Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-address-book text-[#242b5f]"></i> Master Employee Directory (Office & Sites)
+                        </h3>
+                        <span class="text-[10px] text-gray-400 font-medium">Head Office, Regional Branches & Project Site Workforce</span>
+                    </div>
+
+                    <div class="overflow-x-auto min-h-[350px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Employee Name</th>
+                                    <th class="px-4 py-2.5 font-bold">Emp ID</th>
+                                    <th class="px-4 py-2.5 font-bold">Department / Role</th>
+                                    <th class="px-4 py-2.5 font-bold">Workplace / Allocation</th>
+                                    <th class="px-4 py-2.5 font-bold">Contact / CNIC</th>
+                                    <th class="px-4 py-2.5 font-bold">Base Salary</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employee-table-body" class="divide-y divide-gray-100 bg-white">
+                                
+                                <!-- Project Engineer: Engr. Tariq Farooq -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-[#242b5f] text-white flex items-center justify-center font-bold text-[10px] relative">
+                                                TF
+                                                <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
+                                            </div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Engr. Tariq Farooq</a>
+                                                <p class="text-[9.5px] text-gray-400">Project Engineer • Karachi</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1040</span></td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-semibold">Project Engineer</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Karachi High-Rise & Sites</td>
+                                    <td class="px-4 py-2.5 text-gray-500">
+                                        <div>+92 300 1234567</div>
+                                        <div class="text-[9px] text-gray-400">42101-1122334-1</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-700">Rs. 135,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                         <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-[#242b5f] flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>
+                                            <button onclick="openMonthHistoryModal('Engr. Tariq Farooq', 'Project Engineer', 'EMP-1040')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>
+                                            <button onclick="openPayslipModal({ name: 'Engr. Tariq Farooq', role: 'Project Engineer', empId: 'EMP-1040', site: 'Karachi High-Rise', base: 135000, allowance: 15000, ot: 0, advanceEmi: 0, tax: 8500, bank: 'HBL - Clifton Branch', iban: 'PK44HABB00010982347102' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Project Engineer: Engr. Bilal Malik -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-blue-100 text-[#242b5f] flex items-center justify-center font-bold text-[10px] relative">
+                                                BM
+                                                <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
+                                            </div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Engr. Bilal Malik</a>
+                                                <p class="text-[9.5px] text-gray-400">Project Engineer • Islamabad</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1041</span></td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-semibold">Project Engineer</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Islamabad Federal Complex & Sites</td>
+                                    <td class="px-4 py-2.5 text-gray-500">
+                                        <div>+92 333 4455667</div>
+                                        <div class="text-[9px] text-gray-400">61101-2233445-1</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-700">Rs. 130,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                         <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-[#242b5f] flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>
+                                            <button onclick="openMonthHistoryModal('Engr. Bilal Malik', 'Project Engineer', 'EMP-1041')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>
+                                            <button onclick="openPayslipModal({ name: 'Engr. Bilal Malik', role: 'Project Engineer', empId: 'EMP-1041', site: 'Islamabad Federal Complex', base: 130000, allowance: 12000, ot: 0, advanceEmi: 0, tax: 8000, bank: 'Bank Alfalah - Blue Area', iban: 'PK19ALFH00010982347103' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 1: Ali Khan -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center font-bold text-[10px] relative">
+                                                AK
+                                                <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
+                                            </div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Ali Khan</a>
+                                                <p class="text-[9.5px] text-gray-400">HVAC Engineer</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1042</span></td>
+                                    <td class="px-4 py-2.5 text-gray-600">MEP & Execution</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Karachi High-Rise</td>
+                                    <td class="px-4 py-2.5 text-gray-500">
+                                        <div>+92 300 1234567</div>
+                                        <div class="text-[9px] text-gray-400">42201-1234567-1</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-700">Rs. 85,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                         <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-[#242b5f] flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>
+                                            <button onclick="openMonthHistoryModal('Ali Khan', 'HVAC Engineer', 'EMP-1042')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>
+                                            <button onclick="openPayslipModal({ name: 'Ali Khan', role: 'HVAC Engineer', empId: 'EMP-1042', site: 'Karachi High-Rise', base: 85000, allowance: 5000, ot: 8000, advanceEmi: 10000, tax: 2500, bank: 'Meezan Bank - Clifton Branch', iban: 'PK36MEZN00010982347101' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="offboarding.html" class="block px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"><i class="fas fa-user-minus w-4"></i> Initiate Offboarding</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Row 2: Sara Ahmed -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px] relative">
+                                                SA
+                                                <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
+                                            </div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Sara Ahmed</a>
+                                                <p class="text-[9.5px] text-gray-400">Sales Executive</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1043</span></td>
+                                    <td class="px-4 py-2.5 text-gray-600">Sales & CRM</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Head Office (Lahore)</td>
+                                    <td class="px-4 py-2.5 text-gray-500">
+                                        <div>+92 321 9876543</div>
+                                        <div class="text-[9px] text-gray-400">35201-7654321-2</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-700">Rs. 65,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-[#242b5f] flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>
+                                            <button onclick="openMonthHistoryModal('Sara Ahmed', 'Sales Executive', 'EMP-1043')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>
+                                            <button onclick="openPayslipModal({ name: 'Sara Ahmed', role: 'Sales Executive', empId: 'EMP-1043', site: 'Head Office (Lahore)', base: 65000, allowance: 5000, ot: 0, advanceEmi: 0, tax: 1500, bank: 'MCB Bank - Gulberg Branch', iban: 'PK12MUCB005566778899' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="offboarding.html" class="block px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"><i class="fas fa-user-minus w-4"></i> Initiate Offboarding</a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 3: Usman Tariq -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-[10px] relative">
+                                                UT
+                                                <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
+                                            </div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Usman Tariq</a>
+                                                <p class="text-[9.5px] text-gray-400">AC Technician</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1044</span></td>
+                                    <td class="px-4 py-2.5 text-gray-600">Field Maintenance</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Islamabad Govt Complex</td>
+                                    <td class="px-4 py-2.5 text-gray-500">
+                                        <div>+92 333 4455667</div>
+                                        <div class="text-[9px] text-gray-400">61101-9988776-5</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-700">Rs. 45,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-[#242b5f] flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>
+                                            <button onclick="openMonthHistoryModal('Usman Tariq', 'AC Technician', 'EMP-1044')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>
+                                            <button onclick="openPayslipModal({ name: 'Usman Tariq', role: 'AC Technician', empId: 'EMP-1044', site: 'Islamabad Govt Complex', base: 45000, allowance: 4000, ot: 6000, advanceEmi: 0, tax: 500, bank: 'Allied Bank - Blue Area', iban: 'PK88ABPA003344556677' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 4: Zainab Ali (Corporate Office - HR) -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center font-bold text-[10px] relative">
+                                                ZA
+                                                <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
+                                            </div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Zainab Ali</a>
+                                                <p class="text-[9.5px] text-gray-400">HR Assistant</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1045</span></td>
+                                    <td class="px-4 py-2.5 text-gray-600">Human Resources</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Head Office (Lahore)</td>
+                                    <td class="px-4 py-2.5 text-gray-500">
+                                        <div>+92 300 1122334</div>
+                                        <div class="text-[9px] text-gray-400">35201-1234567-8</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-700">Rs. 55,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-[#242b5f] flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>
+                                            <button onclick="openMonthHistoryModal('Zainab Ali', 'HR Assistant', 'EMP-1045')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>
+                                            <button onclick="openPayslipModal({ name: 'Zainab Ali', role: 'HR Assistant', empId: 'EMP-1045', site: 'Head Office (Lahore)', base: 55000, allowance: 4000, ot: 0, advanceEmi: 0, tax: 1000, bank: 'Habib Bank Limited - Main Blvd', iban: 'PK44HABB001122334455' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="offboarding.html" class="block px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"><i class="fas fa-user-minus w-4"></i> Initiate Offboarding</a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 5: Farhan Malik (Corporate Office - Finance & Accounts) -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[10px] relative">
+                                                FM
+                                                <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
+                                            </div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Farhan Malik</a>
+                                                <p class="text-[9.5px] text-gray-400">Senior Accountant</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1048</span></td>
+                                    <td class="px-4 py-2.5 text-gray-600">Finance & Accounts</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Head Office (Lahore)</td>
+                                    <td class="px-4 py-2.5 text-gray-500">
+                                        <div>+92 321 8899001</div>
+                                        <div class="text-[9px] text-gray-400">35202-9876543-2</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-700">Rs. 95,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-[#242b5f] flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>
+                                            <button onclick="openMonthHistoryModal('Farhan Malik', 'Senior Accountant', 'EMP-1048')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>
+                                            <button onclick="openPayslipModal({ name: 'Farhan Malik', role: 'Senior Accountant', empId: 'EMP-1048', site: 'Head Office (Lahore)', base: 95000, allowance: 7000, ot: 0, advanceEmi: 0, tax: 3500, bank: 'Meezan Bank - Gulberg Branch', iban: 'PK32MEZN009988776655' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="offboarding.html" class="block px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"><i class="fas fa-user-minus w-4"></i> Initiate Offboarding</a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 6: Babar Siddiqui (Corporate Office - Procurement & SCM) -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[10px] relative">
+                                                BS
+                                                <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
+                                            </div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Babar Siddiqui</a>
+                                                <p class="text-[9.5px] text-gray-400">Procurement Manager</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1049</span></td>
+                                    <td class="px-4 py-2.5 text-gray-600">Procurement & SCM</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Head Office (Lahore)</td>
+                                    <td class="px-4 py-2.5 text-gray-500">
+                                        <div>+92 345 5566778</div>
+                                        <div class="text-[9px] text-gray-400">35201-5544332-1</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-700">Rs. 120,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-[#242b5f] flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>
+                                            <button onclick="openMonthHistoryModal('Babar Siddiqui', 'Procurement Manager', 'EMP-1049')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>
+                                            <button onclick="openPayslipModal({ name: 'Babar Siddiqui', role: 'Procurement Manager', empId: 'EMP-1049', site: 'Head Office (Lahore)', base: 120000, allowance: 10000, ot: 0, advanceEmi: 0, tax: 6500, bank: 'Bank Alfalah - Gulberg Branch', iban: 'PK19ALFH003322110099' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="offboarding.html" class="block px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"><i class="fas fa-user-minus w-4"></i> Initiate Offboarding</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+                <!-- End #employee-directory-view -->
+
+                <!-- VIEW 2: Dedicated Full-Page Horizontal Onboarding Form (No Side Drawer, No Modal) -->
+                <div id="employee-onboard-form-view" class="space-y-4 hidden">
+                    
+                    <!-- 1. Top Navigation & Action Header -->
+                    <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="showDirectoryView()" class="w-9 h-9 rounded-xl border border-slate-200 hover:border-[#242b5f] text-slate-600 hover:text-[#242b5f] bg-white flex items-center justify-center transition shadow-2xs group" title="Back to Employee Directory">
+                                <i class="fas fa-arrow-left text-xs transition-transform group-hover:-translate-x-0.5"></i>
+                            </button>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-base font-bold text-slate-800 tracking-tight">Onboard New Employee / Technical Staff</h2>
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] font-bold bg-indigo-50 text-[#242b5f] border border-indigo-100">
+                                        <i class="fas fa-shield-alt text-[8.5px]"></i> Routed for CEO Loop
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-0.5">Fill in worker personal details, deployment site, trade role and salary compensation</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="showDirectoryView()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition">
+                                <i class="fas fa-times mr-1 text-[10px]"></i> Cancel
+                            </button>
+                            <button type="button" onclick="submitNewWorker()" class="bg-[#242b5f] hover:bg-[#1b214a] text-white px-5 py-2 rounded-lg text-xs font-bold shadow-md shadow-indigo-950/20 hover:shadow-lg transition-all flex items-center gap-1.5 active:scale-95">
+                                <i class="fas fa-paper-plane text-[10.5px]"></i> Submit to CEO
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Wide Horizontal 3-Column Layout Across Full Page -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+                        
+                        <!-- ================= COLUMN 1: Personal & Emergency Details ================= -->
+                        <div class="space-y-4 flex flex-col">
+                            
+                            <!-- Profile Photo Upload Card -->
+                            <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 flex items-center gap-3.5 shadow-2xs">
+                                <div class="relative w-14 h-14 rounded-full border-2 border-dashed border-indigo-200 hover:border-[#242b5f] flex items-center justify-center cursor-pointer overflow-hidden bg-slate-50 shadow-xs group shrink-0 transition" onclick="document.getElementById('emp_photo').click()" title="Click to upload picture">
+                                    <img id="photo_preview" src="" class="w-full h-full object-cover hidden" alt="Preview">
+                                    <div id="photo_placeholder" class="flex flex-col items-center justify-center text-slate-400 group-hover:text-[#242b5f] transition">
+                                        <i class="fas fa-camera text-sm"></i>
+                                        <span class="text-[7.5px] font-bold uppercase mt-0.5 tracking-wider">Photo</span>
+                                    </div>
+                                    <div class="absolute inset-0 bg-black/40 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-[10px]">
+                                        <i class="fas fa-pen"></i>
+                                    </div>
+                                </div>
+                                <input type="file" id="emp_photo" accept="image/*" class="hidden" onchange="previewEmployeePhoto(this)">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-1.5">
+                                        <label class="block text-xs font-bold text-slate-800 cursor-pointer hover:text-[#242b5f] truncate" onclick="document.getElementById('emp_photo').click()">
+                                            Profile Photo
+                                        </label>
+                                        <span class="bg-indigo-50 text-[#242b5f] text-[8.5px] font-bold px-1.5 py-0.2 rounded border border-indigo-100">Optional</span>
+                                    </div>
+                                    <p class="text-[9.5px] text-slate-400 mt-0.5 leading-tight">Used for Smart ID Card & Mobile GPS login</p>
+                                    <button type="button" onclick="document.getElementById('emp_photo').click()" class="mt-1 text-[9.5px] font-bold text-[#242b5f] hover:underline flex items-center gap-1">
+                                        <i class="fas fa-upload text-[8.5px]"></i> Choose Image
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 1. Personal Details -->
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/80 space-y-3 flex-1 shadow-2xs">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        <span class="w-4 h-4 rounded-full bg-[#242b5f] text-white flex items-center justify-center text-[9px] font-bold">1</span>
+                                        Personal & Contact Details
+                                    </h4>
+                                    <span class="text-[9px] text-red-500 font-bold">* Required</span>
+                                </div>
+
+                                <div class="space-y-2.5">
+                                    <div>
+                                        <label class="block text-[10.5px] font-bold text-slate-700 mb-1">Full Name <span class="text-red-500">*</span></label>
+                                        <input id="emp_name" type="text" oninput="updateLiveNamePreview(this.value)" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-[#242b5f]/15 focus:border-[#242b5f] bg-white text-slate-800 outline-none shadow-2xs font-medium" placeholder="e.g. Tariq Mehmood">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-[10.5px] font-bold text-slate-700 mb-1">Contact Phone <span class="text-red-500">*</span></label>
+                                        <input id="emp_contact" type="text" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-[#242b5f]/15 focus:border-[#242b5f] bg-white text-slate-800 outline-none shadow-2xs" placeholder="+92 300 0000000">
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-slate-700 mb-1">CNIC / ID <span class="text-red-500">*</span></label>
+                                            <input id="emp_cnic" type="text" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-[#242b5f]/15 focus:border-[#242b5f] bg-white text-slate-800 outline-none shadow-2xs" placeholder="42101-0000000-1">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-slate-700 mb-1">Blood Group</label>
+                                            <select id="emp_blood_group" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white text-slate-800 focus:outline-none focus:border-[#242b5f] shadow-2xs">
+                                                <option>O+</option><option>A+</option><option>B+</option><option>AB+</option><option>O-</option><option>A-</option><option>B-</option><option>AB-</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[10.5px] font-bold text-slate-700 mb-1">Home / Residential Address <span class="text-red-500">*</span></label>
+                                        <textarea id="emp_address" rows="2" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-[#242b5f]/15 focus:border-[#242b5f] bg-white text-slate-800 outline-none shadow-2xs resize-none" placeholder="e.g. House # 14, Street 5, Gulshan-e-Iqbal, Karachi"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Emergency Contact Details -->
+                            <div class="bg-rose-50/40 p-3.5 rounded-xl border border-rose-100 space-y-2.5 shadow-2xs">
+                                <h4 class="text-xs font-bold text-rose-900 flex items-center gap-1.5 border-b border-rose-200/60 pb-1.5">
+                                    <i class="fas fa-phone-alt text-rose-500"></i> 2. Emergency Next of Kin Contact
+                                </h4>
+                                <div class="space-y-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-700 mb-1">Contact Person Name <span class="text-red-500">*</span></label>
+                                        <input id="emp_emergency_name" type="text" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white text-slate-800 outline-none focus:border-rose-500" placeholder="e.g. Sajid Mehmood">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-700 mb-1">Relationship <span class="text-red-500">*</span></label>
+                                            <select id="emp_emergency_relation" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white text-slate-800 focus:outline-none">
+                                                <option value="Brother">Brother</option>
+                                                <option value="Father">Father</option>
+                                                <option value="Mother">Mother</option>
+                                                <option value="Spouse">Spouse</option>
+                                                <option value="Son">Son</option>
+                                                <option value="Daughter">Daughter</option>
+                                                <option value="Friend">Friend / Colleague</option>
+                                                <option value="Other">Other Relative</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-700 mb-1">Emergency Phone <span class="text-red-500">*</span></label>
+                                            <input id="emp_emergency_phone" type="text" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white text-slate-800 outline-none focus:border-rose-500" placeholder="+92 321 0000000">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ================= COLUMN 2: Role, City Deployment & Compensation ================= -->
+                        <div class="space-y-4 flex flex-col">
+                            
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/80 space-y-3.5 flex-1 shadow-2xs">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        <span class="w-4 h-4 rounded-full bg-[#242b5f] text-white flex items-center justify-center text-[9px] font-bold">3</span>
+                                        Workplace Allocation, Department & Role (Office & Site)
+                                    </h4>
+                                    <span class="text-[9px] text-slate-600 font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-200">Office & Field Operations</span>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <!-- Workplace Type Selector (Office vs Site) -->
+                                    <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
+                                        <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Workplace Category:</span>
+                                        <div class="flex items-center gap-2">
+                                            <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition bg-white text-slate-700 border border-slate-200 shadow-2xs hover:border-[#242b5f]" id="lbl-wp-office">
+                                                <input type="radio" name="emp_workplace_type" id="wp_office" value="office" onchange="handleWorkplaceTypeChange(this.value)" class="text-[#242b5f] focus:ring-[#242b5f]">
+                                                <span class="font-bold text-[#242b5f]">🏢 Head Office / Regional Branch</span>
+                                            </label>
+                                            <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition bg-white text-slate-700 border border-slate-200 shadow-2xs hover:border-[#242b5f]" id="lbl-wp-site">
+                                                <input type="radio" name="emp_workplace_type" id="wp_site" value="site" checked onchange="handleWorkplaceTypeChange(this.value)" class="text-[#242b5f] focus:ring-[#242b5f]">
+                                                <span class="font-bold text-slate-800">🏗️ Project Site / Field MEP</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- City & Site Grid -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-slate-700 mb-1">Operating City (Base Region) <span class="text-red-500">*</span></label>
+                                            <select id="emp_city" onchange="handleEmployeeCityChange(this.value)" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white focus:outline-none focus:border-[#242b5f] font-semibold text-slate-800 shadow-2xs">
+                                                <optgroup label="⭐ FEDERAL CAPITAL & TWIN CITIES">
+                                                    <option value="Islamabad">Islamabad (Federal Capital)</option>
+                                                    <option value="Rawalpindi">Rawalpindi (Twin Cities Hub)</option>
+                                                    <option value="Taxila / Wah Cantt">Taxila / Wah Cantt (Heavy Industrial)</option>
+                                                    <option value="Murree">Murree (Hill Station / HVAC)</option>
+                                                </optgroup>
+
+                                                <optgroup label="🟢 PUNJAB PROVINCE (CENTRAL, NORTH & SOUTH)">
+                                                    <option value="Lahore" selected>Lahore (Punjab HQ & Directorate)</option>
+                                                    <option value="Faisalabad">Faisalabad (Textile & Industrial Hub)</option>
+                                                    <option value="Multan">Multan (South Punjab Hub)</option>
+                                                    <option value="Gujranwala">Gujranwala (Industrial Cluster)</option>
+                                                    <option value="Sialkot">Sialkot (Export & Industrial Zone)</option>
+                                                    <option value="Bahawalpur">Bahawalpur (Southern Hub)</option>
+                                                    <option value="Sargodha">Sargodha</option>
+                                                    <option value="Gujrat">Gujrat (Fan & Electrical Industry)</option>
+                                                    <option value="Sheikhupura">Sheikhupura (Industrial Estate)</option>
+                                                    <option value="Jhelum">Jhelum</option>
+                                                    <option value="Sahiwal">Sahiwal (Power Plant & Industrial)</option>
+                                                    <option value="Rahim Yar Khan">Rahim Yar Khan (Fertilizer / Industrial)</option>
+                                                    <option value="Kasur">Kasur</option>
+                                                    <option value="Okara">Okara</option>
+                                                    <option value="Chiniot">Chiniot</option>
+                                                    <option value="Dera Ghazi Khan">Dera Ghazi Khan</option>
+                                                    <option value="Mianwali">Mianwali (Chashma Power Hub)</option>
+                                                    <option value="Chakwal">Chakwal</option>
+                                                    <option value="Attock">Attock (Oil Refinery Zone)</option>
+                                                    <option value="Khanewal">Khanewal</option>
+                                                    <option value="Hafizabad">Hafizabad</option>
+                                                    <option value="Muzaffargarh">Muzaffargarh (Thermal Power Hub)</option>
+                                                    <option value="Vehari">Vehari</option>
+                                                    <option value="Mandi Bahauddin">Mandi Bahauddin</option>
+                                                    <option value="Bhakkar">Bhakkar</option>
+                                                    <option value="Kamoke">Kamoke</option>
+                                                    <option value="Pakpattan">Pakpattan</option>
+                                                    <option value="Burewala">Burewala</option>
+                                                    <option value="Jhang">Jhang</option>
+                                                    <option value="Layyah">Layyah</option>
+                                                    <option value="Lodhran">Lodhran</option>
+                                                    <option value="Bahawalnagar">Bahawalnagar</option>
+                                                    <option value="Narowal">Narowal</option>
+                                                </optgroup>
+
+                                                <optgroup label="🔵 SINDH PROVINCE (METRO & INTERIOR)">
+                                                    <option value="Karachi">Karachi (Sindh Division & Mega Ports)</option>
+                                                    <option value="Hyderabad">Hyderabad (Interior Sindh Hub)</option>
+                                                    <option value="Sukkur">Sukkur (Upper Sindh Hub / Indus)</option>
+                                                    <option value="Larkana">Larkana</option>
+                                                    <option value="Nawabshah">Nawabshah (Shaheed Benazirabad)</option>
+                                                    <option value="Mirpur Khas">Mirpur Khas</option>
+                                                    <option value="Jacobabad">Jacobabad</option>
+                                                    <option value="Shikarpur">Shikarpur</option>
+                                                    <option value="Khairpur">Khairpur</option>
+                                                    <option value="Dadu">Dadu</option>
+                                                    <option value="Thatta">Thatta (Wind Corridor & Power)</option>
+                                                    <option value="Badin">Badin (Oil & Gas Hub)</option>
+                                                    <option value="Ghotki">Ghotki (Fertilizer & Power)</option>
+                                                    <option value="Umerkot">Umerkot</option>
+                                                    <option value="Jamshoro">Jamshoro (Power Generation Hub)</option>
+                                                    <option value="Kotri">Kotri (Industrial Site)</option>
+                                                    <option value="Tando Adam">Tando Adam</option>
+                                                    <option value="Tando Allahyar">Tando Allahyar</option>
+                                                    <option value="Kashmore">Kashmore (Guddu Power Hub)</option>
+                                                    <option value="Sanghar">Sanghar</option>
+                                                </optgroup>
+
+                                                <optgroup label="🟡 KHYBER PAKHTUNKHWA (KPK)">
+                                                    <option value="Peshawar">Peshawar (KPK Regional Hub)</option>
+                                                    <option value="Abbottabad">Abbottabad (Hazara Division)</option>
+                                                    <option value="Mardan">Mardan</option>
+                                                    <option value="Swat">Swat / Mingora (Malakand)</option>
+                                                    <option value="Dera Ismail Khan">Dera Ismail Khan (Southern KPK)</option>
+                                                    <option value="Kohat">Kohat (Oil & Gas Field)</option>
+                                                    <option value="Haripur">Haripur (Hattar Industrial Estate)</option>
+                                                    <option value="Mansehra">Mansehra (CPEC Route)</option>
+                                                    <option value="Nowshera">Nowshera (Risalpur Hub)</option>
+                                                    <option value="Charsadda">Charsadda</option>
+                                                    <option value="Swabi">Swabi (Tarbela Power Hub)</option>
+                                                    <option value="Bannu">Bannu</option>
+                                                    <option value="Risalpur">Risalpur (Aviation & Industrial)</option>
+                                                    <option value="Karak">Karak (Oil & Gas Field)</option>
+                                                    <option value="Dir">Dir (Upper & Lower Dir)</option>
+                                                    <option value="Malakand">Malakand</option>
+                                                    <option value="Chitral">Chitral</option>
+                                                </optgroup>
+
+                                                <optgroup label="🟣 BALOCHISTAN PROVINCE">
+                                                    <option value="Quetta">Quetta (Provincial Capital & Hub)</option>
+                                                    <option value="Gwadar">Gwadar (Deep Sea Port & CPEC Free Zone)</option>
+                                                    <option value="Hub">Hub (Lasbela Industrial Estate)</option>
+                                                    <option value="Turbat">Turbat (Makran Hub)</option>
+                                                    <option value="Khuzdar">Khuzdar</option>
+                                                    <option value="Sibi">Sibi</option>
+                                                    <option value="Chaman">Chaman (Border Trade Terminal)</option>
+                                                    <option value="Zhob">Zhob</option>
+                                                    <option value="Loralai">Loralai</option>
+                                                    <option value="Jaffarabad">Jaffarabad / Dera Murad Jamali</option>
+                                                    <option value="Sui / Dera Bugti">Sui / Dera Bugti (Gas Purification Plant)</option>
+                                                    <option value="Lasbela">Lasbela / Gadani (Shipbreaking)</option>
+                                                    <option value="Pasni">Pasni (Coastal)</option>
+                                                    <option value="Ormara">Ormara (Naval Base Hub)</option>
+                                                </optgroup>
+
+                                                <optgroup label="🟢 AZAD JAMMU & KASHMIR (AJK)">
+                                                    <option value="Muzaffarabad">Muzaffarabad (Capital AJK)</option>
+                                                    <option value="Mirpur AJK">Mirpur (Mangla Industrial & Hydel Hub)</option>
+                                                    <option value="Rawalakot">Rawalakot (Poonch Hub)</option>
+                                                    <option value="Kotli">Kotli</option>
+                                                    <option value="Bhimber">Bhimber</option>
+                                                    <option value="Bagh">Bagh</option>
+                                                    <option value="Neelum Valley">Neelum Valley / Athmuqam</option>
+                                                </optgroup>
+
+                                                <optgroup label="🏔️ GILGIT-BALTISTAN (GB)">
+                                                    <option value="Gilgit">Gilgit (Provincial Hub & CPEC)</option>
+                                                    <option value="Skardu">Skardu (Baltistan Hub & Airport)</option>
+                                                    <option value="Hunza">Hunza / Karimabad</option>
+                                                    <option value="Diamer">Diamer / Chilas (Bhasha Dam Hub)</option>
+                                                    <option value="Ghizer">Ghizer</option>
+                                                    <option value="Astore">Astore</option>
+                                                </optgroup>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-slate-700 mb-1">Workplace / Office / Site Allocation <span class="text-red-500">*</span></label>
+                                            <select id="emp_site" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white focus:outline-none focus:border-[#242b5f] font-medium text-slate-800 shadow-2xs">
+                                                <option value="🏢 Regional Corporate Office - Karachi (Shahrah-e-Faisal / Clifton)">🏢 Regional Corporate Office - Karachi</option>
+                                                <option value="🏗️ Karachi High-Rise Commercial Tower (CMX-SITE-101 - Clifton)" selected>🏗️ Karachi High-Rise Commercial Tower (Clifton)</option>
+                                                <option value="🏗️ Port Qasim Chiller & Cold Storage (CMX-SITE-105)">🏗️ Port Qasim Chiller & Cold Storage (CMX-SITE-105)</option>
+                                                <option value="🏗️ Lucky One Mall HVAC Expansion (CMX-SITE-106)">🏗️ Lucky One Mall HVAC Expansion (CMX-SITE-106)</option>
+                                                <option value="🏗️ All Karachi Project Sites (Field Roving)">🏗️ All Karachi Project Sites (Field Roving)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Designation / Role (Corporate Office & Field MEP A to Z) -->
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <label class="block text-[10.5px] font-bold text-slate-700">Designation / Role (Office Corporate & Field Technical A to Z) <span class="text-red-500">*</span></label>
+                                            <span class="text-[9px] text-slate-400">All Departments & Trades</span>
+                                        </div>
+                                        <select id="emp_role" onchange="handleEmployeeRoleChange(this.value)" class="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-xs bg-white focus:outline-none focus:border-[#242b5f] font-semibold text-slate-800 shadow-2xs">
+                                            
+                                            <!-- 1. Corporate Office: Executive & Leadership -->
+                                            <optgroup label="⭐ EXECUTIVE LEADERSHIP & MANAGEMENT (OFFICE)">
+                                                <option value="Chief Executive Officer (CEO)">Chief Executive Officer (CEO)</option>
+                                                <option value="Chief Operating Officer (COO)">Chief Operating Officer (COO)</option>
+                                                <option value="General Manager (MEP Operations)">General Manager (MEP Operations)</option>
+                                                <option value="Contracts & Commercial Manager">Contracts & Commercial Manager</option>
+                                            </optgroup>
+
+                                            <!-- 2. Corporate Office: Human Resources -->
+                                            <optgroup label="👥 HUMAN RESOURCES (HR) & TALENT (OFFICE)">
+                                                <option value="Human Resources (HR) Manager">Human Resources (HR) Manager</option>
+                                                <option value="Assistant HR Manager">Assistant HR Manager</option>
+                                                <option value="HR Operations Officer">HR Operations Officer</option>
+                                                <option value="Payroll & Compensation Specialist">Payroll & Compensation Specialist</option>
+                                                <option value="Talent Acquisition / Recruiter">Talent Acquisition / Recruiter</option>
+                                                <option value="HR Assistant / Coordinator">HR Assistant / Coordinator</option>
+                                            </optgroup>
+
+                                            <!-- 3. Corporate Office: Finance & Accounts -->
+                                            <optgroup label="💰 FINANCE, ACCOUNTS & AUDIT (OFFICE)">
+                                                <option value="Chief Financial Officer (CFO)">Chief Financial Officer (CFO)</option>
+                                                <option value="Finance & Accounts Manager">Finance & Accounts Manager</option>
+                                                <option value="Senior Accounts Officer (GL & Taxation)">Senior Accounts Officer (GL & Taxation)</option>
+                                                <option value="Accounts Officer (Billing, AP & AR)">Accounts Officer (Billing, AP & AR)</option>
+                                                <option value="Project Billing & IPC Specialist">Project Billing & IPC Specialist</option>
+                                                <option value="Internal Auditor">Internal Auditor</option>
+                                                <option value="Cashier / Petty Cash Officer">Cashier / Petty Cash Officer</option>
+                                            </optgroup>
+
+                                            <!-- 4. Corporate Office: Procurement & Supply Chain -->
+                                            <optgroup label="📦 PROCUREMENT, SCM & WAREHOUSE (OFFICE & CENTRAL STORE)">
+                                                <option value="Procurement & SCM Manager">Procurement & SCM Manager</option>
+                                                <option value="Senior Purchase Officer (Mechanical & HVAC)">Senior Purchase Officer (Mechanical & HVAC)</option>
+                                                <option value="Purchase Officer (Electrical & Switchgear)">Purchase Officer (Electrical & Switchgear)</option>
+                                                <option value="Imports & Customs Clearance Officer">Imports & Customs Clearance Officer</option>
+                                                <option value="Central Store & Inventory Manager">Central Store & Inventory Manager</option>
+                                                <option value="Store Officer / Material Custodian">Store Officer / Material Custodian</option>
+                                            </optgroup>
+
+                                            <!-- 5. Corporate Office: Sales, Tendering & CRM -->
+                                            <optgroup label="📈 SALES, TENDERING & BUSINESS DEVELOPMENT (OFFICE)">
+                                                <option value="Business Development Manager (MEP Contracts)">Business Development Manager (MEP Contracts)</option>
+                                                <option value="Senior Sales Executive (Commercial Projects)">Senior Sales Executive (Commercial Projects)</option>
+                                                <option value="Sales Executive (HVAC & Industrial MEP)">Sales Executive (HVAC & Industrial MEP)</option>
+                                                <option value="Tendering & Estimation Manager">Tendering & Estimation Manager</option>
+                                                <option value="MEP Estimation & Costing Engineer">MEP Estimation & Costing Engineer</option>
+                                                <option value="Client Relations / Key Account Manager">Client Relations / Key Account Manager</option>
+                                            </optgroup>
+
+                                            <!-- 6. Corporate Office: Administration, IT & Support -->
+                                            <optgroup label="🏢 GENERAL ADMINISTRATION & IT SUPPORT (OFFICE)">
+                                                <option value="Administration & Facilities Manager">Administration & Facilities Manager</option>
+                                                <option value="IT Network & System Administrator">IT Network & System Administrator</option>
+                                                <option value="IT Support Specialist (Hardware & ERP)">IT Support Specialist (Hardware & ERP)</option>
+                                                <option value="Executive Assistant / Personal Secretary">Executive Assistant / Personal Secretary</option>
+                                                <option value="Receptionist / Front Desk Officer">Receptionist / Front Desk Officer</option>
+                                                <option value="Office Assistant & Dispatch Clerk">Office Assistant & Dispatch Clerk</option>
+                                                <option value="Office Boy / Pantry & Hospitality Attendant">Office Boy / Pantry & Hospitality Attendant</option>
+                                                <option value="Corporate Office Driver / Chauffeur">Corporate Office Driver / Chauffeur</option>
+                                                <option value="Office Security Supervisor">Office Security Supervisor</option>
+                                            </optgroup>
+
+                                            <!-- 7. Engineering & Project Management -->
+                                            <optgroup label="🏗️ ENGINEERING & PROJECT MANAGEMENT (SITE & HYBRID)">
+                                                <option value="Project Engineer" selected>Project Engineer</option>
+                                                <option value="Assistant Project Engineer">Assistant Project Engineer</option>
+                                                <option value="MEP Project Director / Deputy PM">MEP Project Director / Deputy PM</option>
+                                                <option value="Planning & Scheduling Engineer (Primavera P6)">Planning & Scheduling Engineer (Primavera P6)</option>
+                                                <option value="Lead MEP Coordinator">Lead MEP Coordinator</option>
+                                                <option value="Mechanical Project Engineer">Mechanical Project Engineer</option>
+                                                <option value="Electrical Project Engineer">Electrical Project Engineer</option>
+                                                <option value="MEP Site Coordinator">MEP Site Coordinator</option>
+                                                <option value="Testing & Commissioning (T&C) Manager">Testing & Commissioning (T&C) Manager</option>
+                                                <option value="QA/QC Manager (Electrical & Mechanical)">QA/QC Manager (Electrical & Mechanical)</option>
+                                            </optgroup>
+
+                                            <!-- A -->
+                                            <optgroup label="A — AIR CONDITIONING, ACCOUNTS & CAD">
+                                                <option value="AC Technician (Chiller & VRF Specialist)">AC Technician (Chiller & VRF Specialist)</option>
+                                                <option value="AC Technician (Package & Split Units)">AC Technician (Package & Split Units)</option>
+                                                <option value="Accounts & Site Billing Officer">Accounts & Site Billing Officer</option>
+                                                <option value="AutoCAD / BIM Draftsman (MEP)">AutoCAD / BIM Draftsman (MEP)</option>
+                                            </optgroup>
+
+                                            <!-- B -->
+                                            <optgroup label="B — BMS & BOILERS">
+                                                <option value="BMS (Building Management System) Engineer">BMS (Building Management System) Engineer</option>
+                                                <option value="BMS Operator & Automation Specialist">BMS Operator & Automation Specialist</option>
+                                                <option value="Boiler & Steam System Technician">Boiler & Steam System Technician</option>
+                                            </optgroup>
+
+                                            <!-- C -->
+                                            <optgroup label="C — CHILLER, COMMISSIONING & CRANE">
+                                                <option value="Chiller Plant Operator (Centrifugal & Screw)">Chiller Plant Operator (Centrifugal & Screw)</option>
+                                                <option value="Commissioning & Testing Specialist">Commissioning & Testing Specialist</option>
+                                                <option value="Crane & Heavy Rigging Operator">Crane & Heavy Rigging Operator</option>
+                                            </optgroup>
+
+                                            <!-- D -->
+                                            <optgroup label="D — DUCTING & DRAINAGE">
+                                                <option value="Duct Fabricator & Sheet Metal Mechanic">Duct Fabricator & Sheet Metal Mechanic</option>
+                                                <option value="Duct Insulator & Cladding Specialist">Duct Insulator & Cladding Specialist</option>
+                                                <option value="Drainage & Stormwater Piping Specialist">Drainage & Stormwater Piping Specialist</option>
+                                            </optgroup>
+
+                                            <!-- E -->
+                                            <optgroup label="E — ELECTRICAL & ELEVATORS">
+                                                <option value="Electrical Project Engineer">Electrical Project Engineer</option>
+                                                <option value="Electrician (HT/LT Switchgear & Panels)">Electrician (HT/LT Switchgear & Panels)</option>
+                                                <option value="Electrician (General Site Wiring & Conduit)">Electrician (General Site Wiring & Conduit)</option>
+                                                <option value="Elevator & Lift Installation Engineer">Elevator & Lift Installation Engineer</option>
+                                                <option value="Extra Low Voltage (ELV) Technician">Extra Low Voltage (ELV) Technician</option>
+                                            </optgroup>
+
+                                            <!-- F -->
+                                            <optgroup label="F — FIREFIGHTING, FOREMAN & FABRICATION">
+                                                <option value="Fire Alarm & Smoke Evacuation Specialist">Fire Alarm & Smoke Evacuation Specialist</option>
+                                                <option value="Firefighting Pipe Fitter (NFPA Sprinkler)">Firefighting Pipe Fitter (NFPA Sprinkler)</option>
+                                                <option value="Firefighting Pump Station Specialist">Firefighting Pump Station Specialist</option>
+                                                <option value="Fabrication Shop Welder (TIG / ARC)">Fabrication Shop Welder (TIG / ARC)</option>
+                                                <option value="General Site Foreman">General Site Foreman</option>
+                                            </optgroup>
+
+                                            <!-- G -->
+                                            <optgroup label="G — GENERATORS & GAS">
+                                                <option value="Gas Piping & Medical Gas Specialist">Gas Piping & Medical Gas Specialist</option>
+                                                <option value="Generator & Diesel Plant Mechanic">Generator & Diesel Plant Mechanic</option>
+                                            </optgroup>
+
+                                            <!-- H -->
+                                            <optgroup label="H — HSE, HVAC & HYDRONICS">
+                                                <option value="HSE Officer / Safety Steward">HSE Officer / Safety Steward</option>
+                                                <option value="HVAC Project Engineer">HVAC Project Engineer</option>
+                                                <option value="HVAC Ductwork Installation Supervisor">HVAC Ductwork Installation Supervisor</option>
+                                                <option value="Hydronic Balancing & Chilled Water Specialist">Hydronic Balancing & Chilled Water Specialist</option>
+                                            </optgroup>
+
+                                            <!-- I -->
+                                            <optgroup label="I — INSTRUMENTATION & INSULATION">
+                                                <option value="Industrial Automation & PLC Programmer">Industrial Automation & PLC Programmer</option>
+                                                <option value="Instrumentation & Control (I&C) Technician">Instrumentation & Control (I&C) Technician</option>
+                                                <option value="Insulation & Jacketing Technician">Insulation & Jacketing Technician</option>
+                                            </optgroup>
+
+                                            <!-- J -->
+                                            <optgroup label="J — JUNIOR ENGINEERS">
+                                                <option value="Junior Electrical Site Engineer">Junior Electrical Site Engineer</option>
+                                                <option value="Junior Mechanical Site Engineer">Junior Mechanical Site Engineer</option>
+                                            </optgroup>
+
+                                            <!-- L -->
+                                            <optgroup label="L — LIFTS & LOGISTICS">
+                                                <option value="Lift & Elevator Installation Technician">Lift & Elevator Installation Technician</option>
+                                                <option value="Logistics & Site Material Assistant">Logistics & Site Material Assistant</option>
+                                            </optgroup>
+
+                                            <!-- M -->
+                                            <optgroup label="M — MAINTENANCE & MECHANICAL">
+                                                <option value="Maintenance Technician (O&M Facilities)">Maintenance Technician (O&M Facilities)</option>
+                                                <option value="MEP Site Foreman (General Site Lead)">MEP Site Foreman (General Site Lead)</option>
+                                            </optgroup>
+
+                                            <!-- O -->
+                                            <optgroup label="O — OPERATIONS & OUTSTATION">
+                                                <option value="Operations & Maintenance (O&M) Engineer">Operations & Maintenance (O&M) Engineer</option>
+                                                <option value="Outstation Site Coordinator">Outstation Site Coordinator</option>
+                                            </optgroup>
+
+                                            <!-- P -->
+                                            <optgroup label="P — PIPE FITTERS, PLUMBING & PUMPS">
+                                                <option value="Pipe Fitter (Chilled Water & Hydronic 6G)">Pipe Fitter (Chilled Water & Hydronic 6G)</option>
+                                                <option value="Plumber (Sanitary & Drainage Works)">Plumber (Sanitary & Drainage Works)</option>
+                                                <option value="Procurement Officer (MEP Materials)">Procurement Officer (MEP Materials)</option>
+                                                <option value="Pump & Reverse Osmosis (RO) Plant Tech">Pump & Reverse Osmosis (RO) Plant Tech</option>
+                                            </optgroup>
+
+                                            <!-- Q -->
+                                            <optgroup label="Q — QA/QC & QUANTITY SURVEY">
+                                                <option value="QA/QC Inspector (Electrical & Power)">QA/QC Inspector (Electrical & Power)</option>
+                                                <option value="QA/QC Inspector (Mechanical & HVAC)">QA/QC Inspector (Mechanical & HVAC)</option>
+                                                <option value="Quantity Surveyor (Billing, Measurement & IPCs)">Quantity Surveyor (Billing, Measurement & IPCs)</option>
+                                            </optgroup>
+
+                                            <!-- R -->
+                                            <optgroup label="R — REFRIGERATION & RIGGING">
+                                                <option value="Refrigeration & Cold Storage Engineer">Refrigeration & Cold Storage Engineer</option>
+                                                <option value="Rigger & Scaffolder (Certified)">Rigger & Scaffolder (Certified)</option>
+                                            </optgroup>
+
+                                            <!-- S -->
+                                            <optgroup label="S — SAFETY, STORE & SOLAR">
+                                                <option value="Safety Inspector / Safety Steward">Safety Inspector / Safety Steward</option>
+                                                <option value="Site Store Incharge & Custodian">Site Store Incharge & Custodian</option>
+                                                <option value="Solar PV Systems Installer & Technician">Solar PV Systems Installer & Technician</option>
+                                                <option value="Substation Engineer (11kV / 132kV Grid)">Substation Engineer (11kV / 132kV Grid)</option>
+                                            </optgroup>
+
+                                            <!-- T -->
+                                            <optgroup label="T — TESTING & COMMISSIONING">
+                                                <option value="Testing, Adjusting & Balancing (TAB) Specialist">Testing, Adjusting & Balancing (TAB) Specialist</option>
+                                                <option value="Testing & Commissioning (T&C) Manager">Testing & Commissioning (T&C) Manager</option>
+                                                <option value="Tool Room & Custody Asset Keeper">Tool Room & Custody Asset Keeper</option>
+                                            </optgroup>
+
+                                            <!-- V -->
+                                            <optgroup label="V — VALVES & VRF">
+                                                <option value="Valve Overhauling & Pump Alignment Specialist">Valve Overhauling & Pump Alignment Specialist</option>
+                                                <option value="VRF / VRV Inverter System Specialist">VRF / VRV Inverter System Specialist</option>
+                                            </optgroup>
+
+                                            <!-- W -->
+                                            <optgroup label="W — WELDING & WORKSHOP">
+                                                <option value="Welder (6G High-Pressure Piping / Certified)">Welder (6G High-Pressure Piping / Certified)</option>
+                                                <option value="Workshop Foreman (Central Duct Fabrication)">Workshop Foreman (Central Duct Fabrication)</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+
+                                    <!-- Compensation & Shift -->
+                                    <div class="space-y-1.5 pt-1">
+                                        <div class="flex items-center justify-between">
+                                            <label class="block text-[10.5px] font-bold text-slate-700">Proposed Base Salary (PKR) <span class="text-red-500">*</span></label>
+                                            <span class="text-[9px] text-slate-400">Monthly Gross</span>
+                                        </div>
+                                        <div class="relative">
+                                            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">PKR</span>
+                                            <input id="emp_salary" type="number" class="w-full border border-slate-200 rounded-lg pl-13 pr-3 py-1.5 text-xs font-semibold text-slate-800 bg-white focus:border-[#242b5f] focus:ring-2 focus:ring-[#242b5f]/15 outline-none shadow-2xs" placeholder="e.g. 125000">
+                                        </div>
+                                        <div class="flex flex-wrap items-center gap-1 pt-0.5">
+                                            <button type="button" onclick="setQuickSalary(45000)" class="text-[9.5px] font-medium text-slate-600 hover:text-indigo-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded transition">₨ 45k</button>
+                                            <button type="button" onclick="setQuickSalary(65000)" class="text-[9.5px] font-medium text-slate-600 hover:text-indigo-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded transition">₨ 65k</button>
+                                            <button type="button" onclick="setQuickSalary(85000)" class="text-[9.5px] font-medium text-slate-600 hover:text-indigo-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded transition">₨ 85k</button>
+                                            <button type="button" onclick="setQuickSalary(125000)" class="text-[9.5px] font-medium text-slate-600 hover:text-indigo-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded transition">₨ 125k</button>
+                                            <button type="button" onclick="setQuickSalary(150000)" class="text-[9.5px] font-medium text-slate-600 hover:text-indigo-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded transition">₨ 150k</button>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <label class="block text-[10.5px] font-bold text-slate-700">Shift Timings</label>
+                                            <a href="shifts.html" target="_blank" class="text-[10px] text-blue-600 hover:text-[#242b5f] hover:underline font-semibold flex items-center gap-1" title="Configure shifts in Shift Management">
+                                                <i class="fas fa-cog text-[9px]"></i> Manage Shifts ↗
+                                            </a>
+                                        </div>
+                                        <select id="emp_shift_select" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white text-slate-800 focus:outline-none focus:border-[#242b5f] shadow-2xs">
+                                            <option value="General Site Shift (08:00 AM - 05:00 PM)">General Site Shift (08:00 AM - 05:00 PM) [Site MEP & Field]</option>
+                                            <option value="Head Office Shift (09:00 AM - 06:00 PM)">Head Office Shift (09:00 AM - 06:00 PM) [Corporate & HQ]</option>
+                                            <option value="Night Maintenance Shift (08:00 PM - 05:00 AM)">Night Maintenance Shift (08:00 PM - 05:00 AM) [Overhaul Turnaround]</option>
+                                            <option value="Friday Half-Day Shift (08:00 AM - 01:00 PM)">Friday Half-Day Shift (08:00 AM - 01:00 PM) [Special Jummah]</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ================= COLUMN 3: Experience, App Access & Live Summary ================= -->
+                        <div class="space-y-4 flex flex-col">
+                            
+                            <!-- 4. Previous Employment & Experience -->
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/80 space-y-2.5 shadow-2xs">
+                                <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5 border-b border-slate-100 pb-1.5">
+                                    <span class="w-4 h-4 rounded-full bg-[#242b5f] text-white flex items-center justify-center text-[9px] font-bold">4</span>
+                                    Previous Experience & History
+                                </h4>
+                                <div class="space-y-2">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-700 mb-1">Last Employer</label>
+                                            <input id="emp_prev_company" type="text" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white text-slate-800 outline-none focus:border-[#242b5f] shadow-2xs" placeholder="e.g. Descon / Dawood">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-700 mb-1">Last Drawn Salary</label>
+                                            <input id="emp_prev_salary" type="number" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white text-slate-800 outline-none focus:border-[#242b5f] shadow-2xs" placeholder="e.g. 55000">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-700 mb-1">Reason for Leaving</label>
+                                        <input id="emp_leave_reason" type="text" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white text-slate-800 outline-none focus:border-[#242b5f] shadow-2xs" placeholder="e.g. Career Growth / Project Completion">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. Mobile App Credentials -->
+                            <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 space-y-2.5 shadow-2xs">
+                                <div class="flex items-center justify-between border-blue-200/60 pb-1.5 border-b">
+                                    <h4 class="text-xs font-bold text-[#242b5f] flex items-center gap-1.5">
+                                        <i class="fas fa-mobile-screen-button text-blue-600"></i> 5. Mobile App GPS Credentials
+                                    </h4>
+                                    <span class="text-[9px] font-bold text-blue-700 bg-blue-100/60 px-1.5 py-0.2 rounded">Self-Service</span>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-700 mb-1">App Username / Email</label>
+                                        <input type="text" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white text-slate-800 outline-none shadow-2xs" placeholder="worker@cosmix.com">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-700 mb-1">Temporary Password</label>
+                                        <input type="password" value="cosmix123" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white text-slate-800 outline-none shadow-2xs">
+                                    </div>
+                                </div>
+                                <p class="text-[9.5px] text-slate-500 flex items-center gap-1"><i class="fas fa-location-crosshairs text-blue-500"></i> Auto-enables mobile GPS attendance check-in.</p>
+                            </div>
+
+
+
+                        </div>
+
+                    </div>
+
+                    <!-- 3. Bottom Sticky / Action Bar -->
+                    <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200/80 flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <div class="flex items-center gap-2 text-slate-500 text-xs">
+                            <i class="fas fa-shield-halved text-[#242b5f] text-sm"></i>
+                            <div>
+                                <p class="font-bold text-slate-700 leading-tight">Enterprise HR & CEO Approval Protocol</p>
+                                <p class="text-[10px] text-slate-400">Worker profile enters Draft status awaiting executive sign-off</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                            <button type="button" onclick="showDirectoryView()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition">
+                                Cancel
+                            </button>
+                            <button type="button" onclick="submitNewWorker()" class="bg-[#242b5f] hover:bg-[#1b214a] text-white px-6 py-2 rounded-lg text-xs font-bold shadow-md shadow-indigo-950/20 hover:shadow-lg transition-all flex items-center gap-1.5 active:scale-95">
+                                <i class="fas fa-paper-plane text-[10.5px]"></i> Submit to CEO
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- End #employee-onboard-form-view -->
+
+            </div>
+        `;
+
+        setPageContent('1. Employee Master Directory', pageHTML);
+
+        // View Navigation Helpers (Full-Page View Toggle)
+        window.populateShiftsDropdown = function() {
+            const selectEl = document.getElementById('emp_shift_select');
+            if (!selectEl) return;
+            try {
+                const saved = localStorage.getItem('cosmix_shifts');
+                if (saved) {
+                    const shifts = JSON.parse(saved).filter(s => s.status === 'Active');
+                    if (shifts.length > 0) {
+                        selectEl.innerHTML = shifts.map(s => `<option value="${s.name} (${s.startTime} - ${s.endTime})">${s.name} (${s.startTime} - ${s.endTime}) [${s.category}]</option>`).join('');
+                    }
+                }
+            } catch(e) {}
+        };
+
+        window.showOnboardForm = function() {
+            document.getElementById('employee-directory-view')?.classList.add('hidden');
+            document.getElementById('employee-onboard-form-view')?.classList.remove('hidden');
+            window.populateShiftsDropdown();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.showDirectoryView = function() {
+            document.getElementById('employee-onboard-form-view')?.classList.add('hidden');
+            document.getElementById('employee-directory-view')?.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.openAddEmployeeModal = window.showOnboardForm;
+
+        // Auto open form if hash is #add or #onboard
+        if (window.location.hash === '#add' || window.location.hash === '#onboard') {
+            setTimeout(window.showOnboardForm, 50);
+        }
+
+        // City-wise Workplace (Corporate Office & Project Sites) Mapping across Pakistan
+        const CITY_SITES_MAP = {
+            'Karachi': [
+                '🏢 Regional Corporate Office - Karachi (Shahrah-e-Faisal / Clifton)',
+                '🏗️ Karachi High-Rise Commercial Tower (CMX-SITE-101 - Clifton)',
+                '🏗️ Port Qasim Chiller & Cold Storage (CMX-SITE-105)',
+                '🏗️ Lucky One Mall HVAC Expansion (CMX-SITE-106)',
+                '🏗️ All Karachi Project Sites (Field Roving)'
+            ],
+            'Lahore': [
+                '🏢 Head Office & Corporate Directorate (CMX-SITE-HQ - Gulberg III)',
+                '🏢 Central Fabrication Workshop & Store (Badami Bagh / Kot Lakhpat)',
+                '🏗️ Sundar Industrial 11kV Substation (CMX-SITE-107)',
+                '🏗️ DHA Phase 6 Commercial Complex (CMX-SITE-108)',
+                '🏗️ All Lahore Project Sites'
+            ],
+            'Islamabad': [
+                '🏢 Regional Corporate Office - Islamabad (Blue Area / G-5 Liaison Desk)',
+                '🏗️ Islamabad Federal Govt Complex (CMX-SITE-102 - CDA G-5)',
+                '🏗️ Centaurus / New Airport HVAC Expansion (CMX-SITE-115)',
+                '🏗️ All Islamabad Federal Sites'
+            ],
+            'Rawalpindi': [
+                '🏢 Regional Branch & Logistics Depot - Rawalpindi (Saddar / Murree Rd)',
+                '🏗️ Rawalpindi District Hospital MEP Works (CMX-SITE-109)',
+                '🏗️ Bahria Town Heights Commercial Complex (CMX-SITE-110)',
+                '🏗️ All Rawalpindi Project Sites'
+            ],
+            'Taxila / Wah Cantt': [
+                '🏢 Regional Site Office - Taxila / Wah (Heavy Mechanical Area)',
+                '🏗️ Heavy Mechanical & Foundry Complex MEP (CMX-SITE-116)',
+                '🏗️ Wah Cantt Industrial Substation & Chiller Plant'
+            ],
+            'Murree': [
+                '🏢 Regional Branch Office - Murree (Mall Road / Bhurban)',
+                '🏗️ PC Bhurban & Resort HVAC Overhaul (CMX-SITE-117)',
+                '🏗️ All Murree Project Sites'
+            ],
+            'Faisalabad': [
+                '🏢 Regional Branch Office - Faisalabad (Civil Lines / Kohinoor)',
+                '🏗️ Faisalabad Textile HVAC & Chiller Plant (CMX-SITE-104 - Khurrianwala)',
+                '🏗️ Crescent Bahuman 11kV Substation (CMX-SITE-111)',
+                '🏗️ All Faisalabad Project Sites'
+            ],
+            'Multan': [
+                '🏢 Regional Branch Office - Multan (Bosan Road / Cantt)',
+                '🏗️ Multan Industrial VRF & Substation (CMX-SITE-113)',
+                '🏗️ Multan International Airport HVAC Works',
+                '🏗️ All Multan Project Sites'
+            ],
+            'Gujranwala': [
+                '🏢 Regional Branch Office - Gujranwala (GT Road / Rahwali)',
+                '🏗️ Gujranwala Industrial Estate Substation (CMX-SITE-118)',
+                '🏗️ All Gujranwala Project Sites'
+            ],
+            'Sialkot': [
+                '🏢 Regional Branch Office - Sialkot (Daska Road / Sambrial)',
+                '🏗️ Sialkot Export EPZ MEP & Cleanroom Works (CMX-SITE-119)',
+                '🏗️ Sialkot International Airport HVAC Maintenance'
+            ],
+            'Gujrat': [
+                '🏢 Regional Branch Office - Gujrat (GT Road / Industrial Estate)',
+                '🏗️ Gujrat Fan & Electrical Cluster Industrial Site'
+            ],
+            'Bahawalpur': [
+                '🏢 Regional Branch Office - Bahawalpur (Cantt / Model Town)',
+                '🏗️ Quaid-e-Azam Solar Park Substation Works (CMX-SITE-120)'
+            ],
+            'Sargodha': [
+                '🏢 Regional Branch Office - Sargodha (Club Road / Cantt)',
+                '🏗️ Sargodha Industrial & Commercial Complex MEP'
+            ],
+            'Sheikhupura': [
+                '🏢 Regional Branch Office - Sheikhupura (Lahore-Sheikhupura Rd)',
+                '🏗️ Sheikhupura Petrochemical & Industrial MEP'
+            ],
+            'Sahiwal': [
+                '🏢 Regional Branch Office - Sahiwal (High Street / GT Rd)',
+                '🏗️ Sahiwal Coal Power Plant HVAC Maintenance (CMX-SITE-121)'
+            ],
+            'Rahim Yar Khan': [
+                '🏢 Regional Branch Office - Rahim Yar Khan (Shahi Rd)',
+                '🏗️ FFC Fertilizer Plant Industrial MEP & HVAC'
+            ],
+            'Peshawar': [
+                '🏢 Regional Branch Office & MEP Depot (Hayatabad Phase 3)',
+                '🏗️ Peshawar Industrial Chiller & Cold Store (CMX-SITE-103 - Hayatabad)',
+                '🏗️ Hayatabad Medical Complex MEP (CMX-SITE-112)',
+                '🏗️ All Peshawar Project Sites'
+            ],
+            'Abbottabad': [
+                '🏢 Regional Branch Office - Abbottabad (Mandian / Supply)',
+                '🏗️ Ayub Medical Complex HVAC & Hospital MEP',
+                '🏗️ All Hazara Division Sites'
+            ],
+            'Haripur': [
+                '🏢 Regional Branch Office - Haripur (Hattar Industrial Area)',
+                '🏗️ Hattar Industrial Estate 11kV Substation & Chillers'
+            ],
+            'Mardan': [
+                '🏢 Regional Branch Office - Mardan (Nowshera Road)',
+                '🏗️ Mardan Commercial Center & Cold Storage MEP'
+            ],
+            'Swat': [
+                '🏢 Regional Branch Office - Swat (Mingora / Saidu Sharif)',
+                '🏗️ Swat Valley Commercial & Tourism Facilities HVAC'
+            ],
+            'Quetta': [
+                '🏢 Regional Branch Office - Quetta (Cantt / Zarghoon Road)',
+                '🏗️ Quetta Military Hospital HVAC (CMX-SITE-114)',
+                '🏗️ All Quetta Project Sites'
+            ],
+            'Gwadar': [
+                '🏢 Regional Corporate Office - Gwadar (Free Zone / Jinnah Ave)',
+                '🏗️ Gwadar Port Free Zone MEP & Desalination Electrical',
+                '🏗️ New Gwadar International Airport HVAC Systems'
+            ],
+            'Hub': [
+                '🏢 Regional Branch Office - Hub (Lasbela Industrial Estate)',
+                '🏗️ Hub Power Station & Industrial Plants MEP'
+            ],
+            'Hyderabad': [
+                '🏢 Regional Corporate Office - Hyderabad (Auto Bhan / Qasimabad)',
+                '🏗️ Hyderabad Commercial Mall & Towers (CMX-SITE-122)',
+                '🏗️ Kotri Industrial Substation & Chiller Works'
+            ],
+            'Sukkur': [
+                '🏢 Regional Branch Office - Sukkur (Military Road)',
+                '🏗️ Sukkur Indus Commercial Complex & Cold Store (CMX-SITE-123)'
+            ],
+            'Muzaffarabad': [
+                '🏢 Regional Branch Office - Muzaffarabad (Secretariat Road)',
+                '🏗️ Neelum-Jhelum Hydel Auxiliary MEP Systems'
+            ],
+            'Mirpur AJK': [
+                '🏢 Regional Branch Office - Mirpur AJK (Sector F/1 / Industrial)',
+                '🏗️ Mirpur EPZ Industrial Plants & Mangla Project Site'
+            ],
+            'Gilgit': [
+                '🏢 Regional Branch Office - Gilgit (Airport Road / Jutial)',
+                '🏗️ Gilgit Commercial Complex & Mountain Resorts HVAC'
+            ],
+            'Skardu': [
+                '🏢 Regional Branch Office - Skardu (Main Bazaar / Airport Rd)',
+                '🏗️ Skardu Hospitality & High-Altitude Airport HVAC'
+            ]
+        };
+
+        // Smart site provider for ALL cities of Pakistan
+        function getSitesForCity(city) {
+            if (CITY_SITES_MAP[city]) return CITY_SITES_MAP[city];
+            const cleanCode = (city.replace(/[^a-zA-Z]/g, '').substring(0, 3) || 'PK').toUpperCase();
+            return [
+                `🏢 Regional Branch / Corporate Office - ${city}`,
+                `🏗️ ${city} Commercial & MEP Project Site (CMX-${cleanCode}-101)`,
+                `🏗️ ${city} Industrial HVAC & Electrical Installation (CMX-${cleanCode}-102)`,
+                `🏗️ All ${city} Project Sites (Field Roving)`
+            ];
+        }
+
+        // Quick Salary Chip Selection
+        window.setQuickSalary = function(amount) {
+            const input = document.getElementById('emp_salary');
+            if (input) input.value = amount;
+        };
+
+        // Live Name & Avatar Preview
+        window.updateLiveNamePreview = function(name) {
+            const nameElem = document.getElementById('preview_emp_name');
+            const avatarElem = document.getElementById('preview_avatar_badge');
+            if (nameElem) {
+                nameElem.innerText = name.trim() || 'New Worker Profile';
+            }
+            if (avatarElem && name.trim()) {
+                const initials = name.trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                avatarElem.innerText = initials || 'ME';
+            }
+        };
+
+        // Switch between Corporate Office and Site Workplace
+        // Filter role dropdown options based on Workplace Category (Office vs Site)
+        function filterRolesByWorkplace(isOffice) {
+            const roleSelect = document.getElementById('emp_role');
+            if (!roleSelect) return;
+
+            // Cache original optgroups on first run
+            if (!window._cachedRoleOptgroups) {
+                window._cachedRoleOptgroups = Array.from(roleSelect.querySelectorAll('optgroup'));
+            }
+
+            const currentVal = roleSelect.value;
+            roleSelect.innerHTML = '';
+
+            window._cachedRoleOptgroups.forEach(og => {
+                const label = og.getAttribute('label') || '';
+                const isOfficeGroup = label.includes('(OFFICE)') || label.includes('OFFICE & CENTRAL STORE');
+                if (isOffice && isOfficeGroup) {
+                    roleSelect.appendChild(og.cloneNode(true));
+                } else if (!isOffice && !isOfficeGroup) {
+                    roleSelect.appendChild(og.cloneNode(true));
+                }
+            });
+
+            // Restore previous selection if valid in new group, else pick sensible default
+            let matched = false;
+            for (let i = 0; i < roleSelect.options.length; i++) {
+                if (roleSelect.options[i].value === currentVal) {
+                    roleSelect.selectedIndex = i;
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched && roleSelect.options.length > 0) {
+                roleSelect.selectedIndex = isOffice ? 2 : 0; // Default to HR or Project Engineer
+            }
+        }
+
+        // Switch between Corporate Office and Site Workplace
+        window.handleWorkplaceTypeChange = function(type) {
+            const isOffice = (type === 'office');
+            const radioOffice = document.getElementById('wp_office');
+            const radioSite = document.getElementById('wp_site');
+            const lblOffice = document.getElementById('lbl-wp-office');
+            const lblSite = document.getElementById('lbl-wp-site');
+            const shiftSelect = document.getElementById('emp_shift_select');
+            const city = document.getElementById('emp_city') ? document.getElementById('emp_city').value : 'Lahore';
+            const siteSelect = document.getElementById('emp_site');
+
+            if (radioOffice) radioOffice.checked = isOffice;
+            if (radioSite) radioSite.checked = !isOffice;
+
+            if (lblOffice && lblSite) {
+                if (isOffice) {
+                    lblOffice.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold transition cursor-pointer bg-blue-50 text-[#242b5f] border-2 border-[#242b5f] shadow-xs';
+                    lblSite.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition bg-white text-slate-600 border border-slate-200 hover:border-slate-300';
+                } else {
+                    lblSite.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold transition cursor-pointer bg-blue-50 text-[#242b5f] border-2 border-[#242b5f] shadow-xs';
+                    lblOffice.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition bg-white text-slate-600 border border-slate-200 hover:border-slate-300';
+                }
+            }
+
+            // Dynamically filter Role Dropdown to show ONLY Office or ONLY Site roles!
+            filterRolesByWorkplace(isOffice);
+
+            // Auto refresh & select matching workplace in site dropdown
+            if (siteSelect) {
+                const sites = getSitesForCity(city);
+                siteSelect.innerHTML = sites.map(s => `<option value="${s}">${s}</option>`).join('');
+
+                const targetOption = isOffice 
+                    ? sites.find(s => s.includes('🏢')) || sites[0]
+                    : sites.find(s => s.includes('🏗️')) || sites[1] || sites[0];
+                
+                for (let i = 0; i < siteSelect.options.length; i++) {
+                    if (siteSelect.options[i].value === targetOption) {
+                        siteSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            // Auto-adjust shift timing
+            if (shiftSelect) {
+                if (isOffice) {
+                    for (let i = 0; i < shiftSelect.options.length; i++) {
+                        if (shiftSelect.options[i].value.includes('Head Office') || shiftSelect.options[i].value.includes('09:00 AM')) {
+                            shiftSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                } else {
+                    for (let i = 0; i < shiftSelect.options.length; i++) {
+                        if (shiftSelect.options[i].value.includes('General Site') || shiftSelect.options[i].value.includes('08:00 AM')) {
+                            shiftSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+        };
+
+        // Dynamically update site options based on selected city
+        window.handleEmployeeCityChange = function(city) {
+            const isOfficeSelected = document.getElementById('wp_office')?.checked;
+            window.handleWorkplaceTypeChange(isOfficeSelected ? 'office' : 'site');
+
+            const metaElem = document.getElementById('preview_emp_meta');
+            if (metaElem) {
+                const role = document.getElementById('emp_role')?.value || 'Project Engineer';
+                metaElem.innerText = `${role} • ${city} Division`;
+            }
+        };
+
+        // Smart role selection handler: automatically connects Office roles to Office workplace and 9-6 shift
+        window.handleEmployeeRoleChange = function(role) {
+            const city = document.getElementById('emp_city') ? document.getElementById('emp_city').value : 'Karachi';
+            const metaElem = document.getElementById('preview_emp_meta');
+            if (metaElem) {
+                metaElem.innerText = `${role} • ${city} Division`;
+            }
+
+            const roleSelect = document.getElementById('emp_role');
+            if (roleSelect && roleSelect.selectedOptions[0]) {
+                const optgroupLabel = roleSelect.selectedOptions[0].parentElement?.getAttribute('label') || '';
+                const isOffice = optgroupLabel.includes('(OFFICE)');
+                window.handleWorkplaceTypeChange(isOffice ? 'office' : 'site');
+            }
+        };
+
+        // Photo preview handler
+        window.previewEmployeePhoto = function(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('photo_preview');
+                    const placeholder = document.getElementById('photo_placeholder');
+                    if (preview && placeholder) {
+                        preview.src = e.target.result;
+                        preview.classList.remove('hidden');
+                        placeholder.classList.add('hidden');
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        // Interactive submission logic: adds row to the table with "Pending CEO"
+        window.submitNewWorker = function() {
+            const name = document.getElementById('emp_name').value.trim();
+            const contact = document.getElementById('emp_contact').value.trim();
+            const rawRole = document.getElementById('emp_role').value;
+            const city = document.getElementById('emp_city') ? document.getElementById('emp_city').value : 'Karachi';
+            const site = document.getElementById('emp_site').value;
+            const salary = document.getElementById('emp_salary').value || '65000';
+            const cnic = document.getElementById('emp_cnic').value || '42101-XXXXXXX-X';
+            const photoPreview = document.getElementById('photo_preview');
+            const hasPhoto = photoPreview && !photoPreview.classList.contains('hidden') && photoPreview.src;
+
+            if (!name || !contact) {
+                showToast('Please enter Employee Name and Contact Number!', 'error');
+                return;
+            }
+
+            const displayRole = rawRole;
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'NW';
+            const newEmpId = 'EMP-' + Math.floor(1050 + Math.random() * 50);
+
+            const avatarHTML = hasPhoto 
+                ? `<img src="${photoPreview.src}" class="w-7 h-7 rounded-full object-cover border border-gray-300 shrink-0">` 
+                : `<div class="w-7 h-7 rounded-full bg-[#242b5f] text-white flex items-center justify-center font-bold text-[10px] shrink-0">${initials}</div>`;
+
+            const tbody = document.getElementById('employee-table-body');
+            const newRow = document.createElement('tr');
+            newRow.className = 'hover:bg-blue-50/20 transition group bg-blue-50/15 border-l-4 border-[#242b5f]';
+            
+            newRow.innerHTML = '' +
+                '<td class="px-4 py-2.5">' +
+                    '<div class="flex items-center gap-2.5">' +
+                        avatarHTML +
+                        '<div>' +
+                            '<a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">' + name + '</a>' +
+                            '<p class="text-[9.5px] text-gray-400">' + displayRole + ' • ' + city + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                '</td>' +
+                '<td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded">' + newEmpId + '</span></td>' +
+                '<td class="px-4 py-2.5 text-gray-700 font-semibold">' + displayRole + '</td>' +
+                '<td class="px-4 py-2.5 text-gray-700 font-medium">' + site + '</td>' +
+                '<td class="px-4 py-2.5 text-gray-500"><div>' + contact + '</div><div class="text-[9px] text-gray-400">' + cnic + '</div></td>' +
+                '<td class="px-4 py-2.5 font-bold text-gray-700">Rs. ' + Number(salary).toLocaleString() + '</td>' +
+                '<td class="px-4 py-2.5 text-center">' +
+                    '<span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-200 uppercase tracking-wide flex items-center justify-center gap-1 mx-auto w-max"><i class="fas fa-spinner fa-spin text-[8px]"></i> Pending CEO</span>' +
+                '</td>' +
+                '<td class="px-4 py-2.5 text-right relative dropdown">' +
+                    '<button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>' +
+                    '<div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">' +
+                        '<a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>' +
+                        '<button onclick="openMonthHistoryModal(\'' + name.replace(/'/g, "\\'") + '\', \'' + displayRole + '\', \'' + newEmpId + '\')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>' +
+                        '<button onclick="openPayslipModal({ name: \'' + name.replace(/'/g, "\\'") + '\', role: \'' + displayRole + '\', empId: \'' + newEmpId + '\', base: ' + Number(salary) + ', site: \'' + site + '\' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>' +
+                    '</div>' +
+                '</td>';
+
+            tbody.insertBefore(newRow, tbody.firstChild);
+
+            // Update CEO counter badge
+            const pendingStat = document.getElementById('stat-pending-ceo');
+            if (pendingStat) pendingStat.innerHTML = '3 <span class="text-[10px] text-orange-500 font-normal">Drafts</span>';
+
+            // Return to directory view & reset form
+            showDirectoryView();
+
+            document.getElementById('emp_name').value = '';
+            document.getElementById('emp_contact').value = '';
+            if (document.getElementById('emp_address')) document.getElementById('emp_address').value = '';
+            if (document.getElementById('emp_emergency_name')) document.getElementById('emp_emergency_name').value = '';
+            if (document.getElementById('emp_emergency_phone')) document.getElementById('emp_emergency_phone').value = '';
+            if (document.getElementById('emp_prev_company')) document.getElementById('emp_prev_company').value = '';
+            if (document.getElementById('emp_prev_salary')) document.getElementById('emp_prev_salary').value = '';
+            if (document.getElementById('emp_leave_reason')) document.getElementById('emp_leave_reason').value = '';
+            if (photoPreview) {
+                photoPreview.src = '';
+                photoPreview.classList.add('hidden');
+                document.getElementById('photo_placeholder')?.classList.remove('hidden');
+            }
+
+            showToast(`${displayRole} ${name} onboarded for ${site} & queued for CEO Review.`, 'success');
+        };
+    </script>
+</body>
+</html>
+

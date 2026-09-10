@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Accounts Payroll Disbursement</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; } 
+        body { font-family: 'Inter', sans-serif; } 
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; } 
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('payroll');
+        setPageContent('Accounts Payroll Disbursement & Bank Transfer Advice', `
+            <div class="space-y-4">
+                
+
+
+                <!-- 4 Financial Breakdown Stat Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-xs">
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Gross Base Remuneration</p>
+                        <h4 class="text-lg font-extrabold text-gray-900 mt-0.5">Rs. 5,120,000</h4>
+                        <p class="text-[9px] text-gray-500 mt-1">150 Total Personnel (45 Off • 105 Site)</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-green-100 shadow-xs">
+                        <p class="text-[9px] text-green-700 font-bold uppercase tracking-wider">Overtime (1.5x) & Allowances</p>
+                        <h4 class="text-lg font-extrabold text-green-800 mt-0.5">+Rs. 385,000</h4>
+                        <p class="text-[9px] text-green-700 font-semibold mt-1"><i class="fas fa-check-circle mr-0.5"></i> Biometric punch verified</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-red-100 shadow-xs">
+                        <p class="text-[9px] text-red-700 font-bold uppercase tracking-wider">Recoveries (Advance EMI & Tax)</p>
+                        <h4 class="text-lg font-extrabold text-red-700 mt-0.5">-Rs. 65,000</h4>
+                        <p class="text-[9px] text-red-600 font-semibold mt-1">Rs. 52k Loans • Rs. 13k Tax/EOBI</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-indigo-100 shadow-xs">
+                        <p class="text-[9px] text-[#242b5f] font-bold uppercase tracking-wider">Net Bank Disbursal</p>
+                        <h4 class="text-lg font-extrabold text-[#242b5f] mt-0.5">Rs. 5,440,000</h4>
+                        <p class="text-[9px] text-emerald-700 font-bold mt-1"><i class="fas fa-shield-alt mr-0.5"></i> Meezan Balance Sufficient</p>
+                    </div>
+                </div>
+
+                <!-- Pre-Disbursement Audit Checklist Strip -->
+                <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <span class="font-bold text-gray-800 flex items-center gap-1.5">
+                            <i class="fas fa-tasks text-indigo-600"></i> Pre-Payment Audit Checks:
+                        </span>
+                        <span class="flex items-center gap-1 text-emerald-700 font-semibold text-[11px] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            <i class="fas fa-check-circle text-xs"></i> Biometric OT Verified (1,420 hrs)
+                        </span>
+                        <span class="flex items-center gap-1 text-emerald-700 font-semibold text-[11px] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            <i class="fas fa-check-circle text-xs"></i> Advance Loan Balances Reconciled
+                        </span>
+                        <span class="flex items-center gap-1 text-emerald-700 font-semibold text-[11px] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            <i class="fas fa-check-circle text-xs"></i> FBR / EOBI Deductions Tagged
+                        </span>
+                        <span class="flex items-center gap-1 text-emerald-700 font-semibold text-[11px] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            <i class="fas fa-check-circle text-xs"></i> Bank Account IBANs Validated (138)
+                        </span>
+                    </div>
+
+                    <a href="attendance.html" class="text-xs font-bold text-[#242b5f] hover:underline flex items-center gap-1">
+                        Inspect Attendance Records &rarr;
+                    </a>
+                </div>
+
+                <!-- Filter & Search Bar for Employee Disbursement Ledger -->
+                <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-100 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                        <button onclick="filterWorkplace('all', this)" class="workplace-tab px-3 py-1 text-xs font-bold rounded-lg bg-[#242b5f] text-white shadow-2xs transition">All Personnel (150)</button>
+                        <button onclick="filterWorkplace('office', this)" class="workplace-tab px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition">Corporate Office (45)</button>
+                        <button onclick="filterWorkplace('site', this)" class="workplace-tab px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition">Site Engineering & MEP (105)</button>
+                        <button onclick="filterWorkplace('cash', this)" class="workplace-tab px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition">Cheque / Cash (12)</button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input id="payroll-search" type="text" oninput="filterPayrollTable()" placeholder="Search staff, ID, site, bank..." class="bg-gray-50 border border-gray-200 text-xs rounded-md pl-7 pr-3 py-1 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#242b5f] w-52">
+                        </div>
+                        <button onclick="exportToExcel('Accounts_September_2026_Disbursement_Register')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-2xs transition flex items-center gap-1">
+                            <i class="fas fa-file-excel text-green-600"></i> Excel Register
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Master Disbursement Ledger Table -->
+                <div class="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="payroll-main-table">
+                            <thead>
+                                <tr class="bg-gray-50/80 border-b border-gray-100 text-gray-500 font-bold">
+                                    <th>Emp ID</th>
+                                    <th>Employee Name</th>
+                                    <th>Designation & Workplace</th>
+                                    <th>Deployed Site / Office</th>
+                                    <th>Bank & Account (IBAN)</th>
+                                    <th class="text-right">Base Pay</th>
+                                    <th class="text-right">OT & Allow</th>
+                                    <th class="text-right">Deductions</th>
+                                    <th class="text-right">Net Payable</th>
+                                    <th class="text-center">Mode</th>
+                                    <th class="text-center">Payment Status</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-xs" id="payroll-table-body">
+                                <!-- Rendered dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        `);
+
+        // Mock disbursement data covering Office & Site across Pakistan
+        window.PAYROLL_STAFF = [
+            {
+                id: 'EMP-1001',
+                name: 'Muhammad Tariq',
+                role: 'Project Manager (MEP)',
+                category: 'office',
+                site: 'Head Office PECHS, Karachi',
+                bank: 'Meezan Bank Ltd',
+                iban: 'PK36MEZN00010982347101',
+                base: 140000,
+                ot: 0,
+                allowance: 15000,
+                advance: 0,
+                tax: 6500,
+                net: 148500,
+                mode: 'Bank Transfer',
+                status: 'Ready to Transfer'
+            },
+            {
+                id: 'EMP-1002',
+                name: 'Ali Raza',
+                role: 'Site HVAC Engineer',
+                category: 'site',
+                site: 'Lucky One Mall, Karachi',
+                bank: 'Habib Bank Ltd (HBL)',
+                iban: 'PK45HABB00221094110201',
+                base: 85000,
+                ot: 12500,
+                allowance: 5000,
+                advance: 5000,
+                tax: 2500,
+                net: 95000,
+                mode: 'Bank Transfer',
+                status: 'Ready to Transfer'
+            },
+            {
+                id: 'EMP-1003',
+                name: 'Bilal Ahmed',
+                role: 'Electrical Site Engineer',
+                category: 'site',
+                site: 'Packages Mall, Lahore',
+                bank: 'MCB Bank Ltd',
+                iban: 'PK12MUCB00092134195501',
+                base: 82000,
+                ot: 11000,
+                allowance: 5000,
+                advance: 0,
+                tax: 2200,
+                net: 95800,
+                mode: 'Bank Transfer',
+                status: 'Ready to Transfer'
+            },
+            {
+                id: 'EMP-1004',
+                name: 'Zainab Fatima',
+                role: 'Senior Accounts Officer',
+                category: 'office',
+                site: 'Head Office PECHS, Karachi',
+                bank: 'Meezan Bank Ltd',
+                iban: 'PK36MEZN00018823419001',
+                base: 95000,
+                ot: 0,
+                allowance: 8000,
+                advance: 0,
+                tax: 3800,
+                net: 99200,
+                mode: 'Bank Transfer',
+                status: 'Ready to Transfer'
+            },
+            {
+                id: 'EMP-1005',
+                name: 'Usman Ghani',
+                role: 'Chiller Technician Foreman',
+                category: 'site',
+                site: 'Engro Complex, Daharki',
+                bank: 'Allied Bank Ltd (ABL)',
+                iban: 'PK55ABPA00119283746501',
+                base: 55000,
+                ot: 14000,
+                allowance: 6000,
+                advance: 4000,
+                tax: 580,
+                net: 70420,
+                mode: 'Bank Transfer',
+                status: 'Ready to Transfer'
+            },
+            {
+                id: 'EMP-1006',
+                name: 'Hamza Khan',
+                role: 'Lead Firefighting Tech',
+                category: 'site',
+                site: 'Lucky Cement Plant, Pezu KPK',
+                bank: 'Bank Alfalah Ltd',
+                iban: 'PK22ALFH00449182736401',
+                base: 52000,
+                ot: 16500,
+                allowance: 7000,
+                advance: 0,
+                tax: 580,
+                net: 74920,
+                mode: 'Bank Transfer',
+                status: 'Ready to Transfer'
+            },
+            {
+                id: 'EMP-1007',
+                name: 'Rashid Mehmood',
+                role: 'MEP Welder & Fabricator',
+                category: 'site',
+                site: 'DHA City Sector 3, Karachi',
+                bank: 'Cash Cheque Voucher',
+                iban: 'CHQ-PAY-SEP26-1007',
+                base: 42000,
+                ot: 9500,
+                allowance: 3000,
+                advance: 3000,
+                tax: 0,
+                net: 51500,
+                mode: 'Cash Cheque',
+                status: 'Cheque Prepared'
+            },
+            {
+                id: 'EMP-1008',
+                name: 'Suleman Shah',
+                role: 'BMS Controls Specialist',
+                category: 'site',
+                site: 'Bahria Town Civic Center, Rawalpindi',
+                bank: 'Faysal Bank Ltd',
+                iban: 'PK88FAYS00192837465001',
+                base: 90000,
+                ot: 8000,
+                allowance: 6000,
+                advance: 0,
+                tax: 3200,
+                net: 100800,
+                mode: 'Bank Transfer',
+                status: 'Ready to Transfer'
+            },
+            {
+                id: 'EMP-1009',
+                name: 'Farhan Siddiqui',
+                role: 'Procurement Specialist',
+                category: 'office',
+                site: 'Regional Office, Lahore',
+                bank: 'Habib Metropolitan Bank',
+                iban: 'PK19HMBB00991827364501',
+                base: 78000,
+                ot: 0,
+                allowance: 5000,
+                advance: 5000,
+                tax: 2000,
+                net: 76000,
+                mode: 'Bank Transfer',
+                status: 'Ready to Transfer'
+            },
+            {
+                id: 'EMP-1010',
+                name: 'Ghulam Abbas',
+                role: 'Industrial Ductman',
+                category: 'site',
+                site: 'Gulberg Galleria Commercial, Lahore',
+                bank: 'Cash Cheque Voucher',
+                iban: 'CHQ-PAY-SEP26-1010',
+                base: 40000,
+                ot: 11000,
+                allowance: 3000,
+                advance: 0,
+                tax: 0,
+                net: 54000,
+                mode: 'Cash Cheque',
+                status: 'Cheque Prepared'
+            }
+        ];
+
+        window.currentWorkplaceFilter = 'all';
+
+        window.renderPayrollTable = () => {
+            const tbody = document.getElementById('payroll-table-body');
+            const search = (document.getElementById('payroll-search')?.value || '').toLowerCase().trim();
+
+            const filtered = PAYROLL_STAFF.filter(emp => {
+                if (currentWorkplaceFilter === 'office' && emp.category !== 'office') return false;
+                if (currentWorkplaceFilter === 'site' && emp.category !== 'site') return false;
+                if (currentWorkplaceFilter === 'cash' && emp.mode !== 'Cash Cheque') return false;
+
+                if (search) {
+                    const str = `${emp.id} ${emp.name} ${emp.role} ${emp.site} ${emp.bank} ${emp.iban}`.toLowerCase();
+                    if (!str.includes(search)) return false;
+                }
+                return true;
+            });
+
+            tbody.innerHTML = filtered.map(emp => {
+                const isDisbursed = emp.status === 'Transferred (1-Link)' || emp.status === 'Cheque Handed Over';
+                const statusBadge = isDisbursed 
+                    ? '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold text-[9px]"><i class="fas fa-check-circle mr-0.5"></i> ' + emp.status + '</span>'
+                    : '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold text-[9px]"><i class="fas fa-clock mr-0.5"></i> ' + emp.status + '</span>';
+
+                return `
+                    <tr class="hover:bg-blue-50/30 transition">
+                        <td class="font-mono font-bold text-[#242b5f]">${emp.id}</td>
+                        <td>
+                            <a href="employee-profile.html?id=${emp.id}" class="font-bold text-gray-900 hover:text-[#242b5f] hover:underline">${emp.name}</a>
+                            <p class="text-[9.5px] text-gray-400">${emp.category === 'office' ? 'Corporate Staff' : 'Site Technical Staff'}</p>
+                        </td>
+                        <td>
+                            <p class="font-semibold text-gray-800">${emp.role}</p>
+                        </td>
+                        <td>
+                            <p class="text-gray-600 truncate max-w-[150px]" title="${emp.site}">${emp.site}</p>
+                        </td>
+                        <td>
+                            <p class="font-semibold text-gray-800 text-[11px]">${emp.bank}</p>
+                            <p class="text-[9px] font-mono text-gray-400 truncate max-w-[140px]" title="${emp.iban}">${emp.iban}</p>
+                        </td>
+                        <td class="text-right font-semibold text-gray-700">Rs. ${emp.base.toLocaleString()}</td>
+                        <td class="text-right font-semibold text-green-700">+Rs. ${(emp.ot + emp.allowance).toLocaleString()}</td>
+                        <td class="text-right font-semibold text-red-600">-Rs. ${(emp.advance + emp.tax).toLocaleString()}</td>
+                        <td class="text-right font-extrabold text-[#242b5f] text-xs">Rs. ${emp.net.toLocaleString()}</td>
+                        <td class="text-center">
+                            <span class="${emp.mode === 'Bank Transfer' ? 'bg-blue-50 text-blue-700' : 'bg-orange-50 text-orange-700'} px-1.5 py-0.5 rounded text-[8.5px] font-bold">
+                                ${emp.mode}
+                            </span>
+                        </td>
+                        <td class="text-center">${statusBadge}</td>
+                        <td class="text-right whitespace-nowrap">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <a href="employee-profile.html?id=${emp.id}" title="Worker Profile" class="w-6 h-6 rounded bg-purple-50 hover:bg-purple-600 hover:text-white text-purple-700 flex items-center justify-center transition">
+                                    <i class="fas fa-id-badge text-[10px]"></i>
+                                </a>
+                                <button onclick="openEmployeePayslip('${emp.id}')" title="Salary Slip" class="w-6 h-6 rounded bg-gray-100 hover:bg-[#242b5f] hover:text-white text-gray-600 flex items-center justify-center transition">
+                                    <i class="fas fa-receipt text-[10px]"></i>
+                                </button>
+                                <button onclick="showToast('Disbursement certificate exported for ${emp.name}', 'info')" title="Download Advice" class="w-6 h-6 rounded bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 flex items-center justify-center transition">
+                                    <i class="fas fa-file-download text-[10px]"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        };
+
+        window.filterWorkplace = (filter, btn) => {
+            window.currentWorkplaceFilter = filter;
+            document.querySelectorAll('.workplace-tab').forEach(b => {
+                b.classList.remove('bg-[#242b5f]', 'text-white', 'shadow-2xs');
+                b.classList.add('text-gray-600');
+            });
+            btn.classList.add('bg-[#242b5f]', 'text-white', 'shadow-2xs');
+            btn.classList.remove('text-gray-600');
+            renderPayrollTable();
+        };
+
+        window.filterPayrollTable = () => {
+            renderPayrollTable();
+        };
+
+        window.openEmployeePayslip = (empId) => {
+            const emp = PAYROLL_STAFF.find(e => e.id === empId);
+            if (!emp) return;
+            openPayslipModal({
+                name: emp.name,
+                role: emp.role,
+                empId: emp.id,
+                month: 'September 2026',
+                site: emp.site,
+                base: emp.base,
+                ot: emp.ot,
+                allowance: emp.allowance,
+                advanceEmi: emp.advance,
+                tax: emp.tax,
+                bank: emp.bank,
+                iban: emp.iban
+            });
+        };
+
+        // 1-Click Bank Salary Transfer Execution
+        window.executeBankDisbursement = () => {
+            openModal(
+                'Confirm Corporate Bank Transfer Advice Release',
+                `
+                    <div class="space-y-3 text-xs">
+                        <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-amber-900">
+                            <p class="font-bold flex items-center gap-1.5"><i class="fas fa-exclamation-triangle text-amber-600"></i> Irreversible Financial Execution</p>
+                            <p class="text-[10.5px] mt-1 leading-relaxed">
+                                You are about to authorize the transfer of <strong>Rs. 5,440,000 (Rupees Fifty-Four Lac Forty Thousand Only)</strong> from <strong>Meezan Bank Ltd Corporate A/c (0109-8234-71)</strong> for 150 employee salaries across Pakistan.
+                            </p>
+                        </div>
+
+                        <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-200 space-y-1 text-[11px]">
+                            <div class="flex justify-between text-gray-600"><span>1-Link Corporate Batch File:</span><span class="font-bold text-gray-800">MEEZAN-BATCH-SEP2026.TXT</span></div>
+                            <div class="flex justify-between text-gray-600"><span>Total Direct Bank Transfers (1-Link):</span><span class="font-bold text-blue-700">138 Accounts</span></div>
+                            <div class="flex justify-between text-gray-600"><span>Cash Cheques / Site Vouchers:</span><span class="font-bold text-orange-700">12 Technicians</span></div>
+                            <div class="flex justify-between text-gray-600"><span>Linked Accounting Voucher:</span><span class="font-mono font-bold text-[#242b5f]">JV-SEP26-001</span></div>
+                        </div>
+
+                        <p class="text-[10px] text-gray-400 italic text-center">Click "Confirm & Disburse" to initiate electronic transmission to bank gateway.</p>
+                    </div>
+                `,
+                () => {
+                    // Update state to Disbursed
+                    PAYROLL_STAFF.forEach(emp => {
+                        emp.status = emp.mode === 'Bank Transfer' ? 'Transferred (1-Link)' : 'Cheque Handed Over';
+                    });
+                    renderPayrollTable();
+
+                    const badge = document.getElementById('batch-status-badge');
+                    if (badge) {
+                        badge.className = 'bg-emerald-500/20 text-emerald-300 text-[9px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-400/30 uppercase tracking-wider flex items-center gap-1';
+                        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Disbursed & Settled (Meezan Bank)';
+                    }
+
+                    const btn = document.getElementById('disburse-btn');
+                    if (btn) {
+                        btn.className = 'bg-gray-200 text-gray-500 px-3.5 py-1.5 rounded-lg text-xs font-bold cursor-not-allowed';
+                        btn.innerHTML = '<i class="fas fa-check-double text-xs"></i> Batch Disbursed (Sep 2026)';
+                        btn.disabled = true;
+                    }
+
+                    showToast('Rs. 5,440,000 successfully disbursed to 150 employee accounts via 1-Link!', 'success');
+                }
+            );
+        };
+
+        // Download Bank Advice File
+        window.downloadBankAdviceFile = () => {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Emp_ID,Employee_Name,Bank_Name,Account_IBAN,Net_Salary_PKR,Payment_Reference\\n";
+            PAYROLL_STAFF.forEach(emp => {
+                csvContent += `${emp.id},"${emp.name}","${emp.bank}",${emp.iban},${emp.net},"SAL-SEP26"\\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Cosmix_Meezan_Salary_Advice_Sep_2026.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast("Meezan Bank Corporate Advice File exported successfully", "success");
+        };
+
+        // View Journal Voucher (JV)
+        window.viewJournalVoucherModal = () => {
+            const html = `
+                <div class="space-y-3 text-xs">
+                    <div class="border-b border-gray-200 pb-2 flex justify-between items-start">
+                        <div>
+                            <p class="font-black text-xs text-[#242b5f] uppercase tracking-wide">Cosmix Engineering (Pvt) Ltd</p>
+                            <p class="text-[9.5px] text-gray-400">General Ledger • Journal Voucher (JV)</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="bg-[#242b5f] text-white text-[8.5px] font-bold px-1.5 py-0.5 rounded uppercase">JV-SEP26-001</span>
+                            <p class="text-[9px] text-gray-500 mt-0.5">Date: 30 Sep 2026</p>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <table class="w-full text-xs">
+                            <thead class="bg-gray-50 text-gray-600 font-bold border-b border-gray-200">
+                                <tr>
+                                    <th class="py-1.5 px-2 text-left">A/C Code & Title</th>
+                                    <th class="py-1.5 px-2 text-right">Debit (PKR)</th>
+                                    <th class="py-1.5 px-2 text-right">Credit (PKR)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr>
+                                    <td class="py-2 px-2">
+                                        <p class="font-bold text-gray-800">5001 - Salaries & Wages Expense (Staff)</p>
+                                        <p class="text-[9.5px] text-gray-400">Gross Remuneration September 2026</p>
+                                    </td>
+                                    <td class="py-2 px-2 text-right font-mono font-bold text-gray-900">Rs. 5,505,000</td>
+                                    <td class="py-2 px-2 text-right text-gray-400">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-2">
+                                        <p class="font-bold text-gray-800">1205 - Staff Advance & Emergency Loans</p>
+                                        <p class="text-[9.5px] text-gray-400">EMI Recovery for September 2026</p>
+                                    </td>
+                                    <td class="py-2 px-2 text-right text-gray-400">-</td>
+                                    <td class="py-2 px-2 text-right font-mono font-semibold text-red-600">Rs. 52,000</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-2">
+                                        <p class="font-bold text-gray-800">2108 - Income Tax WHT & EOBI Payable</p>
+                                        <p class="text-[9.5px] text-gray-400">FBR Section 149 & EOBI Statutory</p>
+                                    </td>
+                                    <td class="py-2 px-2 text-right text-gray-400">-</td>
+                                    <td class="py-2 px-2 text-right font-mono font-semibold text-red-600">Rs. 13,000</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-2">
+                                        <p class="font-bold text-emerald-800">1002 - Meezan Bank Ltd (Corporate A/c)</p>
+                                        <p class="text-[9.5px] text-gray-400">Net Electronic Disbursal via 1-Link</p>
+                                    </td>
+                                    <td class="py-2 px-2 text-right text-gray-400">-</td>
+                                    <td class="py-2 px-2 text-right font-mono font-extrabold text-[#242b5f]">Rs. 5,440,000</td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="bg-gray-50 border-t border-gray-200 font-bold">
+                                <tr>
+                                    <td class="py-1.5 px-2">Balanced Total:</td>
+                                    <td class="py-1.5 px-2 text-right text-[#242b5f]">Rs. 5,505,000</td>
+                                    <td class="py-1.5 px-2 text-right text-[#242b5f]">Rs. 5,505,000</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="p-2 bg-gray-50 rounded border border-gray-200 text-[10px] text-gray-600">
+                        <p><strong>Narration:</strong> Being monthly payroll disbursement for September 2026 for 150 staff members (45 Corporate & 105 Site Engineering), verified against attendance logs and signed off by CFO.</p>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2 border-t border-gray-100">
+                        <span class="text-[9px] text-gray-400">Status: Approved by CFO & CEO</span>
+                        <button onclick="closeModal()" class="px-3 py-1 bg-[#242b5f] text-white rounded font-bold text-xs">Close Voucher</button>
+                    </div>
+                </div>
+            `;
+            openModal('Journal Voucher: JV-SEP26-001', html, null);
+        };
+
+        // Initialize table
+        renderPayrollTable();
+    </script>
+</body>
+</html>

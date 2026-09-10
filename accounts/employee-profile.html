@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Worker Profile (Accounts)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS & JS for Real-Time Geofence Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        html { font-size: 13px !important; } 
+        body { font-family: 'Inter', sans-serif; } 
+        table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } 
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; } 
+        .leaflet-popup-content-wrapper { border-radius: 8px !important; } 
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        // Render inside Accounts portal layout
+        renderLayout('workers');
+        
+        // Header title with back link to All Workers Directory
+        setTimeout(() => {
+            const headerTitle = document.getElementById('header-title');
+            if (headerTitle) {
+                headerTitle.innerHTML = '<a href="workers.html" class="text-gray-400 hover:text-[#242b5f] mr-2 transition"><i class="fas fa-arrow-left"></i></a> Worker Profile <span class="text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200 ml-2 font-bold">Accounts View</span>';
+            }
+        }, 100);
+
+        // Comprehensive Worker Profiles Registry (Mirrored from HR with dynamic selection)
+        const WORKERS_DB = {
+            'EMP-1042': {
+                empId: 'EMP-1042',
+                name: 'Ali Khan',
+                initials: 'AK',
+                role: 'HVAC Engineer',
+                dept: 'MEP & Execution',
+                manager: 'John Doe (PM)',
+                joinDate: '15 Jan, 2024 (1 yr 8 mos)',
+                salary: 'Rs. 85,000 / month',
+                prevJob: 'Descon Engineering Ltd • Last: Rs. 70,000',
+                prevReason: 'Better career progression in MEP chillers',
+                baseSite: 'Karachi High-Rise (Clifton)',
+                outstationSite: 'Head Office & Workshop (Lahore)',
+                outstationPeriod: '01 Sep - 30 Sep, 2026 (30 Days)',
+                outstationPkg: 'Rs. 81,500',
+                email: 'ali.khan@cosmix.com',
+                phone: '+92 300 1234567',
+                cnic: '42201-1234567-1',
+                address: 'Flat # 304, Al-Ghafoor Heights, Block 13-D, Gulshan-e-Iqbal, Karachi',
+                emergency: 'Sajid Khan (Brother) - +92 321 7654321',
+                status: 'on_working',
+                statusLabel: 'On Working',
+                statusBadge: 'bg-green-100 text-green-800 border-green-200',
+                otHours: 24.0,
+                otStatus: 'on',
+                mapSite: 'karachi'
+            },
+            'EMP-1044': {
+                empId: 'EMP-1044',
+                name: 'Usman Tariq',
+                initials: 'UT',
+                role: 'AC Technician Foreman',
+                dept: 'MEP & Execution',
+                manager: 'Engr. Faisal Tariq',
+                joinDate: '01 Mar, 2023 (3 yrs 6 mos)',
+                salary: 'Rs. 46,000 / month',
+                prevJob: 'Haier HVAC Services • Last: Rs. 38,000',
+                prevReason: 'Industrial chiller installation project',
+                baseSite: 'Packages Mall, Lahore',
+                outstationSite: 'Base Station Deployed (Lahore)',
+                outstationPeriod: 'Regular Shift Assignment',
+                outstationPkg: 'Rs. 32,000',
+                email: 'usman.tariq@cosmix.com',
+                phone: '+92 312 9845120',
+                cnic: '35201-8912401-3',
+                address: 'House # 44, G-Block, Gulberg III, Lahore',
+                emergency: 'Tariq Mehmood (Father) - +92 300 7619284',
+                status: 'on_working',
+                statusLabel: 'On Working',
+                statusBadge: 'bg-green-100 text-green-800 border-green-200',
+                otHours: 32.0,
+                otStatus: 'on',
+                mapSite: 'lahore'
+            },
+            'EMP-1046': {
+                empId: 'EMP-1046',
+                name: 'Bilal Ahmed',
+                initials: 'BA',
+                role: 'Field Electrical Engineer',
+                dept: 'Electrical Switchgear',
+                manager: 'Engr. Tariq Farooq',
+                joinDate: '10 Nov, 2024 (10 mos)',
+                salary: 'Rs. 70,000 / month',
+                prevJob: 'Siemens Pakistan • Last: Rs. 60,000',
+                prevReason: 'Plant switchgear project',
+                baseSite: 'Engro Complex, Daharki',
+                outstationSite: 'Engro Plant Switchgear Deputation',
+                outstationPeriod: '01 Aug - 30 Sep, 2026 (60 Days)',
+                outstationPkg: 'Rs. 65,000',
+                email: 'bilal.ahmed@cosmix.com',
+                phone: '+92 333 4912081',
+                cnic: '45501-7192031-5',
+                address: 'Engro Colony Staff Hostel, Daharki, Sindh',
+                emergency: 'Ahmed Raza (Father) - +92 333 8129031',
+                status: 'on_working',
+                statusLabel: 'On Working',
+                statusBadge: 'bg-green-100 text-green-800 border-green-200',
+                otHours: 28.0,
+                otStatus: 'on',
+                mapSite: 'daharki'
+            },
+            'EMP-1007': {
+                empId: 'EMP-1007',
+                name: 'Rashid Mehmood',
+                initials: 'RM',
+                role: 'Site Supervisor',
+                dept: 'MEP & Execution',
+                manager: 'John Doe (PM)',
+                joinDate: '05 Feb, 2022 (4 yrs 7 mos)',
+                salary: 'Rs. 48,000 / month',
+                prevJob: 'Frontier Works Org • Last: Rs. 42,000',
+                prevReason: 'Civil to MEP site transition',
+                baseSite: 'DHA City Sector 3, Karachi',
+                outstationSite: 'None (Local Site)',
+                outstationPeriod: 'Approved Casual Leave (Medical)',
+                outstationPkg: 'Rs. 0',
+                email: 'rashid.m@cosmix.com',
+                phone: '+92 345 8192031',
+                cnic: '42301-3819201-9',
+                address: 'Sector 5-J, North Karachi',
+                emergency: 'Farhan Mehmood (Brother) - +92 345 9912034',
+                status: 'off',
+                statusLabel: 'Off / Chutti',
+                statusBadge: 'bg-amber-100 text-amber-800 border-amber-200',
+                otHours: 0.0,
+                otStatus: 'off',
+                mapSite: 'karachi'
+            },
+            'EMP-1043': {
+                empId: 'EMP-1043',
+                name: 'Sara Ahmed',
+                initials: 'SA',
+                role: 'Sales & Accounts Executive',
+                dept: 'Corporate Office',
+                manager: 'Muhammad Usman (Finance Head)',
+                joinDate: '12 Sep, 2023 (3 yrs)',
+                salary: 'Rs. 55,000 / month',
+                prevJob: 'Habib Metro Bank • Last: Rs. 45,000',
+                prevReason: 'Engineering sector finance role',
+                baseSite: 'Head Office PECHS, Karachi',
+                outstationSite: 'Corporate HQ Duty',
+                outstationPeriod: 'Office Shift (09:00 - 18:00)',
+                outstationPkg: 'Rs. 0',
+                email: 'sara.ahmed@cosmix.com',
+                phone: '+92 321 4455667',
+                cnic: '42101-9876543-2',
+                address: 'Block 6, PECHS, Shahrah-e-Faisal, Karachi',
+                emergency: 'Tariq Ahmed (Father) - +92 321 1122334',
+                status: 'on_working',
+                statusLabel: 'On Working',
+                statusBadge: 'bg-green-100 text-green-800 border-green-200',
+                otHours: 0.0,
+                otStatus: 'off',
+                mapSite: 'karachi'
+            }
+        };
+
+        // Extract worker ID from URL param ?id=EMP-xxxx
+        const urlParams = new URLSearchParams(window.location.search);
+        const empIdParam = urlParams.get('id') || 'EMP-1042';
+        const worker = WORKERS_DB[empIdParam] || WORKERS_DB['EMP-1042'];
+
+        setPageContent('', `
+            <!-- Top Back Button to All Workers Directory -->
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                <a href="workers.html" class="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 hover:text-[#242b5f] bg-white border border-gray-200 hover:border-gray-400 px-3 py-1.5 rounded-lg shadow-2xs transition">
+                    <i class="fas fa-arrow-left text-[#242b5f]"></i> &larr; Back to All Workers Directory
+                </a>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-400">Viewing Record:</span>
+                    <span class="font-mono font-bold text-xs bg-gray-100 px-2.5 py-0.5 rounded border border-gray-200 text-gray-800">${worker.empId}</span>
+                    <span class="text-xs font-bold px-2 py-0.5 rounded ${worker.statusBadge}">${worker.statusLabel}</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Left Sidebar: Profile Summary (Same as HR Portal) -->
+                <div class="w-full lg:w-1/3 space-y-6">
+                    <!-- Identity Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center">
+                        <div class="w-24 h-24 rounded-full bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center font-bold text-3xl mx-auto mb-4 border-4 border-white shadow-md relative">
+                            ${worker.initials}
+                            <div class="absolute bottom-1 right-1 w-4 h-4 ${worker.status === 'on_working' ? 'bg-green-500' : 'bg-red-500'} border-2 border-white rounded-full" title="${worker.statusLabel}"></div>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-800">${worker.name}</h2>
+                        <p class="text-xs text-gray-500 font-medium mt-1 uppercase tracking-wider">${worker.role}</p>
+                        <div class="mt-4 flex flex-wrap justify-center gap-1.5">
+                            <span class="bg-[#f3f4f6] text-gray-600 px-3 py-1 rounded-full text-xs font-bold border border-gray-200">${worker.empId}</span>
+                            <span class="bg-[#e8eaf6] text-[#242b5f] px-3 py-1 rounded-full text-xs font-bold border border-[#c5cae9]">${worker.baseSite}</span>
+                            <span class="bg-amber-50 text-amber-800 px-2.5 py-1 rounded-full text-xs font-bold border border-amber-200 flex items-center gap-1"><i class="fas fa-plane-departure text-[10px]"></i> ${worker.outstationSite}</span>
+                        </div>
+
+                        <!-- Overtime (OT) Status & ON/OFF Toggle Button Widget -->
+                        <div id="ot-widget-card" class="mt-4 p-3 rounded-xl border transition-all duration-300 ${worker.otStatus === 'on' ? 'bg-purple-50/80 border-purple-200' : 'bg-gray-50 border-gray-200'} text-left">
+                            <div class="flex items-center justify-between gap-2">
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span id="ot-pulse-dot" class="w-2.5 h-2.5 rounded-full ${worker.otStatus === 'on' ? 'bg-purple-600 animate-pulse' : 'bg-gray-400'}"></span>
+                                        <span id="ot-badge-status" class="text-xs font-black tracking-wide ${worker.otStatus === 'on' ? 'text-purple-900' : 'text-gray-700'}">OVERTIME (OT): ${worker.otStatus === 'on' ? 'ON' : 'OFF'}</span>
+                                    </div>
+                                    <p id="ot-policy-desc" class="text-[9.5px] ${worker.otStatus === 'on' ? 'text-purple-700' : 'text-gray-500'} font-medium mt-0.5">
+                                        ${worker.otStatus === 'on' ? 'Site OT Authorized • 1.5x Multiplier Rate' : 'Overtime Disabled • Standard 8.0 hr shift enforced'}
+                                    </p>
+                                </div>
+                                <!-- Interactive OT ON / OFF Button Toggle -->
+                                <button id="ot-btn-toggle" onclick="toggleEmployeeOT()" class="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold shadow-sm transition-all cursor-pointer shrink-0 ${worker.otStatus === 'on' ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}" title="Click to Toggle Overtime ON / OFF">
+                                    <i id="ot-btn-icon" class="fas ${worker.otStatus === 'on' ? 'fa-toggle-on' : 'fa-toggle-off'} text-sm"></i>
+                                    <span id="ot-btn-text">OT: ${worker.otStatus === 'on' ? 'ON' : 'OFF'}</span>
+                                </button>
+                            </div>
+                            <!-- Quick OT Action Bar -->
+                            <div class="mt-2.5 pt-2 border-t ${worker.otStatus === 'on' ? 'border-purple-200/70' : 'border-gray-200'} flex items-center justify-between text-[10px]">
+                                <span id="ot-hours-summary" class="text-gray-600 font-medium"><i class="fas fa-business-time text-purple-600 mr-1"></i> <strong class="text-gray-900">${worker.otHours}.0h</strong> Logged</span>
+                                <button onclick="openLogOTModal()" class="text-purple-700 hover:text-purple-900 font-bold hover:underline flex items-center gap-1">
+                                    <i class="fas fa-plus-circle text-[9.5px]"></i> Authorize OT
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex gap-2">
+                            <button onclick="openModal('Send Message', '<textarea class=\\'w-full border rounded p-2 text-sm\\' placeholder=\\'Type your message to ${worker.name}...\\'></textarea>', () => showToast('Message Sent', 'success'))" class="flex-1 bg-white border border-gray-200 text-gray-700 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 transition"><i class="fas fa-comment-alt mr-1"></i> Message</button>
+                            <button onclick="window.print()" class="flex-1 bg-[#242b5f] text-white py-2 rounded-lg text-xs font-bold shadow-sm hover:opacity-90 transition"><i class="fas fa-print mr-1"></i> Print ID</button>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information (Same as HR Portal) -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Personal Information</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Email Address</p>
+                                <p class="text-sm font-semibold text-gray-800">${worker.email}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Phone Number</p>
+                                <p class="text-sm font-semibold text-gray-800">${worker.phone}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">CNIC Number</p>
+                                <p class="text-sm font-semibold text-gray-800">${worker.cnic}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Home Address</p>
+                                <p class="text-xs font-semibold text-gray-800 leading-snug">${worker.address}</p>
+                            </div>
+                            <div class="pt-3 border-t border-gray-100">
+                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Emergency Contact</p>
+                                <p class="text-sm font-semibold text-gray-800">${worker.emergency}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Employment Details (Same as HR Portal) -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Employment & Background</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Date of Joining</p>
+                                <p class="text-sm font-semibold text-gray-800">${worker.joinDate}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Department & Manager</p>
+                                <p class="text-sm font-semibold text-gray-800">${worker.dept}</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <div class="w-5 h-5 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center text-[8.5px] font-bold">PM</div>
+                                    <p class="text-xs font-semibold text-[#242b5f] cursor-pointer hover:underline">${worker.manager}</p>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Current Basic Salary</p>
+                                <p class="text-sm font-semibold text-gray-800">${worker.salary}</p>
+                            </div>
+                            <div class="pt-3 border-t border-gray-100">
+                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Previous Employment</p>
+                                <p class="text-xs font-bold text-gray-800">${worker.prevJob}</p>
+                                <p class="text-[9.5px] text-gray-400 italic mt-0.5">${worker.prevReason}</p>
+                            </div>
+                            <div class="pt-3 border-t border-gray-100">
+                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">Base Duty Location</p>
+                                <div class="flex items-center gap-1.5 mt-1">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                    <p class="text-xs font-bold text-gray-800">${worker.baseSite}</p>
+                                </div>
+                                <p class="text-[9px] text-gray-400 mt-0.5">Permanent Base Station • 80m Geofence</p>
+                            </div>
+                            <div class="pt-3 border-t border-gray-100 bg-amber-50/50 p-3 rounded-lg border border-amber-200">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-[10px] text-amber-900 font-bold uppercase tracking-wide flex items-center gap-1"><i class="fas fa-plane-departure text-amber-600"></i> Active Outstation</p>
+                                    <span class="text-[8.5px] bg-amber-200 text-amber-900 px-1.5 py-0.2 rounded font-bold uppercase">Deputed</span>
+                                </div>
+                                <p class="text-xs font-bold text-gray-900 mt-1">${worker.outstationSite}</p>
+                                <p class="text-[10px] text-gray-600 mt-0.5"><i class="fas fa-calendar-alt text-gray-400 mr-1"></i> ${worker.outstationPeriod}</p>
+                                <div class="mt-2 pt-2 border-t border-amber-200 flex items-center justify-between text-[10px]">
+                                    <span class="text-gray-600 font-medium">Outstation Package:</span>
+                                    <span class="font-bold text-emerald-700 font-mono">${worker.outstationPkg}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Tabs and Data (Same as HR Portal) -->
+                <div class="w-full lg:w-2/3 space-y-6">
+                    
+                    <!-- Stats Overview (5 Cards) -->
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        <div onclick="window.location.href='../hr/leave-management.html'" class="bg-white p-3.5 rounded-xl shadow-sm border border-gray-100 text-center hover:border-purple-300 hover:shadow-md transition cursor-pointer group">
+                            <p class="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider mb-1 group-hover:text-purple-600">Leave Balance</p>
+                            <h3 class="text-xl font-bold text-[#242b5f]">14<span class="text-xs text-gray-400 font-normal">/21</span></h3>
+                            <span class="text-[8.5px] text-purple-600 font-semibold group-hover:underline">Manage Quota &rarr;</span>
+                        </div>
+                        <div onclick="openMonthHistoryModal('${worker.name}', '${worker.role}', '${worker.empId}')" class="bg-white p-3.5 rounded-xl shadow-sm border border-gray-100 text-center hover:border-orange-300 hover:shadow-md transition cursor-pointer group">
+                            <p class="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider mb-1 group-hover:text-orange-500">Total Lates</p>
+                            <h3 class="text-xl font-bold text-orange-500">3</h3>
+                            <span class="text-[8.5px] text-orange-600 font-semibold group-hover:underline">View Timecard &rarr;</span>
+                        </div>
+                        <!-- Overtime (OT) KPI Card with ON / OFF Toggle -->
+                        <div id="ot-kpi-card" onclick="toggleEmployeeOT()" class="bg-white p-3.5 rounded-xl shadow-sm border border-purple-200 text-center hover:border-purple-400 hover:shadow-md transition cursor-pointer group" title="Click to Toggle Overtime ON / OFF">
+                            <div class="flex items-center justify-between mb-0.5">
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider group-hover:text-purple-600">Overtime (OT)</p>
+                                <span id="ot-kpi-badge" class="text-[8px] font-extrabold px-1.5 py-0.2 rounded ${worker.otStatus === 'on' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-600'}">OT: ${worker.otStatus === 'on' ? 'ON' : 'OFF'}</span>
+                            </div>
+                            <h3 id="ot-kpi-hours" class="text-xl font-bold ${worker.otStatus === 'on' ? 'text-purple-700' : 'text-gray-400'}">${worker.otHours}.0<span class="text-xs text-gray-400 font-normal">h</span></h3>
+                            <span id="ot-kpi-status" class="text-[8.5px] text-purple-600 font-semibold group-hover:underline">Click to Toggle &rarr;</span>
+                        </div>
+                        <div onclick="window.location.href='payroll.html'" class="bg-white p-3.5 rounded-xl shadow-sm border border-gray-100 text-center hover:border-red-300 hover:shadow-md transition cursor-pointer group">
+                            <p class="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider mb-1 group-hover:text-red-500">Active Advance</p>
+                            <h3 class="text-xl font-bold text-red-500">Rs. 25K</h3>
+                            <span class="text-[8.5px] text-red-600 font-semibold group-hover:underline">Loan Ledger &rarr;</span>
+                        </div>
+                        <div onclick="openModal('Performance Appraisal - ${worker.name}', '<div class=space-y-2 text-xs><div class=\\\'flex justify-between font-bold\\\'><span>Overall Rating:</span><span class=text-green-600>A- (Excellent)</span></div><p class=text-gray-500>MEP Project Execution: 94%<br>Client Satisfaction: 98%<br>Attendance Punctuality: 91%<br>Last Review: July 2026 by Project Manager</p></div>', null)" class="bg-white p-3.5 rounded-xl shadow-sm border border-gray-100 text-center hover:border-green-300 hover:shadow-md transition cursor-pointer group">
+                            <p class="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider mb-1 group-hover:text-green-600">Performance</p>
+                            <h3 class="text-xl font-bold text-green-500">A-</h3>
+                            <span class="text-[8.5px] text-green-600 font-semibold group-hover:underline">Appraisal &rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- Real-Time Duty Location & Geofence Map Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <!-- Card Header -->
+                        <div class="px-5 py-3.5 border-b border-gray-100 flex flex-wrap justify-between items-center bg-gray-50/50 gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center font-bold text-sm">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Office Hours Live Geo-Location & Geofence</h3>
+                                        <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full text-[9px] font-bold flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> On-Site Verified
+                                        </span>
+                                    </div>
+                                    <p class="text-[9.5px] text-gray-400 mt-0.5">Live work-hours location verification (08:00 AM - 05:00 PM) via Cosmix Mobile App GPS & Site Beacon</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Location Quick Switcher & Ping -->
+                            <div class="flex items-center gap-1.5">
+                                <select id="site-selector" onchange="switchMapSite(this.value)" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none">
+                                    <option value="karachi">Karachi High-Rise (Current Site)</option>
+                                    <option value="lahore">Head Office (Lahore Gulberg)</option>
+                                    <option value="islamabad">Islamabad Complex</option>
+                                </select>
+                                <button onclick="pingLiveGPS()" class="bg-[#242b5f] hover:bg-[#1b214a] text-white px-3 py-1 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5" title="Refresh live GPS location">
+                                    <i class="fas fa-location-arrow text-[10px]"></i> Locate Device
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Location Metadata Bar -->
+                        <div class="px-5 py-2.5 bg-blue-50/30 border-b border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Assigned Perimeter</p>
+                                <p id="meta-site-name" class="font-bold text-gray-800 text-[11px] truncate">Karachi High-Rise (Block 4)</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">GPS Coordinates</p>
+                                <p id="meta-coords" class="font-mono text-gray-700 text-[11px]">24.8138° N, 67.0299° E</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Geofence Accuracy</p>
+                                <p id="meta-radius" class="font-bold text-green-600 text-[11px]"><i class="fas fa-check-circle mr-1"></i> Within 80m (±3.2m)</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Last Heartbeat</p>
+                                <p id="meta-timestamp" class="font-semibold text-gray-700 text-[11px]">Today 10:15 AM (Auto Sync)</p>
+                            </div>
+                        </div>
+
+                        <!-- Map View Container -->
+                        <div class="relative">
+                            <div id="live-map" class="w-full h-72 sm:h-80 bg-slate-100 relative z-0">
+                                <div class="absolute inset-0 flex items-center justify-center text-gray-400 text-xs pointer-events-none">
+                                    <div class="text-center">
+                                        <i class="fas fa-spinner fa-spin text-lg mb-1 text-[#242b5f]"></i>
+                                        <p>Rendering GPS Geofence Satellite Tiles...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Floating Overlay Controls on Map -->
+                            <div class="absolute top-3 left-3 z-10 bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-md border border-gray-200 text-xs space-y-0.5 pointer-events-none">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span class="font-extrabold text-[#242b5f] text-[11px]">Active Shift GPS Tracking</span>
+                                </div>
+                                <p class="text-[9.5px] text-gray-500">Punch: 09:02 AM • 5th Floor MEP Chiller Zone</p>
+                            </div>
+
+                            <div class="absolute bottom-3 left-3 z-10 hidden sm:block bg-white/90 backdrop-blur-sm px-2 py-1 rounded shadow text-[9.5px] text-gray-500 border border-gray-200 pointer-events-none">
+                                <i class="fas fa-satellite text-[#242b5f] mr-1"></i> Signal: 8 GNSS Satellites Locked
+                            </div>
+                        </div>
+
+                        <!-- Map Action Bar -->
+                        <div class="px-5 py-3 border-t border-gray-100 flex flex-wrap justify-between items-center gap-2.5 bg-gray-50/40">
+                            <div class="flex items-center gap-2">
+                                <button onclick="toggleMovementTrail()" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-3 py-1.5 rounded text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
+                                    <i class="fas fa-route text-blue-600"></i> Show Shift Route Trail
+                                </button>
+                                <button onclick="openGeofenceModal()" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-3 py-1.5 rounded text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
+                                    <i class="fas fa-draw-polygon text-purple-600"></i> Adjust Geofence Radius
+                                </button>
+                            </div>
+                            <div class="text-[10px] text-gray-400 font-medium">
+                                <i class="fas fa-shield-alt text-green-600 mr-1"></i> Monitored exclusively during 08:00 AM - 05:00 PM shift
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Record (Current Month) -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="px-4 py-2.5 border-b border-gray-100 flex flex-wrap justify-between items-center bg-gray-50/50 gap-2">
+                            <h3 class="text-xs font-bold text-gray-800 flex items-center gap-1.5"><i class="fas fa-calendar-alt text-[#242b5f]"></i> Recent Attendance (Sep 2026)</h3>
+                            <div class="flex items-center gap-2">
+                                <button onclick="exportToExcel('${worker.name}_Attendance_Sep_2026')" class="text-xs font-semibold text-green-700 hover:underline flex items-center gap-1" title="Export Excel"><i class="fas fa-file-excel"></i> Excel</button>
+                                <button onclick="exportToPDF('${worker.name}_Attendance_Sep_2026')" class="text-xs font-semibold text-red-600 hover:underline flex items-center gap-1" title="Export PDF"><i class="fas fa-file-pdf"></i> PDF</button>
+                                <button onclick="openMonthHistoryModal('${worker.name}', '${worker.role}', '${worker.empId}')" class="text-[10px] font-bold uppercase tracking-wider text-[#242b5f] hover:underline ml-1">Full 30-Day Grid</button>
+                            </div>
+                        </div>
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-white border-b border-gray-100 text-gray-400 text-[8.5px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-5 py-3 font-semibold">Date</th>
+                                    <th class="px-5 py-3 font-semibold">Check In</th>
+                                    <th class="px-5 py-3 font-semibold">Check Out</th>
+                                    <th class="px-5 py-3 font-semibold">Location</th>
+                                    <th class="px-5 py-3 font-semibold text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                <tr>
+                                    <td class="px-5 py-3 font-bold text-gray-800 text-xs">07 Sep, Mon</td>
+                                    <td class="px-5 py-3 text-red-500 font-semibold text-xs">10:00 AM</td>
+                                    <td class="px-5 py-3 text-gray-400 text-xs">-</td>
+                                    <td class="px-5 py-3 text-gray-600 text-xs">${worker.baseSite}</td>
+                                    <td class="px-5 py-3 text-center"><span class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-orange-100">Late</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-5 py-3 font-bold text-gray-800 text-xs">06 Sep, Sun</td>
+                                    <td colspan="3" class="px-5 py-3 text-gray-400 text-xs italic">Weekend (Weekly Off)</td>
+                                    <td class="px-5 py-3 text-center"><span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-gray-200">Off</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-5 py-3 font-bold text-gray-800 text-xs">05 Sep, Sat</td>
+                                    <td class="px-5 py-3 text-gray-600 font-medium text-xs">09:02 AM</td>
+                                    <td class="px-5 py-3 text-gray-600 font-medium text-xs">06:15 PM</td>
+                                    <td class="px-5 py-3 text-gray-600 text-xs">${worker.baseSite}</td>
+                                    <td class="px-5 py-3 text-center"><span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-green-100">Present</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-5 py-3 font-bold text-gray-800 text-xs">04 Sep, Fri</td>
+                                    <td class="px-5 py-3 text-gray-600 font-medium text-xs">08:55 AM</td>
+                                    <td class="px-5 py-3 text-gray-600 font-medium text-xs">05:30 PM</td>
+                                    <td class="px-5 py-3 text-gray-600 text-xs">Head Office</td>
+                                    <td class="px-5 py-3 text-center"><span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-green-100">Present</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Outstation Deployment & Travel Allowances Register (Same as HR Portal) -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="px-5 py-3.5 border-b border-gray-100 flex flex-wrap justify-between items-center bg-gray-50/50 gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-sm border border-amber-200">
+                                    <i class="fas fa-plane-departure"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Outstation Deputations & Travel Allowances</h3>
+                                        <span class="bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full text-[9px] font-bold">1 Active Deputation</span>
+                                    </div>
+                                    <p class="text-[9.5px] text-gray-400 mt-0.5">Inter-city project deployments, TA/DA per diem, transit fares, lodging & expense claims</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="openOutstationVoucherModal()" class="bg-white hover:bg-amber-50 border border-amber-300 text-amber-900 px-2.5 py-1 rounded text-xs font-bold shadow-2xs transition flex items-center gap-1.5">
+                                    <i class="fas fa-file-invoice-dollar text-amber-600"></i> View Active Voucher
+                                </button>
+                                <button onclick="openOutstationExpenseClaimModal()" class="bg-[#242b5f] hover:bg-[#1b214a] text-white px-3 py-1 rounded text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                                    <i class="fas fa-plus text-[10px]"></i> Claim Expense
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Active Deputation Banner & KPI Cards -->
+                        <div class="p-5 border-b border-gray-100 bg-gradient-to-r from-amber-50/40 via-blue-50/20 to-white">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3.5 border-b border-amber-200/60">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2 py-0.5 rounded text-[9.5px] font-extrabold uppercase tracking-wide bg-amber-500 text-white shadow-xs">Currently Deputed</span>
+                                        <span class="text-xs font-mono font-bold text-gray-700">Order #OST-2026-089</span>
+                                    </div>
+                                    <h4 class="text-sm font-bold text-gray-800 mt-1">${worker.outstationSite}</h4>
+                                    <p class="text-xs text-gray-500 mt-0.5">
+                                        <span class="font-medium text-gray-700">Base Station:</span> ${worker.baseSite} &rarr; <span class="font-bold text-[#242b5f]">Gulberg III, Lahore</span>
+                                    </p>
+                                </div>
+                                <div class="text-left md:text-right">
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Deputation Period</p>
+                                    <p class="text-xs font-bold text-gray-800">01 Sep, 2026 &mdash; 30 Sep, 2026</p>
+                                    <p class="text-[10px] text-emerald-700 font-bold mt-0.5"><i class="fas fa-clock mr-1"></i> 30 Working Days Authorized</p>
+                                </div>
+                            </div>
+
+                            <!-- 4 Package Breakdown Metrics -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                                <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-2xs">
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">TA / DA (Per Diem)</p>
+                                    <p class="text-sm font-bold text-gray-800 mt-0.5 font-mono">Rs. 45,000</p>
+                                    <p class="text-[9px] text-gray-500 mt-0.5">Rs. 1,500/day &times; 30 Days</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-2xs">
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Travel Fare (Round Trip)</p>
+                                    <p class="text-sm font-bold text-gray-800 mt-0.5 font-mono">Rs. 6,500</p>
+                                    <p class="text-[9px] text-gray-500 mt-0.5">Daewoo Sleeper Bus</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-2xs">
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Lodging & Messing</p>
+                                    <p class="text-sm font-bold text-gray-800 mt-0.5 font-mono">Rs. 15,000</p>
+                                    <p class="text-[9px] text-gray-500 mt-0.5">Lahore Site Guest House</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg border border-amber-300 shadow-2xs bg-amber-50/30">
+                                    <p class="text-[9px] text-amber-800 font-bold uppercase tracking-wider">Total Package Disbursed</p>
+                                    <p class="text-sm font-extrabold text-[#242b5f] mt-0.5 font-mono">${worker.outstationPkg}</p>
+                                    <p class="text-[9px] text-green-700 font-bold mt-0.5"><i class="fas fa-check-circle mr-0.5"></i> Paid via Bank Advice</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Itemized Outstation Voucher Breakdown Table -->
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                                    <i class="fas fa-list-check text-blue-600"></i> Itemized Allowance & Expense Disbursal Schedule
+                                </h4>
+                                <span class="text-[10px] text-gray-400">Order Ref: #OST-2026-089</span>
+                            </div>
+                            <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-gray-50 text-gray-500 text-[9px] font-bold uppercase tracking-wider border-b border-gray-200">
+                                        <tr>
+                                            <th class="px-3 py-2">Allowance Item / Expense Title</th>
+                                            <th class="px-3 py-2">Category</th>
+                                            <th class="px-3 py-2 text-center">Unit Rate / Calculation</th>
+                                            <th class="px-3 py-2 text-right">Amount (PKR)</th>
+                                            <th class="px-3 py-2 text-center">Payment Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="outstation-items-body" class="divide-y divide-gray-100 bg-white">
+                                        <tr class="hover:bg-gray-50/50">
+                                            <td class="px-3 py-2">
+                                                <div class="font-bold text-gray-800">Daily Living Allowance (TA/DA)</div>
+                                                <div class="text-[9px] text-gray-400">Food, local travel & miscellaneous daily outstation per diem</div>
+                                            </td>
+                                            <td class="px-3 py-2"><span class="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded text-[9.5px] font-medium border border-blue-100">Per Diem</span></td>
+                                            <td class="px-3 py-2 text-center text-gray-600">Rs. 1,500 &times; 30 Days</td>
+                                            <td class="px-3 py-2 text-right font-mono font-bold text-gray-800">Rs. 45,000</td>
+                                            <td class="px-3 py-2 text-center"><span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9px] font-bold border border-green-200 uppercase">Paid</span></td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/50">
+                                            <td class="px-3 py-2">
+                                                <div class="font-bold text-gray-800">Inter-City Transit Ticket (Karachi &harr; Lahore)</div>
+                                                <div class="text-[9px] text-gray-400">Daewoo Express Sleeper Ticket (Round Trip Authorized)</div>
+                                            </td>
+                                            <td class="px-3 py-2"><span class="bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded text-[9.5px] font-medium border border-purple-100">Transit</span></td>
+                                            <td class="px-3 py-2 text-center text-gray-600">Fixed Fare Voucher</td>
+                                            <td class="px-3 py-2 text-right font-mono font-bold text-gray-800">Rs. 6,500</td>
+                                            <td class="px-3 py-2 text-center"><span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9px] font-bold border border-green-200 uppercase">Paid</span></td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/50">
+                                            <td class="px-3 py-2">
+                                                <div class="font-bold text-gray-800">Lodging & Mess Subsidy</div>
+                                                <div class="text-[9px] text-gray-400">Cosmix Gulberg Guest House room & mess subsidy</div>
+                                            </td>
+                                            <td class="px-3 py-2"><span class="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded text-[9.5px] font-medium border border-orange-100">Accommodation</span></td>
+                                            <td class="px-3 py-2 text-center text-gray-600">Monthly Cap Rs. 15,000</td>
+                                            <td class="px-3 py-2 text-right font-mono font-bold text-gray-800">Rs. 15,000</td>
+                                            <td class="px-3 py-2 text-center"><span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9px] font-bold border border-green-200 uppercase">Paid</span></td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/50">
+                                            <td class="px-3 py-2">
+                                                <div class="font-bold text-gray-800">Mobilization & Relocation Advance</div>
+                                                <div class="text-[9px] text-gray-400">Initial relocation expense advance against project overheads</div>
+                                            </td>
+                                            <td class="px-3 py-2"><span class="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded text-[9.5px] font-medium border border-emerald-100">Advance</span></td>
+                                            <td class="px-3 py-2 text-center text-gray-600">Lump Sum Disbursed</td>
+                                            <td class="px-3 py-2 text-right font-mono font-bold text-gray-800">Rs. 10,000</td>
+                                            <td class="px-3 py-2 text-center"><span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9px] font-bold border border-green-200 uppercase">Paid</span></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="bg-gray-50/80 font-bold border-t border-gray-200 text-xs">
+                                        <tr>
+                                            <td colspan="3" class="px-3 py-2 text-right text-gray-600">Grand Total Outstation Package Disbursed:</td>
+                                            <td id="outstation-grand-total" class="px-3 py-2 text-right font-mono font-extrabold text-[#242b5f] text-sm">${worker.outstationPkg}</td>
+                                            <td class="px-3 py-2 text-center"><span class="text-[9.5px] text-green-700 font-bold"><i class="fas fa-check-double mr-1"></i> Disbursed</span></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Past Deputations History Log -->
+                        <div class="px-5 pb-5 pt-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                                    <i class="fas fa-history text-gray-400"></i> Past Inter-City Deputation History
+                                </h4>
+                                <span class="text-[10px] text-gray-400">2 Completed Assignments</span>
+                            </div>
+                            <div class="overflow-x-auto border border-gray-100 rounded-lg">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-gray-50/50 text-gray-400 text-[8.5px] font-bold uppercase tracking-wider border-b border-gray-100">
+                                        <tr>
+                                            <th class="px-3 py-1.5">Project / Site Name</th>
+                                            <th class="px-3 py-1.5">Destination</th>
+                                            <th class="px-3 py-1.5">Duration & Dates</th>
+                                            <th class="px-3 py-1.5 text-right">Package Disbursed</th>
+                                            <th class="px-3 py-1.5 text-center">Settlement Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-50 bg-white text-[11px]">
+                                        <tr class="hover:bg-gray-50/50">
+                                            <td class="px-3 py-2 font-bold text-gray-800">Islamabad Govt Complex (G-5)</td>
+                                            <td class="px-3 py-2 text-gray-600">Islamabad</td>
+                                            <td class="px-3 py-2 text-gray-500">15 May - 30 May, 2026 (15 Days)</td>
+                                            <td class="px-3 py-2 text-right font-mono font-bold text-gray-800">Rs. 38,500</td>
+                                            <td class="px-3 py-2 text-center"><span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold border border-green-200 uppercase">Settled & Audited</span></td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/50">
+                                            <td class="px-3 py-2 font-bold text-gray-800">Faisalabad Textile Substation</td>
+                                            <td class="px-3 py-2 text-gray-600">Faisalabad</td>
+                                            <td class="px-3 py-2 text-gray-500">10 Dec - 20 Dec, 2025 (10 Days)</td>
+                                            <td class="px-3 py-2 text-right font-mono font-bold text-gray-800">Rs. 26,000</td>
+                                            <td class="px-3 py-2 text-center"><span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[8.5px] font-bold border border-green-200 uppercase">Settled & Audited</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leave History & Payslips -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Leaves -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="px-5 py-3 border-b border-gray-100 bg-gray-50/50">
+                                <h3 class="text-[10px] font-bold text-gray-600 uppercase tracking-wider">Leave History</h3>
+                            </div>
+                            <div class="p-0">
+                                <div onclick="openModal('Leave Application #LV-892', '<div class=space-y-2 text-xs><p><b>Employee:</b> ${worker.name} (${worker.empId})</p><p><b>Leave Type:</b> Sick Leave (2 Days: 12-13 Aug, 2026)</p><p><b>Status:</b> Approved by HR Manager & Site PM</p><p><b>Doctor Slip:</b> Verified & Archived</p><p><b>Deduction:</b> None (Paid Sick Leave)</p></div>', null)" class="px-5 py-3 border-b border-gray-50 hover:bg-gray-50 transition flex justify-between items-center cursor-pointer group">
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-800 group-hover:text-[#242b5f]">Sick Leave <span class="text-[10px] font-normal text-gray-500">(2 Days)</span></p>
+                                        <p class="text-[10px] text-gray-400 mt-0.5">12 Aug - 13 Aug</p>
+                                    </div>
+                                    <span class="text-[8px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100 uppercase tracking-wider">Approved</span>
+                                </div>
+                                <div onclick="openModal('Leave Application #LV-741', '<div class=space-y-2 text-xs><p><b>Employee:</b> ${worker.name} (${worker.empId})</p><p><b>Leave Type:</b> Casual Leave (1 Day: 25 Jul, 2026)</p><p><b>Status:</b> Approved</p><p><b>Reason:</b> Family urgent chore</p><p><b>Deduction:</b> None (Paid Casual Leave)</p></div>', null)" class="px-5 py-3 border-b border-gray-50 hover:bg-gray-50 transition flex justify-between items-center cursor-pointer group">
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-800 group-hover:text-[#242b5f]">Casual Leave <span class="text-[10px] font-normal text-gray-500">(1 Day)</span></p>
+                                        <p class="text-[10px] text-gray-400 mt-0.5">25 Jul</p>
+                                    </div>
+                                    <span class="text-[8px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100 uppercase tracking-wider">Approved</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Documents / Payslips -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="px-5 py-3 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                                <h3 class="text-[10px] font-bold text-gray-600 uppercase tracking-wider">Recent Payslips & Invoices</h3>
+                                <span class="text-[9px] text-[#242b5f] font-bold">2 Recorded</span>
+                            </div>
+                            <div class="p-0">
+                                <div onclick="openPayslipModal({ name: '${worker.name}', role: '${worker.role}', empId: '${worker.empId}', month: 'August 2026', site: '${worker.baseSite}', base: 85000, ot: 4500, advanceEmi: 5000, tax: 2500 })" class="px-5 py-3 border-b border-gray-50 hover:bg-blue-50/20 transition flex justify-between items-center cursor-pointer group">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-red-50 text-red-500 flex items-center justify-center border border-red-100 group-hover:bg-[#242b5f] group-hover:text-white transition">
+                                            <i class="fas fa-file-invoice-dollar text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-800 group-hover:text-[#242b5f]">August 2026 Salary Slip</p>
+                                            <p class="text-[9px] text-gray-400 mt-0.5 uppercase tracking-wider">Disbursed: 1 Sep • Verified Net</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs text-[#242b5f] font-bold flex items-center gap-1 group-hover:underline"><i class="fas fa-eye text-xs"></i> View Slip</span>
+                                </div>
+                                <div onclick="openPayslipModal({ name: '${worker.name}', role: '${worker.role}', empId: '${worker.empId}', month: 'July 2026', site: '${worker.baseSite}', base: 85000, ot: 6000, advanceEmi: 5000, tax: 2500 })" class="px-5 py-3 hover:bg-blue-50/20 transition flex justify-between items-center cursor-pointer group">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-red-50 text-red-500 flex items-center justify-center border border-red-100 group-hover:bg-[#242b5f] group-hover:text-white transition">
+                                            <i class="fas fa-file-invoice-dollar text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-800 group-hover:text-[#242b5f]">July 2026 Salary Slip</p>
+                                            <p class="text-[9px] text-gray-400 mt-0.5 uppercase tracking-wider">Disbursed: 1 Aug • Verified Net</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs text-[#242b5f] font-bold flex items-center gap-1 group-hover:underline"><i class="fas fa-eye text-xs"></i> View Slip</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        `);
+
+        // ====================================================
+        // OVERTIME (OT) CONTROLLER (ON / OFF)
+        // ====================================================
+        window.workerOtState = {
+            isActive: (worker.otStatus === 'on'),
+            hours: worker.otHours || 24.0,
+            rateMultiplier: 1.5,
+            empName: worker.name,
+            empId: worker.empId
+        };
+
+        window.toggleEmployeeOT = function() {
+            window.workerOtState.isActive = !window.workerOtState.isActive;
+            const on = window.workerOtState.isActive;
+            worker.otStatus = on ? 'on' : 'off';
+
+            const card = document.getElementById('ot-widget-card');
+            const dot = document.getElementById('ot-pulse-dot');
+            const statusText = document.getElementById('ot-badge-status');
+            const desc = document.getElementById('ot-policy-desc');
+            const btn = document.getElementById('ot-btn-toggle');
+            const btnIcon = document.getElementById('ot-btn-icon');
+            const btnText = document.getElementById('ot-btn-text');
+            const kpiBadge = document.getElementById('ot-kpi-badge');
+            const kpiHours = document.getElementById('ot-kpi-hours');
+            const kpiStatus = document.getElementById('ot-kpi-status');
+
+            if (on) {
+                if (card) card.className = 'mt-4 p-3 rounded-xl border transition-all duration-300 bg-purple-50/80 border-purple-200 text-left';
+                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-purple-600 animate-pulse';
+                if (statusText) { statusText.className = 'text-xs font-black tracking-wide text-purple-900'; statusText.innerText = 'OVERTIME (OT): ON'; }
+                if (desc) { desc.className = 'text-[9.5px] text-purple-700 font-medium mt-0.5'; desc.innerText = 'Site OT Authorized • 1.5x Multiplier Rate'; }
+                if (btn) { btn.className = 'relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold shadow-sm transition-all bg-purple-600 hover:bg-purple-700 text-white cursor-pointer shrink-0'; }
+                if (btnIcon) { btnIcon.className = 'fas fa-toggle-on text-sm'; }
+                if (btnText) { btnText.innerText = 'OT: ON'; }
+                if (kpiBadge) { kpiBadge.className = 'text-[8px] font-extrabold px-1.5 py-0.2 rounded bg-purple-100 text-purple-800'; kpiBadge.innerText = 'OT: ON'; }
+                if (kpiHours) { kpiHours.className = 'text-xl font-bold text-purple-700'; }
+                if (kpiStatus) { kpiStatus.className = 'text-[8.5px] text-purple-600 font-semibold group-hover:underline'; kpiStatus.innerText = 'OT Active (1.5x) →'; }
+                showToast(`⚡ Overtime (OT) turned ON for ${window.workerOtState.empName}! 1.5x hourly rate activated.`, 'success');
+            } else {
+                if (card) card.className = 'mt-4 p-3 rounded-xl border transition-all duration-300 bg-gray-50 border-gray-200 text-left';
+                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-gray-400';
+                if (statusText) { statusText.className = 'text-xs font-black tracking-wide text-gray-700'; statusText.innerText = 'OVERTIME (OT): OFF'; }
+                if (desc) { desc.className = 'text-[9.5px] text-gray-500 font-medium mt-0.5'; desc.innerText = 'Overtime Disabled • Standard 8.0 hr shift enforced'; }
+                if (btn) { btn.className = 'relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold shadow-sm transition-all bg-gray-200 hover:bg-gray-300 text-gray-700 cursor-pointer shrink-0'; }
+                if (btnIcon) { btnIcon.className = 'fas fa-toggle-off text-sm'; }
+                if (btnText) { btnText.innerText = 'OT: OFF'; }
+                if (kpiBadge) { kpiBadge.className = 'text-[8px] font-extrabold px-1.5 py-0.2 rounded bg-gray-100 text-gray-600'; kpiBadge.innerText = 'OT: OFF'; }
+                if (kpiHours) { kpiHours.className = 'text-xl font-bold text-gray-400'; }
+                if (kpiStatus) { kpiStatus.className = 'text-[8.5px] text-gray-500 font-semibold group-hover:underline'; kpiStatus.innerText = 'OT Suspended →'; }
+                showToast(`⏸ Overtime (OT) turned OFF for ${window.workerOtState.empName}. Standard 8-hour shift enforced.`, 'info');
+            }
+        };
+
+        window.openLogOTModal = function() {
+            const modalContent = `
+                <div class="space-y-3 text-xs">
+                    <div class="p-2.5 bg-purple-50 rounded-lg border border-purple-200">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-purple-900 text-[11px]">${window.workerOtState.empName} (${window.workerOtState.empId})</p>
+                                <p class="text-purple-700 text-[10px]">Salary: ${worker.salary} • Verified Multiplier: 1.5x</p>
+                            </div>
+                            <span class="bg-purple-200 text-purple-900 text-[9px] font-bold px-2 py-0.5 rounded uppercase">Site Shift</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1">Overtime Type & Multiplier</label>
+                        <select id="modal-ot-rate" class="w-full border border-gray-300 rounded p-1.5 focus:ring-1 focus:ring-[#242b5f]">
+                            <option value="1.5">Regular Site Overtime (1.5x Multiplier)</option>
+                            <option value="2.0">Gazetted Holiday / Sunday Emergency OT (2.0x Multiplier)</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">OT Hours to Authorize</label>
+                            <input type="number" step="0.5" id="modal-ot-hours" value="2.5" min="0.5" max="8.0" class="w-full border border-gray-300 rounded p-1.5 font-bold text-purple-900">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-1">Shift Work Date</label>
+                            <input type="date" id="modal-ot-date" value="2026-09-08" class="w-full border border-gray-300 rounded p-1.5">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1">Site Work Description / Justification</label>
+                        <textarea id="modal-ot-reason" rows="2" class="w-full border border-gray-300 rounded p-1.5" placeholder="e.g., Extended duct pressure testing after 5 PM..."></textarea>
+                    </div>
+                </div>
+            `;
+            openModal('Authorize Overtime Hours - Accounts Portal', modalContent, () => {
+                const addHours = parseFloat(document.getElementById('modal-ot-hours').value) || 0;
+                if (addHours <= 0) {
+                    showToast('Please specify valid OT hours', 'error');
+                    return;
+                }
+                window.workerOtState.hours += addHours;
+                if (!window.workerOtState.isActive) {
+                    window.toggleEmployeeOT();
+                }
+                const summaryEl = document.getElementById('ot-hours-summary');
+                if (summaryEl) summaryEl.innerHTML = `<i class="fas fa-business-time text-purple-600 mr-1"></i> <strong class="text-gray-900">${window.workerOtState.hours.toFixed(1)}h</strong> Logged`;
+                const kpiHours = document.getElementById('ot-kpi-hours');
+                if (kpiHours) kpiHours.innerHTML = `${window.workerOtState.hours.toFixed(1)}<span class="text-xs text-gray-400 font-normal">h</span>`;
+                showToast(`+${addHours}h Overtime authorized and added to payroll ledger for ${window.workerOtState.empName}!`, 'success');
+            });
+        };
+
+        // ====================================================
+        // REAL-TIME GEOFENCE MAP STATE & HANDLERS (Leaflet)
+        // ====================================================
+        let employeeMap = null;
+        let employeeMarker = null;
+        let geofenceCircle = null;
+        let trailPolyline = null;
+        let showingTrail = false;
+
+        const SITE_LOCATIONS = {
+            karachi: {
+                name: 'Karachi High-Rise (Block 4, Clifton)',
+                lat: 24.8138,
+                lng: 67.0299,
+                radius: 80,
+                coords: '24.8138° N, 67.0299° E',
+                punch: '09:02 AM • 5th Floor MEP Chiller Zone',
+                trail: [
+                    [24.8130, 67.0292],
+                    [24.8134, 67.0295],
+                    [24.8137, 67.0298],
+                    [24.8138, 67.0299]
+                ]
+            },
+            lahore: {
+                name: 'Packages Mall Site (Lahore)',
+                lat: 31.5204,
+                lng: 74.3587,
+                radius: 80,
+                coords: '31.5204° N, 74.3587° E',
+                punch: '08:55 AM • Central Plant Room',
+                trail: [
+                    [31.5198, 74.3580],
+                    [31.5201, 74.3583],
+                    [31.5204, 74.3587]
+                ]
+            },
+            daharki: {
+                name: 'Engro Complex Plant (Daharki)',
+                lat: 28.0050,
+                lng: 69.6917,
+                radius: 100,
+                coords: '28.0050° N, 69.6917° E',
+                punch: '08:45 AM • Substation Switchgear Room',
+                trail: [
+                    [28.0040, 69.6908],
+                    [28.0045, 69.6912],
+                    [28.0050, 69.6917]
+                ]
+            },
+            islamabad: {
+                name: 'Islamabad Govt Complex Site',
+                lat: 33.7294,
+                lng: 73.0931,
+                radius: 100,
+                coords: '33.7294° N, 73.0931° E',
+                punch: '08:45 AM • Substation Site Yard',
+                trail: [
+                    [33.7285, 73.0920],
+                    [33.7290, 73.0926],
+                    [33.7294, 73.0931]
+                ]
+            }
+        };
+
+        let currentSiteKey = worker.mapSite || 'karachi';
+
+        function initEmployeeMap() {
+            const mapEl = document.getElementById('live-map');
+            if (!mapEl) return;
+
+            const site = SITE_LOCATIONS[currentSiteKey] || SITE_LOCATIONS.karachi;
+
+            if (typeof L !== 'undefined') {
+                try {
+                    if (employeeMap) {
+                        employeeMap.remove();
+                    }
+                    employeeMap = L.map('live-map', { 
+                        zoomControl: false,
+                        attributionControl: false 
+                    }).setView([site.lat, site.lng], 16);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19
+                    }).addTo(employeeMap);
+
+                    L.control.zoom({ position: 'bottomright' }).addTo(employeeMap);
+
+                    // Geofence Circle Perimeter
+                    geofenceCircle = L.circle([site.lat, site.lng], {
+                        color: '#242b5f',
+                        weight: 2,
+                        fillColor: '#3b82f6',
+                        fillOpacity: 0.18,
+                        radius: site.radius
+                    }).addTo(employeeMap);
+
+                    // Custom Pulsing Worker Pin
+                    const workerIcon = L.divIcon({
+                        className: 'custom-worker-pin',
+                        html: `
+                            <div style="position:relative; width:34px; height:34px; display:flex; align-items:center; justify-content:center;">
+                                <div style="position:absolute; width:100%; height:100%; border-radius:50%; background:#22c55e; opacity:0.4; animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>
+                                <div style="width:28px; height:28px; border-radius:50%; background:#242b5f; color:white; font-size:10px; font-weight:bold; display:flex; align-items:center; justify-content:center; border:2.5px solid white; box-shadow:0 2px 6px rgba(0,0,0,0.35);">
+                                    ${worker.initials}
+                                </div>
+                            </div>
+                        `,
+                        iconSize: [34, 34],
+                        iconAnchor: [17, 17]
+                    });
+
+                    employeeMarker = L.marker([site.lat, site.lng], { icon: workerIcon }).addTo(employeeMap);
+                    
+                    updatePopupContent(site);
+
+                    trailPolyline = L.polyline(site.trail, {
+                        color: '#0284c7',
+                        weight: 3,
+                        dashArray: '5, 8',
+                        opacity: 0.85
+                    });
+
+                    setTimeout(() => {
+                        employeeMap.invalidateSize();
+                    }, 300);
+                } catch(err) {
+                    console.warn('Leaflet map initialization notice:', err);
+                }
+            }
+        }
+
+        function updatePopupContent(site) {
+            if (!employeeMarker) return;
+            employeeMarker.bindPopup(`
+                <div style="font-family:Inter,sans-serif; font-size:11px; line-height:1.4; padding:2px;">
+                    <b style="color:#242b5f; font-size:12px;">${worker.name} (${worker.empId})</b><br>
+                    <span style="color:#64748b;">${worker.role} • ${worker.dept}</span><br>
+                    <div style="margin-top:4px; padding:3px 6px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:4px; color:#047857; font-weight:bold; font-size:10px;">
+                        ● Inside Permitted Geofence (Work Hours)
+                    </div>
+                    <div style="margin-top:4px; color:#334155; font-size:10px; border-top:1px solid #f1f5f9; padding-top:3px;">
+                        <b>Current Site:</b> ${site.name}<br>
+                        <b>Activity:</b> ${site.punch}
+                    </div>
+                </div>
+            `);
+        }
+
+        window.switchMapSite = (key) => {
+            currentSiteKey = key;
+            const site = SITE_LOCATIONS[key];
+            if (!site) return;
+
+            document.getElementById('meta-site-name').innerText = site.name;
+            document.getElementById('meta-coords').innerText = site.coords;
+            document.getElementById('meta-radius').innerHTML = `<i class="fas fa-check-circle mr-1 text-green-600"></i> Within ${site.radius}m (±3.2m)`;
+            document.getElementById('meta-timestamp').innerText = 'Just now (Switched)';
+
+            if (employeeMap && employeeMarker && geofenceCircle) {
+                employeeMap.flyTo([site.lat, site.lng], 16, { duration: 1.2 });
+                employeeMarker.setLatLng([site.lat, site.lng]);
+                geofenceCircle.setLatLng([site.lat, site.lng]);
+                geofenceCircle.setRadius(site.radius);
+                updatePopupContent(site);
+
+                if (showingTrail) {
+                    employeeMap.removeLayer(trailPolyline);
+                    trailPolyline = L.polyline(site.trail, {
+                        color: '#0284c7',
+                        weight: 3,
+                        dashArray: '5, 8',
+                        opacity: 0.85
+                    }).addTo(employeeMap);
+                }
+            }
+
+            showToast(`Map centered on ${site.name}`, 'info');
+        };
+
+        window.pingLiveGPS = () => {
+            showToast(`Pinging GPS transponder on ${worker.name}’s device...`, 'info');
+            setTimeout(() => {
+                const site = SITE_LOCATIONS[currentSiteKey] || SITE_LOCATIONS.karachi;
+                showToast(`GPS Lock Acquired! Lat: ${site.lat}° N, Long: ${site.lng}° E (Inside Geofence • Signal: 100%)`, 'success');
+                if (employeeMarker) {
+                    employeeMarker.openPopup();
+                }
+            }, 500);
+        };
+
+        window.toggleMovementTrail = () => {
+            if (!employeeMap || !trailPolyline) return;
+            showingTrail = !showingTrail;
+            if (showingTrail) {
+                const site = SITE_LOCATIONS[currentSiteKey] || SITE_LOCATIONS.karachi;
+                trailPolyline.setLatLngs(site.trail);
+                trailPolyline.addTo(employeeMap);
+                showToast('Showing Shift Movement Trail (4 check-points recorded today)', 'info');
+            } else {
+                employeeMap.removeLayer(trailPolyline);
+                showToast('Shift Movement Trail hidden', 'info');
+            }
+        };
+
+        window.openGeofenceModal = () => {
+            const site = SITE_LOCATIONS[currentSiteKey] || SITE_LOCATIONS.karachi;
+            openModal(
+                'Worksite Geofence Configuration',
+                `
+                <div class="space-y-3">
+                    <div class="p-3 bg-blue-50/70 border border-blue-200 rounded-lg text-xs">
+                        <p class="font-bold text-[#242b5f] flex items-center gap-1.5"><i class="fas fa-satellite"></i> ${site.name}</p>
+                        <p class="text-[10px] text-gray-600 mt-1">Center: ${site.coords} • Current Radius: <strong>${site.radius} meters</strong></p>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-700 mb-1">Permitted Work Radius (Meters)</label>
+                        <input type="number" id="geofence-radius-input" value="${site.radius}" min="20" max="500" class="w-full text-xs border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-[#242b5f] outline-none">
+                        <p class="text-[10px] text-gray-400 mt-1">If the employee checks in outside this radius, the system generates an Out-of-Radius Attendance Exception alert.</p>
+                    </div>
+                    <div class="p-2.5 bg-gray-50 rounded border border-gray-200 text-[10.5px] space-y-1 text-gray-600">
+                        <p><strong>Enforcement Hours:</strong> 08:00 AM - 05:00 PM (Monday - Saturday)</p>
+                        <p><strong>Biometric Verification:</strong> GPS + Facial match required on mobile app</p>
+                    </div>
+                </div>
+                `,
+                () => {
+                    const newRadius = parseInt(document.getElementById('geofence-radius-input').value) || 80;
+                    site.radius = newRadius;
+                    if (geofenceCircle) {
+                        geofenceCircle.setRadius(newRadius);
+                    }
+                    document.getElementById('meta-radius').innerHTML = `<i class="fas fa-check-circle mr-1 text-green-600"></i> Within ${newRadius}m (±3.2m)`;
+                    showToast(`Geofence perimeter updated to ${newRadius} meters!`, 'success');
+                }
+            );
+        };
+
+        // Outstation Modal Handlers
+        window.openOutstationVoucherModal = () => {
+            const voucherHTML = `
+                <div class="space-y-4 p-1 text-xs">
+                    <div class="border-b border-gray-200 pb-3 flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-extrabold text-[#242b5f] uppercase tracking-wide">Cosmix Engineering (Pvt) Ltd</h3>
+                            <p class="text-[10px] text-gray-500 font-medium">MEP Contracting & Industrial Engineering Division</p>
+                            <p class="text-[9.5px] text-gray-400 mt-0.5">NTN: 4129845-7 • Head Office: Gulberg III, Lahore, Pakistan</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase">Official Voucher</span>
+                            <p class="font-mono text-xs font-bold text-gray-800 mt-1">#OST-2026-089</p>
+                            <p class="text-[9px] text-gray-400">Date: 01 Sep, 2026</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-lg border border-gray-200 text-xs">
+                        <div>
+                            <p class="text-[9.5px] text-gray-400 uppercase font-bold">Deputed Employee</p>
+                            <p class="font-bold text-gray-800">${worker.name} <span class="font-normal text-gray-500">(${worker.empId})</span></p>
+                            <p class="text-[10px] text-gray-600">Designation: ${worker.role}</p>
+                            <p class="text-[10px] text-gray-600">CNIC: ${worker.cnic}</p>
+                        </div>
+                        <div>
+                            <p class="text-[9.5px] text-gray-400 uppercase font-bold">Deputation Details</p>
+                            <p class="text-gray-800 font-semibold"><span class="text-gray-500">From:</span> ${worker.baseSite}</p>
+                            <p class="text-gray-800 font-bold"><span class="text-gray-500">To:</span> ${worker.outstationSite}</p>
+                            <p class="text-[10px] text-gray-600">Duration: ${worker.outstationPeriod}</p>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-gray-100 text-gray-600 text-[9px] uppercase font-bold">
+                                <tr>
+                                    <th class="px-3 py-1.5">Description</th>
+                                    <th class="px-3 py-1.5 text-center">Days / Units</th>
+                                    <th class="px-3 py-1.5 text-right">Amount (PKR)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                <tr>
+                                    <td class="px-3 py-1.5">Daily Allowance (TA/DA per diem @ Rs. 1,500/day)</td>
+                                    <td class="px-3 py-1.5 text-center">30 Days</td>
+                                    <td class="px-3 py-1.5 text-right font-mono font-bold">45,000</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-1.5">Inter-City Daewoo Sleeper Transit Ticket (Karachi &harr; Lahore)</td>
+                                    <td class="px-3 py-1.5 text-center">Round Trip</td>
+                                    <td class="px-3 py-1.5 text-right font-mono font-bold">6,500</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-1.5">Lodging & Guest House Mess Subsidy</td>
+                                    <td class="px-3 py-1.5 text-center">1 Month</td>
+                                    <td class="px-3 py-1.5 text-right font-mono font-bold">15,000</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-1.5">Mobilization Relocation Cash Advance</td>
+                                    <td class="px-3 py-1.5 text-center">Advance</td>
+                                    <td class="px-3 py-1.5 text-right font-mono font-bold">10,000</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-1.5">Chiller Special Tools Transport & Rigging Allowance</td>
+                                    <td class="px-3 py-1.5 text-center">1 Job</td>
+                                    <td class="px-3 py-1.5 text-right font-mono font-bold">5,000</td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="bg-gray-50 font-bold border-t border-gray-200">
+                                <tr>
+                                    <td colspan="2" class="px-3 py-2 text-right">Grand Total Disbursed:</td>
+                                    <td class="px-3 py-2 text-right font-mono text-sm text-[#242b5f]">${worker.outstationPkg}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 text-[9px] text-gray-500 pt-3 border-t border-gray-200 text-center">
+                        <div class="border-t border-gray-300 pt-1">
+                            <p class="font-bold text-gray-700">Engr. Faisal Tariq</p>
+                            <p>Head of MEP / Project Manager</p>
+                        </div>
+                        <div class="border-t border-gray-300 pt-1">
+                            <p class="font-bold text-gray-700">Muhammad Usman</p>
+                            <p>Head of Accounts & Finance</p>
+                        </div>
+                        <div class="border-t border-gray-300 pt-1">
+                            <p class="font-bold text-gray-700">${worker.name}</p>
+                            <p>Deputed Employee Sign</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button onclick="window.print()" class="bg-[#242b5f] text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-[#1a2046] flex items-center gap-1.5">
+                            <i class="fas fa-print"></i> Print Official Voucher
+                        </button>
+                    </div>
+                </div>
+            `;
+            openModal('Outstation Deployment Voucher #OST-2026-089', voucherHTML, null);
+        };
+
+        window.openOutstationExpenseClaimModal = () => {
+            const claimHTML = `
+                <div class="space-y-3 text-xs">
+                    <div class="p-2.5 bg-blue-50/70 border border-blue-200 rounded-lg">
+                        <p class="font-bold text-[#242b5f] flex items-center gap-1.5">
+                            <i class="fas fa-receipt"></i> Outstation Incident Claim: Order #OST-2026-089
+                        </p>
+                        <p class="text-[10px] text-gray-600 mt-0.5">${worker.name} • ${worker.outstationSite}</p>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Expense Category <span class="text-red-500">*</span></label>
+                        <select id="claim-category" class="w-full border border-gray-300 rounded p-1.5 text-xs bg-white focus:outline-none">
+                            <option value="Local Transit">Local Site Transit (Taxi / Careem / Auto)</option>
+                            <option value="Emergency Meals">Overtime Site Meals</option>
+                            <option value="Site Consumables">Emergency Site Hardware / Copper Pipes</option>
+                            <option value="Medical / First Aid">Site First Aid / Medical</option>
+                            <option value="Hotel Extension">Emergency Night Stay Extension</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Expense Title / Description <span class="text-red-500">*</span></label>
+                        <input id="claim-title" type="text" placeholder="e.g. Careem ride from Railway Station to Gulberg Site" class="w-full border border-gray-300 rounded p-1.5 text-xs outline-none focus:ring-1 focus:ring-[#242b5f]">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-600 mb-1">Receipt / Invoice #</label>
+                            <input id="claim-inv" type="text" placeholder="e.g. CRM-98234" class="w-full border border-gray-300 rounded p-1.5 text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-600 mb-1">Claim Amount (PKR) <span class="text-red-500">*</span></label>
+                            <input id="claim-amount" type="number" placeholder="e.g. 1850" class="w-full border border-gray-300 rounded p-1.5 text-xs font-mono font-bold outline-none focus:ring-1 focus:ring-[#242b5f]">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Attach Bill / Receipt Photo</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded p-2.5 text-center cursor-pointer hover:border-[#242b5f] bg-gray-50/50" onclick="document.getElementById('claim-file').click()">
+                            <i class="fas fa-camera text-gray-400 text-base mb-1"></i>
+                            <p class="text-[10.5px] font-semibold text-gray-700">Click to upload bill image or photo</p>
+                            <input type="file" id="claim-file" class="hidden" onchange="document.getElementById('file-chosen-msg').innerText = this.files[0] ? this.files[0].name : ''">
+                            <p id="file-chosen-msg" class="text-[10px] text-emerald-600 font-bold mt-1"></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            openModal(
+                'Submit Outstation Incident Expense Claim',
+                claimHTML,
+                () => {
+                    const title = (document.getElementById('claim-title').value || '').trim() || 'Incidental Travel Expense';
+                    const cat = document.getElementById('claim-category').value;
+                    const amount = parseInt(document.getElementById('claim-amount').value) || 0;
+                    if (amount <= 0) {
+                        showToast('Please enter a valid expense amount in PKR', 'error');
+                        return;
+                    }
+
+                    const tbody = document.getElementById('outstation-items-body');
+                    if (tbody) {
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-amber-50/40 bg-amber-50/20 transition';
+                        tr.innerHTML = `
+                            <td class="px-3 py-2">
+                                <div class="font-bold text-gray-800">${title}</div>
+                                <div class="text-[9px] text-amber-700"><i class="fas fa-receipt mr-1"></i> Submitted Claim (Today)</div>
+                            </td>
+                            <td class="px-3 py-2"><span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[9.5px] font-medium border border-amber-200">${cat}</span></td>
+                            <td class="px-3 py-2 text-center text-gray-600">Employee Incident Claim</td>
+                            <td class="px-3 py-2 text-right font-mono font-bold text-gray-800">Rs. ${amount.toLocaleString()}</td>
+                            <td class="px-3 py-2 text-center"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[9px] font-bold border border-amber-200 uppercase">Pending Audit</span></td>
+                        `;
+                        tbody.appendChild(tr);
+
+                        const grandTotalEl = document.getElementById('outstation-grand-total');
+                        if (grandTotalEl) {
+                            grandTotalEl.innerText = 'Rs. ' + (81500 + amount).toLocaleString();
+                        }
+                    }
+
+                    showToast(`Claim of Rs. ${amount.toLocaleString()} submitted to Accounts & Project Manager for reimbursement!`, 'success');
+                }
+            );
+        };
+
+        // Initialize map after layout rendering
+        setTimeout(initEmployeeMap, 200);
+    </script>
+</body>
+</html>

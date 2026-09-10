@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Worker Profiles Directory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; } 
+        body { font-family: 'Inter', sans-serif; } 
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; } 
+        table td { padding: 0.5rem 0.75rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('workers');
+        setPageContent('Worker Profiles & Financial Registry', `
+            <div class="space-y-4">
+                
+                <!-- Header Banner -->
+                <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl shadow-xs border border-gray-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm font-bold text-gray-800">All Workers Directory & Financial Profiles</h2>
+                            <span class="bg-indigo-50 text-[#242b5f] text-[9px] font-bold px-2 py-0.5 rounded-full border border-indigo-100">
+                                150 Total Personnel
+                            </span>
+                        </div>
+                        <p class="text-[10.5px] text-gray-400 mt-0.5">Click on any worker row or profile button to inspect their complete financial record, bank IBAN, salary slip, and GPS site location.</p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <a href="attendance.html" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-3 py-1.5 rounded-lg text-xs font-semibold shadow-2xs transition flex items-center gap-1.5">
+                            <i class="fas fa-user-clock text-amber-600"></i> Attendance Roster
+                        </a>
+                        <a href="payroll.html" class="bg-[#242b5f] hover:bg-opacity-90 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-money-check-alt text-amber-300"></i> Payroll Disbursement
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 4 Top Executive Stat Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-xs">
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Headcount</p>
+                        <h4 class="text-lg font-extrabold text-gray-900 mt-0.5">150 Workers</h4>
+                        <p class="text-[9px] text-gray-500 mt-1">Deployed across Pakistan</p>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-xl border border-green-100 shadow-xs">
+                        <p class="text-[9px] text-green-700 font-bold uppercase tracking-wider">On Working (Duty Par)</p>
+                        <h4 class="text-lg font-extrabold text-green-700 mt-0.5 flex items-center gap-1.5">
+                            142 <span class="text-xs font-normal text-gray-500">/ 150 (94.6%)</span>
+                        </h4>
+                        <p class="text-[9px] text-green-600 font-semibold mt-1 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Active on Project Sites Today
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-xl border border-red-100 shadow-xs">
+                        <p class="text-[9px] text-red-700 font-bold uppercase tracking-wider">Off / Chutti (Rest / Leave)</p>
+                        <h4 class="text-lg font-extrabold text-red-600 mt-0.5">8 Workers</h4>
+                        <p class="text-[9px] text-red-500 font-medium mt-1">4 Off-Duty, 3 Leaves, 1 Absent</p>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-xl border border-purple-100 shadow-xs">
+                        <p class="text-[9px] text-purple-700 font-bold uppercase tracking-wider">Monthly Wage Roll</p>
+                        <h4 class="text-lg font-extrabold text-purple-700 mt-0.5">Rs. 5,442,500</h4>
+                        <p class="text-[9px] text-gray-400 mt-1">September 2026 Salary Batch</p>
+                    </div>
+                </div>
+
+                <!-- Filters & Working vs Off Status Toolbar -->
+                <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-100 flex flex-wrap items-center justify-between gap-3">
+                    <!-- Status Filter Tabs: On Working vs Off / Chutti -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                        <button onclick="filterWorkersStatus('all', this)" class="worker-tab-btn px-3 py-1 text-xs font-bold rounded-lg bg-[#242b5f] text-white shadow-2xs transition">
+                            All Workers (150)
+                        </button>
+                        <button onclick="filterWorkersStatus('on_working', this)" class="worker-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-green-500"></span> On Working (142)
+                        </button>
+                        <button onclick="filterWorkersStatus('off', this)" class="worker-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span> Off / Chutti (8)
+                        </button>
+                    </div>
+
+                    <!-- Search and Dropdowns -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input id="worker-search" type="text" oninput="filterWorkersTable()" placeholder="Search name, ID, role, site..." class="bg-gray-50 border border-gray-200 text-xs rounded-md pl-7 pr-3 py-1 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#242b5f] w-52">
+                        </div>
+                        <select id="site-filter" onchange="filterWorkersTable()" class="bg-gray-50 border border-gray-200 text-xs rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                            <option value="">All Project Sites & Offices</option>
+                            <option value="Packages Mall">Packages Mall, Lahore</option>
+                            <option value="Lucky One Mall">Lucky One Mall, Karachi</option>
+                            <option value="Karachi High-Rise">Karachi High-Rise (Clifton)</option>
+                            <option value="Engro Complex">Engro Complex, Daharki</option>
+                            <option value="DHA City">DHA City Sector 3, Karachi</option>
+                            <option value="Bahria Town">Bahria Town, Rawalpindi</option>
+                            <option value="Lucky Cement">Lucky Cement Plant, Pezu KPK</option>
+                            <option value="Head Office">Head Office PECHS, Karachi</option>
+                        </select>
+                        <select id="dept-filter" onchange="filterWorkersTable()" class="bg-gray-50 border border-gray-200 text-xs rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                            <option value="">All Departments</option>
+                            <option value="MEP & Execution">MEP & Execution</option>
+                            <option value="HVAC">HVAC Operations</option>
+                            <option value="Electrical">Electrical Switchgear</option>
+                            <option value="Corporate Office">Corporate Office</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Master Workers List Table (Rows & Columns) -->
+                <div class="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="workers-main-table">
+                            <thead>
+                                <tr class="bg-gray-50/80 border-b border-gray-100 text-gray-500 font-bold">
+                                    <th>Emp ID</th>
+                                    <th>Worker Name & Role</th>
+                                    <th>Deployed Project Site</th>
+                                    <th>Department</th>
+                                    <th class="text-center">Today's Status (Working / Chutti)</th>
+                                    <th class="text-right">Monthly Remuneration</th>
+                                    <th>Disbursal Bank & IBAN</th>
+                                    <th class="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-xs" id="workers-table-body">
+                                <!-- Dynamically populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        `);
+
+        // Database of Workers for Accounts Directory
+        window.WORKERS_REGISTRY = [
+            {
+                empId: 'EMP-1042',
+                name: 'Ali Khan',
+                initials: 'AK',
+                role: 'HVAC Site Engineer',
+                dept: 'HVAC Operations',
+                site: 'Karachi High-Rise (Clifton)',
+                city: 'Karachi',
+                status: 'on_working',
+                statusLabel: 'On Working',
+                statusBadge: 'bg-green-100 text-green-800 border-green-200',
+                statusDesc: 'Punch: 08:00 AM • Inside Site (20m)',
+                basic: 85000,
+                gross: 132500,
+                bank: 'Meezan Bank Ltd',
+                iban: 'PK36 MEZN 0001 0982 3471 01',
+                phone: '+92 300 1234567',
+                cnic: '42201-1234567-1'
+            },
+            {
+                empId: 'EMP-1044',
+                name: 'Usman Tariq',
+                initials: 'UT',
+                role: 'AC Technician Foreman',
+                dept: 'MEP & Execution',
+                site: 'Packages Mall, Lahore',
+                city: 'Lahore',
+                status: 'on_working',
+                statusLabel: 'On Working',
+                statusBadge: 'bg-green-100 text-green-800 border-green-200',
+                statusDesc: 'Punch: 08:00 AM • Plant Room B',
+                basic: 46000,
+                gross: 65800,
+                bank: 'Habib Bank Ltd (HBL)',
+                iban: 'PK12 HABB 0042 1928 3401 02',
+                phone: '+92 312 9845120',
+                cnic: '35201-8912401-3'
+            },
+            {
+                empId: 'EMP-1046',
+                name: 'Bilal Ahmed',
+                initials: 'BA',
+                role: 'Field Electrical Engineer',
+                dept: 'Electrical Switchgear',
+                site: 'Engro Complex, Daharki',
+                city: 'Daharki',
+                status: 'on_working',
+                statusLabel: 'On Working',
+                statusBadge: 'bg-green-100 text-green-800 border-green-200',
+                statusDesc: 'Punch: 07:55 AM • Substation Zone',
+                basic: 70000,
+                gross: 108000,
+                bank: 'Meezan Bank Ltd',
+                iban: 'PK45 MEZN 0089 1204 9812 03',
+                phone: '+92 333 4912081',
+                cnic: '45501-7192031-5'
+            },
+            {
+                empId: 'EMP-1006',
+                name: 'Hamza Khan',
+                initials: 'HK',
+                role: 'Senior Project Manager',
+                dept: 'MEP & Execution',
+                site: 'Lucky Cement Plant, Pezu KPK',
+                city: 'Pezu',
+                status: 'on_working',
+                statusLabel: 'On Working',
+                statusBadge: 'bg-green-100 text-green-800 border-green-200',
+                statusDesc: 'Punch: 08:10 AM • Kiln Section',
+                basic: 115000,
+                gross: 185000,
+                bank: 'Standard Chartered Bank',
+                iban: 'PK19 SCBL 0002 9182 4501 04',
+                phone: '+92 301 8291024',
+                cnic: '17301-4912091-7'
+            },
+            {
+                empId: 'EMP-1043',
+                name: 'Sara Ahmed',
+                initials: 'SA',
+                role: 'Sales & Accounts Executive',
+                dept: 'Corporate Office',
+                site: 'Head Office PECHS, Karachi',
+                city: 'Karachi',
+                status: 'on_working',
+                statusLabel: 'On Working',
+                statusBadge: 'bg-green-100 text-green-800 border-green-200',
+                statusDesc: 'Punch: 09:05 AM • Head Office HQ',
+                basic: 55000,
+                gross: 78500,
+                bank: 'Meezan Bank Ltd',
+                iban: 'PK88 MEZN 0012 3901 8241 05',
+                phone: '+92 321 4455667',
+                cnic: '42101-9876543-2'
+            },
+            {
+                empId: 'EMP-1007',
+                name: 'Rashid Mehmood',
+                initials: 'RM',
+                role: 'Site Supervisor',
+                dept: 'MEP & Execution',
+                site: 'DHA City Sector 3, Karachi',
+                city: 'Karachi',
+                status: 'off',
+                statusLabel: 'Off / Chutti',
+                statusBadge: 'bg-amber-100 text-amber-800 border-amber-200',
+                statusDesc: 'Approved Casual Leave (Medical)',
+                basic: 48000,
+                gross: 69200,
+                bank: 'MCB Bank Ltd',
+                iban: 'PK09 MUCB 0081 2910 4812 06',
+                phone: '+92 345 8192031',
+                cnic: '42301-3819201-9'
+            },
+            {
+                empId: 'EMP-1004',
+                name: 'Zainab Fatima',
+                initials: 'ZF',
+                role: 'Site Quality Inspector',
+                dept: 'MEP & Execution',
+                site: 'Head Office PECHS, Karachi',
+                city: 'Karachi',
+                status: 'off',
+                statusLabel: 'Off / Chutti',
+                statusBadge: 'bg-blue-100 text-blue-800 border-blue-200',
+                statusDesc: 'Weekly Rest Day (Shift Rotation)',
+                basic: 52000,
+                gross: 74500,
+                bank: 'Allied Bank Ltd',
+                iban: 'PK60 ABLP 0019 2841 0291 07',
+                phone: '+92 334 5566778',
+                cnic: '42201-4455667-4'
+            },
+            {
+                empId: 'EMP-1022',
+                name: 'Zubair Shah',
+                initials: 'ZS',
+                role: 'Mechanical Supervisor',
+                dept: 'MEP & Execution',
+                site: 'Bahria Town, Rawalpindi',
+                city: 'Rawalpindi',
+                status: 'on_working',
+                statusLabel: 'On Working',
+                statusBadge: 'bg-green-100 text-green-800 border-green-200',
+                statusDesc: 'Punch: 08:15 AM • Civic Center Site',
+                basic: 52000,
+                gross: 76000,
+                bank: 'Habib Bank Ltd (HBL)',
+                iban: 'PK12 HABB 0091 2841 0291 08',
+                phone: '+92 300 8192041',
+                cnic: '37405-1829012-3'
+            },
+            {
+                empId: 'EMP-1001',
+                name: 'Muhammad Tariq',
+                initials: 'MT',
+                role: 'Senior Accountant',
+                dept: 'Corporate Office',
+                site: 'Head Office PECHS, Karachi',
+                city: 'Karachi',
+                status: 'on_working',
+                statusLabel: 'On Working',
+                statusBadge: 'bg-green-100 text-green-800 border-green-200',
+                statusDesc: 'Punch: 08:50 AM • Finance Desk',
+                basic: 95000,
+                gross: 148000,
+                bank: 'Meezan Bank Ltd',
+                iban: 'PK36 MEZN 0001 0491 8201 09',
+                phone: '+92 300 9201928',
+                cnic: '42101-1928301-1'
+            }
+        ];
+
+        window.currentStatusFilter = 'all';
+
+        window.renderWorkersTable = (statusTab = 'all', query = '', site = '', dept = '') => {
+            const tbody = document.getElementById('workers-table-body');
+            if (!tbody) return;
+
+            const filtered = window.WORKERS_REGISTRY.filter(w => {
+                const matchesStatus = statusTab === 'all' ? true : w.status === statusTab;
+                const matchesSite = !site || w.site.toLowerCase().includes(site.toLowerCase());
+                const matchesDept = !dept || w.dept.toLowerCase().includes(dept.toLowerCase());
+                
+                const q = query.toLowerCase();
+                const matchesQuery = !query || 
+                    w.name.toLowerCase().includes(q) || 
+                    w.empId.toLowerCase().includes(q) || 
+                    w.role.toLowerCase().includes(q) || 
+                    w.site.toLowerCase().includes(q) || 
+                    w.city.toLowerCase().includes(q);
+
+                return matchesStatus && matchesSite && matchesDept && matchesQuery;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-8 text-gray-400">
+                            <i class="fas fa-user-slash text-3xl mb-2 text-gray-300"></i>
+                            <p class="font-bold text-gray-600">No workers match your filter criteria.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(w => `
+                <tr class="hover:bg-indigo-50/25 transition cursor-pointer group" onclick="window.location.href='employee-profile.html?id=${w.empId}'">
+                    <!-- Emp ID & Avatar -->
+                    <td class="font-mono">
+                        <div class="flex items-center gap-2">
+                            <div class="relative w-8 h-8 rounded-full bg-[#242b5f] text-white flex items-center justify-center font-bold text-xs shadow-2xs shrink-0">
+                                ${w.initials}
+                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border border-white ${w.status === 'on_working' ? 'bg-green-500' : 'bg-red-500'}"></span>
+                            </div>
+                            <div>
+                                <span class="font-bold text-[#242b5f] group-hover:underline">${w.empId}</span>
+                                <div class="text-[9px] text-gray-400 font-mono">${w.cnic.substring(0,5)}...</div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Worker Name & Role -->
+                    <td>
+                        <div class="font-bold text-gray-900 text-xs group-hover:text-indigo-700 transition flex items-center gap-1">
+                            ${w.name}
+                            <i class="fas fa-external-link-alt text-[8.5px] opacity-0 group-hover:opacity-100 text-indigo-500"></i>
+                        </div>
+                        <div class="text-[10px] text-gray-500 font-medium">${w.role}</div>
+                    </td>
+
+                    <!-- Deployed Project Site -->
+                    <td>
+                        <div class="font-semibold text-gray-800">${w.site}</div>
+                        <span class="inline-block text-[9px] text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded font-medium mt-0.5">
+                            <i class="fas fa-map-marker-alt text-red-500 mr-0.5 text-[8.5px]"></i> ${w.city}
+                        </span>
+                    </td>
+
+                    <!-- Department -->
+                    <td>
+                        <span class="text-[9.5px] font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-700 border border-gray-200">
+                            ${w.dept}
+                        </span>
+                    </td>
+
+                    <!-- Today's Status: ON WORKING vs OFF / CHUTTI & OT Status -->
+                    <td class="text-center">
+                        <div class="inline-flex flex-col items-center">
+                            <div class="flex items-center gap-1.5">
+                                <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${w.statusBadge}">
+                                    <span class="w-2 h-2 rounded-full ${w.status === 'on_working' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}"></span>
+                                    ${w.statusLabel}
+                                </span>
+                                ${w.status === 'on_working' ? `
+                                    <span class="inline-flex items-center gap-0.5 text-[8.5px] font-extrabold px-1.5 py-0.5 rounded border bg-purple-50 text-purple-700 border-purple-200" title="Overtime Authorized">
+                                        <i class="fas fa-business-time text-[7.5px]"></i> OT: ON
+                                    </span>
+                                ` : `
+                                    <span class="inline-flex items-center gap-0.5 text-[8.5px] font-extrabold px-1.5 py-0.5 rounded border bg-gray-50 text-gray-400 border-gray-200" title="No Overtime Allowed">
+                                        OT: OFF
+                                    </span>
+                                `}
+                            </div>
+                            <span class="text-[9px] text-gray-400 mt-0.5">${w.statusDesc}</span>
+                        </div>
+                    </td>
+
+                    <!-- Remuneration -->
+                    <td class="text-right">
+                        <div class="font-extrabold text-gray-900 font-mono">Rs. ${w.gross.toLocaleString()}</div>
+                        <div class="text-[9px] text-gray-400">Basic: Rs. ${w.basic.toLocaleString()}</div>
+                    </td>
+
+                    <!-- Bank & Disbursal IBAN -->
+                    <td>
+                        <div class="font-semibold text-[#242b5f] truncate max-w-[150px]">${w.bank}</div>
+                        <div class="font-mono text-[9.5px] text-gray-400">${w.iban.substring(0, 11)}...${w.iban.slice(-4)}</div>
+                    </td>
+
+                    <!-- Action: Open Detail Page -->
+                    <td class="text-right" onclick="event.stopPropagation()">
+                        <a href="employee-profile.html?id=${w.empId}" class="inline-flex items-center gap-1 bg-white border border-gray-200 hover:border-[#242b5f] hover:bg-[#242b5f] text-gray-700 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition shadow-2xs">
+                            <span>Open Profile</span>
+                            <i class="fas fa-arrow-right text-[10px]"></i>
+                        </a>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.filterWorkersStatus = (status, btn) => {
+            window.currentStatusFilter = status;
+            document.querySelectorAll('.worker-tab-btn').forEach(b => {
+                b.className = 'worker-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition';
+            });
+            btn.className = 'worker-tab-btn px-3 py-1 text-xs font-bold rounded-lg bg-[#242b5f] text-white shadow-2xs transition';
+            window.filterWorkersTable();
+        };
+
+        window.filterWorkersTable = () => {
+            const q = document.getElementById('worker-search')?.value || '';
+            const site = document.getElementById('site-filter')?.value || '';
+            const dept = document.getElementById('dept-filter')?.value || '';
+            window.renderWorkersTable(window.currentStatusFilter, q, site, dept);
+        };
+
+        // Initial render
+        window.renderWorkersTable();
+    </script>
+</body>
+</html>

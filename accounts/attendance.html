@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Attendance & Overtime Audit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; } 
+        body { font-family: 'Inter', sans-serif; } 
+        table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } 
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('attendance');
+        
+        setPageContent('Attendance Audit & Biometric Time-Tracking', `
+            <div class="space-y-4">
+                
+                <!-- Compact Top Stat Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Workers Present</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">142 <span class="text-[10px] text-green-600 font-normal">/ 150</span></h4>
+                            <p class="text-[9px] text-green-600 font-semibold"><i class="fas fa-arrow-up mr-0.5"></i> 94.6% Turnout</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Biometric & GPS</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">8 Sites <span class="text-[10px] text-blue-600 font-normal">Online</span></h4>
+                            <p class="text-[9px] text-blue-600 font-semibold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Cloud API Synced</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
+                            <i class="fas fa-satellite-dish"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Accounts Audit Exceptions</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">3 Cases <span class="text-[10px] text-orange-500 font-normal">Unresolved</span></h4>
+                            <p class="text-[9px] text-orange-600 font-medium">Late & radius penalty checks</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center text-sm">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-purple-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-purple-700 font-bold uppercase tracking-wider">Overtime Audited (1.5x)</p>
+                            <h4 class="text-lg font-bold text-purple-700 mt-0.5">1,420 <span class="text-[10px] text-purple-600 font-normal">Hours</span></h4>
+                            <p class="text-[9px] text-green-700 font-bold">Rs. 385,000 OT Liability</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-business-time"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar: View Switcher + Audit Sign-off + Export Buttons -->
+                <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    
+                    <!-- Left: View Toggle Tabs -->
+                    <div class="flex items-center gap-1 bg-gray-100 p-0.5 rounded-md text-xs font-bold">
+                        <button id="tab-btn-both" onclick="switchView('both')" class="px-3 py-1.5 rounded text-xs font-bold transition shadow-sm bg-white text-[#242b5f] flex items-center gap-1.5">
+                            <i class="fas fa-layer-group"></i> All (Matrix & Daily Log)
+                        </button>
+                        <button id="tab-btn-roster" onclick="switchView('roster')" class="px-3 py-1.5 rounded text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5">
+                            <i class="fas fa-th"></i> Roster Matrix (1-30 Grid)
+                        </button>
+                        <button id="tab-btn-table" onclick="switchView('table')" class="px-3 py-1.5 rounded text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5">
+                            <i class="fas fa-list"></i> Daily Log Only <span class="bg-red-100 text-red-700 text-[9px] px-1.5 py-0.2 rounded-full font-bold">3</span>
+                        </button>
+                    </div>
+
+                    <!-- Right: Accounts Master Sign-Off & Export CTAs -->
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="approveAllAuditRecords()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5" title="Sign off all attendance and overtime for payroll release">
+                            <i class="fas fa-check-double text-[11px]"></i> 1-Click Sign-off All Attendance
+                        </button>
+                        <a href="payroll.html" class="bg-amber-500 hover:bg-amber-400 text-[#242b5f] px-3 py-1.5 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-money-check-alt text-xs"></i> Go to Payroll Disbursement &rarr;
+                        </a>
+                        <button onclick="exportToExcel('Accounts_Attendance_Daily_Log')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export to Excel">
+                            <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel
+                        </button>
+                        <button onclick="exportToPDF('Accounts_Attendance_Report')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export to PDF">
+                            <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECTION 1B: EMPLOYEE ATTENDANCE ROSTER MATRIX (Individual Employee x Date Grid 1-30) -->
+                <div id="view-roster" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <!-- Roster Header -->
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex flex-wrap justify-between items-center bg-gray-50/50 gap-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center text-xs"><i class="fas fa-th"></i></div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Employee Attendance Roster (1-30 Days Grid)</h3>
+                                    <span class="text-[9px] bg-green-50 text-green-700 border border-green-200 px-1.5 py-0.5 rounded font-bold">September 2026</span>
+                                    <span class="text-[9px] bg-blue-50 text-[#242b5f] border border-blue-200 px-1.5 py-0.5 rounded font-bold">150 Workers</span>
+                                </div>
+                                <p class="text-[9.5px] text-gray-400 mt-0.5">Individual employee attendance matrix — <strong>P</strong> Present, <strong>L</strong> Late, <strong>A</strong> Absent, <strong>LV</strong> Leave, <strong>H</strong> Holiday, <strong>-</strong> Off</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                                <input type="text" oninput="filterRosterRows(this)" placeholder="Search employee or role..." class="text-xs border border-gray-200 rounded-md pl-6 pr-2 py-1 focus:outline-none focus:border-[#242b5f] w-36 bg-white">
+                            </div>
+                            <select onchange="filterRosterDept(this.value)" class="text-xs border border-gray-200 rounded-md px-1.5 py-1 bg-white focus:outline-none text-gray-700 max-w-[130px] truncate">
+                                <option value="">All Categories</option>
+                                <option value="mep">Site Engineering (MEP)</option>
+                                <option value="office">Corporate Office</option>
+                            </select>
+                            <button onclick="exportToExcel('Employee_Roster_Sep_2026')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2 py-1 rounded text-xs font-semibold shadow-sm transition flex items-center gap-1"><i class="fas fa-file-excel text-green-600 text-[10px]"></i> Export Roster</button>
+                        </div>
+                    </div>
+
+                    <!-- Roster Grid Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-[10px] whitespace-nowrap border-collapse" id="roster-matrix-table">
+                            <thead class="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-2.5 py-2 font-bold text-[8.5px] text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-20 min-w-[190px] border-r border-gray-200">Employee & Site</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">1</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">2</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">3</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">4</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100 bg-blue-50/50">5</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-100 bg-gray-100">6</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-[#242b5f] text-center w-7 border-r border-gray-200 bg-blue-50 font-extrabold">7</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">8</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">9</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">10</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">11</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">12</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-100 bg-gray-100">13</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-200 bg-gray-100">14</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">15</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">16</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">17</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">18</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">19</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-100 bg-gray-100">20</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-200 bg-gray-100">21</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">22</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">23</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">24</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">25</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">26</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-100 bg-gray-100">27</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-400 text-center w-7 border-r border-gray-200 bg-gray-100">28</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-100">29</th>
+                                    <th class="px-1 py-2 font-bold text-[8.5px] text-gray-500 text-center w-7 border-r border-gray-200">30</th>
+                                    <th class="px-2 py-2 font-bold text-[8.5px] text-green-700 text-center border-r border-gray-200 bg-green-50/50 min-w-[32px]">P</th>
+                                    <th class="px-2 py-2 font-bold text-[8.5px] text-orange-700 text-center border-r border-gray-200 bg-orange-50/50 min-w-[32px]">L</th>
+                                    <th class="px-2 py-2 font-bold text-[8.5px] text-red-700 text-center border-r border-gray-200 bg-red-50/50 min-w-[32px]">A</th>
+                                    <th class="px-2 py-2 font-bold text-[8.5px] text-purple-700 text-center border-r border-gray-200 bg-purple-50/50 min-w-[32px]">LV</th>
+                                    <th class="px-2 py-2 font-bold text-[8.5px] text-gray-500 text-center min-w-[45px]">Profile</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roster-matrix-body" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: DAILY CHECK-IN & CHECK-OUT AUDIT LOG (Master Table with Punch-In, Punch-Out, Shift, OT & Accounts Actions) -->
+                <div id="view-table" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex flex-wrap justify-between items-center bg-gray-50/50 gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                            <h3 id="table-date-title" class="text-xs font-bold text-gray-800 uppercase tracking-wider">Daily Biometric Punch Log & Overtime Audit (Today - Sep 2026)</h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                                <input type="text" oninput="filterTableRows(this, 'attendance-table-body')" placeholder="Filter employee, ID or site..." class="text-xs border border-gray-200 rounded-md pl-7 pr-2.5 py-1 focus:outline-none focus:border-[#242b5f] w-52 bg-white">
+                            </div>
+                            <select onchange="filterTableRows({ value: this.value.includes('All') ? '' : this.value }, 'attendance-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white focus:outline-none text-gray-700">
+                                <option value="All Sites">All Sites & Offices (8)</option>
+                                <option value="Karachi">Karachi High-Rise</option>
+                                <option value="Packages">Packages Mall Lahore</option>
+                                <option value="Engro">Engro Complex Daharki</option>
+                                <option value="Lucky Cement">Lucky Cement Pezu KPK</option>
+                                <option value="Head Office">Head Office PECHS</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto min-h-[350px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[8.5px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-3 py-2.5 font-bold">Emp ID</th>
+                                    <th class="px-3 py-2.5 font-bold">Employee</th>
+                                    <th class="px-3 py-2.5 font-bold">Department / Role</th>
+                                    <th class="px-3 py-2.5 font-bold">Deployed Project Site</th>
+                                    <th class="px-3 py-2.5 font-bold">Shift Schedule</th>
+                                    <th class="px-3 py-2.5 font-bold">Punch-In</th>
+                                    <th class="px-3 py-2.5 font-bold">Punch-Out</th>
+                                    <th class="px-3 py-2.5 font-bold">Work Hours</th>
+                                    <th class="px-3 py-2.5 font-bold text-purple-700">OT Hours (1.5x)</th>
+                                    <th class="px-3 py-2.5 font-bold text-green-700">OT Payout</th>
+                                    <th class="px-3 py-2.5 font-bold">GPS Geofence</th>
+                                    <th class="px-3 py-2.5 font-bold">Exception Alert</th>
+                                    <th class="px-3 py-2.5 font-bold text-center">Audit Status</th>
+                                    <th class="px-3 py-2.5 font-bold text-right">Accounts Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-table-body" class="divide-y divide-gray-100 bg-white">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        `);
+
+        // Seed data for Employees and Attendance
+        const offDays = new Set([6,7,13,14,20,21,27,28]);
+
+        window.EMPLOYEES_LIST = [
+            {
+                name: 'Ali Khan',
+                initials: 'AK',
+                role: 'HVAC Site Engineer',
+                empId: 'EMP-1042',
+                dept: 'MEP & Execution',
+                category: 'mep',
+                site: 'Karachi High-Rise (Clifton)',
+                color: 'bg-[#242b5f] text-white',
+                shift: '08:00 - 17:00 (Site Shift)',
+                inTime: '10:00 AM',
+                outTime: 'In-Progress',
+                hours: '7h 15m',
+                otHours: 3.5,
+                otPayout: 2187,
+                geofence: 'Inside (20m)',
+                exception: 'Late Arrival (+60m)',
+                auditStatus: 'Pending Review',
+                auditClass: 'bg-amber-100 text-amber-800',
+                pattern: {3:'L', 7:'L', 12:'P', 15:'P', lateChance: .08}
+            },
+            {
+                name: 'Usman Tariq',
+                initials: 'UT',
+                role: 'AC Technician Foreman',
+                empId: 'EMP-1044',
+                dept: 'MEP & Execution',
+                category: 'mep',
+                site: 'Packages Mall, Lahore',
+                color: 'bg-orange-100 text-orange-600',
+                shift: '08:00 - 17:00 (Site Shift)',
+                inTime: '08:00 AM',
+                outTime: 'Missing Punch',
+                hours: 'Incomplete',
+                otHours: 4.0,
+                otPayout: 1840,
+                geofence: 'Inside Site (Zone B)',
+                exception: 'Missing Check-Out',
+                auditStatus: 'Penalty Flagged',
+                auditClass: 'bg-red-100 text-red-700',
+                pattern: {5:'A', 7:'P', 18:'L', lateChance: .12}
+            },
+            {
+                name: 'Sara Ahmed',
+                initials: 'SA',
+                role: 'Sales Executive',
+                empId: 'EMP-1043',
+                dept: 'Corporate Office',
+                category: 'office',
+                site: 'Head Office PECHS, Karachi',
+                color: 'bg-blue-100 text-blue-600',
+                shift: '09:00 - 18:00 (Office Shift)',
+                inTime: '09:05 AM',
+                outTime: '06:10 PM',
+                hours: '9h 05m',
+                otHours: 0.0,
+                otPayout: 0,
+                geofence: 'Inside Office HQ',
+                exception: 'Normal Punch',
+                auditStatus: 'Audited & Cleared',
+                auditClass: 'bg-green-100 text-green-800',
+                pattern: {8:'LV', 9:'LV', 14:'P', lateChance: .04}
+            },
+            {
+                name: 'Bilal Ahmed',
+                initials: 'BA',
+                role: 'Field Electrical Engineer',
+                empId: 'EMP-1046',
+                dept: 'MEP & Execution',
+                category: 'mep',
+                site: 'Engro Complex, Daharki',
+                color: 'bg-gray-100 text-gray-600',
+                shift: '08:00 - 17:00 (Site Shift)',
+                inTime: '07:55 AM',
+                outTime: '07:30 PM',
+                hours: '11h 35m',
+                otHours: 2.5,
+                otPayout: 1750,
+                geofence: 'Substation Perimeter',
+                exception: 'Overtime Logged',
+                auditStatus: 'Audited & Cleared',
+                auditClass: 'bg-green-100 text-green-800',
+                pattern: {2:'L', 10:'L', 22:'P', lateChance: .10}
+            },
+            {
+                name: 'Hamza Khan',
+                initials: 'HK',
+                role: 'Lead Firefighting Tech',
+                empId: 'EMP-1006',
+                dept: 'MEP & Execution',
+                category: 'mep',
+                site: 'Lucky Cement Plant, Pezu KPK',
+                color: 'bg-purple-100 text-purple-700',
+                shift: '08:00 - 17:00 (Site Shift)',
+                inTime: '08:00 AM',
+                outTime: '08:00 PM',
+                hours: '12h 00m',
+                otHours: 3.0,
+                otPayout: 1800,
+                geofence: 'Kiln Perimeter GPS',
+                exception: 'Overtime Logged',
+                auditStatus: 'Audited & Cleared',
+                auditClass: 'bg-green-100 text-green-800',
+                pattern: {6:'P', 12:'P', 25:'P', lateChance: .05}
+            },
+            {
+                name: 'Muhammad Tariq',
+                initials: 'MT',
+                role: 'Project Director (MEP)',
+                empId: 'EMP-1001',
+                dept: 'Corporate Office',
+                category: 'office',
+                site: 'Head Office PECHS, Karachi',
+                color: 'bg-indigo-100 text-indigo-700',
+                shift: '09:00 - 18:00 (Office Shift)',
+                inTime: '08:50 AM',
+                outTime: '06:00 PM',
+                hours: '9h 10m',
+                otHours: 0.0,
+                otPayout: 0,
+                geofence: 'Inside Office HQ',
+                exception: 'Normal Punch',
+                auditStatus: 'Audited & Cleared',
+                auditClass: 'bg-green-100 text-green-800',
+                pattern: {1:'P', 2:'P', 3:'P', lateChance: .02}
+            },
+            {
+                name: 'Rashid Mehmood',
+                initials: 'RM',
+                role: 'MEP Welder & Fabricator',
+                empId: 'EMP-1007',
+                dept: 'MEP & Execution',
+                category: 'mep',
+                site: 'DHA City Sector 3, Karachi',
+                color: 'bg-amber-100 text-amber-700',
+                shift: '08:00 - 17:00 (Site Shift)',
+                inTime: '09:30 AM',
+                outTime: '05:00 PM',
+                hours: '7h 30m',
+                otHours: 0.0,
+                otPayout: 0,
+                geofence: 'Inside Sector 3',
+                exception: 'Late Arrival (4th Late)',
+                auditStatus: 'Half-Day Deducted',
+                auditClass: 'bg-red-100 text-red-700',
+                pattern: {4:'L', 11:'L', 19:'L', 24:'L', lateChance: .20}
+            },
+            {
+                name: 'Zainab Fatima',
+                initials: 'ZF',
+                role: 'Senior Accounts Officer',
+                empId: 'EMP-1004',
+                dept: 'Corporate Office',
+                category: 'office',
+                site: 'Head Office PECHS, Karachi',
+                color: 'bg-emerald-100 text-emerald-700',
+                shift: '09:00 - 18:00 (Office Shift)',
+                inTime: '09:00 AM',
+                outTime: '06:00 PM',
+                hours: '9h 00m',
+                otHours: 0.0,
+                otPayout: 0,
+                geofence: 'Inside Office HQ',
+                exception: 'Normal Punch',
+                auditStatus: 'Audited & Cleared',
+                auditClass: 'bg-green-100 text-green-800',
+                pattern: {15:'LV', 16:'LV', lateChance: .02}
+            }
+        ];
+
+        // ===== 1. RENDER EMPLOYEE ATTENDANCE ROSTER MATRIX (1-30 GRID) =====
+        function renderRosterMatrix() {
+            const tbody = document.getElementById('roster-matrix-body');
+            if (!tbody) return;
+
+            const statusMap = {
+                'P': { label: 'P',  cls: 'bg-green-100 text-green-700 font-bold', title: 'Present' },
+                'L': { label: 'L',  cls: 'bg-orange-100 text-orange-700 font-bold', title: 'Late Arrival' },
+                'A': { label: 'A',  cls: 'bg-red-100 text-red-700 font-bold', title: 'Absent' },
+                'LV':{ label: 'LV', cls: 'bg-purple-100 text-purple-700 font-bold', title: 'On Leave' },
+                'H': { label: 'H',  cls: 'bg-blue-100 text-blue-700 font-bold', title: 'Holiday' },
+                '-': { label: '-',  cls: 'bg-gray-50 text-gray-300', title: 'Weekly Off' },
+            };
+
+            let html = '';
+            EMPLOYEES_LIST.forEach((emp, idx) => {
+                const days = [];
+                let pCount = 0, lCount = 0, aCount = 0, lvCount = 0;
+                for (let d = 1; d <= 30; d++) {
+                    let st;
+                    if (offDays.has(d)) {
+                        st = '-';
+                    } else if (emp.pattern && emp.pattern[d]) {
+                        st = emp.pattern[d];
+                    } else if (d > 7) {
+                        st = ''; // future days blank
+                    } else {
+                        const seed = (idx * 31 + d * 7) % 100;
+                        if (seed < (emp.pattern?.lateChance || 0.05) * 100) st = 'L';
+                        else st = 'P';
+                    }
+                    days.push(st);
+                    if (st === 'P') pCount++;
+                    else if (st === 'L') lCount++;
+                    else if (st === 'A') aCount++;
+                    else if (st === 'LV') lvCount++;
+                }
+
+                let cellsHTML = '';
+                days.forEach((st, i) => {
+                    const d = i + 1;
+                    const isToday = d === 7;
+                    const isOff = offDays.has(d);
+                    const isFuture = d > 7 && st === '';
+                    const todayBorder = isToday ? 'border-l-2 border-r-2 border-[#242b5f]' : '';
+                    const offBg = isOff ? 'bg-gray-50' : '';
+
+                    if (isFuture) {
+                        cellsHTML += `<td class="px-0.5 py-1.5 text-center border-r border-gray-50 ${offBg}"><span class="text-[8px] text-gray-200">—</span></td>`;
+                    } else {
+                        const s = statusMap[st] || statusMap['P'];
+                        cellsHTML += `<td class="px-0.5 py-1.5 text-center border-r border-gray-50 ${todayBorder} ${offBg}" title="${d} Sep: ${s.title}"><span class="inline-block w-5 h-4 leading-4 rounded text-[7.5px] ${s.cls}">${s.label}</span></td>`;
+                    }
+                });
+
+                const summaryHTML = `
+                    <td class="px-1 py-1.5 text-center border-r border-gray-100 bg-green-50/30 font-bold text-[9px] text-green-700">${pCount}</td>
+                    <td class="px-1 py-1.5 text-center border-r border-gray-100 bg-orange-50/30 font-bold text-[9px] text-orange-700">${lCount}</td>
+                    <td class="px-1 py-1.5 text-center border-r border-gray-100 bg-red-50/30 font-bold text-[9px] text-red-700">${aCount}</td>
+                    <td class="px-1 py-1.5 text-center border-r border-gray-100 bg-purple-50/30 font-bold text-[9px] text-purple-700">${lvCount}</td>
+                `;
+
+                const actionHTML = `
+                    <td class="px-1 py-1.5 text-center">
+                        <a href="employee-profile.html?id=${emp.empId}" class="inline-flex items-center justify-center w-6 h-5 rounded bg-gray-100 hover:bg-[#242b5f] hover:text-white text-gray-600 text-[10px] transition" title="View Full Worker Profile">
+                            <i class="fas fa-id-badge"></i>
+                        </a>
+                    </td>
+                `;
+
+                html += `
+                    <tr class="hover:bg-blue-50/20 transition group roster-row" data-name="${emp.name.toLowerCase()}" data-dept="${emp.category}">
+                        <td class="px-2.5 py-1.5 sticky left-0 bg-white group-hover:bg-blue-50/20 z-10 border-r border-gray-200">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full ${emp.color} flex items-center justify-center font-bold text-[8px] flex-shrink-0">${emp.initials}</div>
+                                <div class="min-w-0">
+                                    <a href="employee-profile.html?id=${emp.empId}" class="font-bold text-[10px] text-[#242b5f] hover:underline block leading-tight truncate">${emp.name}</a>
+                                    <p class="text-[8px] text-gray-400 truncate">${emp.empId} • ${emp.site}</p>
+                                </div>
+                            </div>
+                        </td>
+                        ${cellsHTML}
+                        ${summaryHTML}
+                        ${actionHTML}
+                    </tr>
+                `;
+            });
+
+            // Footer summary row
+            html += `
+                <tr class="bg-gray-50 border-t-2 border-gray-200 font-bold">
+                    <td class="px-2.5 py-2 sticky left-0 bg-gray-50 z-10 border-r border-gray-200">
+                        <span class="text-[9px] font-extrabold text-[#242b5f] uppercase tracking-wider">Total / Org Turnout</span>
+                    </td>
+                    ${Array.from({length:30}, (_,i) => {
+                        const d = i+1;
+                        if (offDays.has(d)) return '<td class="px-0.5 py-2 text-center border-r border-gray-100 bg-gray-100"><span class="text-[7.5px] text-gray-400 font-bold">OFF</span></td>';
+                        if (d > 7) return '<td class="px-0.5 py-2 text-center border-r border-gray-100"><span class="text-[7.5px] text-gray-300">—</span></td>';
+                        const counts = [142,143,141,142,144,0,142];
+                        const c = counts[d-1] || 142;
+                        return `<td class="px-0.5 py-2 text-center border-r border-gray-100"><span class="text-[7.5px] text-green-700 font-extrabold">${c}</span></td>`;
+                    }).join('')}
+                    <td class="px-1 py-2 text-center border-r border-gray-100 bg-green-50/30"><span class="text-[9px] text-green-800 font-extrabold">94.6%</span></td>
+                    <td class="px-1 py-2 text-center border-r border-gray-100 bg-orange-50/30"><span class="text-[9px] text-orange-800 font-extrabold">3.2%</span></td>
+                    <td class="px-1 py-2 text-center border-r border-gray-100 bg-red-50/30"><span class="text-[9px] text-red-800 font-extrabold">1.4%</span></td>
+                    <td class="px-1 py-2 text-center border-r border-gray-100 bg-purple-50/30"><span class="text-[9px] text-purple-800 font-extrabold">0.8%</span></td>
+                    <td class="px-1 py-2 text-center"></td>
+                </tr>
+            `;
+
+            tbody.innerHTML = html;
+        }
+
+        // ===== 2. RENDER DAILY ATTENDANCE & BIOMETRIC LOG TABLE =====
+        function renderDailyLogTable() {
+            const tbody = document.getElementById('attendance-table-body');
+            if (!tbody) return;
+
+            tbody.innerHTML = EMPLOYEES_LIST.map((emp, idx) => `
+                <tr class="hover:bg-blue-50/20 transition group">
+                    <td class="px-3 py-2.5">
+                        <span class="text-[9.5px] font-mono font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">${emp.empId}</span>
+                    </td>
+                    <td class="px-3 py-2.5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full ${emp.color} flex items-center justify-center font-bold text-[9px]">${emp.initials}</div>
+                            <a href="employee-profile.html?id=${emp.empId}" class="font-bold text-[#242b5f] hover:underline leading-tight" title="Click to view Worker Profile">${emp.name}</a>
+                        </div>
+                    </td>
+                    <td class="px-3 py-2.5 text-gray-600 font-medium">${emp.role}</td>
+                    <td class="px-3 py-2.5">
+                        <span class="text-gray-800 font-medium truncate max-w-[130px] block" title="${emp.site}">${emp.site}</span>
+                        <span class="text-[8.5px] ${emp.category === 'mep' ? 'text-orange-600' : 'text-blue-600'} font-bold uppercase">${emp.category === 'mep' ? 'Site Technical' : 'Head Office'}</span>
+                    </td>
+                    <td class="px-3 py-2.5 text-gray-600 font-mono text-[11px]">${emp.shift}</td>
+                    <td class="px-3 py-2.5">
+                        <span class="font-bold ${emp.inTime.includes('10:') || emp.inTime.includes('09:30') ? 'text-red-600' : 'text-gray-800'}">${emp.inTime}</span>
+                        <span class="text-[8px] text-gray-400 block"><i class="fas fa-fingerprint text-blue-500 mr-0.5"></i> Biometric Machine</span>
+                    </td>
+                    <td class="px-3 py-2.5">
+                        ${emp.outTime === 'Missing Punch' ? '<span class="text-red-600 font-bold"><i class="fas fa-times-circle mr-0.5"></i> Missing Punch</span>' : (emp.outTime === 'In-Progress' ? '<span class="text-gray-400 italic">In-Progress</span>' : '<span class="font-semibold text-gray-700">' + emp.outTime + '</span>')}
+                    </td>
+                    <td class="px-3 py-2.5 font-semibold text-gray-700">${emp.hours}</td>
+                    <td class="px-3 py-2.5 font-bold ${emp.otHours > 0 ? 'text-purple-700' : 'text-gray-400'}">
+                        ${emp.otHours > 0 ? emp.otHours + ' hrs' : '-'}
+                    </td>
+                    <td class="px-3 py-2.5 font-bold ${emp.otPayout > 0 ? 'text-green-700' : 'text-gray-400'}">
+                        ${emp.otPayout > 0 ? '+Rs. ' + emp.otPayout.toLocaleString() : '-'}
+                    </td>
+                    <td class="px-3 py-2.5">
+                        <span class="text-green-600 font-bold text-[9px]"><i class="fas fa-check-circle mr-0.5"></i> ${emp.geofence}</span>
+                    </td>
+                    <td class="px-3 py-2.5">
+                        <span class="px-1.5 py-0.5 rounded text-[9px] font-semibold border ${emp.exception === 'Normal Punch' ? 'bg-green-50 text-green-700 border-green-200' : (emp.exception.includes('Late') ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-purple-50 text-purple-700 border-purple-200')}">
+                            ${emp.exception}
+                        </span>
+                    </td>
+                    <td class="px-3 py-2.5 text-center" id="audit-status-${idx}">
+                        <span class="${emp.auditClass} px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider inline-block">
+                            ${emp.auditStatus}
+                        </span>
+                    </td>
+                    <td class="px-3 py-2.5 text-right relative dropdown">
+                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1.5 rounded-lg hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                            <i class="fas fa-ellipsis-v text-xs"></i>
+                        </button>
+                        <div class="dropdown-menu absolute right-3 top-8 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                            <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">${emp.name} — Accounts Actions</p>
+                            </div>
+                            <a href="employee-profile.html?id=${emp.empId}" class="block px-3 py-1.5 text-xs text-[#242b5f] hover:bg-blue-50 font-bold flex items-center gap-2">
+                                <i class="fas fa-id-badge w-4 text-[#242b5f]"></i> View Worker Profile
+                            </a>
+                            <button onclick="openMonthHistoryModal('${emp.name}', '${emp.role}', '${emp.empId}')" class="w-full text-left px-3 py-1.5 text-xs text-purple-700 hover:bg-purple-50 flex items-center gap-2 font-semibold">
+                                <i class="fas fa-history w-4 text-purple-600"></i> View 30-Day Timecard
+                            </button>
+                            <button onclick="openPayslipModal({ name: '${emp.name}', role: '${emp.role}', empId: '${emp.empId}', site: '${emp.site}', base: 85000, allowance: 5000, ot: ${emp.otPayout || 8000}, advanceEmi: 5000, tax: 2500, bank: 'Meezan Bank Ltd', iban: 'PK36MEZN0001098234' })" class="w-full text-left px-3 py-1.5 text-xs text-emerald-700 hover:bg-emerald-50 flex items-center gap-2 font-semibold">
+                                <i class="fas fa-file-invoice-dollar w-4 text-emerald-600"></i> Salary Payslip Preview
+                            </button>
+                            <div class="h-px bg-gray-100 my-1"></div>
+                            <button onclick="signOffSingleWorker(${idx}, '${emp.name}')" class="w-full text-left px-3 py-1.5 text-xs text-green-700 hover:bg-green-50 flex items-center gap-2 font-semibold">
+                                <i class="fas fa-check-circle w-4 text-green-600"></i> Sign-Off for Payroll
+                            </button>
+                            <button onclick="deductWorkerPenalty(${idx}, '${emp.name}')" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium">
+                                <i class="fas fa-minus-circle w-4 text-red-500"></i> Apply Late Penalty (-Rs. 800)
+                            </button>
+                            <button onclick="waiveWorkerLate(${idx}, '${emp.name}')" class="w-full text-left px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 flex items-center gap-2 font-medium">
+                                <i class="fas fa-hand-holding-heart w-4 text-blue-600"></i> Waive Late Penalty
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Action methods
+        window.signOffSingleWorker = (idx, name) => {
+            const el = document.getElementById(`audit-status-${idx}`);
+            if (el) el.innerHTML = '<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider">Audited & Cleared</span>';
+            showToast(`Attendance verified & cleared for ${name}`, 'success');
+        };
+
+        window.deductWorkerPenalty = (idx, name) => {
+            const el = document.getElementById(`audit-status-${idx}`);
+            if (el) el.innerHTML = '<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider">Penalty Deducted</span>';
+            showToast(`Late penalty (-Rs. 800) applied for ${name} in payroll`, 'info');
+        };
+
+        window.waiveWorkerLate = (idx, name) => {
+            const el = document.getElementById(`audit-status-${idx}`);
+            if (el) el.innerHTML = '<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider">Waived (Grace)</span>';
+            showToast(`Late arrival penalty waived for ${name}`, 'success');
+        };
+
+        window.approveAllAuditRecords = () => {
+            EMPLOYEES_LIST.forEach((_, idx) => {
+                const el = document.getElementById(`audit-status-${idx}`);
+                if (el) el.innerHTML = '<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider">Audited & Cleared</span>';
+            });
+            showToast('All 150 employees attendance and overtime verified by Accounts Auditor!', 'success');
+        };
+
+        // Switch Views between Combined, Roster Matrix only, or Daily Log table only
+        window.switchView = (view) => {
+            const tableDiv = document.getElementById('view-table');
+            const rosterDiv = document.getElementById('view-roster');
+            const btnBoth = document.getElementById('tab-btn-both');
+            const btnRoster = document.getElementById('tab-btn-roster');
+            const btnTable = document.getElementById('tab-btn-table');
+
+            btnBoth.className = 'px-3 py-1.5 rounded text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5';
+            btnRoster.className = 'px-3 py-1.5 rounded text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5';
+            btnTable.className = 'px-3 py-1.5 rounded text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5';
+
+            if (view === 'table') {
+                rosterDiv.classList.add('hidden');
+                tableDiv.classList.remove('hidden');
+                btnTable.className = 'px-3 py-1.5 rounded text-xs font-bold transition shadow-sm bg-white text-[#242b5f] flex items-center gap-1.5';
+            } else if (view === 'roster') {
+                rosterDiv.classList.remove('hidden');
+                tableDiv.classList.add('hidden');
+                btnRoster.className = 'px-3 py-1.5 rounded text-xs font-bold transition shadow-sm bg-white text-[#242b5f] flex items-center gap-1.5';
+            } else {
+                rosterDiv.classList.remove('hidden');
+                tableDiv.classList.remove('hidden');
+                btnBoth.className = 'px-3 py-1.5 rounded text-xs font-bold transition shadow-sm bg-white text-[#242b5f] flex items-center gap-1.5';
+            }
+        };
+
+        window.filterRosterRows = (input) => {
+            const q = (input.value || '').toLowerCase();
+            document.querySelectorAll('.roster-row').forEach(row => {
+                const name = row.getAttribute('data-name') || '';
+                row.style.display = name.includes(q) ? '' : 'none';
+            });
+        };
+
+        window.filterRosterDept = (dept) => {
+            document.querySelectorAll('.roster-row').forEach(row => {
+                const d = row.getAttribute('data-dept') || '';
+                row.style.display = (!dept || d === dept) ? '' : 'none';
+            });
+        };
+
+        window.filterTableRows = (input, tbodyId) => {
+            const q = (input.value || '').toLowerCase();
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
+                tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none';
+            });
+        };
+
+        // Open Month History Modal (30 Days Timecard)
+        window.openMonthHistoryModal = (name, role, empId) => {
+            openTimecardModal(name, empId, role);
+        };
+
+        // Initialize both sections immediately
+        renderRosterMatrix();
+        renderDailyLogTable();
+    </script>
+</body>
+</html>

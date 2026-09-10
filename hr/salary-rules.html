@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Salary Deductions & Policy Rules</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; }
+        body { font-family: 'Inter', sans-serif; }
+        table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('rules');
+
+        const pageHTML = `
+            <div class="space-y-4">
+                
+                <!-- Metric Header Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Active Salary Rules</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5" id="stat-active-rules">11 <span class="text-[10px] text-green-600 font-normal">Active</span></h4>
+                            <p class="text-[9px] text-green-600 font-semibold"><i class="fas fa-check-circle mr-0.5"></i> Auto-synced with Payroll</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-red-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-red-600 font-bold uppercase tracking-wider">Statutory Deductions</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">EOBI & FBR WHT</h4>
+                            <p class="text-[9px] text-red-600 font-medium">Sec 149 & EOBI Rs. 580</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-landmark"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Attendance Penalties</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">15m Grace</h4>
+                            <p class="text-[9px] text-orange-600 font-medium">3 Lates = 0.5 Day Cut</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-green-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-green-700 font-bold uppercase tracking-wider">Standard Allowances</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">HRA + Med + OT</h4>
+                            <p class="text-[9px] text-green-600 font-medium">40% HRA • 10% Med • 1.5x OT</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-700 flex items-center justify-center text-sm">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar: Search, Category Filter, Export, + Add Rule -->
+                <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2 flex-1 max-w-md">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input type="text" oninput="filterTableRows(this, 'rules-table-body')" placeholder="Search deduction rule, allowance, formula..." class="w-full text-xs border border-gray-200 rounded-md pl-7 pr-3 py-1 focus:outline-none focus:border-[#242b5f] bg-white">
+                        </div>
+                        <select onchange="filterTableRows({ value: this.value === 'All Categories' ? '' : this.value }, 'rules-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none shrink-0">
+                            <option value="All Categories">All Categories</option>
+                            <option value="Statutory Deduction">Statutory Deductions</option>
+                            <option value="Attendance Penalty">Attendance Penalties</option>
+                            <option value="Earning Allowance">Earning Allowances</option>
+                            <option value="Loan Policy">Loan & Advance Policies</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="exportToExcel('Salary_Deductions_Rules')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export Excel">
+                            <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel
+                        </button>
+                        <button onclick="exportToPDF('Salary_Policy_Manual')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export PDF">
+                            <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF Manual
+                        </button>
+                        <button onclick="openModal('Reset Rules to Defaults', '<p class=text-xs>Reset all salary rules & formulas to standard Cosmix HR & Pakistan Labor Law defaults?</p>', () => showToast('Policy formulas refreshed to company defaults!', 'success'))" class="bg-white border border-gray-200 hover:border-orange-400 text-gray-700 hover:text-orange-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-undo text-orange-500 text-xs"></i> Reset Defaults
+                        </button>
+                        <button onclick="document.getElementById('rule-modal').classList.remove('hidden')" class="bg-[#242b5f] text-white hover:opacity-90 px-3 py-1.5 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-plus text-[10px]"></i> Add Rule / Allowance
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Rules & Deductions Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-sliders-h text-[#242b5f]"></i> Master Salary Components, Deductions & Formula Matrix
+                        </h3>
+                        <span class="text-[10px] text-gray-400 font-medium">Auto-applied in Payroll Engine calculations</span>
+                    </div>
+
+                    <div class="overflow-x-auto min-h-[350px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Component / Rule Name</th>
+                                    <th class="px-4 py-2.5 font-bold">Category</th>
+                                    <th class="px-4 py-2.5 font-bold">Calculation Type</th>
+                                    <th class="px-4 py-2.5 font-bold">Rate / Formula Value</th>
+                                    <th class="px-4 py-2.5 font-bold">Applicability</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Auto-Apply</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rules-table-body" class="divide-y divide-gray-100 bg-white">
+                                
+                                <!-- Rule 1: EOBI -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">EOBI Employee Contribution</div>
+                                        <div class="text-[9px] text-gray-400">Employees' Old-Age Benefits Institution (Statutory)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-red-50 text-red-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-red-100">Statutory Deduction</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium">Fixed Monthly PKR</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-red-600 font-mono text-[11px]">-Rs. 580 / worker</div>
+                                        <div class="text-[9px] text-gray-400">Employer contributes Rs. 1,600 (5%)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">All 150 Workers</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="openEditRuleModal('EOBI Employee Contribution', 'Statutory Deduction', 'Fixed Monthly PKR', '580', 'All 150 Workers')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
+                                    </td>
+                                </tr>
+
+                                <!-- Rule 2: FBR Income Tax -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">FBR Income Tax (Section 149 WHT)</div>
+                                        <div class="text-[9px] text-gray-400">Salary Tax Withholding Slabs (FY 2026-27)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-red-50 text-red-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-red-100">Statutory Deduction</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium">Progressive Slabs</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-red-600 font-mono text-[11px]">Slab 1 (0%), Slab 2 (5%), Slab 3 (10%)</div>
+                                        <div class="text-[9px] text-gray-400">Exempt up to Rs. 600,000 / year</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Taxable Salaried Staff</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="openEditRuleModal('FBR Income Tax', 'Statutory Deduction', 'Progressive Slabs', 'Slab FY 2026', 'Taxable Salaried Staff')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
+                                    </td>
+                                </tr>
+
+                                <!-- Rule 3: Late Attendance Penalty -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Late Attendance Deduction Policy</div>
+                                        <div class="text-[9px] text-gray-400">15 min grace window; penalty on repeated lates</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-orange-100">Attendance Penalty</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium">Frequency Threshold</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-orange-700 font-mono text-[11px]">3 Lates = 0.5 Day Cut | 5 Lates = 1 Day</div>
+                                        <div class="text-[9px] text-gray-400">Grace period: 08:00 AM - 08:15 AM</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">All Field Techs & HQ</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="openEditRuleModal('Late Attendance Deduction', 'Attendance Penalty', 'Frequency Threshold', '3 Lates = 0.5 Day', 'All Staff')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
+                                    </td>
+                                </tr>
+
+                                <!-- Rule 4: Unapproved Absent Cut -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Unapproved Absent Deduction</div>
+                                        <div class="text-[9px] text-gray-400">Absence without leave voucher approval</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-orange-100">Attendance Penalty</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium">Day Salary Multiplier</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-red-600 font-mono text-[11px]">-1.0 Day Gross Salary per day absent</div>
+                                        <div class="text-[9px] text-gray-400">Calculated as: (Gross Salary / 30)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">All Employees</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="openEditRuleModal('Unapproved Absent Deduction', 'Attendance Penalty', 'Day Salary Multiplier', '1.0 Day / Absent', 'All Staff')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
+                                    </td>
+                                </tr>
+
+                                <!-- Rule 5: House Rent Allowance (HRA) -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">House Rent Allowance (HRA)</div>
+                                        <div class="text-[9px] text-gray-400">Standard monthly accommodation allowance</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-100">Earning Allowance</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium">% of Basic Salary</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-green-700 font-mono text-[11px]">+40% of Base Salary</div>
+                                        <div class="text-[9px] text-gray-400">E.g., Rs. 34,000 on Rs. 85,000 base</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Permanent & Site Staff</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="openEditRuleModal('House Rent Allowance (HRA)', 'Earning Allowance', '% of Basic Salary', '40%', 'Permanent & Site Staff')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
+                                    </td>
+                                </tr>
+
+                                <!-- Rule 6: Medical Allowance -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Medical Allowance</div>
+                                        <div class="text-[9px] text-gray-400">Outpatient & general health allowance</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-100">Earning Allowance</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium">% of Basic Salary</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-green-700 font-mono text-[11px]">+10% of Base Salary</div>
+                                        <div class="text-[9px] text-gray-400">Tax exempt up to 10% under FBR law</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">All Employees</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="openEditRuleModal('Medical Allowance', 'Earning Allowance', '% of Basic Salary', '10%', 'All Staff')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
+                                    </td>
+                                </tr>
+
+                                <!-- Rule 7: Overtime (OT) Rate -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Overtime (OT) Pay Formula</div>
+                                        <div class="text-[9px] text-gray-400">Additional hours worked beyond scheduled 8-hour shift</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-100">Earning Allowance</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium">Hourly Multiplier</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-blue-700 font-mono text-[11px]">1.5x Normal Days | 2.0x Sundays/Holidays</div>
+                                        <div class="text-[9px] text-gray-400">Rate = (Base Salary / 208) * Multiplier</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Field Technicians & Supervisors</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="openEditRuleModal('Overtime (OT) Pay Formula', 'Earning Allowance', 'Hourly Multiplier', '1.5x / 2.0x', 'Technicians & Supervisors')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
+                                    </td>
+                                </tr>
+
+                                <!-- Rule 8: Site Hardship / Remote Allowance -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Remote Site & Hardship Allowance</div>
+                                        <div class="text-[9px] text-gray-400">Disbursed to engineers on industrial & outstation sites</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-100">Earning Allowance</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium">Fixed Monthly PKR</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-green-700 font-mono text-[11px]">+Rs. 5,000 - 15,000 / month</div>
+                                        <div class="text-[9px] text-gray-400">Depends on site tier & distance from HQ</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Deployed Field Engineers</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="openEditRuleModal('Remote Site & Hardship Allowance', 'Earning Allowance', 'Fixed Monthly PKR', '5,000 - 15,000', 'Field Engineers')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
+                                    </td>
+                                </tr>
+
+                                <!-- Rule 9: Advance Salary Cap -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Advance Salary Borrowing Cap</div>
+                                        <div class="text-[9px] text-gray-400">Maximum loan permissible against monthly pay</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-blue-50 text-[#242b5f] px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Loan Policy</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium">% Cap of Base Salary</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-[#242b5f] font-mono text-[11px]">Max 50% of Base Salary (1-5 EMIs)</div>
+                                        <div class="text-[9px] text-gray-400">Special approval needed for > 50% cap</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Employees with > 6 months tenure</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="openEditRuleModal('Advance Salary Borrowing Cap', 'Loan Policy', '% Cap of Base Salary', 'Max 50%', 'Tenure > 6 months')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Slide-over Drawer Modal: Add / Edit Policy Rule -->
+                <div id="rule-modal" class="fixed inset-0 z-50 hidden">
+                    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="document.getElementById('rule-modal').classList.add('hidden')"></div>
+                    
+                    <div class="absolute inset-y-0 right-0 w-full max-w-xl bg-white shadow-2xl flex flex-col border-l border-gray-200">
+                        
+                        <!-- Header -->
+                        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gray-50/50">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-md bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center text-xs">
+                                    <i class="fas fa-sliders-h"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-[#242b5f]" id="rule-modal-title">Configure Salary Rule / Deduction</h3>
+                                    <p class="text-[10px] text-gray-400">Define deduction formulas, tax rates & allowance percentages</p>
+                                </div>
+                            </div>
+                            <button onclick="document.getElementById('rule-modal').classList.add('hidden')" class="text-gray-400 hover:text-red-500 text-base p-1 rounded hover:bg-gray-100 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <!-- Form Body -->
+                        <div class="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+                            
+                            <!-- 1. Rule Identification -->
+                            <div class="bg-gray-50/60 p-3.5 rounded-lg border border-gray-200">
+                                <h4 class="text-xs font-bold text-gray-700 mb-2.5 flex items-center gap-1.5">
+                                    <i class="fas fa-tag text-blue-600"></i> 1. Rule Name & Category
+                                </h4>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div class="col-span-2">
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Component / Policy Name <span class="text-red-500">*</span></label>
+                                        <input id="rule_name" type="text" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-[#242b5f] bg-white outline-none" placeholder="e.g. Site Food & Mess Allowance">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Category <span class="text-red-500">*</span></label>
+                                        <select id="rule_category" class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs bg-white focus:outline-none">
+                                            <option value="Statutory Deduction">Statutory Deduction (Govt/Tax)</option>
+                                            <option value="Attendance Penalty">Attendance / Disciplinary Penalty</option>
+                                            <option value="Earning Allowance">Earning Allowance / Benefit</option>
+                                            <option value="Loan Policy">Loan & Advance Rule</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Calculation Method</label>
+                                        <select id="rule_method" class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs bg-white focus:outline-none">
+                                            <option value="Percentage of Basic">% of Basic Salary</option>
+                                            <option value="Fixed Amount PKR">Fixed Monthly PKR Amount</option>
+                                            <option value="Hourly Multiplier">Hourly Rate Multiplier</option>
+                                            <option value="Per Occurrence">Per Day / Per Occurrence</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Rate & Formula Parameters -->
+                            <div class="bg-gray-50/60 p-3.5 rounded-lg border border-gray-200">
+                                <h4 class="text-xs font-bold text-gray-700 mb-2.5 flex items-center gap-1.5">
+                                    <i class="fas fa-calculator text-green-600"></i> 2. Rate & Mathematical Value
+                                </h4>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Value / Rate <span class="text-red-500">*</span></label>
+                                        <input id="rule_value" type="text" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-[#242b5f] bg-white outline-none" placeholder="e.g. 5000 or 15%">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Applies To Workforce</label>
+                                        <select id="rule_applicability" class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs bg-white focus:outline-none">
+                                            <option value="All Employees">All Employees (150)</option>
+                                            <option value="Field Techs Only">Field Technicians Only</option>
+                                            <option value="Site Engineers Only">Site Engineers Only</option>
+                                            <option value="Head Office Staff">Head Office Staff</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Formula Note / Business Rule Description</label>
+                                        <textarea id="rule_desc" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-[#242b5f] bg-white outline-none" rows="2" placeholder="e.g. Automatically credit Rs. 5,000 for technicians on remote outstation shifts..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="px-5 py-3 border-t border-gray-200 bg-white flex justify-between items-center">
+                            <span class="text-[10px] text-gray-400 font-bold uppercase"><i class="fas fa-lock mr-1"></i> Will sync with next payroll run</span>
+                            <div class="flex gap-2">
+                                <button onclick="document.getElementById('rule-modal').classList.add('hidden')" class="px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-md transition">Cancel</button>
+                                <button onclick="submitNewRule()" class="bg-[#242b5f] text-white px-4 py-1.5 rounded-md text-xs font-bold shadow-sm hover:opacity-90 transition flex items-center gap-1.5">
+                                    <i class="fas fa-check text-[10px]"></i> Save Policy Rule
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        `;
+
+        setPageContent('Salary Rules, Deductions & Allowances', pageHTML);
+
+        // Edit rule modal helper
+        window.openEditRuleModal = function(name, cat, type, val, app) {
+            document.getElementById('rule-modal-title').innerText = 'Edit Policy: ' + name;
+            document.getElementById('rule_name').value = name;
+            document.getElementById('rule_category').value = cat;
+            document.getElementById('rule_value').value = val;
+            document.getElementById('rule_applicability').value = app;
+            document.getElementById('rule-modal').classList.remove('hidden');
+        };
+
+        // Submit new rule
+        window.submitNewRule = function() {
+            const name = document.getElementById('rule_name').value.trim();
+            const cat = document.getElementById('rule_category').value;
+            const val = document.getElementById('rule_value').value.trim();
+            const app = document.getElementById('rule_applicability').value;
+            const method = document.getElementById('rule_method').value;
+
+            if (!name || !val) {
+                showToast('Please enter Rule Name and Value!', 'error');
+                return;
+            }
+
+            const tbody = document.getElementById('rules-table-body');
+            const newRow = document.createElement('tr');
+            newRow.className = 'hover:bg-blue-50/20 transition group bg-blue-50/20 border-l-4 border-[#242b5f]';
+
+            const catBadgeClass = cat.includes('Deduction') 
+                ? 'bg-red-50 text-red-700 border-red-100' 
+                : cat.includes('Penalty') 
+                ? 'bg-orange-50 text-orange-700 border-orange-100' 
+                : 'bg-green-50 text-green-700 border-green-100';
+
+            newRow.innerHTML = `
+                <td class="px-4 py-2.5">
+                    <div class="font-bold text-gray-800">${name}</div>
+                    <div class="text-[9px] text-gray-400">Newly configured custom company rule</div>
+                </td>
+                <td class="px-4 py-2.5">
+                    <span class="${catBadgeClass} px-2 py-0.5 rounded text-[9.5px] font-bold border">${cat}</span>
+                </td>
+                <td class="px-4 py-2.5 text-gray-600 font-medium">${method}</td>
+                <td class="px-4 py-2.5">
+                    <div class="font-bold text-[#242b5f] font-mono text-[11px]">${val}</div>
+                    <div class="text-[9px] text-gray-400">Configured by HR Admin</div>
+                </td>
+                <td class="px-4 py-2.5 text-gray-700 font-medium">${app}</td>
+                <td class="px-4 py-2.5 text-center">
+                    <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
+                </td>
+                <td class="px-4 py-2.5 text-center">
+                    <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase">Active</span>
+                </td>
+                <td class="px-4 py-2.5 text-right">
+                    <button onclick="openEditRuleModal('${name.replace(/'/g, "\\'")}', '${cat}', '${method}', '${val}', '${app}')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
+                </td>
+            `;
+
+            tbody.insertBefore(newRow, tbody.firstChild);
+
+            // Update stats counter
+            const statRules = document.getElementById('stat-active-rules');
+            if (statRules) statRules.innerHTML = '12 <span class="text-[10px] text-green-600 font-normal">Active</span>';
+
+            document.getElementById('rule-modal').classList.add('hidden');
+            document.getElementById('rule_name').value = '';
+            document.getElementById('rule_value').value = '';
+
+            showToast(`Rule "${name}" saved and synced with Payroll Engine!`, 'success');
+        };
+    </script>
+</body>
+</html>

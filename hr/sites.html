@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Working Sites & Geofencing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS & JS for Interactive Google Map & Geofence Picker -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        html { font-size: 13px !important; }
+        body { font-family: 'Inter', sans-serif; }
+        table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+        .leaflet-container { font-family: 'Inter', sans-serif !important; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('sites');
+
+        const pageHTML = `
+            <div class="space-y-4">
+                
+                <!-- Top Metric Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Active Working Sites</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5" id="stat-total-sites">8 <span class="text-[10px] text-green-600 font-normal">Online</span></h4>
+                            <p class="text-[9px] text-green-600 font-semibold"><i class="fas fa-check-circle mr-0.5"></i> All sites connected</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
+                            <i class="fas fa-building"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Deployed Workforce</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">92 <span class="text-[10px] text-blue-600 font-normal">Workers</span></h4>
+                            <p class="text-[9px] text-gray-500 font-medium">18 Engineers • 74 Techs</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-hard-hat"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-blue-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-blue-700 font-bold uppercase tracking-wider">Biometric & GPS Beacons</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">8 Synced</h4>
+                            <p class="text-[9px] text-blue-600 font-semibold flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Avg 80m Geofence
+                            </p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-satellite-dish"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Active Contract Book</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">Rs. 185M</h4>
+                            <p class="text-[9px] text-purple-600 font-medium">Commercial & MEP Sites</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar: Search, City Filter, Status Filter, Export, + Add New Site -->
+                <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2 flex-1 max-w-md">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input type="text" oninput="filterTableRows(this, 'sites-table-body')" placeholder="Search sites by name, client, city, incharge..." class="w-full text-xs border border-gray-200 rounded-md pl-7 pr-3 py-1 focus:outline-none focus:border-[#242b5f] bg-white">
+                        </div>
+                        <select onchange="filterTableRows({ value: this.value === 'All Cities' ? '' : this.value }, 'sites-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none shrink-0">
+                            <option value="All Cities">All Cities</option>
+                            <option value="Karachi">Karachi</option>
+                            <option value="Lahore">Lahore</option>
+                            <option value="Islamabad">Islamabad</option>
+                            <option value="Peshawar">Peshawar</option>
+                        </select>
+                        <select onchange="filterTableRows({ value: this.value === 'All Status' ? '' : this.value }, 'sites-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none shrink-0">
+                            <option value="All Status">All Status</option>
+                            <option value="Active">Active</option>
+                            <option value="Mobilizing">Mobilizing</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="exportToExcel('Working_Sites_Directory')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export Excel">
+                            <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel
+                        </button>
+                        <button onclick="exportToPDF('Working_Sites_Report')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export PDF">
+                            <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF
+                        </button>
+                        <button onclick="openAddSiteModal()" class="bg-[#242b5f] text-white hover:opacity-90 px-3 py-1.5 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-plus text-[10px]"></i> Add Working Site
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Working Sites Directory Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-map-marked-alt text-[#242b5f]"></i> Working Project Sites Register
+                        </h3>
+                        <span class="text-[10px] text-gray-400 font-medium">8 active sites configured for GPS mobile check-in & biometric sync</span>
+                    </div>
+
+                    <div class="overflow-x-auto min-h-[350px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Site & Project Name</th>
+                                    <th class="px-4 py-2.5 font-bold">Site Code</th>
+                                    <th class="px-4 py-2.5 font-bold">Client / Location</th>
+                                    <th class="px-4 py-2.5 font-bold">Project Manager</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Workforce</th>
+                                    <th class="px-4 py-2.5 font-bold">GPS Geofence & Hardware</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sites-table-body" class="divide-y divide-gray-100 bg-white">
+                                
+                                <!-- Site 1: Karachi High-Rise -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center font-bold text-xs shrink-0">
+                                                <i class="fas fa-city"></i>
+                                            </div>
+                                            <div>
+                                                <a href="site-detail.html?site=CMX-SITE-101" class="font-bold text-[#242b5f] hover:underline block leading-tight">
+                                                    Karachi High-Rise Commercial Tower
+                                                </a>
+                                                <p class="text-[9.5px] text-gray-400">MEP Turnkey • Central Chiller & VRF</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="text-[10px] font-mono font-bold text-[#242b5f] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">CMX-SITE-101</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">Al-Ghafoor Builders</div>
+                                        <div class="text-[9.5px] text-gray-400"><i class="fas fa-map-marker-alt text-red-500 mr-0.5"></i> Clifton, Karachi</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">Engr. Tariq Farooq (PE)</div>
+                                        <div class="text-[9px] text-gray-400">+92 300 1234567</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-blue-50 text-[#242b5f] font-bold px-2 py-0.5 rounded text-[10px] border border-blue-100">6 Engr • 32 Tech</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-mono text-gray-700 text-[10px]">24.8138° N, 67.0299° E</div>
+                                        <div class="text-[9.5px] text-emerald-600 font-bold flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 80m Radius • ZKTeco BioSync
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="site-detail.html?site=CMX-SITE-101" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-external-link-alt text-blue-600 w-4"></i> View Site Details & Roster</a>
+                                            <a href="attendance.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-user-clock text-green-600 w-4"></i> View Site Roster</a>
+                                            <button onclick="openGeofenceRadiusModal('Karachi High-Rise Commercial Tower', 80)" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-draw-polygon text-purple-600 w-4"></i> Edit Geofence Radius</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <button onclick="showToast('Biometric machine pinged: Online (Latency 18ms)', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 font-medium"><i class="fas fa-sync w-4"></i> Sync Biometrics</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Site 2: Islamabad Govt Complex -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">
+                                                <i class="fas fa-landmark"></i>
+                                            </div>
+                                            <div>
+                                                <a href="site-detail.html?site=CMX-SITE-102" class="font-bold text-[#242b5f] hover:underline block leading-tight">
+                                                    Islamabad Govt Complex Site
+                                                </a>
+                                                <p class="text-[9.5px] text-gray-400">11kV Substation & Fire Suppression</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="text-[10px] font-mono font-bold text-[#242b5f] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">CMX-SITE-102</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">Govt of Pakistan / CDA</div>
+                                        <div class="text-[9.5px] text-gray-400"><i class="fas fa-map-marker-alt text-red-500 mr-0.5"></i> Sector G-5, Islamabad</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">Engr. Bilal Malik</div>
+                                        <div class="text-[9px] text-gray-400">+92 333 4455667</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-blue-50 text-[#242b5f] font-bold px-2 py-0.5 rounded text-[10px] border border-blue-100">4 Engr • 20 Tech</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-mono text-gray-700 text-[10px]">33.7294° N, 73.0931° E</div>
+                                        <div class="text-[9.5px] text-emerald-600 font-bold flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 100m Radius • Anviz FacePass
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="site-detail.html?site=CMX-SITE-102" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-external-link-alt text-blue-600 w-4"></i> View Site Details & Roster</a>
+                                            <a href="attendance.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-user-clock text-green-600 w-4"></i> View Site Roster</a>
+                                            <button onclick="showToast('Biometric machine pinged: Online (Latency 24ms)', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 font-medium"><i class="fas fa-sync w-4"></i> Sync Biometrics</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Site 3: Head Office & Central Workshop -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0">
+                                                <i class="fas fa-tools"></i>
+                                            </div>
+                                            <div>
+                                                <a href="site-detail.html?site=CMX-SITE-100" class="font-bold text-[#242b5f] hover:underline block leading-tight">
+                                                    Head Office & Central Workshop
+                                                </a>
+                                                <p class="text-[9.5px] text-gray-400">Engineering HQ • Fabrication Yard</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="text-[10px] font-mono font-bold text-[#242b5f] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">CMX-SITE-100</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">Cosmix Corporate HQ</div>
+                                        <div class="text-[9.5px] text-gray-400"><i class="fas fa-map-marker-alt text-red-500 mr-0.5"></i> Gulberg III, Lahore</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">John Doe (PM)</div>
+                                        <div class="text-[9px] text-gray-400">+92 321 9876543</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-blue-50 text-[#242b5f] font-bold px-2 py-0.5 rounded text-[10px] border border-blue-100">5 Engr • 13 Tech</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-mono text-gray-700 text-[10px]">31.5204° N, 74.3587° E</div>
+                                        <div class="text-[9.5px] text-emerald-600 font-bold flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 60m Radius • LAN Biometric
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="site-detail.html?site=CMX-SITE-100" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-external-link-alt text-blue-600 w-4"></i> View Site Details & Roster</a>
+                                            <a href="attendance.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-user-clock text-green-600 w-4"></i> View Site Roster</a>
+                                            <button onclick="showToast('Head Office machine pinged: Online (Latency 12ms)', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 font-medium"><i class="fas fa-sync w-4"></i> Sync Biometrics</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Site 4: Peshawar Industrial Chiller Site -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-xs shrink-0">
+                                                <i class="fas fa-snowflake"></i>
+                                            </div>
+                                            <div>
+                                                <a href="site-detail.html?site=CMX-SITE-103" class="font-bold text-[#242b5f] hover:underline block leading-tight">
+                                                    Peshawar Industrial Chiller Site
+                                                </a>
+                                                <p class="text-[9.5px] text-gray-400">Ammonia Chillers & Cold Storage</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="text-[10px] font-mono font-bold text-[#242b5f] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">CMX-SITE-103</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">Khyber Cold Chains Ltd</div>
+                                        <div class="text-[9.5px] text-gray-400"><i class="fas fa-map-marker-alt text-red-500 mr-0.5"></i> Hayatabad, Peshawar</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">Engr. Asadullah</div>
+                                        <div class="text-[9px] text-gray-400">+92 345 9988776</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-blue-50 text-[#242b5f] font-bold px-2 py-0.5 rounded text-[10px] border border-blue-100">3 Engr • 9 Tech</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-mono text-gray-700 text-[10px]">33.9850° N, 71.4330° E</div>
+                                        <div class="text-[9.5px] text-emerald-600 font-bold flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 90m Radius • 4G Sim Biometric
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="site-detail.html?site=CMX-SITE-103" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-external-link-alt text-blue-600 w-4"></i> View Site Details & Roster</a>
+                                            <a href="attendance.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-user-clock text-green-600 w-4"></i> View Site Roster</a>
+                                            <button onclick="showToast('Peshawar 4G machine pinged: Online (Latency 38ms)', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 font-medium"><i class="fas fa-sync w-4"></i> Sync Biometrics</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Slide-over Drawer Modal: Add New Working Site -->
+                <div id="site-modal" class="fixed inset-0 z-50 hidden">
+                    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="document.getElementById('site-modal').classList.add('hidden')"></div>
+                    
+                    <div class="absolute inset-y-0 right-0 w-full max-w-2xl bg-white shadow-2xl flex flex-col border-l border-gray-200">
+                        
+                        <!-- Header -->
+                        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gray-50/50">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-md bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center text-xs">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-[#242b5f]">Add New Working Site & Geofence</h3>
+                                    <p class="text-[10px] text-gray-400">Configure site location, Project Manager, GPS radius & Biometric hardware</p>
+                                </div>
+                            </div>
+                            <button onclick="document.getElementById('site-modal').classList.add('hidden')" class="text-gray-400 hover:text-red-500 text-base p-1 rounded hover:bg-gray-100 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <!-- Form Body -->
+                        <div class="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+                            
+                            <!-- 1. Site Identity & Client Details -->
+                            <div class="bg-gray-50/60 p-3.5 rounded-lg border border-gray-200">
+                                <h4 class="text-xs font-bold text-gray-700 mb-2.5 flex items-center gap-1.5">
+                                    <i class="fas fa-building text-blue-600"></i> 1. Site Identity & Client Information
+                                </h4>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div class="col-span-2">
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Working Site / Project Name <span class="text-red-500">*</span></label>
+                                        <input id="site_name" type="text" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-[#242b5f] bg-white outline-none" placeholder="e.g. Faisalabad Textile Industrial Substation">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Client / Owner Name <span class="text-red-500">*</span></label>
+                                        <input id="site_client" type="text" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-[#242b5f] bg-white outline-none" placeholder="e.g. Crescent Bahuman Ltd">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Project Category</label>
+                                        <select id="site_category" class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs bg-white focus:outline-none">
+                                            <option value="MEP High-Rise">MEP High-Rise Building</option>
+                                            <option value="11kV Substation">11kV Substation & Power</option>
+                                            <option value="Industrial HVAC">Industrial HVAC Chiller Plant</option>
+                                            <option value="Fire Suppression">Fire Suppression & Safety</option>
+                                            <option value="Commercial Complex">Commercial Mall / Complex</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Physical Location & Project Incharge -->
+                            <div class="bg-gray-50/60 p-3.5 rounded-lg border border-gray-200">
+                                <h4 class="text-xs font-bold text-gray-700 mb-2.5 flex items-center gap-1.5">
+                                    <i class="fas fa-map-marker-alt text-red-500"></i> 2. Location & Site Incharge
+                                </h4>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">City <span class="text-red-500">*</span></label>
+                                        <select id="site_city" onchange="handleSiteCityChange(this.value)" class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs bg-white focus:outline-none">
+                                            <option value="Karachi">Karachi</option>
+                                            <option value="Lahore">Lahore</option>
+                                            <option value="Islamabad">Islamabad</option>
+                                            <option value="Peshawar">Peshawar</option>
+                                            <option value="Faisalabad" selected>Faisalabad</option>
+                                            <option value="Multan">Multan</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Project Manager / Incharge <span class="text-red-500">*</span></label>
+                                        <input id="site_manager" type="text" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-[#242b5f] bg-white outline-none" placeholder="e.g. Engr. Imran Saeed">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Complete Physical Site Address <span class="text-red-500">*</span></label>
+                                        <input id="site_address" type="text" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-[#242b5f] bg-white outline-none" placeholder="e.g. Plot 45, Khurrianwala Industrial Estate, Faisalabad">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. GPS Geofence & Biometric Hardware Setup with Interactive Google Map -->
+                            <div class="bg-blue-50/50 p-3.5 rounded-lg border border-blue-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="text-xs font-bold text-[#242b5f] flex items-center gap-1.5">
+                                        <i class="fas fa-satellite text-blue-600"></i> 3. GPS Coordinates & Geofencing Map
+                                    </h4>
+                                    <span class="bg-blue-100 text-[#242b5f] text-[10px] font-bold px-2 py-0.5 rounded border border-blue-200 flex items-center gap-1">
+                                        <i class="fab fa-google text-red-600"></i> Google Map Picker
+                                    </span>
+                                </div>
+
+                                <!-- Interactive Map Card -->
+                                <div class="bg-white p-2.5 rounded-lg border border-blue-200 shadow-sm mb-3">
+                                    <div class="flex items-center justify-between pb-2 mb-2 border-b border-gray-100">
+                                        <div class="flex items-center gap-1.5 text-[10.5px] text-gray-600 font-medium">
+                                            <i class="fas fa-hand-pointer text-blue-600 animate-pulse"></i>
+                                            <span>Click map or drag the pin to set boundary</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" onclick="locateDeviceCurrentGPS()" class="px-2 py-1 bg-white hover:bg-blue-50 text-[#242b5f] font-semibold rounded border border-gray-300 text-[10px] shadow-sm transition flex items-center gap-1">
+                                                <i class="fas fa-crosshairs text-blue-600"></i> My GPS
+                                            </button>
+                                            <div class="inline-flex rounded border border-gray-200 bg-white p-0.5 shadow-sm">
+                                                <button type="button" id="btn-layer-streets" onclick="switchMapLayer('streets')" class="px-2 py-0.5 text-[9.5px] font-bold rounded bg-[#242b5f] text-white">Roads</button>
+                                                <button type="button" id="btn-layer-satellite" onclick="switchMapLayer('satellite')" class="px-2 py-0.5 text-[9.5px] font-bold rounded text-gray-600 hover:text-gray-900">Satellite</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Leaflet / Google Map Canvas -->
+                                    <div id="site-geofence-picker-map" style="height: 230px; width: 100%;" class="rounded-md border border-gray-200 relative z-0"></div>
+
+                                    <!-- Active GPS status strip -->
+                                    <div class="mt-2 flex flex-wrap items-center justify-between gap-1.5 bg-slate-50 p-2 rounded border border-slate-200 text-[10px]">
+                                        <div class="flex items-center gap-1.5 font-mono">
+                                            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                                            <span class="text-gray-500">Center:</span>
+                                            <span id="map-coords-display" class="font-bold text-[#242b5f]">31.45040° N, 73.13500° E</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                            <span id="map-radius-display" class="font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">80m Active Geofence Circle</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-2.5">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Latitude (N) <span class="text-red-500">*</span></label>
+                                        <input id="site_lat" type="text" value="31.4504" oninput="handleManualCoordInput()" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs bg-white outline-none font-mono focus:border-[#242b5f]" placeholder="e.g. 31.4504">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Longitude (E) <span class="text-red-500">*</span></label>
+                                        <input id="site_lng" type="text" value="73.1350" oninput="handleManualCoordInput()" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs bg-white outline-none font-mono focus:border-[#242b5f]" placeholder="e.g. 73.1350">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Geofence Radius (Meters)</label>
+                                        <div class="flex items-center gap-1.5">
+                                            <input id="site_radius" type="number" value="80" min="20" max="1000" oninput="handleRadiusInputChange(this.value)" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs bg-white outline-none font-bold text-[#242b5f] focus:border-[#242b5f]" placeholder="80">
+                                            <span class="text-[10px] text-gray-400 font-bold">m</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Quick Radius Presets -->
+                                    <div class="col-span-3 -mt-1 flex items-center gap-1.5 text-[9.5px]">
+                                        <span class="text-gray-400 font-semibold">Quick Radius:</span>
+                                        <button type="button" onclick="setPresetRadius(50)" class="px-2 py-0.5 bg-white hover:bg-blue-50 border border-gray-200 rounded text-gray-600 font-bold transition">50m</button>
+                                        <button type="button" onclick="setPresetRadius(80)" class="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded text-[#242b5f] font-bold transition">80m (Standard)</button>
+                                        <button type="button" onclick="setPresetRadius(100)" class="px-2 py-0.5 bg-white hover:bg-blue-50 border border-gray-200 rounded text-gray-600 font-bold transition">100m</button>
+                                        <button type="button" onclick="setPresetRadius(150)" class="px-2 py-0.5 bg-white hover:bg-blue-50 border border-gray-200 rounded text-gray-600 font-bold transition">150m</button>
+                                        <button type="button" onclick="setPresetRadius(200)" class="px-2 py-0.5 bg-white hover:bg-blue-50 border border-gray-200 rounded text-gray-600 font-bold transition">200m (Large)</button>
+                                    </div>
+
+                                    <div class="col-span-2">
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Biometric Machine Hardware IP / Serial</label>
+                                        <input id="site_biometric" type="text" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs bg-white outline-none" placeholder="e.g. ZKTeco BioTime - 192.168.10.65">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Est. Headcount</label>
+                                        <input id="site_headcount" type="number" value="25" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs bg-white outline-none" placeholder="25">
+                                    </div>
+                                </div>
+                                <p class="text-[9px] text-gray-400 mt-1.5"><i class="fas fa-info-circle mr-0.5"></i> Workers outside this radius will generate an attendance exception alert during mobile punch.</p>
+                            </div>
+
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="px-5 py-3 border-t border-gray-200 bg-white flex justify-between items-center">
+                            <span class="text-[10px] text-gray-400 font-bold uppercase"><i class="fas fa-shield-alt mr-1"></i> Will activate site GPS & roster</span>
+                            <div class="flex gap-2">
+                                <button onclick="document.getElementById('site-modal').classList.add('hidden')" class="px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-md transition">Cancel</button>
+                                <button onclick="submitNewSite()" class="bg-[#242b5f] text-white px-4 py-1.5 rounded-md text-xs font-bold shadow-sm hover:opacity-90 transition flex items-center gap-1.5">
+                                    <i class="fas fa-check text-[10px]"></i> Create Working Site
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        `;
+
+        setPageContent('Working Project Sites & Geofences', pageHTML);
+
+        // Ping all biometrics modal helper
+        window.pingAllBiometricsModal = function() {
+            const html = `
+                <div class="space-y-2 text-xs">
+                    <p class="text-gray-700">Ping all 8 remote site biometric machines & GPS beacons?</p>
+                    <div class="mt-2 space-y-1 text-xs text-gray-600 bg-gray-50 p-2.5 rounded border border-gray-100">
+                        <p class="text-green-600 font-medium"><i class="fas fa-check-circle mr-1"></i> Karachi High-Rise: Latency 18ms (Online)</p>
+                        <p class="text-green-600 font-medium"><i class="fas fa-check-circle mr-1"></i> Islamabad Complex: Latency 24ms (Online)</p>
+                        <p class="text-green-600 font-medium"><i class="fas fa-check-circle mr-1"></i> Lahore HQ & Workshop: Latency 12ms (Online)</p>
+                        <p class="text-green-600 font-medium"><i class="fas fa-check-circle mr-1"></i> Peshawar Chiller Plant: Latency 38ms (Online)</p>
+                    </div>
+                </div>
+            `;
+            openModal('Test All Biometric Beacons', html, () => showToast('All 8 sites verified online!', 'success'));
+        };
+
+        // Geofence radius edit modal helper
+        window.openGeofenceRadiusModal = function(siteName, currentRadius) {
+            const html = `
+                <div class="space-y-3 text-xs">
+                    <label class="text-xs font-bold text-gray-800">Site: ${siteName}</label>
+                    <p class="text-xs text-gray-500">Current Geofence Radius: <span id="current-radius-lbl" class="font-bold text-[#242b5f]">${currentRadius}</span> meters</p>
+                    <input type="range" min="30" max="300" value="${currentRadius}" class="w-full cursor-pointer" oninput="document.getElementById('current-radius-lbl').innerText = this.value; document.getElementById('geofence-display-val').innerText = this.value + ' meters'">
+                    <div class="text-center font-bold text-[#242b5f] text-sm bg-blue-50 py-1.5 rounded border border-blue-100" id="geofence-display-val">${currentRadius} meters</div>
+                    <p class="text-[9.5px] text-gray-400"><i class="fas fa-info-circle mr-0.5"></i> Workers outside this perimeter will be flagged for HR geofence breach.</p>
+                </div>
+            `;
+            openModal(`Adjust Geofence Radius: ${siteName}`, html, () => showToast(`Geofence radius for ${siteName} updated to devices!`, 'success'));
+        };
+
+        // Site details inspection modal helper
+        window.openSiteDetailModal = function(name, address, manager, staff, coords, radius, status) {
+            let code = 'CMX-SITE-101';
+            if (name.includes('Islamabad')) code = 'CMX-SITE-102';
+            else if (name.includes('Head Office') || name.includes('Lahore')) code = 'CMX-SITE-100';
+            else if (name.includes('Faisalabad')) code = 'CMX-SITE-104';
+            else if (name.includes('Peshawar')) code = 'CMX-SITE-105';
+
+            const html = `
+                <div class="space-y-3">
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center justify-between">
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-sm">${name}</h4>
+                            <p class="text-[10px] text-gray-500">${address}</p>
+                        </div>
+                        <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[9.5px] font-bold">${status}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="p-2 border rounded bg-white"><span class="text-gray-400 font-bold block text-[9px]">PROJECT MANAGER</span><b>${manager}</b></div>
+                        <div class="p-2 border rounded bg-white"><span class="text-gray-400 font-bold block text-[9px]">STAFF ALLOCATED</span><b>${staff}</b></div>
+                        <div class="p-2 border rounded bg-white"><span class="text-gray-400 font-bold block text-[9px]">GPS COORDINATES</span><span class="font-mono">${coords}</span></div>
+                        <div class="p-2 border rounded bg-white"><span class="text-gray-400 font-bold block text-[9px]">GEOFENCE RADIUS</span><span class="text-blue-700 font-bold">${radius} Perimeter</span></div>
+                    </div>
+                    <a href="site-detail.html?site=${code}" class="bg-[#242b5f] text-white py-2 px-3 rounded-md text-xs font-bold block text-center shadow-sm hover:opacity-95 transition flex items-center justify-center gap-1.5 mt-2">
+                        <i class="fas fa-external-link-alt text-[10px]"></i> Open Full Site Detail Page, Supervisor & Roster &rarr;
+                    </a>
+                </div>
+            `;
+            openModal(`Working Site Profile: ${name}`, html, null);
+        };
+
+        // Submit new working site
+        window.submitNewSite = function() {
+            const name = document.getElementById('site_name').value.trim();
+            const client = document.getElementById('site_client').value.trim();
+            const city = document.getElementById('site_city').value;
+            const manager = document.getElementById('site_manager').value.trim();
+            const lat = document.getElementById('site_lat').value.trim() || '31.4504';
+            const lng = document.getElementById('site_lng').value.trim() || '73.1350';
+            const radius = document.getElementById('site_radius').value.trim() || '80';
+            const headcount = document.getElementById('site_headcount').value.trim() || '20';
+
+            if (!name || !client || !manager) {
+                showToast('Please fill Site Name, Client, and Project Manager!', 'error');
+                return;
+            }
+
+            const siteCode = 'CMX-SITE-' + Math.floor(104 + Math.random() * 20);
+            const tbody = document.getElementById('sites-table-body');
+            const newRow = document.createElement('tr');
+            newRow.className = 'hover:bg-blue-50/20 transition group bg-blue-50/20 border-l-4 border-[#242b5f]';
+
+            newRow.innerHTML = `
+                <td class="px-4 py-2.5">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-[#242b5f] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div>
+                            <a href="javascript:void(0)" onclick="openSiteDetailModal('${name.replace(/'/g, "\\'")}', '${city}', '${manager.replace(/'/g, "\\'")}', '${headcount} Staff', '${lat}° N, ${lng}° E', '${radius}m', 'Active')" class="font-bold text-[#242b5f] hover:underline block leading-tight">
+                                ${name}
+                            </a>
+                            <p class="text-[9.5px] text-gray-400">MEP Site • Just Created</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-4 py-2.5">
+                    <span class="text-[10px] font-mono font-bold text-yellow-800 bg-yellow-100 px-1.5 py-0.5 rounded border border-yellow-200">${siteCode}</span>
+                </td>
+                <td class="px-4 py-2.5">
+                    <div class="font-semibold text-gray-800">${client}</div>
+                    <div class="text-[9.5px] text-gray-400"><i class="fas fa-map-marker-alt text-red-500 mr-0.5"></i> ${city}</div>
+                </td>
+                <td class="px-4 py-2.5">
+                    <div class="font-semibold text-gray-800">${manager}</div>
+                    <div class="text-[9px] text-gray-400">Site Incharge</div>
+                </td>
+                <td class="px-4 py-2.5 text-center">
+                    <span class="bg-blue-50 text-[#242b5f] font-bold px-2 py-0.5 rounded text-[10px] border border-blue-100">${headcount} Staff</span>
+                </td>
+                <td class="px-4 py-2.5">
+                    <div class="font-mono text-gray-700 text-[10px]">${lat}° N, ${lng}° E</div>
+                    <div class="text-[9.5px] text-emerald-600 font-bold flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ${radius}m Radius • Active Geofence
+                    </div>
+                </td>
+                <td class="px-4 py-2.5 text-center">
+                    <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                </td>
+                <td class="px-4 py-2.5 text-right relative dropdown">
+                    <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                        <i class="fas fa-ellipsis-v text-xs"></i>
+                    </button>
+                    <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                        <button onclick="openSiteDetailModal('${name.replace(/'/g, "\\'")}', '${city}', '${manager.replace(/'/g, "\\'")}', '${headcount} Staff', '${lat}° N, ${lng}° E', '${radius}m', 'Active')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-info-circle text-blue-600 w-4"></i> View Site Profile</button>
+                        <a href="attendance.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-user-clock text-green-600 w-4"></i> View Site Roster</a>
+                    </div>
+                </td>
+            `;
+
+            tbody.insertBefore(newRow, tbody.firstChild);
+
+            // Update stats
+            const statSites = document.getElementById('stat-total-sites');
+            if (statSites) statSites.innerHTML = '9 <span class="text-[10px] text-green-600 font-normal">Online</span>';
+
+            document.getElementById('site-modal').classList.add('hidden');
+            document.getElementById('site_name').value = '';
+            document.getElementById('site_client').value = '';
+            document.getElementById('site_manager').value = '';
+
+            showToast(`Working Site "${name}" created with ${radius}m geofence!`, 'success');
+        };
+
+        // ==========================================
+        // Interactive Google Map Geofence Setup
+        // ==========================================
+        let sitePickerMap = null;
+        let siteMarker = null;
+        let siteGeofenceCircle = null;
+        let currentMapLayer = 'streets';
+        const mapTileLayers = {};
+
+        const PAKISTAN_CITY_COORDS = {
+            'Karachi': { lat: 24.8607, lng: 67.0011, zoom: 14 },
+            'Lahore': { lat: 31.5204, lng: 74.3587, zoom: 14 },
+            'Islamabad': { lat: 33.6844, lng: 73.0479, zoom: 14 },
+            'Peshawar': { lat: 34.0151, lng: 71.5249, zoom: 14 },
+            'Faisalabad': { lat: 31.4504, lng: 73.1350, zoom: 14 },
+            'Multan': { lat: 30.1575, lng: 71.5249, zoom: 14 }
+        };
+
+        const redPinIcon = typeof L !== 'undefined' ? L.divIcon({
+            className: 'custom-site-pin',
+            html: `
+                <div style="position:relative; width:34px; height:42px; display:flex; flex-direction:column; align-items:center; cursor:grab;">
+                    <div style="width:30px; height:30px; border-radius:50% 50% 50% 0; background:linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); transform:rotate(-45deg); border:2px solid #ffffff; box-shadow:0 3px 8px rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-building text-white text-[11px]" style="transform:rotate(45deg);"></i>
+                    </div>
+                    <div style="width:8px; height:4px; background:rgba(0,0,0,0.3); border-radius:50%; margin-top:2px;"></div>
+                </div>
+            `,
+            iconSize: [34, 42],
+            iconAnchor: [17, 40],
+            popupAnchor: [0, -38]
+        }) : null;
+
+        window.openAddSiteModal = function() {
+            const modal = document.getElementById('site-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            setTimeout(() => {
+                initSitePickerMap();
+            }, 180);
+        };
+
+        window.initSitePickerMap = function() {
+            const mapContainer = document.getElementById('site-geofence-picker-map');
+            if (!mapContainer || typeof L === 'undefined') return;
+
+            const latInput = document.getElementById('site_lat');
+            const lngInput = document.getElementById('site_lng');
+            const radiusInput = document.getElementById('site_radius');
+
+            const lat = parseFloat(latInput ? latInput.value : 31.4504) || 31.4504;
+            const lng = parseFloat(lngInput ? lngInput.value : 73.1350) || 73.1350;
+            const radius = parseInt(radiusInput ? radiusInput.value : 80) || 80;
+
+            if (!sitePickerMap) {
+                // Google Road Map
+                mapTileLayers.streets = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                    maxZoom: 20,
+                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                    attribution: '&copy; Google Maps'
+                });
+
+                // Google Satellite / Hybrid
+                mapTileLayers.satellite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+                    maxZoom: 20,
+                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                    attribution: '&copy; Google Maps Satellite'
+                });
+
+                sitePickerMap = L.map('site-geofence-picker-map', {
+                    center: [lat, lng],
+                    zoom: 15,
+                    layers: [mapTileLayers.streets],
+                    zoomControl: true
+                });
+
+                // Blue Geofence Boundary Circle
+                siteGeofenceCircle = L.circle([lat, lng], {
+                    color: '#2563eb',
+                    weight: 2,
+                    fillColor: '#3b82f6',
+                    fillOpacity: 0.22,
+                    dashArray: '5, 5',
+                    radius: radius
+                }).addTo(sitePickerMap);
+
+                // Draggable Marker Pin
+                siteMarker = L.marker([lat, lng], {
+                    draggable: true,
+                    icon: redPinIcon
+                }).addTo(sitePickerMap);
+
+                siteMarker.bindPopup(`
+                    <div style="font-family:'Inter',sans-serif; font-size:11px;" class="p-1">
+                        <b style="color:#242b5f;">Project Site Center</b>
+                        <p style="color:#64748b; margin:2px 0 0 0;">Drag pin to fine-tune location</p>
+                    </div>
+                `);
+
+                // Map Click Listener
+                sitePickerMap.on('click', function(e) {
+                    updateSiteLocation(e.latlng.lat, e.latlng.lng);
+                });
+
+                // Marker Drag Listener
+                siteMarker.on('drag', function(e) {
+                    const pos = e.target.getLatLng();
+                    if (siteGeofenceCircle) siteGeofenceCircle.setLatLng(pos);
+                    updateCoordinateDisplays(pos.lat, pos.lng);
+                });
+
+                siteMarker.on('dragend', function(e) {
+                    const pos = e.target.getLatLng();
+                    updateSiteLocation(pos.lat, pos.lng);
+                });
+
+            } else {
+                sitePickerMap.invalidateSize();
+                sitePickerMap.setView([lat, lng], sitePickerMap.getZoom() || 15);
+                if (siteMarker) siteMarker.setLatLng([lat, lng]);
+                if (siteGeofenceCircle) {
+                    siteGeofenceCircle.setLatLng([lat, lng]);
+                    siteGeofenceCircle.setRadius(radius);
+                }
+            }
+
+            updateCoordinateDisplays(lat, lng);
+            handleRadiusInputChange(radius);
+        };
+
+        window.updateSiteLocation = function(lat, lng) {
+            const fixedLat = parseFloat(lat).toFixed(5);
+            const fixedLng = parseFloat(lng).toFixed(5);
+
+            if (siteMarker) siteMarker.setLatLng([fixedLat, fixedLng]);
+            if (siteGeofenceCircle) siteGeofenceCircle.setLatLng([fixedLat, fixedLng]);
+
+            updateCoordinateDisplays(fixedLat, fixedLng);
+        };
+
+        window.updateCoordinateDisplays = function(lat, lng) {
+            const fixedLat = parseFloat(lat).toFixed(5);
+            const fixedLng = parseFloat(lng).toFixed(5);
+
+            const latInput = document.getElementById('site_lat');
+            const lngInput = document.getElementById('site_lng');
+            const coordsDisplay = document.getElementById('map-coords-display');
+
+            if (latInput) latInput.value = fixedLat;
+            if (lngInput) lngInput.value = fixedLng;
+            if (coordsDisplay) coordsDisplay.innerText = `${fixedLat}° N, ${fixedLng}° E`;
+        };
+
+        window.handleManualCoordInput = function() {
+            const lat = parseFloat(document.getElementById('site_lat').value);
+            const lng = parseFloat(document.getElementById('site_lng').value);
+
+            if (!isNaN(lat) && !isNaN(lng)) {
+                if (siteMarker) siteMarker.setLatLng([lat, lng]);
+                if (siteGeofenceCircle) siteGeofenceCircle.setLatLng([lat, lng]);
+                if (sitePickerMap) sitePickerMap.panTo([lat, lng]);
+                const coordsDisplay = document.getElementById('map-coords-display');
+                if (coordsDisplay) coordsDisplay.innerText = `${lat.toFixed(5)}° N, ${lng.toFixed(5)}° E`;
+            }
+        };
+
+        window.handleRadiusInputChange = function(val) {
+            const radius = parseInt(val) || 80;
+            if (siteGeofenceCircle) {
+                siteGeofenceCircle.setRadius(radius);
+            }
+            const radiusDisplay = document.getElementById('map-radius-display');
+            if (radiusDisplay) {
+                radiusDisplay.innerText = `${radius}m Active Geofence Circle`;
+            }
+        };
+
+        window.setPresetRadius = function(radius) {
+            const radiusInput = document.getElementById('site_radius');
+            if (radiusInput) radiusInput.value = radius;
+            handleRadiusInputChange(radius);
+        };
+
+        window.handleSiteCityChange = function(cityName) {
+            const target = PAKISTAN_CITY_COORDS[cityName];
+            if (target && sitePickerMap) {
+                sitePickerMap.flyTo([target.lat, target.lng], target.zoom);
+                updateSiteLocation(target.lat, target.lng);
+                showToast(`Map relocated to ${cityName}`, 'info');
+            }
+        };
+
+        window.switchMapLayer = function(layerType) {
+            if (!sitePickerMap || layerType === currentMapLayer) return;
+
+            if (mapTileLayers[currentMapLayer]) {
+                sitePickerMap.removeLayer(mapTileLayers[currentMapLayer]);
+            }
+
+            if (mapTileLayers[layerType]) {
+                sitePickerMap.addLayer(mapTileLayers[layerType]);
+                currentMapLayer = layerType;
+            }
+
+            const btnStreets = document.getElementById('btn-layer-streets');
+            const btnSatellite = document.getElementById('btn-layer-satellite');
+
+            if (layerType === 'streets') {
+                if (btnStreets) btnStreets.className = 'px-2 py-0.5 text-[9.5px] font-bold rounded bg-[#242b5f] text-white';
+                if (btnSatellite) btnSatellite.className = 'px-2 py-0.5 text-[9.5px] font-bold rounded text-gray-600 hover:text-gray-900';
+            } else {
+                if (btnStreets) btnStreets.className = 'px-2 py-0.5 text-[9.5px] font-bold rounded text-gray-600 hover:text-gray-900';
+                if (btnSatellite) btnSatellite.className = 'px-2 py-0.5 text-[9.5px] font-bold rounded bg-[#242b5f] text-white';
+            }
+        };
+
+        window.locateDeviceCurrentGPS = function() {
+            if (!navigator.geolocation) {
+                showToast('Geolocation is not supported by your browser', 'error');
+                return;
+            }
+            showToast('Locating your GPS coordinates...', 'info');
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    if (sitePickerMap) {
+                        sitePickerMap.flyTo([lat, lng], 16);
+                        updateSiteLocation(lat, lng);
+                        showToast(`GPS located: ${lat.toFixed(4)}, ${lng.toFixed(4)}`, 'success');
+                    }
+                },
+                (err) => {
+                    showToast('Could not access GPS device. Please check permissions.', 'error');
+                },
+                { timeout: 7000, enableHighAccuracy: true }
+            );
+        };
+    </script>
+</body>
+</html>

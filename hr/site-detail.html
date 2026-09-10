@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Working Site Profile & Roster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS & JS for Interactive Site Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        html { font-size: 13px !important; } 
+        body { font-family: 'Inter', sans-serif; } 
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; } 
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+        .tab-btn.active {
+            color: #242b5f;
+            border-bottom: 2.5px solid #242b5f;
+            background-color: #ffffff;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('sites');
+
+        // Parse query params for site ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentSiteCode = urlParams.get('site') || 'CMX-SITE-101';
+
+        // Master Directory of Project Sites in Pakistan
+        const SITES_DATABASE = {
+            'CMX-SITE-101': {
+                code: 'CMX-SITE-101',
+                name: 'Karachi High-Rise Commercial Tower',
+                client: 'Al-Ghafoor Builders & Developers',
+                category: 'MEP High-Rise • Central Chiller & VRF',
+                city: 'Karachi',
+                address: 'Plot 14-B, Block 4, Clifton, Karachi',
+                supervisor: 'Engr. Tariq Farooq (PE)',
+                supervisorRole: 'Lead MEP Project Engineer',
+                supervisorPhone: '+92 300 1234567',
+                supervisorEmail: 'tariq.farooq@cosmix.com',
+                headcount: 38,
+                engineers: 6,
+                techs: 12,
+                helpers: 20,
+                lat: 24.8138,
+                lng: 67.0299,
+                radius: 80,
+                biometricHardware: 'ZKTeco BioSync Pro - 192.168.10.45',
+                contractValue: 'Rs. 85,000,000',
+                status: 'Active'
+            },
+            'CMX-SITE-102': {
+                code: 'CMX-SITE-102',
+                name: 'Islamabad Govt Complex Site',
+                client: 'Capital Development Authority (CDA)',
+                category: '11kV Substation & Fire Suppression',
+                city: 'Islamabad',
+                address: 'Sector G-5/2, Constitutional Avenue, Islamabad',
+                supervisor: 'Engr. Bilal Malik',
+                supervisorRole: 'Project Manager (Electrical)',
+                supervisorPhone: '+92 333 4455667',
+                supervisorEmail: 'bilal.malik@cosmix.com',
+                headcount: 24,
+                engineers: 4,
+                techs: 10,
+                helpers: 10,
+                lat: 33.7294,
+                lng: 73.0931,
+                radius: 100,
+                biometricHardware: 'Anviz FacePass 7 - 192.168.20.12',
+                contractValue: 'Rs. 62,000,000',
+                status: 'Active'
+            },
+            'CMX-SITE-100': {
+                code: 'CMX-SITE-100',
+                name: 'Head Office & Central Fabrication Workshop',
+                client: 'Cosmix Engineering Corporate HQ',
+                category: 'HQ Operations & Duct Fabrication',
+                city: 'Lahore',
+                address: 'Plot 88-C, Gulberg III, Lahore',
+                supervisor: 'John Doe (PM)',
+                supervisorRole: 'Operations Director',
+                supervisorPhone: '+92 321 9876543',
+                supervisorEmail: 'john.doe@cosmix.com',
+                headcount: 18,
+                engineers: 5,
+                techs: 8,
+                helpers: 5,
+                lat: 31.5204,
+                lng: 74.3587,
+                radius: 60,
+                biometricHardware: 'ZKTeco BioTime LAN - 192.168.1.100',
+                contractValue: 'Internal Asset',
+                status: 'Active'
+            },
+            'CMX-SITE-104': {
+                code: 'CMX-SITE-104',
+                name: 'Faisalabad Textile Industrial Substation',
+                client: 'Crescent Bahuman Ltd',
+                category: '11kV Substation & Power Distribution',
+                city: 'Faisalabad',
+                address: 'Plot 45, Khurrianwala Industrial Estate, Faisalabad',
+                supervisor: 'Engr. Imran Saeed',
+                supervisorRole: 'Substation Site Incharge',
+                supervisorPhone: '+92 301 5566778',
+                supervisorEmail: 'imran.saeed@cosmix.com',
+                headcount: 20,
+                engineers: 3,
+                techs: 9,
+                helpers: 8,
+                lat: 31.4504,
+                lng: 73.1350,
+                radius: 80,
+                biometricHardware: 'ZKTeco 4G Sim Biometric - 192.168.30.15',
+                contractValue: 'Rs. 42,000,000',
+                status: 'Active'
+            },
+            'CMX-SITE-103': {
+                code: 'CMX-SITE-103',
+                name: 'Peshawar Industrial Chiller Site',
+                client: 'Khyber Cold Chains Ltd',
+                category: 'Ammonia Chillers & Industrial Cold Storage',
+                city: 'Peshawar',
+                address: 'Plot 12-A, Hayatabad Industrial Estate, Peshawar',
+                supervisor: 'Engr. Asadullah',
+                supervisorRole: 'Lead HVAC Project Engineer',
+                supervisorPhone: '+92 345 9988776',
+                supervisorEmail: 'asadullah@cosmix.com',
+                headcount: 12,
+                engineers: 3,
+                techs: 6,
+                helpers: 3,
+                lat: 33.9850,
+                lng: 71.4330,
+                radius: 90,
+                biometricHardware: 'ZKTeco 4G Sim Biometric - 192.168.40.21',
+                contractValue: 'Rs. 36,500,000',
+                status: 'Active'
+            },
+            'CMX-SITE-106': {
+                code: 'CMX-SITE-106',
+                name: 'Multan Food Processing Plant',
+                client: 'Fatima Agro Foods Ltd',
+                category: 'Industrial HVAC & Cold Rooms',
+                city: 'Multan',
+                address: 'Phase 2, Multan Industrial Estate, Multan',
+                supervisor: 'Engr. Kashif Raza',
+                supervisorRole: 'Site Mechanical Incharge',
+                supervisorPhone: '+92 302 4455889',
+                supervisorEmail: 'kashif.raza@cosmix.com',
+                headcount: 14,
+                engineers: 2,
+                techs: 7,
+                helpers: 5,
+                lat: 30.1575,
+                lng: 71.5249,
+                radius: 75,
+                biometricHardware: 'Anviz FacePass LAN - 192.168.50.18',
+                contractValue: 'Rs. 28,000,000',
+                status: 'Active'
+            }
+        };
+
+        const siteData = SITES_DATABASE[currentSiteCode] || SITES_DATABASE['CMX-SITE-101'];
+
+        const pageHTML = `
+            <div class="space-y-4">
+                
+                <!-- Breadcrumb & Top Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 pb-2">
+                    <div class="flex items-center gap-2 text-xs">
+                        <a href="sites.html" class="text-gray-500 hover:text-[#242b5f] font-semibold flex items-center gap-1 transition">
+                            <i class="fas fa-arrow-left text-[10px]"></i> Working Sites Directory
+                        </a>
+                        <span class="text-gray-300">/</span>
+                        <span class="font-bold text-gray-800">${siteData.name}</span>
+                        <span class="font-mono text-[10px] font-bold text-[#242b5f] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">${siteData.code}</span>
+                        <span class="bg-green-100 text-green-800 text-[9.5px] font-bold px-2 py-0.5 rounded uppercase">${siteData.status}</span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="openSupervisorModal()" class="bg-white border border-[#242b5f] text-[#242b5f] hover:bg-blue-50 px-3 py-1.5 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-user-shield text-blue-700 text-xs"></i> Assign / Change Supervisor
+                        </button>
+                        <button onclick="openAddWorkerToSiteModal()" class="bg-[#242b5f] text-white hover:opacity-90 px-3 py-1.5 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-user-plus text-[10px]"></i> Add Worker to Site
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 1. Top KPI Cards: Supervisor, Workforce, Geofence, Outstation -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    
+                    <!-- Card 1: Assigned Site Supervisor -->
+                    <div class="bg-white p-3.5 rounded-lg shadow-sm border border-slate-200/80 flex items-center justify-between group">
+                        <div class="space-y-0.5">
+                            <p class="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider">Site Incharge / Supervisor</p>
+                            <h4 class="text-sm font-extrabold text-gray-800" id="disp-supervisor-name">${siteData.supervisor}</h4>
+                            <p class="text-[10px] text-blue-600 font-medium" id="disp-supervisor-role">${siteData.supervisorRole}</p>
+                            <p class="text-[9px] text-gray-400 flex items-center gap-1 mt-1">
+                                <i class="fas fa-phone-alt text-[8.5px] text-gray-400"></i> <span id="disp-supervisor-phone">${siteData.supervisorPhone}</span>
+                            </p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-blue-50 text-[#242b5f] flex items-center justify-center font-bold text-sm border border-blue-200 shrink-0">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Deployed Workforce -->
+                    <div class="bg-white p-3.5 rounded-lg shadow-sm border border-slate-200/80 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider">Deployed Workforce</p>
+                            <h4 class="text-xl font-bold text-gray-800 mt-0.5" id="stat-site-headcount">${siteData.headcount} <span class="text-[10px] text-emerald-600 font-normal">Active Staff</span></h4>
+                            <p class="text-[9px] text-gray-500 font-medium mt-0.5">
+                                ${siteData.engineers} Engr • ${siteData.techs} Tech • ${siteData.helpers} Helpers
+                            </p>
+                        </div>
+                        <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center text-sm">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Biometric Terminal & Geofence -->
+                    <div class="bg-white p-3.5 rounded-lg shadow-sm border border-slate-200/80 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider">GPS Geofence Perimeter</p>
+                            <h4 class="text-base font-bold text-[#242b5f] mt-0.5">${siteData.radius}m <span class="text-[10px] text-gray-500 font-normal">Radius Circle</span></h4>
+                            <p class="text-[9px] text-emerald-600 font-medium flex items-center gap-1 mt-0.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> ZKTeco Online (18ms)
+                            </p>
+                        </div>
+                        <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-sm">
+                            <i class="fas fa-satellite-dish"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Outstation Deployment & Expenses -->
+                    <div class="bg-white p-3.5 rounded-lg shadow-sm border border-amber-200 bg-amber-50/20 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9.5px] text-amber-800 font-bold uppercase tracking-wider">Outstation Allowances</p>
+                            <h4 class="text-xl font-bold text-gray-800 mt-0.5" id="stat-outstation-cost">Rs. 142.5k <span class="text-[10px] text-amber-700 font-normal">Total Package</span></h4>
+                            <p class="text-[9px] text-amber-700 font-medium mt-0.5" id="stat-outstation-workers">
+                                <i class="fas fa-suitcase-rolling mr-0.5"></i> 4 Outstation Workers on Site
+                            </p>
+                        </div>
+                        <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-sm">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 2. Main Detail Tabs -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-between px-2 pt-1.5 border-b">
+                    <div class="flex items-center gap-1">
+                        <button onclick="switchSiteTab('roster')" id="tab-site-roster" class="tab-btn active px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2">
+                            <i class="fas fa-users text-blue-600"></i>
+                            <span>1. Deployed Workforce Roster</span>
+                            <span class="bg-blue-100 text-[#242b5f] text-[10px] font-bold px-1.5 py-0.5 rounded-full" id="badge-roster-count">${siteData.headcount}</span>
+                        </button>
+                        
+                        <button onclick="switchSiteTab('outstation')" id="tab-site-outstation" class="tab-btn px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent">
+                            <i class="fas fa-route text-amber-600"></i>
+                            <span>2. Outstation Transfers & Allowances</span>
+                            <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full" id="badge-outstation-tab">4 Active</span>
+                        </button>
+
+                        <button onclick="switchSiteTab('geofence')" id="tab-site-geofence" class="tab-btn px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent">
+                            <i class="fas fa-map-marked-alt text-emerald-600"></i>
+                            <span>3. GPS Geofence & Live Map</span>
+                        </button>
+
+                        <button onclick="switchSiteTab('contract')" id="tab-site-contract" class="tab-btn px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent">
+                            <i class="fas fa-file-contract text-purple-600"></i>
+                            <span>4. Project Scope & Client Info</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2 pb-1 pr-1">
+                        <button onclick="window.print()" class="bg-white border border-gray-200 text-gray-700 px-2.5 py-1 rounded text-xs font-bold hover:bg-gray-50 flex items-center gap-1 shadow-sm">
+                            <i class="fas fa-print text-gray-500"></i> Print Roster
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 1: DEPLOYED WORKFORCE ROSTER TABLE                       -->
+                <!-- ============================================================== -->
+                <div id="view-site-roster" class="space-y-3">
+                    
+                    <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                        <div class="flex items-center gap-2 flex-1 max-w-md">
+                            <div class="relative w-full">
+                                <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                                <input type="text" oninput="filterTableRows(this, 'site-roster-body')" placeholder="Search workers by name, ID, trade, role..." class="w-full text-xs border border-gray-200 rounded-md pl-7 pr-3 py-1 focus:outline-none focus:border-[#242b5f] bg-white">
+                            </div>
+                            <select onchange="filterTableRows({ value: this.value.includes('All') ? '' : this.value }, 'site-roster-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none shrink-0">
+                                <option value="All Deployments">All Deployments</option>
+                                <option value="Local">Local Staff</option>
+                                <option value="Outstation">Outstation Deployed</option>
+                            </select>
+                        </div>
+
+                        <span class="text-[10px] text-gray-500 font-medium">Click <b>"Transfer to Another Site"</b> on any worker to reassign locally or outstation</span>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="overflow-x-auto min-h-[300px]">
+                            <table class="w-full text-left text-xs whitespace-nowrap">
+                                <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                    <tr>
+                                        <th class="px-4 py-2.5 font-bold">Worker Name & ID</th>
+                                        <th class="px-4 py-2.5 font-bold">Trade / Designation</th>
+                                        <th class="px-4 py-2.5 font-bold">Deployment Type</th>
+                                        <th class="px-4 py-2.5 font-bold">Shift & Schedule</th>
+                                        <th class="px-4 py-2.5 font-bold">Attendance Today</th>
+                                        <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="site-roster-body" class="divide-y divide-gray-100 bg-white">
+                                    
+                                    <!-- Worker 1 -->
+                                    <tr class="hover:bg-blue-50/20 transition group" id="roster-emp-1042">
+                                        <td class="px-4 py-2.5">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-full bg-[#242b5f] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                                                    AK
+                                                </div>
+                                                <div>
+                                                    <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Ali Khan</a>
+                                                    <span class="text-[9.5px] text-gray-400">EMP-1042 • Permanent</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2.5 font-semibold text-gray-800">HVAC Project Engineer</td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="bg-blue-50 text-[#242b5f] px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Local Karachi Staff</span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-gray-600">Morning Shift (08:00 - 17:00)</td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="text-emerald-600 font-bold flex items-center gap-1">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 08:45 AM (Geofence Verified)
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-right">
+                                            <button onclick="openTransferModal('Ali Khan', 'EMP-1042', 'HVAC Project Engineer', '${siteData.name}', '${siteData.city}')" class="bg-white border border-[#242b5f] text-[#242b5f] hover:bg-blue-50 px-2.5 py-1 rounded text-xs font-bold shadow-sm transition flex items-center gap-1 ml-auto">
+                                                <i class="fas fa-exchange-alt text-[10px]"></i> Reassign / Transfer
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Worker 2 (Outstation from Lahore) -->
+                                    <tr class="hover:bg-blue-50/20 transition group bg-amber-50/10" id="roster-emp-1033">
+                                        <td class="px-4 py-2.5">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0">
+                                                    MN
+                                                </div>
+                                                <div>
+                                                    <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Muhammad Nouman</a>
+                                                    <span class="text-[9.5px] text-gray-400">EMP-1033 • Sr. Chiller Tech</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2.5 font-semibold text-gray-800">Sr. Chiller Specialist</td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[9.5px] font-bold border border-amber-200 flex items-center gap-1 w-max">
+                                                <i class="fas fa-plane-departure text-[9px]"></i> Outstation from Lahore HQ
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-gray-600">Site Commissioning Shift</td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="text-emerald-600 font-bold flex items-center gap-1">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 08:30 AM (Mobile Punch)
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-right">
+                                            <button onclick="openTransferModal('Muhammad Nouman', 'EMP-1033', 'Sr. Chiller Specialist', '${siteData.name}', '${siteData.city}')" class="bg-white border border-[#242b5f] text-[#242b5f] hover:bg-blue-50 px-2.5 py-1 rounded text-xs font-bold shadow-sm transition flex items-center gap-1 ml-auto">
+                                                <i class="fas fa-exchange-alt text-[10px]"></i> Reassign / Transfer
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Worker 3 -->
+                                    <tr class="hover:bg-blue-50/20 transition group" id="roster-emp-1049">
+                                        <td class="px-4 py-2.5">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-full bg-blue-50 text-[#242b5f] flex items-center justify-center font-bold text-xs shrink-0">
+                                                    RR
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold text-gray-800 block leading-tight">Rashid Rauf</span>
+                                                    <span class="text-[9.5px] text-gray-400">EMP-1049 • Electrician</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2.5 font-semibold text-gray-800">11kV Panel Electrician</td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="bg-blue-50 text-[#242b5f] px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Local Karachi Staff</span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-gray-600">Morning Shift (08:00 - 17:00)</td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="text-emerald-600 font-bold flex items-center gap-1">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 08:52 AM (Biometric Punch)
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-right">
+                                            <button onclick="openTransferModal('Rashid Rauf', 'EMP-1049', '11kV Panel Electrician', '${siteData.name}', '${siteData.city}')" class="bg-white border border-[#242b5f] text-[#242b5f] hover:bg-blue-50 px-2.5 py-1 rounded text-xs font-bold shadow-sm transition flex items-center gap-1 ml-auto">
+                                                <i class="fas fa-exchange-alt text-[10px]"></i> Reassign / Transfer
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Worker 4 (Outstation from Islamabad) -->
+                                    <tr class="hover:bg-blue-50/20 transition group bg-amber-50/10" id="roster-emp-1051">
+                                        <td class="px-4 py-2.5">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0">
+                                                    ZA
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold text-gray-800 block leading-tight">Zahid Abbas</span>
+                                                    <span class="text-[9.5px] text-gray-400">EMP-1051 • Substation Foreman</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2.5 font-semibold text-gray-800">HVAC Ducting Foreman</td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[9.5px] font-bold border border-amber-200 flex items-center gap-1 w-max">
+                                                <i class="fas fa-plane-departure text-[9px]"></i> Outstation from Islamabad
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-gray-600">General Shift</td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="text-emerald-600 font-bold flex items-center gap-1">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 08:40 AM (Biometric)
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-right">
+                                            <button onclick="openTransferModal('Zahid Abbas', 'EMP-1051', 'HVAC Ducting Foreman', '${siteData.name}', '${siteData.city}')" class="bg-white border border-[#242b5f] text-[#242b5f] hover:bg-blue-50 px-2.5 py-1 rounded text-xs font-bold shadow-sm transition flex items-center gap-1 ml-auto">
+                                                <i class="fas fa-exchange-alt text-[10px]"></i> Reassign / Transfer
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Worker 5 -->
+                                    <tr class="hover:bg-blue-50/20 transition group" id="roster-emp-1058">
+                                        <td class="px-4 py-2.5">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-full bg-blue-50 text-[#242b5f] flex items-center justify-center font-bold text-xs shrink-0">
+                                                    WS
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold text-gray-800 block leading-tight">Waqar Shah</span>
+                                                    <span class="text-[9.5px] text-gray-400">EMP-1058 • Safety Inspector</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2.5 font-semibold text-gray-800">Site HSE Safety Officer</td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="bg-blue-50 text-[#242b5f] px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Local Karachi Staff</span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-gray-600">Morning Shift (08:00 - 17:00)</td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="text-emerald-600 font-bold flex items-center gap-1">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 08:35 AM (Geofence)
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-right">
+                                            <button onclick="openTransferModal('Waqar Shah', 'EMP-1058', 'Site HSE Safety Officer', '${siteData.name}', '${siteData.city}')" class="bg-white border border-[#242b5f] text-[#242b5f] hover:bg-blue-50 px-2.5 py-1 rounded text-xs font-bold shadow-sm transition flex items-center gap-1 ml-auto">
+                                                <i class="fas fa-exchange-alt text-[10px]"></i> Reassign / Transfer
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 2: OUTSTATION TRANSFERS & ALLOWANCES REGISTER             -->
+                <!-- ============================================================== -->
+                <div id="view-site-outstation" class="space-y-3 hidden">
+                    
+                    <div class="bg-white p-3.5 rounded-lg border border-amber-200 bg-amber-50/20 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-lg shrink-0">
+                                <i class="fas fa-suitcase-rolling"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-800">Active Outstation Deployment & Allowances Register</h4>
+                                <p class="text-[10.5px] text-gray-500">Breakdown of TA/DA, Daewoo/train fares, site mess allowances, and relocation advances disbursed for workers sent to this site.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-2 px-3 rounded-lg border border-amber-200 shadow-sm flex items-center gap-3 text-xs font-bold">
+                            <span class="text-gray-500 uppercase text-[9.5px]">Outstation Budget Disbursed:</span>
+                            <span class="text-amber-800 font-extrabold text-sm" id="outstation-register-total">Rs. 142,500</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs whitespace-nowrap">
+                                <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                    <tr>
+                                        <th class="px-4 py-2.5 font-bold">Worker & ID</th>
+                                        <th class="px-4 py-2.5 font-bold">Origin Base $\rightarrow$ Destination</th>
+                                        <th class="px-4 py-2.5 font-bold">Deployment Timeline</th>
+                                        <th class="px-4 py-2.5 font-bold">Daily TA/DA Rate</th>
+                                        <th class="px-4 py-2.5 font-bold">Travel & Lodging Package</th>
+                                        <th class="px-4 py-2.5 font-bold">Total Disbursed</th>
+                                        <th class="px-4 py-2.5 font-bold text-right">Receipt / Slip</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="outstation-register-body" class="divide-y divide-gray-100 bg-white">
+                                    
+                                    <!-- Outstation 1 -->
+                                    <tr class="hover:bg-gray-50/50">
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-bold text-gray-800">Muhammad Nouman</div>
+                                            <div class="text-[9.5px] text-gray-400">EMP-1033 • Sr. Chiller Tech</div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-semibold text-[#242b5f]">Lahore HQ $\rightarrow$ Karachi High-Rise</div>
+                                            <div class="text-[9px] text-gray-400">Chiller Plant Commissioning</div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-medium text-gray-700">Aug 25 $\rightarrow$ Sep 25, 2026</div>
+                                            <span class="text-[9px] text-emerald-600 font-bold">30 Days Duration (17 Days Left)</span>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-bold text-gray-800">Rs. 1,500 / day</div>
+                                            <span class="text-[9px] text-gray-500">Total TA/DA: Rs. 45,000</span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-gray-600">
+                                            <div>Ticket: <b>Rs. 6,500</b> (Daewoo Sleeper)</div>
+                                            <div>Mess/Lodge: <b>Rs. 15,000</b> (Site Flat)</div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="text-amber-800 font-extrabold text-sm">Rs. 66,500</span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-right">
+                                            <button onclick="showToast('Downloading Outstation Expense Slip #OUT-4412...', 'info')" class="text-blue-600 hover:underline text-[10.5px] font-semibold"><i class="fas fa-file-invoice mr-1"></i> View Voucher</button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Outstation 2 -->
+                                    <tr class="hover:bg-gray-50/50">
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-bold text-gray-800">Zahid Abbas</div>
+                                            <div class="text-[9.5px] text-gray-400">EMP-1051 • Ducting Foreman</div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-semibold text-[#242b5f]">Islamabad Complex $\rightarrow$ Karachi High-Rise</div>
+                                            <div class="text-[9px] text-gray-400">Heavy Ducting Overhaul</div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-medium text-gray-700">Sep 01 $\rightarrow$ Sep 20, 2026</div>
+                                            <span class="text-[9px] text-emerald-600 font-bold">20 Days Duration</span>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-bold text-gray-800">Rs. 1,200 / day</div>
+                                            <span class="text-[9px] text-gray-500">Total TA/DA: Rs. 24,000</span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-gray-600">
+                                            <div>Train: <b>Rs. 4,000</b> (Tezgam AC)</div>
+                                            <div>Mess: <b>Rs. 10,000</b> • Adv: <b>Rs. 8,000</b></div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="text-amber-800 font-extrabold text-sm">Rs. 46,000</span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-right">
+                                            <button onclick="showToast('Downloading Outstation Expense Slip #OUT-4413...', 'info')" class="text-blue-600 hover:underline text-[10.5px] font-semibold"><i class="fas fa-file-invoice mr-1"></i> View Voucher</button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Outstation 3 -->
+                                    <tr class="hover:bg-gray-50/50">
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-bold text-gray-800">Faisal Farooq</div>
+                                            <div class="text-[9.5px] text-gray-400">EMP-1064 • VRF Tech</div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-semibold text-[#242b5f]">Lahore HQ $\rightarrow$ Karachi High-Rise</div>
+                                            <div class="text-[9px] text-gray-400">Copper Brazing & Pressure Testing</div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-medium text-gray-700">Sep 05 $\rightarrow$ Sep 18, 2026</div>
+                                            <span class="text-[9px] text-emerald-600 font-bold">14 Days Duration</span>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-bold text-gray-800">Rs. 1,200 / day</div>
+                                            <span class="text-[9px] text-gray-500">Total TA/DA: Rs. 16,800</span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-gray-600">
+                                            <div>Bus: <b>Rs. 5,200</b> (Faisal Movers)</div>
+                                            <div>Mess: <b>Rs. 8,000</b></div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="text-amber-800 font-extrabold text-sm">Rs. 30,000</span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-right">
+                                            <button onclick="showToast('Downloading Outstation Expense Slip #OUT-4414...', 'info')" class="text-blue-600 hover:underline text-[10.5px] font-semibold"><i class="fas fa-file-invoice mr-1"></i> View Voucher</button>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 3: GPS GEOFENCE & LIVE TERMINAL MAP                      -->
+                <!-- ============================================================== -->
+                <div id="view-site-geofence" class="space-y-3 hidden">
+                    <div class="bg-white p-3 rounded-lg border border-gray-200">
+                        <div class="flex items-center justify-between pb-2 mb-2 border-b border-gray-100">
+                            <div>
+                                <h4 class="font-bold text-[#242b5f] text-xs">Live Site Perimeter & Geofence Inspection</h4>
+                                <p class="text-[10px] text-gray-500">${siteData.lat}° N, ${siteData.lng}° E • ${siteData.radius}m Authorized Radius</p>
+                            </div>
+                            <button onclick="pingCurrentSiteBiometric()" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-[#242b5f] border border-blue-200 rounded text-xs font-bold transition flex items-center gap-1">
+                                <i class="fas fa-sync-alt"></i> Sync Biometric Machine
+                            </button>
+                        </div>
+                        <div id="site-detail-map" style="height: 320px; width: 100%;" class="rounded-lg border border-gray-200 relative z-0"></div>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 4: PROJECT SCOPE & CLIENT INFO                           -->
+                <!-- ============================================================== -->
+                <div id="view-site-contract" class="space-y-3 hidden">
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
+                        <h4 class="font-bold text-gray-800 text-sm border-b pb-2">Contract & Engineering Scope Profile</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                            <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <p class="text-gray-400 font-bold uppercase text-[9px]">Client / Owner</p>
+                                <p class="font-bold text-gray-800 text-sm mt-0.5">${siteData.client}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <p class="text-gray-400 font-bold uppercase text-[9px]">Project Category</p>
+                                <p class="font-bold text-gray-800 text-sm mt-0.5">${siteData.category}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <p class="text-gray-400 font-bold uppercase text-[9px]">Contract Value</p>
+                                <p class="font-bold text-purple-700 text-sm mt-0.5">${siteData.contractValue}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <p class="text-gray-400 font-bold uppercase text-[9px]">Physical Site Address</p>
+                                <p class="font-semibold text-gray-800 mt-0.5">${siteData.address}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <p class="text-gray-400 font-bold uppercase text-[9px]">Biometric Machine</p>
+                                <p class="font-mono text-gray-800 mt-0.5">${siteData.biometricHardware}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <p class="text-gray-400 font-bold uppercase text-[9px]">Estimated Completion</p>
+                                <p class="font-bold text-gray-800 mt-0.5">Q1 2027 (Turnkey Handover)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- MODAL 1: ASSIGN / CHANGE SITE SUPERVISOR                       -->
+                <!-- ============================================================== -->
+                <div id="supervisor-modal" class="fixed inset-0 z-50 hidden">
+                    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="closeSupervisorModal()"></div>
+                    <div class="absolute inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl flex flex-col border-l border-gray-200">
+                        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gray-50/50">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-md bg-blue-100 text-[#242b5f] flex items-center justify-center text-xs">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-[#242b5f]">Assign / Change Site Supervisor</h3>
+                                    <p class="text-[10px] text-gray-400">Designate Lead Project Engineer for this site</p>
+                                </div>
+                            </div>
+                            <button onclick="closeSupervisorModal()" class="text-gray-400 hover:text-red-500 text-base p-1 rounded hover:bg-gray-100 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex-1 overflow-y-auto p-5 space-y-3.5 text-xs">
+                            <div>
+                                <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Select Project Engineer / Supervisor <span class="text-red-500">*</span></label>
+                                <select id="sup_engineer_select" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs bg-white focus:outline-none focus:border-[#242b5f]">
+                                    <option value="Engr. Tariq Farooq (PE)|Lead MEP Project Engineer|+92 300 1234567">Engr. Tariq Farooq (PE) • Lead MEP Engineer</option>
+                                    <option value="Engr. Bilal Malik|Project Manager (Electrical)|+92 333 4455667">Engr. Bilal Malik • Electrical PM</option>
+                                    <option value="Engr. Imran Saeed|Substation Site Incharge|+92 301 5566778">Engr. Imran Saeed • Substation Incharge</option>
+                                    <option value="Engr. Asadullah|Senior HVAC Site Incharge|+92 345 8988776">Engr. Asadullah • Senior HVAC Incharge</option>
+                                    <option value="Engr. Waqas Rauf|Industrial Commissioning Lead|+92 322 1122334">Engr. Waqas Rauf • Commissioning Lead</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2.5">
+                                <div>
+                                    <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Effective Date <span class="text-red-500">*</span></label>
+                                    <input type="date" id="sup_start_date" value="2026-09-08" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Shift Incharge Role</label>
+                                    <input type="text" id="sup_role_title" value="Site Project Incharge" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Supervisor Handover & Site Authority Notes</label>
+                                <textarea id="sup_notes" rows="3" class="w-full border rounded p-2 text-xs bg-white outline-none focus:border-[#242b5f]" placeholder="Authorizing supervisor to sign off site material gate-passes, attendance muster rolls, and safety checklists..."></textarea>
+                            </div>
+
+                            <div class="p-3 bg-blue-50/70 border border-blue-100 rounded-lg text-[10px] text-gray-600 space-y-1">
+                                <p class="font-bold text-[#242b5f]"><i class="fas fa-shield-alt mr-1"></i> System Permissions Updated</p>
+                                <p>The assigned supervisor will be granted biometric roster verification authority and mobile supervisor punch privileges for this geofence.</p>
+                            </div>
+                        </div>
+
+                        <div class="px-5 py-3 border-t border-gray-200 bg-white flex justify-end gap-2">
+                            <button onclick="closeSupervisorModal()" class="px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-md transition">Cancel</button>
+                            <button onclick="saveSupervisorAssignment()" class="bg-[#242b5f] text-white px-4 py-1.5 rounded-md text-xs font-bold shadow-sm hover:opacity-90 transition flex items-center gap-1.5">
+                                <i class="fas fa-check"></i> Confirm Assignment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- MODAL 2: TRANSFER WORKER TO ANOTHER SITE (WITH OUTSTATION)    -->
+                <!-- ============================================================== -->
+                <div id="transfer-modal" class="fixed inset-0 z-50 hidden">
+                    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="closeTransferModal()"></div>
+                    <div class="absolute inset-y-0 right-0 w-full max-w-xl bg-white shadow-2xl flex flex-col border-l border-gray-200">
+                        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gray-50/50">
+                            <div>
+                                <h3 class="text-sm font-bold text-[#242b5f]">Reassign / Transfer Worker to Another Site</h3>
+                                <p class="text-[10px] text-gray-400" id="tr-modal-subtitle">Transfer worker locally or outstation with travel package</p>
+                            </div>
+                            <button onclick="closeTransferModal()" class="text-gray-400 hover:text-red-500 text-base p-1 rounded hover:bg-gray-100 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+                            
+                            <!-- Worker Profile Strip -->
+                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-full bg-[#242b5f] text-white flex items-center justify-center font-bold text-xs" id="tr-avatar">
+                                        AK
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800" id="tr-worker-name">Ali Khan</h4>
+                                        <p class="text-[10px] text-gray-400" id="tr-worker-meta">EMP-1042 • HVAC Engineer</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[9px] text-gray-400 font-bold block uppercase">CURRENT SITE</span>
+                                    <span class="font-bold text-[#242b5f]" id="tr-current-site">${siteData.name}</span>
+                                    <span class="text-[9.5px] text-gray-500 block">(${siteData.city})</span>
+                                </div>
+                            </div>
+
+                            <!-- Destination City & Destination Site -->
+                            <div class="grid grid-cols-2 gap-3 bg-white p-3 rounded-lg border border-gray-200">
+                                <div>
+                                    <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Destination City <span class="text-red-500">*</span></label>
+                                    <select id="tr_dest_city" onchange="handleDestCityChange(this.value)" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs bg-white font-bold text-[#242b5f] focus:outline-none focus:border-[#242b5f]">
+                                        <option value="Karachi">Karachi</option>
+                                        <option value="Lahore" selected>Lahore</option>
+                                        <option value="Islamabad">Islamabad</option>
+                                        <option value="Faisalabad">Faisalabad</option>
+                                        <option value="Peshawar">Peshawar</option>
+                                        <option value="Multan">Multan</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Destination Working Site <span class="text-red-500">*</span></label>
+                                    <select id="tr_dest_site" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs bg-white focus:outline-none focus:border-[#242b5f]">
+                                        <!-- Dynamically filled by handleDestCityChange -->
+                                    </select>
+                                </div>
+
+                                <div class="col-span-2">
+                                    <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Transfer Effective Date & Duration</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input type="date" id="tr_date" value="2026-09-09" class="w-full border rounded px-2.5 py-1.5 text-xs bg-white">
+                                        <div class="flex items-center gap-1">
+                                            <input type="number" id="tr_duration_days" value="30" min="1" max="180" oninput="calculateOutstationTotal()" class="w-full border rounded px-2 py-1.5 text-xs bg-white font-bold text-[#242b5f]">
+                                            <span class="text-[10px] text-gray-500 font-semibold shrink-0">Days</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DYNAMIC SECTION: INTRA-CITY LOCAL NOTICE vs OUTSTATION PROTOCOL -->
+                            <div id="local-transfer-notice" class="hidden p-3 bg-green-50 border border-green-200 rounded-lg text-emerald-800 text-xs">
+                                <p class="font-bold flex items-center gap-1.5"><i class="fas fa-check-circle"></i> Local Intra-City Transfer</p>
+                                <p class="text-[10.5px] text-gray-600 mt-1">Both origin and destination are in <b>${siteData.city}</b>. Standard local site transit policy applies. No outstation lodging required.</p>
+                            </div>
+
+                            <!-- OUTSTATION ALLOWANCES & EXPENSE BREAKDOWN (Appears when Destination City != Current City) -->
+                            <div id="outstation-expense-card" class="bg-amber-50/60 p-3.5 rounded-lg border border-amber-200 space-y-3">
+                                
+                                <div class="flex items-center justify-between border-b border-amber-200 pb-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs">
+                                            <i class="fas fa-plane-departure"></i>
+                                        </span>
+                                        <div>
+                                            <h4 class="font-bold text-amber-900 text-xs">Outstation Deployment Expense Package</h4>
+                                            <p class="text-[9.5px] text-amber-700">Inter-city relocation allowance & expense breakdown</p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[9.5px] font-extrabold uppercase tracking-wide">
+                                        Outstation Protocol Active
+                                    </span>
+                                </div>
+
+                                <!-- Expense Grid -->
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    
+                                    <!-- 1. Daily Allowance -->
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-700 mb-0.5">Daily Allowance (TA/DA Per Diem)</label>
+                                        <div class="flex items-center gap-1">
+                                            <span class="text-gray-400 text-xs">Rs.</span>
+                                            <input type="number" id="exp_daily_rate" value="1500" oninput="calculateOutstationTotal()" class="w-full border rounded px-2 py-1 text-xs bg-white font-bold">
+                                            <span class="text-gray-400 text-[10px]">/day</span>
+                                        </div>
+                                        <p class="text-[9px] text-gray-400 mt-0.5" id="exp_tada_subtotal">30 days x Rs. 1,500 = Rs. 45,000</p>
+                                    </div>
+
+                                    <!-- 2. Travel Fare -->
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-700 mb-0.5">Travel Fare / Ticket Cost</label>
+                                        <div class="flex items-center gap-1">
+                                            <span class="text-gray-400 text-xs">Rs.</span>
+                                            <input type="number" id="exp_ticket_fare" value="6500" oninput="calculateOutstationTotal()" class="w-full border rounded px-2 py-1 text-xs bg-white font-bold">
+                                        </div>
+                                        <p class="text-[9px] text-gray-400 mt-0.5">Daewoo Sleeper / AC Train / Flight</p>
+                                    </div>
+
+                                    <!-- 3. Lodging & Mess Allowance -->
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-700 mb-0.5">Site Lodging / Mess Allowance</label>
+                                        <div class="flex items-center gap-1">
+                                            <span class="text-gray-400 text-xs">Rs.</span>
+                                            <input type="number" id="exp_lodging" value="15000" oninput="calculateOutstationTotal()" class="w-full border rounded px-2 py-1 text-xs bg-white font-bold">
+                                        </div>
+                                        <p class="text-[9px] text-gray-400 mt-0.5">Site camp / hotel / rental room</p>
+                                    </div>
+
+                                    <!-- 4. Mobilization Cash Advance -->
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-700 mb-0.5">Mobilization Relocation Advance</label>
+                                        <div class="flex items-center gap-1">
+                                            <span class="text-gray-400 text-xs">Rs.</span>
+                                            <input type="number" id="exp_advance" value="10000" oninput="calculateOutstationTotal()" class="w-full border rounded px-2 py-1 text-xs bg-white font-bold">
+                                        </div>
+                                        <p class="text-[9px] text-gray-400 mt-0.5">Cash given before journey</p>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Custom Expense Items List -->
+                                <div class="pt-2 border-t border-amber-200">
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <span class="text-[10px] font-bold text-gray-700">Additional Custom Expenses (Heavy tools, Local Conveyance, PPE):</span>
+                                        <button type="button" onclick="addCustomExpenseRow()" class="text-[10px] text-blue-700 hover:text-blue-900 font-bold flex items-center gap-1">
+                                            <i class="fas fa-plus-circle"></i> + Add Expense Item
+                                        </button>
+                                    </div>
+                                    <div id="custom-expenses-container" class="space-y-1.5">
+                                        <!-- Custom item rows injected here -->
+                                        <div class="flex items-center gap-2 custom-exp-row">
+                                            <input type="text" placeholder="e.g. Heavy Testing Toolbag Cargo" value="Heavy Testing Toolbag Cargo Transit" class="flex-1 border rounded px-2 py-1 text-xs bg-white">
+                                            <div class="flex items-center gap-1 w-28">
+                                                <span class="text-gray-400 text-xs">Rs.</span>
+                                                <input type="number" value="2500" oninput="calculateOutstationTotal()" class="w-full border rounded px-2 py-1 text-xs bg-white font-bold custom-exp-val">
+                                            </div>
+                                            <button type="button" onclick="removeCustomExpenseRow(this)" class="text-red-500 hover:text-red-700 text-xs px-1"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Total Outstation Package Bar -->
+                                <div class="bg-[#242b5f] text-white p-3 rounded-lg shadow-sm flex items-center justify-between mt-2">
+                                    <div>
+                                        <p class="text-[9px] text-gray-300 font-bold uppercase tracking-wider">Total Outstation Package (PKR)</p>
+                                        <h3 class="text-xl font-extrabold" id="total-outstation-package-disp">Rs. 79,000</h3>
+                                    </div>
+                                    <span class="text-[10px] text-amber-300 font-semibold flex items-center gap-1 bg-white/10 px-2 py-1 rounded">
+                                        <i class="fas fa-calculator"></i> Auto-Calculated
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <div>
+                                <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Transfer Justification & Handover Instructions</label>
+                                <textarea id="tr_notes" rows="2" class="w-full border rounded p-2 text-xs bg-white outline-none focus:border-[#242b5f]" placeholder="e.g. Urgent VRF chiller commissioning required at Lahore facility for 30 days..."></textarea>
+                            </div>
+
+                        </div>
+
+                        <div class="px-5 py-3 border-t border-gray-200 bg-white flex justify-end gap-2">
+                            <button onclick="closeTransferModal()" class="px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-md transition">Cancel</button>
+                            <button onclick="confirmWorkerTransfer()" class="bg-[#242b5f] text-white px-4 py-1.5 rounded-md text-xs font-bold shadow-sm hover:opacity-90 transition flex items-center gap-1.5">
+                                <i class="fas fa-check"></i> Confirm & Reassign Worker
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        `;
+
+        setPageContent(`Working Site: ${siteData.name}`, pageHTML);
+
+        // ==============================================================
+        // JAVASCRIPT CONTROLLERS
+        // ==============================================================
+
+        // 1. Tab Switcher
+        window.switchSiteTab = function(tab) {
+            const tabs = ['roster', 'outstation', 'geofence', 'contract'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-site-${t}`);
+                const view = document.getElementById(`view-site-${t}`);
+                if (t === tab) {
+                    btn.className = 'tab-btn active px-3.5 py-2.5 text-xs font-bold text-[#242b5f] transition flex items-center gap-2 border-b-[2.5px] border-[#242b5f] bg-white';
+                    view.classList.remove('hidden');
+                    if (t === 'geofence') {
+                        setTimeout(initSiteDetailMap, 150);
+                    }
+                } else {
+                    btn.className = 'tab-btn px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent';
+                    view.classList.add('hidden');
+                }
+            });
+        };
+
+        // 2. Supervisor Modal Handlers
+        window.openSupervisorModal = function() {
+            document.getElementById('supervisor-modal').classList.remove('hidden');
+        };
+
+        window.closeSupervisorModal = function() {
+            document.getElementById('supervisor-modal').classList.add('hidden');
+        };
+
+        window.saveSupervisorAssignment = function() {
+            const val = document.getElementById('sup_engineer_select').value;
+            const [name, role, phone] = val.split('|');
+
+            siteData.supervisor = name;
+            siteData.supervisorRole = role;
+            siteData.supervisorPhone = phone;
+
+            document.getElementById('disp-supervisor-name').innerText = name;
+            document.getElementById('disp-supervisor-role').innerText = role;
+            document.getElementById('disp-supervisor-phone').innerText = phone;
+
+            closeSupervisorModal();
+            showToast(`${name} assigned as official Site Incharge for ${siteData.name}!`, 'success');
+        };
+
+        // 3. Worker Transfer Handlers
+        let activeTransferWorker = null;
+
+        // Cities and Sites Directory
+        const CITY_SITES_DIRECTORY = {
+            'Karachi': [
+                { code: 'CMX-SITE-101', name: 'Karachi High-Rise Commercial Tower (Clifton)' },
+                { code: 'CMX-SITE-107', name: 'Bahria Town Substation & Transmission (Super Hwy)' },
+                { code: 'CMX-SITE-110', name: 'Korangi Industrial Effluent & Pump Station' }
+            ],
+            'Lahore': [
+                { code: 'CMX-SITE-100', name: 'Head Office & Central Fabrication Workshop (Gulberg III)' },
+                { code: 'CMX-SITE-108', name: 'DHA Phase 8 Commercial Mall HVAC (DHA)' },
+                { code: 'CMX-SITE-111', name: 'Sundar Industrial Estate Transformer Yard' }
+            ],
+            'Islamabad': [
+                { code: 'CMX-SITE-102', name: 'Islamabad Govt Complex Site (Sector G-5)' },
+                { code: 'CMX-SITE-109', name: 'Blue Area Corporate Tower MEP' }
+            ],
+            'Faisalabad': [
+                { code: 'CMX-SITE-104', name: 'Faisalabad Textile Industrial Substation (Khurrianwala)' }
+            ],
+            'Peshawar': [
+                { code: 'CMX-SITE-105', name: 'Peshawar Industrial Chiller Site (Hayatabad)' }
+            ],
+            'Multan': [
+                { code: 'CMX-SITE-106', name: 'Multan Food Processing Plant (Industrial Estate)' }
+            ]
+        };
+
+        window.openTransferModal = function(name, code, role, currentSite, currentCity) {
+            activeTransferWorker = { name, code, role, currentSite, currentCity };
+
+            document.getElementById('tr-worker-name').innerText = name;
+            document.getElementById('tr-worker-meta').innerText = `${code} • ${role}`;
+            document.getElementById('tr-current-site').innerText = currentSite;
+            document.getElementById('tr-avatar').innerText = name.split(' ').map(n=>n[0]).join('');
+
+            // Default destination to a different city to demonstrate outstation
+            const destCitySelect = document.getElementById('tr_dest_city');
+            destCitySelect.value = (currentCity === 'Karachi') ? 'Lahore' : 'Karachi';
+            handleDestCityChange(destCitySelect.value);
+
+            document.getElementById('transfer-modal').classList.remove('hidden');
+        };
+
+        window.closeTransferModal = function() {
+            document.getElementById('transfer-modal').classList.add('hidden');
+        };
+
+        window.handleDestCityChange = function(selectedCity) {
+            const siteSelect = document.getElementById('tr_dest_site');
+            siteSelect.innerHTML = '';
+
+            const availableSites = CITY_SITES_DIRECTORY[selectedCity] || [];
+            availableSites.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = `${s.code}|${s.name}|${selectedCity}`;
+                opt.innerText = `${s.name} (${s.code})`;
+                siteSelect.appendChild(opt);
+            });
+
+            // Check if Outstation
+            const isOutstation = (selectedCity.toLowerCase() !== siteData.city.toLowerCase());
+
+            const outstationCard = document.getElementById('outstation-expense-card');
+            const localNotice = document.getElementById('local-transfer-notice');
+
+            if (isOutstation) {
+                outstationCard.classList.remove('hidden');
+                localNotice.classList.add('hidden');
+                calculateOutstationTotal();
+            } else {
+                outstationCard.classList.add('hidden');
+                localNotice.classList.remove('hidden');
+            }
+        };
+
+        window.addCustomExpenseRow = function() {
+            const container = document.getElementById('custom-expenses-container');
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-2 custom-exp-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Expense description (e.g. Tool shipment)" class="flex-1 border rounded px-2 py-1 text-xs bg-white">
+                <div class="flex items-center gap-1 w-28">
+                    <span class="text-gray-400 text-xs">Rs.</span>
+                    <input type="number" value="1500" oninput="calculateOutstationTotal()" class="w-full border rounded px-2 py-1 text-xs bg-white font-bold custom-exp-val">
+                </div>
+                <button type="button" onclick="removeCustomExpenseRow(this)" class="text-red-500 hover:text-red-700 text-xs px-1"><i class="fas fa-trash-alt"></i></button>
+            `;
+            container.appendChild(row);
+            calculateOutstationTotal();
+        };
+
+        window.removeCustomExpenseRow = function(btn) {
+            btn.closest('.custom-exp-row').remove();
+            calculateOutstationTotal();
+        };
+
+        window.calculateOutstationTotal = function() {
+            const days = parseFloat(document.getElementById('tr_duration_days').value) || 30;
+            const dailyRate = parseFloat(document.getElementById('exp_daily_rate').value) || 0;
+            const ticket = parseFloat(document.getElementById('exp_ticket_fare').value) || 0;
+            const lodging = parseFloat(document.getElementById('exp_lodging').value) || 0;
+            const advance = parseFloat(document.getElementById('exp_advance').value) || 0;
+
+            const tadaTotal = days * dailyRate;
+            document.getElementById('exp_tada_subtotal').innerText = `${days} days x Rs. ${dailyRate.toLocaleString()} = Rs. ${tadaTotal.toLocaleString()}`;
+
+            let customTotal = 0;
+            document.querySelectorAll('.custom-exp-val').forEach(input => {
+                customTotal += (parseFloat(input.value) || 0);
+            });
+
+            const grandTotal = tadaTotal + ticket + lodging + advance + customTotal;
+            document.getElementById('total-outstation-package-disp').innerText = `Rs. ${grandTotal.toLocaleString()}`;
+            return grandTotal;
+        };
+
+        window.confirmWorkerTransfer = function() {
+            if (!activeTransferWorker) return;
+
+            const destRaw = document.getElementById('tr_dest_site').value;
+            const [destCode, destName, destCity] = destRaw.split('|');
+            const duration = document.getElementById('tr_duration_days').value;
+            const isOutstation = (destCity.toLowerCase() !== siteData.city.toLowerCase());
+            const totalCost = isOutstation ? calculateOutstationTotal() : 0;
+
+            // 1. Remove worker row from current site roster table
+            const workerRowId = `roster-${activeTransferWorker.code.toLowerCase()}`;
+            const rowEl = document.getElementById(workerRowId);
+            if (rowEl) {
+                rowEl.style.transition = 'all 0.5s';
+                rowEl.style.backgroundColor = '#fee2e2';
+                setTimeout(() => rowEl.remove(), 400);
+            }
+
+            // 2. Decrement headcount
+            siteData.headcount = Math.max(0, siteData.headcount - 1);
+            document.getElementById('stat-site-headcount').innerHTML = `${siteData.headcount} <span class="text-[10px] text-emerald-600 font-normal">Active Staff</span>`;
+            document.getElementById('badge-roster-count').innerText = siteData.headcount;
+
+            // 3. If Outstation, log to Outstation Register tab
+            if (isOutstation) {
+                const outstationTbody = document.getElementById('outstation-register-body');
+                const newTr = document.createElement('tr');
+                newTr.className = 'hover:bg-amber-50/20 bg-amber-50/10 border-l-4 border-amber-500 transition';
+                newTr.innerHTML = `
+                    <td class="px-4 py-2.5">
+                        <div class="font-bold text-gray-800">${activeTransferWorker.name}</div>
+                        <div class="text-[9.5px] text-gray-400">${activeTransferWorker.code} • ${activeTransferWorker.role}</div>
+                    </td>
+                    <td class="px-4 py-2.5">
+                        <div class="font-semibold text-[#242b5f]">${siteData.name} $\\rightarrow$ ${destName}</div>
+                        <div class="text-[9px] text-amber-700 font-bold">Relocated to ${destCity}</div>
+                    </td>
+                    <td class="px-4 py-2.5">
+                        <div class="font-medium text-gray-700">Just Transferred</div>
+                        <span class="text-[9px] text-emerald-600 font-bold">${duration} Days Active Assignment</span>
+                    </td>
+                    <td class="px-4 py-2.5">
+                        <div class="font-bold text-gray-800">Rs. 1,500 / day</div>
+                    </td>
+                    <td class="px-4 py-2.5 text-gray-600">
+                        <div>Ticket + Lodging + Advance</div>
+                    </td>
+                    <td class="px-4 py-2.5">
+                        <span class="text-amber-800 font-extrabold text-sm">Rs. ${totalCost.toLocaleString()}</span>
+                    </td>
+                    <td class="px-4 py-2.5 text-right">
+                        <button onclick="showToast('Outstation transfer voucher generated!', 'success')" class="text-blue-600 hover:underline text-[10.5px] font-semibold"><i class="fas fa-file-invoice mr-1"></i> View Slip</button>
+                    </td>
+                `;
+                outstationTbody.insertBefore(newTr, outstationTbody.firstChild);
+            }
+
+            closeTransferModal();
+
+            if (isOutstation) {
+                showToast(`Worker ${activeTransferWorker.name} transferred outstation to ${destName} (${destCity}) with Rs. ${totalCost.toLocaleString()} allowance package!`, 'success');
+            } else {
+                showToast(`Worker ${activeTransferWorker.name} reassigned to ${destName}!`, 'success');
+            }
+        };
+
+        // 4. Leaflet Map for Tab 3
+        let detailMap = null;
+        function initSiteDetailMap() {
+            if (detailMap) {
+                detailMap.invalidateSize();
+                return;
+            }
+
+            const mapEl = document.getElementById('site-detail-map');
+            if (!mapEl || typeof L === 'undefined') return;
+
+            detailMap = L.map('site-detail-map').setView([siteData.lat, siteData.lng], 16);
+
+            L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google Maps'
+            }).addTo(detailMap);
+
+            // Perimeter Geofence Circle
+            L.circle([siteData.lat, siteData.lng], {
+                color: '#2563eb',
+                weight: 2,
+                fillColor: '#3b82f6',
+                fillOpacity: 0.2,
+                dashArray: '5, 5',
+                radius: siteData.radius
+            }).addTo(detailMap);
+
+            // Center Pin
+            const marker = L.marker([siteData.lat, siteData.lng]).addTo(detailMap);
+            marker.bindPopup(`
+                <div style="font-family:'Inter',sans-serif; font-size:11px;" class="p-1">
+                    <b style="color:#242b5f;">${siteData.name}</b>
+                    <p style="color:#64748b; margin:2px 0 0 0;">${siteData.address}</p>
+                    <p style="color:#16a34a; font-weight:bold; margin:2px 0 0 0;">${siteData.radius}m Active Geofence Boundary</p>
+                </div>
+            `).openPopup();
+        }
+
+        window.pingCurrentSiteBiometric = function() {
+            showToast(`Pinging ${siteData.biometricHardware}: Online (Latency 14ms)`, 'success');
+        };
+
+        window.openAddWorkerToSiteModal = function() {
+            openModal(
+                `Add Worker to ${siteData.name}`,
+                `<div class="space-y-3 text-xs">
+                    <label class="text-xs font-bold text-gray-700">Select Available Worker from Pool</label>
+                    <select class="w-full border rounded p-2 text-xs bg-white">
+                        <option>Suleman Shah (EMP-1077) • HVAC Helper</option>
+                        <option>Naveed Akhtar (EMP-1078) • Cable Jointer</option>
+                        <option>Babar Azam (EMP-1079) • Plumber</option>
+                    </select>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Deployment Type</label>
+                            <select class="w-full border rounded p-1.5 text-xs bg-white">
+                                <option>Local Site Assignment</option>
+                                <option>Outstation Deployment</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Assigned Shift</label>
+                            <select class="w-full border rounded p-1.5 text-xs bg-white">
+                                <option>Morning (08:00 - 17:00)</option>
+                                <option>Night Shift (20:00 - 05:00)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>`,
+                () => showToast(`Worker added to ${siteData.name} roster!`, 'success')
+            );
+        };
+    </script>
+</body>
+</html>

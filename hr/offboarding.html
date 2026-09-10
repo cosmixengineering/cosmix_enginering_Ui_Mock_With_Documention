@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Offboarding, Clearances & Warnings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; } 
+        body { font-family: 'Inter', sans-serif; } 
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; } 
+        table td { padding: 0.5rem 0.75rem !important; font-size: 0.78rem !important; }
+        .tab-btn.active {
+            color: #242b5f;
+            border-bottom: 2.5px solid #242b5f;
+            background-color: #ffffff;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('offboarding');
+
+        const pageHTML = `
+            <div class="space-y-4">
+                
+                <!-- 1. Top KPI Action Cards (Clickable Quick Filters) -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    
+                    <!-- Card 1: Active Offboarding Pipeline -->
+                    <div onclick="switchOffboardingTab('pipeline')" class="bg-white p-3.5 rounded-lg shadow-sm border border-slate-200/80 hover:border-[#242b5f] cursor-pointer transition flex items-center justify-between group">
+                        <div>
+                            <p class="text-[9.5px] text-gray-500 font-bold uppercase tracking-wider">In Exit Pipeline</p>
+                            <h4 class="text-xl font-bold text-gray-800 mt-0.5" id="stat-active-cases">3 <span class="text-[10px] text-orange-600 font-normal">Active Exits</span></h4>
+                            <p class="text-[9px] text-orange-600 font-medium flex items-center gap-1 mt-0.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Handover in progress
+                            </p>
+                        </div>
+                        <div class="w-9 h-9 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center text-sm group-hover:scale-105 transition">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Department Clearances Pending -->
+                    <div onclick="switchOffboardingTab('pipeline')" class="bg-white p-3.5 rounded-lg shadow-sm border border-slate-200/80 hover:border-blue-500 cursor-pointer transition flex items-center justify-between group">
+                        <div>
+                            <p class="text-[9.5px] text-gray-500 font-bold uppercase tracking-wider">Clearances Awaiting</p>
+                            <h4 class="text-xl font-bold text-gray-800 mt-0.5">2 <span class="text-[10px] text-blue-600 font-normal">Workers</span></h4>
+                            <p class="text-[9px] text-blue-600 font-medium flex items-center gap-1 mt-0.5">
+                                <i class="fas fa-tools text-[9px]"></i> Site Tools & Accounts hold
+                            </p>
+                        </div>
+                        <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm group-hover:scale-105 transition">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Ready for Full & Final (F&F) -->
+                    <div onclick="switchOffboardingTab('settlements')" class="bg-white p-3.5 rounded-lg shadow-sm border border-slate-200/80 hover:border-emerald-600 cursor-pointer transition flex items-center justify-between group">
+                        <div>
+                            <p class="text-[9.5px] text-gray-500 font-bold uppercase tracking-wider">F&F Ready Payout</p>
+                            <h4 class="text-xl font-bold text-gray-800 mt-0.5">Rs. 187.5k <span class="text-[10px] text-emerald-600 font-normal">Net</span></h4>
+                            <p class="text-[9px] text-emerald-600 font-medium flex items-center gap-1 mt-0.5">
+                                <i class="fas fa-check-circle text-[9px]"></i> 1 Approved • 1 Under Audit
+                            </p>
+                        </div>
+                        <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm group-hover:scale-105 transition">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Disciplinary Warnings & Show-Cause -->
+                    <div onclick="switchOffboardingTab('warnings')" class="bg-white p-3.5 rounded-lg shadow-sm border border-red-100 hover:border-red-500 cursor-pointer transition flex items-center justify-between group">
+                        <div>
+                            <p class="text-[9.5px] text-red-600 font-bold uppercase tracking-wider">Disciplinary Track</p>
+                            <h4 class="text-xl font-bold text-gray-800 mt-0.5" id="stat-warning-count">4 <span class="text-[10px] text-red-600 font-normal">Active</span></h4>
+                            <p class="text-[9px] text-red-500 font-medium flex items-center gap-1 mt-0.5">
+                                <i class="fas fa-exclamation-triangle text-[9px]"></i> 1 Show-Cause Notice Issued
+                            </p>
+                        </div>
+                        <div class="w-9 h-9 rounded-lg bg-red-50 text-red-500 flex items-center justify-center text-sm group-hover:scale-105 transition">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Main Workflow Tabs Navigation -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-between px-2 pt-1.5 border-b">
+                    <div class="flex items-center gap-1">
+                        <button onclick="switchOffboardingTab('pipeline')" id="tab-btn-pipeline" class="tab-btn active px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2">
+                            <i class="fas fa-user-minus text-orange-500"></i>
+                            <span>1. Exit Pipeline & Clearances</span>
+                            <span class="bg-orange-100 text-orange-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full" id="badge-pipeline-count">3</span>
+                        </button>
+                        
+                        <button onclick="switchOffboardingTab('warnings')" id="tab-btn-warnings" class="tab-btn px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent">
+                            <i class="fas fa-exclamation-triangle text-red-500"></i>
+                            <span>2. Disciplinary Warnings & Show-Cause</span>
+                            <span class="bg-red-100 text-red-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">4</span>
+                        </button>
+
+                        <button onclick="switchOffboardingTab('settlements')" id="tab-btn-settlements" class="tab-btn px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent">
+                            <i class="fas fa-calculator text-emerald-600"></i>
+                            <span>3. Full & Final (F&F) Settlements</span>
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">14 Settled</span>
+                        </button>
+
+                        <button onclick="switchOffboardingTab('replacements')" id="tab-btn-replacements" class="tab-btn px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent">
+                            <i class="fas fa-exchange-alt text-blue-600"></i>
+                            <span>4. Site Manpower Replacement</span>
+                            <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">1 Open</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 pb-1">
+                        <button onclick="openIssueWarningModal()" class="bg-white border border-red-200 hover:bg-red-50 text-red-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-shield-alt text-red-500 text-[10px]"></i> Issue Warning
+                        </button>
+                        <button onclick="openInitiateExitModal()" class="bg-[#242b5f] text-white hover:opacity-90 px-3 py-1.5 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-user-times text-[10px]"></i> Initiate Exit Process
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 1: EXIT PIPELINE & DEPARTMENT CLEARANCES (DEFAULT)       -->
+                <!-- ============================================================== -->
+                <div id="view-pipeline" class="space-y-3">
+                    
+                    <!-- Search & Filter Bar -->
+                    <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                        <div class="flex items-center gap-2 flex-1 max-w-md">
+                            <div class="relative w-full">
+                                <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                                <input type="text" oninput="filterTableRows(this, 'offboarding-table-body')" placeholder="Search by employee name, code, site, exit reason..." class="w-full text-xs border border-gray-200 rounded-md pl-7 pr-3 py-1 focus:outline-none focus:border-[#242b5f] bg-white">
+                            </div>
+                            <select onchange="filterTableRows({ value: this.value.includes('All') ? '' : this.value }, 'offboarding-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none shrink-0">
+                                <option value="All Exit Types">All Exit Types</option>
+                                <option value="Resignation">Resignation</option>
+                                <option value="Termination">Termination</option>
+                                <option value="Contract Expiry">Contract Expiry</option>
+                            </select>
+                        </div>
+
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="exportToExcel('Offboarding_Clearance_Register')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                                <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel
+                            </button>
+                            <button onclick="exportToPDF('Offboarding_Report')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1.5 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                                <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 📱 INCOMING MOBILE APP RESIGNATION REQUESTS QUEUE -->
+                    <div id="mobile-resignation-queue" class="bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white rounded-lg border border-blue-200 p-3.5 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm shadow-sm">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Incoming Resignations via Employee Mobile App</h4>
+                                        <span id="badge-app-requests" class="bg-blue-100 text-blue-800 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full border border-blue-200 animate-pulse">2 Pending HR Review</span>
+                                    </div>
+                                    <p class="text-[9.5px] text-gray-500">Submitted directly by field technicians & engineers from Cosmix Mobile Self-Service App</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] text-gray-400 font-medium"><i class="fas fa-check-circle text-emerald-500 mr-1"></i> Live Mobile Sync Active</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="mobile-requests-container">
+                            <!-- Request 1: Babar Azam -->
+                            <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-2xs space-y-2 hover:border-blue-300 transition" id="app-req-emp-1079">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-7 h-7 rounded-full bg-blue-100 text-[#242b5f] flex items-center justify-center font-bold text-xs shrink-0">BA</div>
+                                        <div>
+                                            <h5 class="font-bold text-gray-800 text-xs">Babar Azam <span class="text-[10px] text-gray-400 font-normal">(EMP-1079)</span></h5>
+                                            <p class="text-[9.5px] text-gray-500">Plumber • Clifton High-Rise (Karachi)</p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-blue-50 text-blue-700 text-[9px] font-bold px-1.5 py-0.5 rounded border border-blue-100">Today, 08:30 AM</span>
+                                </div>
+                                <div class="bg-gray-50/70 p-2 rounded border border-gray-100 text-[10px] space-y-1 text-gray-600">
+                                    <p><strong>Reason:</strong> <span class="italic">"Secured an overseas MEP job visa for UAE (Dubai). Need early release."</span></p>
+                                    <p><strong>Requested Last Day:</strong> <span class="font-bold text-[#242b5f]">30 Sep, 2026</span> <span class="text-amber-700 font-medium">(22 Days Notice)</span></p>
+                                </div>
+                                <div class="flex items-center justify-between pt-1 text-xs">
+                                    <button onclick="rejectMobileResignation('EMP-1079', 'Babar Azam')" class="text-gray-400 hover:text-red-600 text-[10px] font-bold transition">
+                                        <i class="fas fa-times mr-0.5"></i> Reject
+                                    </button>
+                                    <div class="flex items-center gap-1.5">
+                                        <button onclick="discussMobileResignation('EMP-1079', 'Babar Azam')" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-2 py-1 rounded text-[10px] font-semibold transition">
+                                            <i class="fas fa-comments text-blue-500 mr-1"></i> Retain Discussion
+                                        </button>
+                                        <button onclick="acceptMobileResignation('EMP-1079', 'Babar Azam')" class="bg-[#242b5f] hover:bg-[#1a2046] text-white px-2.5 py-1 rounded text-[10px] font-bold shadow-2xs transition flex items-center gap-1">
+                                            <i class="fas fa-paper-plane text-[9px]"></i> Forward to Boss
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Request 2: Naveed Akhtar -->
+                            <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-2xs space-y-2 hover:border-blue-300 transition" id="app-req-emp-1078">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-7 h-7 rounded-full bg-purple-100 text-purple-800 flex items-center justify-center font-bold text-xs shrink-0">NA</div>
+                                        <div>
+                                            <h5 class="font-bold text-gray-800 text-xs">Naveed Akhtar <span class="text-[10px] text-gray-400 font-normal">(EMP-1078)</span></h5>
+                                            <p class="text-[9.5px] text-gray-500">Cable Jointer • Sundar Industrial (Lahore)</p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-gray-50 text-gray-600 text-[9px] font-medium px-1.5 py-0.5 rounded border border-gray-100">Yesterday, 04:15 PM</span>
+                                </div>
+                                <div class="bg-gray-50/70 p-2 rounded border border-gray-100 text-[10px] space-y-1 text-gray-600">
+                                    <p><strong>Reason:</strong> <span class="italic">"Relocating back to native village due to father's medical condition."</span></p>
+                                    <p><strong>Requested Last Day:</strong> <span class="font-bold text-[#242b5f]">15 Oct, 2026</span> <span class="text-emerald-700 font-medium">(37 Days Notice)</span></p>
+                                </div>
+                                <div class="flex items-center justify-between pt-1 text-xs">
+                                    <button onclick="rejectMobileResignation('EMP-1078', 'Naveed Akhtar')" class="text-gray-400 hover:text-red-600 text-[10px] font-bold transition">
+                                        <i class="fas fa-times mr-0.5"></i> Reject
+                                    </button>
+                                    <div class="flex items-center gap-1.5">
+                                        <button onclick="discussMobileResignation('EMP-1078', 'Naveed Akhtar')" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-2 py-1 rounded text-[10px] font-semibold transition">
+                                            <i class="fas fa-comments text-blue-500 mr-1"></i> Retain Discussion
+                                        </button>
+                                        <button onclick="acceptMobileResignation('EMP-1078', 'Naveed Akhtar')" class="bg-[#242b5f] hover:bg-[#1a2046] text-white px-2.5 py-1 rounded text-[10px] font-bold shadow-2xs transition flex items-center gap-1">
+                                            <i class="fas fa-paper-plane text-[9px]"></i> Forward to Boss
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Streamlined Active Pipeline Table (Simplified 5 Columns) -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                            <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                                <i class="fas fa-clipboard-list text-[#242b5f]"></i> Active Offboarding & Handover Pipeline
+                            </h3>
+                            <span class="text-[10px] text-gray-400 font-medium">Click "Clearances" on any worker to track Store, Accounts & HR approvals</span>
+                        </div>
+
+                        <div class="overflow-x-auto min-h-[250px]">
+                            <table class="w-full text-left text-xs whitespace-nowrap">
+                                <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                    <tr>
+                                        <th class="px-4 py-2.5 font-bold">Employee & Site</th>
+                                        <th class="px-4 py-2.5 font-bold">Exit Type & Last Day</th>
+                                        <th class="px-4 py-2.5 font-bold">Clearances Status</th>
+                                        <th class="px-4 py-2.5 font-bold">Final Settlement (F&F)</th>
+                                        <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="offboarding-table-body" class="divide-y divide-gray-100 bg-white">
+                                    
+                                    <!-- Worker 1: Mike Johnson -->
+                                    <tr class="hover:bg-blue-50/20 transition group" id="row-emp-1035">
+                                        <td class="px-4 py-2.5">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-full bg-blue-100 text-[#242b5f] flex items-center justify-center font-bold text-xs shrink-0">
+                                                    MJ
+                                                </div>
+                                                <div>
+                                                    <a href="javascript:void(0)" onclick="openDepartmentClearanceModal('EMP-1035', 'Mike Johnson', 'Field Technician', 'Karachi High-Rise Commercial Tower', true, false, true, false)" class="font-bold text-[#242b5f] hover:underline block leading-tight">
+                                                        Mike Johnson
+                                                    </a>
+                                                    <p class="text-[9.5px] text-gray-400">EMP-1035 • Field Tech • Karachi High-Rise</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="bg-blue-50 text-[#242b5f] px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Resignation</span>
+                                                <span class="font-bold text-gray-800 text-xs">01 Oct, 2026</span>
+                                            </div>
+                                            <p class="text-[9px] text-amber-700 font-semibold mt-0.5"><i class="fas fa-clock text-[8.5px] mr-0.5"></i> 23 Days Notice Left</p>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="space-y-1">
+                                                <div class="flex items-center justify-between text-[9.5px] w-36">
+                                                    <span class="font-bold text-amber-700"><i class="fas fa-spinner fa-spin text-[8.5px] mr-1"></i> 2 of 4 Cleared</span>
+                                                    <span class="text-gray-400 font-mono">50%</span>
+                                                </div>
+                                                <div class="w-36 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                                    <div class="bg-amber-500 h-1.5 rounded-full" style="width: 50%"></div>
+                                                </div>
+                                                <p class="text-[8.5px] text-gray-400">Tools & IT Done • Accounts on Hold</p>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-bold text-gray-800 text-xs">Rs. 125,000</div>
+                                            <span class="bg-yellow-50 text-yellow-800 px-1.5 py-0.5 rounded text-[9px] font-bold border border-yellow-200">
+                                                Accounts Audit Pending
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-right">
+                                            <div class="flex items-center justify-end gap-1.5">
+                                                <button onclick="openDepartmentClearanceModal('EMP-1035', 'Mike Johnson', 'Field Technician', 'Karachi High-Rise Commercial Tower', true, false, true, false)" class="bg-[#242b5f] hover:bg-[#1a2046] text-white px-2.5 py-1 rounded text-xs font-semibold shadow-2xs transition flex items-center gap-1">
+                                                    <i class="fas fa-tasks text-[9.5px]"></i> Clearances
+                                                </button>
+                                                <div class="relative dropdown">
+                                                    <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                                        <i class="fas fa-ellipsis-v text-xs"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu absolute right-0 top-7 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                                        <button onclick="openFFSettlementModal('EMP-1035', 'Mike Johnson', 85000, 18, 6, 25000)" class="w-full text-left px-3 py-1.5 text-xs text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 font-medium">
+                                                            <i class="fas fa-calculator w-4"></i> F&F Calculator
+                                                        </button>
+                                                        <button onclick="printExperienceLetter('Mike Johnson', 'Field Technician', 'Jan 15, 2024', 'Oct 01, 2026')" class="w-full text-left px-3 py-1.5 text-xs text-purple-600 hover:bg-purple-50 flex items-center gap-2">
+                                                            <i class="fas fa-file-contract w-4"></i> Experience Certificate
+                                                        </button>
+                                                        <div class="h-px bg-gray-100 my-1"></div>
+                                                        <button onclick="revokeBiometricAccess('EMP-1035', 'Mike Johnson')" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                                            <i class="fas fa-user-lock w-4"></i> Revoke Biometric
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Worker 2: Taha Yaseen -->
+                                    <tr class="hover:bg-blue-50/20 transition group" id="row-emp-1031">
+                                        <td class="px-4 py-2.5">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-xs shrink-0">
+                                                    TY
+                                                </div>
+                                                <div>
+                                                    <a href="javascript:void(0)" onclick="openDepartmentClearanceModal('EMP-1031', 'Taha Yaseen', 'Store Officer', 'Islamabad Govt Complex', true, true, true, true)" class="font-bold text-[#242b5f] hover:underline block leading-tight">
+                                                        Taha Yaseen
+                                                    </a>
+                                                    <p class="text-[9.5px] text-gray-400">EMP-1031 • Store Officer • Islamabad Complex</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-red-200">Termination</span>
+                                                <span class="font-bold text-gray-800 text-xs">15 Sep, 2026</span>
+                                            </div>
+                                            <p class="text-[9px] text-red-600 font-bold mt-0.5"><i class="fas fa-ban text-[8.5px] mr-0.5"></i> Immediate Release</p>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="space-y-1">
+                                                <div class="flex items-center justify-between text-[9.5px] w-36">
+                                                    <span class="font-bold text-emerald-700"><i class="fas fa-check-circle text-[8.5px] mr-1"></i> All 4 Cleared</span>
+                                                    <span class="text-emerald-600 font-mono font-bold">100%</span>
+                                                </div>
+                                                <div class="w-36 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                                    <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 100%"></div>
+                                                </div>
+                                                <p class="text-[8.5px] text-emerald-600 font-medium">Fully Signed Off</p>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-bold text-emerald-700 text-xs">Rs. 45,000</div>
+                                            <span class="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[9px] font-bold border border-green-200 flex items-center gap-1 w-max">
+                                                <i class="fas fa-check-double text-[8px]"></i> Settled & Cheque Issued
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-right">
+                                            <div class="flex items-center justify-end gap-1.5">
+                                                <button onclick="openDepartmentClearanceModal('EMP-1031', 'Taha Yaseen', 'Store Officer', 'Islamabad Govt Complex', true, true, true, true)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs font-semibold shadow-2xs transition flex items-center gap-1">
+                                                    <i class="fas fa-check-circle text-[9.5px]"></i> Cleared
+                                                </button>
+                                                <div class="relative dropdown">
+                                                    <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                                        <i class="fas fa-ellipsis-v text-xs"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu absolute right-0 top-7 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                                        <button onclick="printExperienceLetter('Taha Yaseen', 'Store Officer', 'Mar 10, 2023', 'Sep 15, 2026')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                                                            <i class="fas fa-print w-4 text-blue-600"></i> Relieving Letter
+                                                        </button>
+                                                        <button onclick="showToast('Final F&F Voucher #FF-8902 downloaded!', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-emerald-600 hover:bg-emerald-50 flex items-center gap-2">
+                                                            <i class="fas fa-file-invoice w-4"></i> Download Voucher
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Worker 3: Hamza Tariq -->
+                                    <tr class="hover:bg-blue-50/20 transition group" id="row-emp-1028">
+                                        <td class="px-4 py-2.5">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0">
+                                                    HT
+                                                </div>
+                                                <div>
+                                                    <a href="javascript:void(0)" onclick="openDepartmentClearanceModal('EMP-1028', 'Hamza Tariq', 'Site Electrician', 'Faisalabad Textile Substation', true, false, true, false)" class="font-bold text-[#242b5f] hover:underline block leading-tight">
+                                                        Hamza Tariq
+                                                    </a>
+                                                    <p class="text-[9.5px] text-gray-400">EMP-1028 • Site Electrician • Faisalabad Site</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="bg-blue-50 text-[#242b5f] px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Resignation</span>
+                                                <span class="font-bold text-gray-800 text-xs">20 Sep, 2026</span>
+                                            </div>
+                                            <p class="text-[9px] text-amber-700 font-semibold mt-0.5"><i class="fas fa-clock text-[8.5px] mr-0.5"></i> 12 Days Notice Left</p>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="space-y-1">
+                                                <div class="flex items-center justify-between text-[9.5px] w-36">
+                                                    <span class="font-bold text-amber-700"><i class="fas fa-spinner fa-spin text-[8.5px] mr-1"></i> 2 of 4 Cleared</span>
+                                                    <span class="text-gray-400 font-mono">50%</span>
+                                                </div>
+                                                <div class="w-36 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                                    <div class="bg-amber-500 h-1.5 rounded-full" style="width: 50%"></div>
+                                                </div>
+                                                <p class="text-[8.5px] text-gray-400">Store Done • Advance Offset Pending</p>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <div class="font-bold text-gray-800 text-xs">Rs. 62,500</div>
+                                            <span class="bg-yellow-50 text-yellow-800 px-1.5 py-0.5 rounded text-[9px] font-bold border border-yellow-200">
+                                                Salary Advance Offset Hold
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-right">
+                                            <div class="flex items-center justify-end gap-1.5">
+                                                <button onclick="openDepartmentClearanceModal('EMP-1028', 'Hamza Tariq', 'Site Electrician', 'Faisalabad Textile Substation', true, false, true, false)" class="bg-[#242b5f] hover:bg-[#1a2046] text-white px-2.5 py-1 rounded text-xs font-semibold shadow-2xs transition flex items-center gap-1">
+                                                    <i class="fas fa-tasks text-[9.5px]"></i> Clearances
+                                                </button>
+                                                <div class="relative dropdown">
+                                                    <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                                        <i class="fas fa-ellipsis-v text-xs"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu absolute right-0 top-7 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                                        <button onclick="openFFSettlementModal('EMP-1028', 'Hamza Tariq', 65000, 15, 4, 15000)" class="w-full text-left px-3 py-1.5 text-xs text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 font-medium">
+                                                            <i class="fas fa-calculator w-4"></i> F&F Calculator
+                                                        </button>
+                                                        <button onclick="printExperienceLetter('Hamza Tariq', 'Site Electrician', 'Feb 01, 2024', 'Sep 20, 2026')" class="w-full text-left px-3 py-1.5 text-xs text-purple-600 hover:bg-purple-50 flex items-center gap-2">
+                                                            <i class="fas fa-file-contract w-4"></i> Experience Certificate
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 2: DISCIPLINARY WARNINGS & SHOW-CAUSE NOTICES            -->
+                <!-- ============================================================== -->
+                <div id="view-warnings" class="space-y-3 hidden">
+                    
+                    <div class="bg-white p-3 rounded-lg border border-red-200 bg-red-50/20 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-red-100 text-red-600 flex items-center justify-center text-base shrink-0">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-800">Formal Disciplinary & Performance Tracking</h4>
+                                <p class="text-[10.5px] text-gray-500">Record of official 1st, 2nd, and Final Show-Cause warnings. 3 warnings automatically escalate to Termination inquiry.</p>
+                            </div>
+                        </div>
+                        <button onclick="openIssueWarningModal()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5 shrink-0">
+                            <i class="fas fa-plus text-[10px]"></i> Issue New Disciplinary Warning
+                        </button>
+                    </div>
+
+                    <!-- Warnings Table -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Employee</th>
+                                    <th class="px-4 py-2.5 font-bold">Warning Level</th>
+                                    <th class="px-4 py-2.5 font-bold">Infraction / Reason</th>
+                                    <th class="px-4 py-2.5 font-bold">Project Site Location</th>
+                                    <th class="px-4 py-2.5 font-bold">Date Issued</th>
+                                    <th class="px-4 py-2.5 font-bold">Status & Escalation</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="warnings-table-body" class="divide-y divide-gray-100 bg-white">
+                                
+                                <!-- Warning 1 -->
+                                <tr class="hover:bg-red-50/20 transition">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Kamran Siddiqui</div>
+                                        <div class="text-[9.5px] text-gray-400">EMP-1048 • HVAC Tech</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded text-[9.5px] font-bold border border-red-200">
+                                            <i class="fas fa-exclamation-circle mr-0.5"></i> Final Show-Cause Notice
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-medium text-gray-700">
+                                        Unauthorized Site Absence for 4 consecutive days
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600">
+                                        <i class="fas fa-map-marker-alt text-red-500 mr-1"></i> Clifton High-Rise, Karachi
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-500 font-mono text-[10px]">Sep 03, 2026</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-orange-200">
+                                            Awaiting Reply (24h left)
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="escalateWarningToExit('Kamran Siddiqui', 'EMP-1048')" class="bg-red-50 hover:bg-red-100 text-red-700 px-2 py-1 rounded text-[10px] font-bold border border-red-200 transition">
+                                            Terminate & Exit
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Warning 2 -->
+                                <tr class="hover:bg-amber-50/20 transition">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Farhan Akhtar</div>
+                                        <div class="text-[9.5px] text-gray-400">EMP-1052 • Junior Electrician</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[9.5px] font-bold border border-amber-200">
+                                            2nd Written Warning
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-medium text-gray-700">
+                                        Safety PPE Non-compliance (No safety harness at scaffolding)
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600">
+                                        <i class="fas fa-map-marker-alt text-red-500 mr-1"></i> Faisalabad Substation
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-500 font-mono text-[10px]">Aug 28, 2026</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-yellow-200">
+                                            On 30-day Probation
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="showToast('Warning letter PDF generated for Farhan Akhtar', 'info')" class="text-blue-600 hover:underline text-[10.5px] font-semibold">
+                                            <i class="fas fa-print mr-1"></i> Letter
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Warning 3 -->
+                                <tr class="hover:bg-gray-50/50 transition">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Sajid Mehmood</div>
+                                        <div class="text-[9.5px] text-gray-400">EMP-1060 • Plumber Tech</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-blue-50 text-[#242b5f] px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">
+                                            1st Written Warning
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-medium text-gray-700">
+                                        Repeated late arrival at site morning roll-call (>45 mins)
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600">
+                                        <i class="fas fa-map-marker-alt text-red-500 mr-1"></i> Islamabad Complex
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-500 font-mono text-[10px]">Aug 19, 2026</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200">
+                                            Acknowledged by Incharge
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="showToast('Warning letter PDF generated for Sajid Mehmood', 'info')" class="text-blue-600 hover:underline text-[10.5px] font-semibold">
+                                            <i class="fas fa-print mr-1"></i> Letter
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Warning 4 -->
+                                <tr class="hover:bg-gray-50/50 transition">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Babar Hussain</div>
+                                        <div class="text-[9.5px] text-gray-400">EMP-1065 • Store Helper</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-blue-50 text-[#242b5f] px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">
+                                            1st Written Warning
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-medium text-gray-700">
+                                        Failure to log copper pipe inventory dispatches
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600">
+                                        <i class="fas fa-map-marker-alt text-red-500 mr-1"></i> Lahore Central Workshop
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-500 font-mono text-[10px]">Aug 12, 2026</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[9.5px] font-bold">
+                                            Warning Active
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="showToast('Warning letter PDF generated for Babar Hussain', 'info')" class="text-blue-600 hover:underline text-[10.5px] font-semibold">
+                                            <i class="fas fa-print mr-1"></i> Letter
+                                        </button>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 3: FULL & FINAL (F&F) SETTLEMENTS REGISTER               -->
+                <!-- ============================================================== -->
+                <div id="view-settlements" class="space-y-3 hidden">
+                    
+                    <div class="bg-white p-3 rounded-lg border border-emerald-200 bg-emerald-50/20 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-base shrink-0">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-800">Full & Final (F&F) Settlement Register</h4>
+                                <p class="text-[10.5px] text-gray-500">Auto-calculation of unpaid working days + leave encashment + gratuity minus outstanding advances and loans.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-gray-700">Total Settled (Q3): <b class="text-emerald-700">Rs. 1,420,000</b></span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Employee</th>
+                                    <th class="px-4 py-2.5 font-bold">Basic Salary</th>
+                                    <th class="px-4 py-2.5 font-bold">Prorated Days</th>
+                                    <th class="px-4 py-2.5 font-bold">Leave Encashment</th>
+                                    <th class="px-4 py-2.5 font-bold">Deductions (Advances/Tools)</th>
+                                    <th class="px-4 py-2.5 font-bold">Net Final Payable</th>
+                                    <th class="px-4 py-2.5 font-bold">Payment Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Voucher</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                <tr class="hover:bg-gray-50/50">
+                                    <td class="px-4 py-2.5 font-bold text-gray-800">Taha Yaseen (EMP-1031)</td>
+                                    <td class="px-4 py-2.5 text-gray-600">Rs. 50,000</td>
+                                    <td class="px-4 py-2.5 text-gray-600">15 Days (Rs. 25,000)</td>
+                                    <td class="px-4 py-2.5 text-green-600 font-bold">+Rs. 20,000 (12d)</td>
+                                    <td class="px-4 py-2.5 text-red-600 font-bold">-Rs. 0</td>
+                                    <td class="px-4 py-2.5 text-emerald-700 font-extrabold text-sm">Rs. 45,000</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200">Disbursed (Cheque #4092)</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="showToast('Printing official F&F voucher...', 'info')" class="text-blue-600 hover:underline text-[10.5px] font-semibold"><i class="fas fa-print mr-1"></i> Print</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/50">
+                                    <td class="px-4 py-2.5 font-bold text-gray-800">Zafar Abbas (EMP-1019)</td>
+                                    <td class="px-4 py-2.5 text-gray-600">Rs. 75,000</td>
+                                    <td class="px-4 py-2.5 text-gray-600">30 Days (Rs. 75,000)</td>
+                                    <td class="px-4 py-2.5 text-green-600 font-bold">+Rs. 35,000 (Gratuity)</td>
+                                    <td class="px-4 py-2.5 text-red-600 font-bold">-Rs. 20,000 (Advance)</td>
+                                    <td class="px-4 py-2.5 text-emerald-700 font-extrabold text-sm">Rs. 90,000</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200">Bank Transfer Done</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="showToast('Printing official F&F voucher...', 'info')" class="text-blue-600 hover:underline text-[10.5px] font-semibold"><i class="fas fa-print mr-1"></i> Print</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- VIEW 4: SITE MANPOWER REPLACEMENT REQUISITIONS               -->
+                <!-- ============================================================== -->
+                <div id="view-replacements" class="space-y-3 hidden">
+                    
+                    <div class="bg-white p-3 rounded-lg border border-blue-200 bg-blue-50/20 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-blue-100 text-[#242b5f] flex items-center justify-center text-base shrink-0">
+                                <i class="fas fa-hard-hat"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-800">Site Manpower Replacement Tracker</h4>
+                                <p class="text-[10.5px] text-gray-500">Ensuring zero downtime across MEP project sites when technicians and engineers resign or get relieved.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Project Site</th>
+                                    <th class="px-4 py-2.5 font-bold">Exiting Personnel</th>
+                                    <th class="px-4 py-2.5 font-bold">Required By</th>
+                                    <th class="px-4 py-2.5 font-bold">Assigned Replacement</th>
+                                    <th class="px-4 py-2.5 font-bold">Site Handover Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                <tr class="hover:bg-blue-50/20">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-[#242b5f]">Karachi High-Rise Commercial Tower</div>
+                                        <div class="text-[9.5px] text-gray-400">Clifton, Karachi • Turnkey MEP</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Mike Johnson</div>
+                                        <div class="text-[9px] text-gray-400">Field Technician</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-red-600 font-bold">Oct 01, 2026</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[9.5px] font-bold">
+                                            <i class="fas fa-search mr-0.5"></i> Open Requisition (Interviewing)
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-500">Pending Candidate Onboarding</td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="openModal('Assign Site Replacement', '<div class=space-y-2><label class=text-xs font-bold>Select Worker</label><select class=\\'w-full border rounded p-1.5 text-xs\\'><option>Ali Raza (Tech)</option><option>Nouman Shah</option></select></div>', () => showToast('Replacement Assigned!'))" class="bg-[#242b5f] text-white px-2.5 py-1 rounded text-[10px] font-bold shadow-sm hover:opacity-90">Assign</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/20">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-[#242b5f]">Faisalabad Textile Substation</div>
+                                        <div class="text-[9.5px] text-gray-400">Khurrianwala, Faisalabad</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Hamza Tariq</div>
+                                        <div class="text-[9px] text-gray-400">Site Electrician</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Sep 20, 2026</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[9.5px] font-bold">
+                                            <i class="fas fa-check mr-0.5"></i> Bilal Babar (Electrician)
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-emerald-700 font-bold">5 Days Overlap Handover In Progress</td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <span class="text-green-600 font-bold text-xs"><i class="fas fa-check-circle mr-1"></i> Active</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- MODAL 1: INITIATE WORKER EXIT / OFFBOARDING (SIMPLIFIED UX)    -->
+                <!-- ============================================================== -->
+                <div id="initiate-exit-modal" class="fixed inset-0 z-50 hidden">
+                    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="closeInitiateExitModal()"></div>
+                    <div class="absolute inset-y-0 right-0 w-full max-w-lg bg-white shadow-2xl flex flex-col border-l border-gray-200">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-gray-50/80">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm border border-blue-100">
+                                    <i class="fas fa-user-minus"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-[#242b5f]">Start Exit Process</h3>
+                                    <p class="text-[10px] text-gray-500">Select employee & reason to activate clearance pipeline</p>
+                                </div>
+                            </div>
+                            <button onclick="closeInitiateExitModal()" class="text-gray-400 hover:text-red-500 text-base p-1 rounded hover:bg-gray-100 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <!-- Body (3 Simple Steps) -->
+                        <div class="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+                            
+                            <!-- Step 1: Select Worker -->
+                            <div class="space-y-1.5">
+                                <label class="block text-[11px] font-bold text-gray-700">
+                                    <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#242b5f] text-white text-[9px] mr-1">1</span>
+                                    Select Employee <span class="text-red-500">*</span>
+                                </label>
+                                <select id="exit_employee_select" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white focus:outline-none focus:border-[#242b5f] shadow-2xs font-medium text-gray-800">
+                                    <option value="Ali Khan|EMP-1042|HVAC Engineer|Karachi High-Rise Commercial Tower">Ali Khan (EMP-1042) — HVAC Engineer • Karachi High-Rise</option>
+                                    <option value="Sara Ahmed|EMP-1043|AutoCAD Draftsman|Lahore HQ & Projects">Sara Ahmed (EMP-1043) — AutoCAD Draftsman • Lahore HQ</option>
+                                    <option value="Usman Tariq|EMP-1044|Junior Electrician|Islamabad Complex">Usman Tariq (EMP-1044) — Junior Electrician • Islamabad Complex</option>
+                                    <option value="Zubair Qureshi|EMP-1055|Safety Officer|Faisalabad Substation">Zubair Qureshi (EMP-1055) — Safety Officer • Faisalabad Substation</option>
+                                </select>
+                            </div>
+
+                            <!-- Step 2: Exit Type Visual Selection -->
+                            <div class="space-y-1.5">
+                                <label class="block text-[11px] font-bold text-gray-700">
+                                    <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#242b5f] text-white text-[9px] mr-1">2</span>
+                                    Choose Exit Type <span class="text-red-500">*</span>
+                                </label>
+                                <input type="hidden" id="exit_category" value="Resignation">
+                                <div class="grid grid-cols-1 gap-2">
+                                    <!-- Option 1: Resignation -->
+                                    <div id="card-exit-resignation" onclick="selectExitType('Resignation')" class="p-3 rounded-lg border-2 border-[#242b5f] bg-blue-50/40 cursor-pointer transition flex items-center justify-between ring-2 ring-[#242b5f]/10 shadow-2xs">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="card-icon w-8 h-8 rounded-lg bg-[#242b5f] text-white flex items-center justify-center text-xs shrink-0">
+                                                <i class="fas fa-file-signature"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="font-bold text-gray-800 text-xs">Voluntary Resignation</h5>
+                                                <p class="text-[10px] text-gray-500">Worker submitted formal notice / personal reason</p>
+                                            </div>
+                                        </div>
+                                        <div class="card-check text-[#242b5f] text-sm">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                    </div>
+
+                                    <!-- Option 2: Termination -->
+                                    <div id="card-exit-termination" onclick="selectExitType('Termination')" class="p-3 rounded-lg border border-gray-200 bg-white hover:border-gray-300 cursor-pointer transition flex items-center justify-between">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="card-icon w-8 h-8 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center text-xs shrink-0">
+                                                <i class="fas fa-user-slash"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="font-bold text-gray-800 text-xs">Disciplinary Termination</h5>
+                                                <p class="text-[10px] text-gray-500">Misconduct, safety breach or immediate release</p>
+                                            </div>
+                                        </div>
+                                        <div class="card-check text-[#242b5f] text-sm hidden">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                    </div>
+
+                                    <!-- Option 3: Contract Expiry -->
+                                    <div id="card-exit-contract-expiry" onclick="selectExitType('Contract Expiry')" class="p-3 rounded-lg border border-gray-200 bg-white hover:border-gray-300 cursor-pointer transition flex items-center justify-between">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="card-icon w-8 h-8 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center text-xs shrink-0">
+                                                <i class="fas fa-calendar-check"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="font-bold text-gray-800 text-xs">Contract Completion</h5>
+                                                <p class="text-[10px] text-gray-500">Project site contract finished / mutual separation</p>
+                                            </div>
+                                        </div>
+                                        <div class="card-check text-[#242b5f] text-sm hidden">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Last Working Day & Reason -->
+                            <div class="space-y-2.5 pt-1">
+                                <label class="block text-[11px] font-bold text-gray-700">
+                                    <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#242b5f] text-white text-[9px] mr-1">3</span>
+                                    Timeline & Details
+                                </label>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">Last Working Day <span class="text-red-500">*</span></label>
+                                    <input type="date" id="exit_last_day" value="2026-10-08" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white outline-none font-bold text-[#242b5f] focus:border-[#242b5f]">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">Reason / Notes (Optional)</label>
+                                    <textarea id="exit_reason" rows="2" class="w-full border border-gray-200 rounded-lg p-2.5 text-xs bg-white outline-none focus:border-[#242b5f]" placeholder="e.g. Higher studies, Personal relocation, Overseas job in Dubai, Health issues..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Reassuring Automated Process Banner -->
+                            <div class="bg-blue-50/70 p-3 rounded-lg border border-blue-200 text-gray-700 space-y-1">
+                                <div class="flex items-center gap-1.5 font-bold text-[11px] text-[#242b5f]">
+                                    <i class="fas fa-bolt text-amber-500"></i> Automatic Clearances will be activated:
+                                </div>
+                                <p class="text-[10px] text-gray-600 pl-4 leading-relaxed">
+                                    Store Incharge (PPE & Tools), Accounts (Advances & Dues), and IT (Biometric revoke) will automatically receive clearance action items.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="px-5 py-3 border-t border-gray-200 bg-white flex justify-end gap-2">
+                            <button onclick="closeInitiateExitModal()" class="px-3.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-md transition">Cancel</button>
+                            <button onclick="submitInitiateExit()" class="bg-[#242b5f] hover:bg-[#1a2046] text-white px-4 py-2 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                                <i class="fas fa-check"></i> Confirm & Start Exit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- MODAL 2: INTERACTIVE DEPARTMENT CLEARANCE SHEET                -->
+                <!-- ============================================================== -->
+                <div id="clearance-modal" class="fixed inset-0 z-50 hidden">
+                    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="closeDepartmentClearanceModal()"></div>
+                    <div class="absolute inset-y-0 right-0 w-full max-w-xl bg-white shadow-2xl flex flex-col border-l border-gray-200">
+                        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gray-50/50">
+                            <div>
+                                <h3 class="text-sm font-bold text-[#242b5f]" id="clr-emp-name">Department Clearance Sheet</h3>
+                                <p class="text-[10px] text-gray-400" id="clr-emp-sub">Sign-off from Store Incharge, Accounts, IT & HR</p>
+                            </div>
+                            <button onclick="closeDepartmentClearanceModal()" class="text-gray-400 hover:text-red-500 text-base p-1 rounded hover:bg-gray-100 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+                            
+                            <!-- Overall Progress Bar -->
+                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center justify-between">
+                                <div>
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase">Clearance Progress</span>
+                                    <h4 class="text-base font-extrabold text-[#242b5f]" id="clr-progress-text">75% Cleared (3 of 4)</h4>
+                                </div>
+                                <div class="w-36 bg-gray-200 rounded-full h-2 overflow-hidden">
+                                    <div id="clr-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 75%"></div>
+                                </div>
+                            </div>
+
+                            <!-- 1. Site Store & Tools Clearance -->
+                            <div class="p-3 rounded-lg border border-gray-200 bg-white space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-bold text-gray-800 flex items-center gap-1.5">
+                                        <i class="fas fa-tools text-amber-600"></i> 1. Site Store & Tools Incharge
+                                    </h4>
+                                    <span id="clr-badge-store" class="bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded text-[9.5px]">Signed Off</span>
+                                </div>
+                                <div class="space-y-1 text-gray-600 pl-5">
+                                    <label class="flex items-center gap-2"><input type="checkbox" id="chk_store_tools" checked onchange="updateClearanceMath()" class="rounded"> <span>Heavy Power Tools returned in working order</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" id="chk_store_ppe" checked onchange="updateClearanceMath()" class="rounded"> <span>Safety Harness & PPE kit handed over</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" id="chk_store_keys" checked onchange="updateClearanceMath()" class="rounded"> <span>Site container & locker keys returned</span></label>
+                                </div>
+                            </div>
+
+                            <!-- 2. Accounts & Finance Clearance -->
+                            <div class="p-3 rounded-lg border border-gray-200 bg-white space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-bold text-gray-800 flex items-center gap-1.5">
+                                        <i class="fas fa-file-invoice-dollar text-emerald-600"></i> 2. Accounts & Finance
+                                    </h4>
+                                    <span id="clr-badge-finance" class="bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded text-[9.5px]">Hold: Advance Balance</span>
+                                </div>
+                                <div class="space-y-1 text-gray-600 pl-5">
+                                    <label class="flex items-center gap-2"><input type="checkbox" id="chk_finance_advance" onchange="updateClearanceMath()" class="rounded"> <span>Outstanding Salary Advance cleared or offset in F&F</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" id="chk_finance_petty" checked onchange="updateClearanceMath()" class="rounded"> <span>Site petty cash imprest audited & returned</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" id="chk_finance_fuel" checked onchange="updateClearanceMath()" class="rounded"> <span>Company PSO fuel card surrendered</span></label>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="px-5 py-3 border-t border-gray-200 bg-white flex justify-between items-center">
+                            <button onclick="showToast('Clearance form PDF downloaded', 'info')" class="text-xs text-gray-600 hover:underline flex items-center gap-1 font-semibold">
+                                <i class="fas fa-print"></i> Print Sign Sheet
+                            </button>
+                            <div class="flex gap-2">
+                                <button onclick="closeDepartmentClearanceModal()" class="px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-md transition">Close</button>
+                                <button onclick="saveClearanceStatus()" class="bg-[#242b5f] text-white px-4 py-1.5 rounded-md text-xs font-bold shadow-sm hover:opacity-90 transition">
+                                    Save Clearances
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- MODAL 3: FULL & FINAL (F&F) SETTLEMENT CALCULATOR             -->
+                <!-- ============================================================== -->
+                <div id="ff-modal" class="fixed inset-0 z-50 hidden">
+                    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="closeFFModal()"></div>
+                    <div class="absolute inset-y-0 right-0 w-full max-w-lg bg-white shadow-2xl flex flex-col border-l border-gray-200">
+                        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gray-50/50">
+                            <div>
+                                <h3 class="text-sm font-bold text-[#242b5f]">Full & Final (F&F) Settlement Statement</h3>
+                                <p class="text-[10px] text-gray-400" id="ff-emp-sub">Employee Settlement Computation</p>
+                            </div>
+                            <button onclick="closeFFModal()" class="text-gray-400 hover:text-red-500 text-base p-1 rounded hover:bg-gray-100 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+                            
+                            <!-- Earnings Section -->
+                            <div class="bg-emerald-50/60 p-3 rounded-lg border border-emerald-200 space-y-2.5">
+                                <h4 class="font-bold text-emerald-800 flex items-center justify-between">
+                                    <span><i class="fas fa-plus-circle mr-1"></i> Gross Payable Additions</span>
+                                    <span class="font-mono text-xs" id="ff-total-earnings">Rs. 86,500</span>
+                                </h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Unpaid Days Worked</label>
+                                        <input type="number" id="ff_unpaid_days" value="18" oninput="calculateFFMath()" class="w-full border rounded px-2 py-1 bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Prorated Salary (Rs)</label>
+                                        <input type="text" id="ff_prorated_salary" readonly value="51,000" class="w-full border rounded px-2 py-1 bg-gray-100 font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Leave Encashment (Days)</label>
+                                        <input type="number" id="ff_leave_days" value="6" oninput="calculateFFMath()" class="w-full border rounded px-2 py-1 bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Leave Encashment (Rs)</label>
+                                        <input type="text" id="ff_leave_amount" readonly value="17,000" class="w-full border rounded px-2 py-1 bg-gray-100 font-bold">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Gratuity / Exit Bonus (Rs)</label>
+                                        <input type="number" id="ff_gratuity" value="18500" oninput="calculateFFMath()" class="w-full border rounded px-2 py-1 bg-white font-bold text-emerald-700">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Deductions Section -->
+                            <div class="bg-red-50/60 p-3 rounded-lg border border-red-200 space-y-2.5">
+                                <h4 class="font-bold text-red-800 flex items-center justify-between">
+                                    <span><i class="fas fa-minus-circle mr-1"></i> Outstanding Deductions</span>
+                                    <span class="font-mono text-xs" id="ff-total-deductions">Rs. 25,000</span>
+                                </h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Salary Advance Balance</label>
+                                        <input type="number" id="ff_advance_bal" value="25000" oninput="calculateFFMath()" class="w-full border rounded px-2 py-1 bg-white font-bold text-red-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-0.5">Lost Tools / Asset Penalty</label>
+                                        <input type="number" id="ff_tool_penalty" value="0" oninput="calculateFFMath()" class="w-full border rounded px-2 py-1 bg-white">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Final Net Payable Highlight -->
+                            <div class="bg-[#242b5f] text-white p-4 rounded-lg shadow flex items-center justify-between">
+                                <div>
+                                    <p class="text-[10px] text-gray-300 font-bold uppercase tracking-wider">Net Amount Payable to Worker</p>
+                                    <h2 class="text-2xl font-extrabold mt-0.5" id="ff-net-payable">Rs. 61,500</h2>
+                                </div>
+                                <span class="bg-emerald-500 text-white font-extrabold px-3 py-1 rounded text-xs">
+                                    Clear for Payout
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="px-5 py-3 border-t border-gray-200 bg-white flex justify-between items-center">
+                            <button onclick="showToast('Downloading official F&F Statement PDF...', 'info')" class="text-xs text-gray-600 hover:underline flex items-center gap-1 font-semibold">
+                                <i class="fas fa-print"></i> Print Statement
+                            </button>
+                            <div class="flex gap-2">
+                                <button onclick="closeFFModal()" class="px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-md transition">Close</button>
+                                <button onclick="approveFFSettlement()" class="bg-emerald-600 text-white px-4 py-1.5 rounded-md text-xs font-bold shadow-sm hover:opacity-90 transition flex items-center gap-1.5">
+                                    <i class="fas fa-check-double"></i> Approve & Disburse
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================== -->
+                <!-- MODAL 4: ISSUE DISCIPLINARY WARNING                           -->
+                <!-- ============================================================== -->
+                <div id="warning-modal" class="fixed inset-0 z-50 hidden">
+                    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="closeIssueWarningModal()"></div>
+                    <div class="absolute inset-y-0 right-0 w-full max-w-lg bg-white shadow-2xl flex flex-col border-l border-gray-200">
+                        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gray-50/50">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-md bg-red-100 text-red-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-gavel"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-[#242b5f]">Issue Formal Disciplinary Warning</h3>
+                                    <p class="text-[10px] text-gray-400">Record breach of site safety, conduct, or attendance</p>
+                                </div>
+                            </div>
+                            <button onclick="closeIssueWarningModal()" class="text-gray-400 hover:text-red-500 text-base p-1 rounded hover:bg-gray-100 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex-1 overflow-y-auto p-5 space-y-3 text-xs">
+                            <div>
+                                <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Employee Name & Site <span class="text-red-500">*</span></label>
+                                <select id="warn_employee" class="w-full border rounded px-2 py-1.5 text-xs bg-white">
+                                    <option value="Kamran Siddiqui|EMP-1048|Clifton High-Rise, Karachi">Kamran Siddiqui (EMP-1048) • Clifton High-Rise</option>
+                                    <option value="Farhan Akhtar|EMP-1052|Faisalabad Substation">Farhan Akhtar (EMP-1052) • Faisalabad Substation</option>
+                                    <option value="Sajid Mehmood|EMP-1060|Islamabad Complex">Sajid Mehmood (EMP-1060) • Islamabad Complex</option>
+                                    <option value="Nadeem Gul|EMP-1072|Peshawar Chiller Plant">Nadeem Gul (EMP-1072) • Peshawar Chiller Plant</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Warning Severity <span class="text-red-500">*</span></label>
+                                    <select id="warn_level" class="w-full border rounded px-2 py-1.5 text-xs bg-white font-bold text-red-600">
+                                        <option value="1st Written Warning">1st Written Warning</option>
+                                        <option value="2nd Written Warning">2nd Written Warning</option>
+                                        <option value="Final Show-Cause Notice">Final Show-Cause Notice</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Infraction Category</label>
+                                    <select id="warn_category" class="w-full border rounded px-2 py-1.5 text-xs bg-white">
+                                        <option value="Unauthorized Site Absence">Unauthorized Absence</option>
+                                        <option value="PPE & Safety Violation">PPE & Safety Violation</option>
+                                        <option value="Repeated Late Arrival">Late Arrival</option>
+                                        <option value="Insubordination / Disobedience">Insubordination</option>
+                                        <option value="Damage to Client Equipment">Equipment Damage</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Incident Details & Supervisor Statement <span class="text-red-500">*</span></label>
+                                <textarea id="warn_details" rows="3" class="w-full border rounded p-2 text-xs bg-white outline-none focus:border-[#242b5f]" placeholder="Describe exact occurrence at project site, date, time, and eyewitness note..."></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Corrective Action Required & Deadline</label>
+                                <input type="text" id="warn_action" class="w-full border rounded px-2 py-1.5 text-xs bg-white" placeholder="e.g. Must submit formal explanation within 48 hours">
+                            </div>
+                        </div>
+
+                        <div class="px-5 py-3 border-t border-gray-200 bg-white flex justify-end gap-2">
+                            <button onclick="closeIssueWarningModal()" class="px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-md transition">Cancel</button>
+                            <button onclick="submitIssueWarning()" class="bg-red-600 text-white px-4 py-1.5 rounded-md text-xs font-bold shadow-sm hover:opacity-90 transition flex items-center gap-1.5">
+                                <i class="fas fa-file-signature"></i> Issue & Dispatch Warning
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        `;
+
+        setPageContent('6. Offboarding, Clearances & Warnings', pageHTML);
+
+        // ==============================================================
+        // JAVASCRIPT WORKFLOW CONTROLLER
+        // ==============================================================
+
+        // 1. Tab Switcher
+        window.switchOffboardingTab = function(tab) {
+            const tabs = ['pipeline', 'warnings', 'settlements', 'replacements'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                const view = document.getElementById(`view-${t}`);
+                if (t === tab) {
+                    btn.className = 'tab-btn active px-3.5 py-2.5 text-xs font-bold text-[#242b5f] transition flex items-center gap-2 border-b-[2.5px] border-[#242b5f] bg-white';
+                    view.classList.remove('hidden');
+                } else {
+                    btn.className = 'tab-btn px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent';
+                    view.classList.add('hidden');
+                }
+            });
+        };
+
+        // Helper to update active exit count across KPIs and tabs
+        function updateActiveExitCounts() {
+            const tbody = document.getElementById('offboarding-table-body');
+            const count = tbody ? tbody.children.length : 3;
+            const statActive = document.getElementById('stat-active-cases');
+            if (statActive) statActive.innerHTML = `${count} <span class="text-[10px] text-orange-600 font-normal">Active Exits</span>`;
+            const badgeCount = document.getElementById('badge-pipeline-count');
+            if (badgeCount) badgeCount.innerText = count;
+        }
+
+        // Helper to update incoming mobile queue counter & empty state
+        function updateMobileQueueStatus() {
+            const container = document.getElementById('mobile-requests-container');
+            if (!container) return;
+            const pendingCards = container.querySelectorAll('[id^="app-req-"]');
+            const count = pendingCards.length;
+            const badge = document.getElementById('badge-app-requests');
+            if (badge) {
+                if (count > 0) {
+                    badge.innerText = `${count} Pending HR Review`;
+                    badge.className = 'bg-blue-100 text-blue-800 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full border border-blue-200 animate-pulse';
+                } else {
+                    badge.innerText = '0 Pending';
+                    badge.className = 'bg-gray-100 text-gray-500 text-[9.5px] font-bold px-2 py-0.5 rounded-full border border-gray-200';
+                    container.innerHTML = `
+                        <div class="col-span-full text-center py-5 px-4 bg-white rounded-lg border border-dashed border-gray-200 space-y-1">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-sm">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <p class="text-xs font-bold text-gray-700">All incoming mobile resignation requests have been processed!</p>
+                            <p class="text-[10px] text-gray-400">Any new requests submitted via Cosmix Mobile Self-Service App will appear here immediately.</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // 2. Visual Exit Type Selector
+        window.selectExitType = function(type) {
+            document.getElementById('exit_category').value = type;
+            
+            const mapping = [
+                { type: 'Resignation', id: 'card-exit-resignation' },
+                { type: 'Termination', id: 'card-exit-termination' },
+                { type: 'Contract Expiry', id: 'card-exit-contract-expiry' }
+            ];
+
+            mapping.forEach(item => {
+                const card = document.getElementById(item.id);
+                if (!card) return;
+                const icon = card.querySelector('.card-icon');
+                const check = card.querySelector('.card-check');
+
+                if (item.type === type) {
+                    card.className = 'p-3 rounded-lg border-2 border-[#242b5f] bg-blue-50/40 cursor-pointer transition flex items-center justify-between ring-2 ring-[#242b5f]/10 shadow-2xs';
+                    if (icon) icon.className = 'card-icon w-8 h-8 rounded-lg bg-[#242b5f] text-white flex items-center justify-center text-xs shrink-0';
+                    if (check) check.classList.remove('hidden');
+                } else {
+                    card.className = 'p-3 rounded-lg border border-gray-200 bg-white hover:border-gray-300 cursor-pointer transition flex items-center justify-between';
+                    if (icon) icon.className = 'card-icon w-8 h-8 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center text-xs shrink-0';
+                    if (check) check.classList.add('hidden');
+                }
+            });
+        };
+
+        // 3. Initiate Exit Modal Handlers (Simplified 3-Step)
+        window.openInitiateExitModal = function() {
+            document.getElementById('initiate-exit-modal').classList.remove('hidden');
+        };
+
+        window.closeInitiateExitModal = function() {
+            document.getElementById('initiate-exit-modal').classList.add('hidden');
+        };
+
+        window.submitInitiateExit = function() {
+            const raw = document.getElementById('exit_employee_select').value;
+            const [name, code, role, site] = raw.split('|');
+            const category = document.getElementById('exit_category').value;
+            const lastDay = document.getElementById('exit_last_day').value;
+
+            let categoryBadge = '<span class="bg-blue-50 text-[#242b5f] px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Resignation</span>';
+            if (category === 'Termination') {
+                categoryBadge = '<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-red-200">Termination</span>';
+            } else if (category === 'Contract Expiry') {
+                categoryBadge = '<span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-purple-200">Contract End</span>';
+            }
+
+            const initials = name.split(' ').map(n => n[0]).join('');
+            const tbody = document.getElementById('offboarding-table-body');
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-blue-50/20 transition group bg-blue-50/10 border-l-4 border-[#242b5f]';
+            row.id = 'row-' + code.toLowerCase();
+            row.innerHTML = `
+                <td class="px-4 py-2.5">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 text-[#242b5f] flex items-center justify-center font-bold text-xs shrink-0">
+                            ${initials}
+                        </div>
+                        <div>
+                            <a href="javascript:void(0)" onclick="openDepartmentClearanceModal('${code}', '${name}', '${role}', '${site}', false, false, false, false)" class="font-bold text-[#242b5f] hover:underline block leading-tight">
+                                ${name}
+                            </a>
+                            <p class="text-[9.5px] text-gray-400">${code} • ${role} • ${site}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-4 py-2.5">
+                    <div class="flex items-center gap-1.5">
+                        ${categoryBadge}
+                        <span class="font-bold text-gray-800 text-xs">${lastDay}</span>
+                    </div>
+                    <p class="text-[9px] text-amber-700 font-semibold mt-0.5"><i class="fas fa-clock text-[8.5px] mr-0.5"></i> Exit Initiated Today</p>
+                </td>
+                <td class="px-4 py-2.5">
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-[9.5px] w-36">
+                            <span class="font-bold text-amber-700"><i class="fas fa-spinner fa-spin text-[8.5px] mr-1"></i> 0 of 4 Cleared</span>
+                            <span class="text-gray-400 font-mono">0%</span>
+                        </div>
+                        <div class="w-36 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                            <div class="bg-gray-300 h-1.5 rounded-full" style="width: 5%"></div>
+                        </div>
+                        <p class="text-[8.5px] text-gray-400">Store, Accounts & IT Pending</p>
+                    </div>
+                </td>
+                <td class="px-4 py-2.5">
+                    <div class="font-bold text-gray-800 text-xs">Under Audit</div>
+                    <span class="bg-yellow-50 text-yellow-800 px-1.5 py-0.5 rounded text-[9px] font-bold border border-yellow-200">
+                        Calculation Pending
+                    </span>
+                </td>
+                <td class="px-4 py-2.5 text-right">
+                    <div class="flex items-center justify-end gap-1.5">
+                        <button onclick="openDepartmentClearanceModal('${code}', '${name}', '${role}', '${site}', false, false, false, false)" class="bg-[#242b5f] hover:bg-[#1a2046] text-white px-2.5 py-1 rounded text-xs font-semibold shadow-2xs transition flex items-center gap-1">
+                            <i class="fas fa-tasks text-[9.5px]"></i> Clearances
+                        </button>
+                        <div class="relative dropdown">
+                            <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                <i class="fas fa-ellipsis-v text-xs"></i>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 top-7 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                <button onclick="openFFSettlementModal('${code}', '${name}', 65000, 15, 4, 0)" class="w-full text-left px-3 py-1.5 text-xs text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 font-medium">
+                                    <i class="fas fa-calculator w-4"></i> F&F Calculator
+                                </button>
+                                <button onclick="printExperienceLetter('${name}', '${role}', 'Jan 2024', '${lastDay}')" class="w-full text-left px-3 py-1.5 text-xs text-purple-600 hover:bg-purple-50 flex items-center gap-2">
+                                    <i class="fas fa-file-contract w-4"></i> Experience Certificate
+                                </button>
+                                <div class="h-px bg-gray-100 my-1"></div>
+                                <button onclick="revokeBiometricAccess('${code}', '${name}')" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                    <i class="fas fa-user-lock w-4"></i> Revoke Biometric
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            `;
+
+            tbody.insertBefore(row, tbody.firstChild);
+            updateActiveExitCounts();
+            closeInitiateExitModal();
+            showToast(`Exit workflow started for ${name}! Clearances activated across Store, Accounts & IT.`, 'success');
+        };
+
+        // 4. Mobile App Resignation Handlers
+        window.acceptMobileResignation = function(empId, name) {
+            // Remove card from mobile queue with smooth animation
+            const card = document.getElementById('app-req-' + empId.toLowerCase());
+            if (card) {
+                card.style.transition = 'all 0.25s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    card.remove();
+                    updateMobileQueueStatus();
+                }, 250);
+            }
+            
+            showToast(`Resignation of ${name} sent to Director/Boss for final approval.`, 'success');
+        };
+
+        window.discussMobileResignation = function(empId, name) {
+            openModal(
+                'Schedule Retention Talk: ' + name,
+                `<div class="space-y-3 text-xs">
+                    <p class="text-gray-600">Coordinate with Site Project Manager to explore retaining <b>${name} (${empId})</b> before approving final offboarding.</p>
+                    <div>
+                        <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Proposed Retention Measure</label>
+                        <select id="retention_offer" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs bg-white focus:outline-none focus:border-[#242b5f]">
+                            <option value="increment">Salary Increment Review (+10-15%)</option>
+                            <option value="transfer">Site Transfer closer to worker's hometown</option>
+                            <option value="allowance">Add Outstation / Site Hardship Allowance</option>
+                            <option value="leave">Approve 10-day Emergency Paid Leave</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10.5px] font-bold text-gray-700 mb-1">Supervisor Discussion Notes</label>
+                        <textarea rows="2" class="w-full border border-gray-200 rounded p-2 text-xs bg-white outline-none focus:border-[#242b5f]" placeholder="Enter key points discussed with the worker..."></textarea>
+                    </div>
+                </div>`,
+                () => showToast(`Retention meeting logged for ${name} with Site Manager!`, 'info')
+            );
+        };
+
+        window.rejectMobileResignation = function(empId, name) {
+            openModal(
+                'Reject Resignation: ' + name,
+                `<div class="space-y-2 text-xs">
+                    <p class="text-gray-700">Are you sure you want to decline this mobile resignation request for <b>${name} (${empId})</b>?</p>
+                    <p class="text-gray-500 text-[10.5px]">A status update will be sent to the worker's mobile app instructing them to complete mandatory project handover first.</p>
+                </div>`,
+                () => {
+                    const card = document.getElementById('app-req-' + empId.toLowerCase());
+                    if (card) {
+                        card.style.transition = 'all 0.25s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            card.remove();
+                            updateMobileQueueStatus();
+                        }, 250);
+                    }
+                    showToast(`Resignation request from ${name} declined and sent back to mobile app.`, 'info');
+                }
+            );
+        };
+
+        // 3. Department Clearance Modal Handlers
+        let activeClrEmp = null;
+
+        window.openDepartmentClearanceModal = function(code, name, role, site, store, fin, it, hr) {
+            activeClrEmp = { code, name, role, site };
+            document.getElementById('clr-emp-name').innerText = `Clearance Sheet: ${name} (${code})`;
+            document.getElementById('clr-emp-sub').innerText = `${role} • Project Site: ${site}`;
+
+            document.getElementById('chk_store_tools').checked = store;
+            document.getElementById('chk_finance_advance').checked = fin;
+            document.getElementById('chk_it_biometric').checked = it;
+            document.getElementById('chk_hr_interview').checked = hr;
+
+            updateClearanceMath();
+            document.getElementById('clearance-modal').classList.remove('hidden');
+        };
+
+        window.closeDepartmentClearanceModal = function() {
+            document.getElementById('clearance-modal').classList.add('hidden');
+        };
+
+        window.updateClearanceMath = function() {
+            let total = 2;
+            let cleared = 0;
+
+            if (document.getElementById('chk_store_tools')?.checked) cleared++;
+            if (document.getElementById('chk_finance_advance')?.checked) cleared++;
+
+            const pct = Math.round((cleared / total) * 100);
+            document.getElementById('clr-progress-text').innerText = `${pct}% Cleared (${cleared} of ${total})`;
+            document.getElementById('clr-progress-bar').style.width = `${pct}%`;
+
+            // Update mini badges
+            if (document.getElementById('clr-badge-store')) {
+                document.getElementById('clr-badge-store').className = document.getElementById('chk_store_tools')?.checked 
+                    ? 'bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded text-[9.5px]' 
+                    : 'bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded text-[9.5px]';
+                document.getElementById('clr-badge-store').innerText = document.getElementById('chk_store_tools')?.checked ? 'Signed Off' : 'Pending';
+            }
+
+            if (document.getElementById('clr-badge-finance')) {
+                document.getElementById('clr-badge-finance').className = document.getElementById('chk_finance_advance')?.checked 
+                    ? 'bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded text-[9.5px]' 
+                    : 'bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded text-[9.5px]';
+                document.getElementById('clr-badge-finance').innerText = document.getElementById('chk_finance_advance')?.checked ? 'Cleared' : 'Hold: Advance';
+            }
+        };
+
+        window.saveClearanceStatus = function() {
+            closeDepartmentClearanceModal();
+            showToast(`Clearance progress updated for ${activeClrEmp ? activeClrEmp.name : 'worker'}!`, 'success');
+        };
+
+        // 4. Full & Final Settlement Calculator Handlers
+        let activeFFBasic = 85000;
+
+        window.openFFSettlementModal = function(code, name, basicSalary, unpaidDays, leaveDays, advanceBal) {
+            activeFFBasic = basicSalary || 85000;
+            document.getElementById('ff-emp-sub').innerText = `${name} (${code}) • Base Salary: Rs. ${activeFFBasic.toLocaleString()}`;
+            document.getElementById('ff_unpaid_days').value = unpaidDays || 18;
+            document.getElementById('ff_leave_days').value = leaveDays || 6;
+            document.getElementById('ff_advance_bal').value = advanceBal || 0;
+
+            calculateFFMath();
+            document.getElementById('ff-modal').classList.remove('hidden');
+        };
+
+        window.closeFFModal = function() {
+            document.getElementById('ff-modal').classList.add('hidden');
+        };
+
+        window.calculateFFMath = function() {
+            const dailyRate = Math.round(activeFFBasic / 30);
+            const unpaidDays = parseFloat(document.getElementById('ff_unpaid_days').value) || 0;
+            const leaveDays = parseFloat(document.getElementById('ff_leave_days').value) || 0;
+            const gratuity = parseFloat(document.getElementById('ff_gratuity').value) || 0;
+
+            const advanceBal = parseFloat(document.getElementById('ff_advance_bal').value) || 0;
+            const toolPenalty = parseFloat(document.getElementById('ff_tool_penalty').value) || 0;
+
+            const proratedSalary = unpaidDays * dailyRate;
+            const leaveAmount = leaveDays * dailyRate;
+
+            document.getElementById('ff_prorated_salary').value = proratedSalary.toLocaleString();
+            document.getElementById('ff_leave_amount').value = leaveAmount.toLocaleString();
+
+            const totalEarnings = proratedSalary + leaveAmount + gratuity;
+            const totalDeductions = advanceBal + toolPenalty;
+            const netPayable = Math.max(0, totalEarnings - totalDeductions);
+
+            document.getElementById('ff-total-earnings').innerText = `Rs. ${totalEarnings.toLocaleString()}`;
+            document.getElementById('ff-total-deductions').innerText = `Rs. ${totalDeductions.toLocaleString()}`;
+            document.getElementById('ff-net-payable').innerText = `Rs. ${netPayable.toLocaleString()}`;
+        };
+
+        window.approveFFSettlement = function() {
+            closeFFModal();
+            showToast('Full & Final Settlement approved and routed to Accounts for cheque disbursement!', 'success');
+        };
+
+        // 5. Warning Modal Handlers
+        window.openIssueWarningModal = function() {
+            document.getElementById('warning-modal').classList.remove('hidden');
+        };
+
+        window.closeIssueWarningModal = function() {
+            document.getElementById('warning-modal').classList.add('hidden');
+        };
+
+        window.submitIssueWarning = function() {
+            const raw = document.getElementById('warn_employee').value;
+            const [name, code, site] = raw.split('|');
+            const level = document.getElementById('warn_level').value;
+            const category = document.getElementById('warn_category').value;
+
+            // Add to warnings table
+            const tbody = document.getElementById('warnings-table-body');
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-red-50/20 transition bg-red-50/10 border-l-4 border-red-500';
+            row.innerHTML = `
+                <td class="px-4 py-2.5">
+                    <div class="font-bold text-gray-800">${name}</div>
+                    <div class="text-[9.5px] text-gray-400">${code} • Active</div>
+                </td>
+                <td class="px-4 py-2.5">
+                    <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded text-[9.5px] font-bold border border-red-200">
+                        ${level}
+                    </span>
+                </td>
+                <td class="px-4 py-2.5 font-medium text-gray-700">${category}</td>
+                <td class="px-4 py-2.5 text-gray-600"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i> ${site}</td>
+                <td class="px-4 py-2.5 text-gray-500 font-mono text-[10px]">Today</td>
+                <td class="px-4 py-2.5">
+                    <span class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-yellow-200">
+                        Awaiting Response
+                    </span>
+                </td>
+                <td class="px-4 py-2.5 text-right">
+                    <button onclick="escalateWarningToExit('${name}', '${code}')" class="bg-red-50 hover:bg-red-100 text-red-700 px-2 py-1 rounded text-[10px] font-bold border border-red-200 transition">
+                        Terminate & Exit
+                    </button>
+                </td>
+            `;
+            tbody.insertBefore(row, tbody.firstChild);
+
+            closeIssueWarningModal();
+            showToast(`${level} officially dispatched to ${name}!`, 'error');
+            switchOffboardingTab('warnings');
+        };
+
+        window.escalateWarningToExit = function(name, code) {
+            openModal(
+                `Escalate Disciplinary Termination: ${name}`,
+                `<div class="space-y-2 text-xs">
+                    <p class="text-red-700 font-bold">Initiate summary termination inquiry for ${name} (${code})?</p>
+                    <p class="text-gray-500 text-[10.5px]">This will close active warnings and transfer the employee directly to the Offboarding & Clearance Pipeline with Immediate Release status.</p>
+                </div>`,
+                () => {
+                    showToast(`Disciplinary termination initiated for ${name}`, 'error');
+                    switchOffboardingTab('pipeline');
+                }
+            );
+        };
+
+        // 6. Experience Letter Preview
+        window.printExperienceLetter = function(name, role, joinDate, exitDate) {
+            const letterHTML = `
+                <div class="p-4 border rounded bg-white text-gray-800 space-y-3 font-serif text-xs">
+                    <div class="text-center border-b pb-2">
+                        <h2 class="font-extrabold text-base tracking-widest text-[#242b5f]">COSMIX ENGINEERING (PVT) LTD</h2>
+                        <p class="text-[9.5px] text-gray-500">MEP Contractors & Turnkey Industrial Engineers • Islamabad / Karachi / Lahore</p>
+                    </div>
+                    <div class="text-right text-[10px] text-gray-500">Date: September 08, 2026</div>
+                    <div class="text-center font-bold underline text-sm pt-1">TO WHOM IT MAY CONCERN</div>
+                    <p class="leading-relaxed text-[11px]">
+                        This is to certify that <b>Mr. ${name}</b> was employed with <b>Cosmix Engineering (Pvt) Ltd</b> as a <b>${role}</b> from <b>${joinDate}</b> to <b>${exitDate}</b>.
+                    </p>
+                    <p class="leading-relaxed text-[11px]">
+                        During his tenure with our organization, we found him diligent, honest, and dedicated to his professional responsibilities across our MEP project sites. He has completed all department handovers and has cleared all company custody assets and toolsets.
+                    </p>
+                    <p class="leading-relaxed text-[11px]">We wish him all success in his future professional endeavors.</p>
+                    <div class="pt-6 flex justify-between items-end text-[10.5px] font-sans">
+                        <div>
+                            <div class="w-32 border-b border-gray-400 mb-1"></div>
+                            <b>Head of Human Resources</b><br>
+                            <span class="text-[9px] text-gray-400">Cosmix Engineering (Pvt) Ltd</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9.5px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">VERIFIED CLEARANCE</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            openModal(`Experience & Relieving Certificate - ${name}`, letterHTML, () => showToast('Printing Certificate...', 'info'));
+        };
+
+        // 7. Revoke Biometric Access Helper
+        window.revokeBiometricAccess = function(code, name) {
+            openModal(
+                `Revoke System & Biometric Access`,
+                `<div class="space-y-2 text-xs">
+                    <p class="text-red-600 font-bold">Immediately deactivate biometric sync and mobile punch for ${name} (${code})?</p>
+                    <p class="text-gray-500 text-[10.5px]">This will disconnect worker from ZKTeco biometric hardware across all 8 project sites.</p>
+                </div>`,
+                () => showToast(`Biometric permissions revoked across all sites for ${name}!`, 'error')
+            );
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - HR Reports & Compliance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('reports');
+        setPageContent('8. Reports & Statutory Compliance', `
+            <div class="space-y-4">
+                
+                <!-- Statutory Compliance & KPI Overview -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">EOBI Contribution</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">Rs. 87,000</h4>
+                            <p class="text-[9px] text-green-600 font-semibold"><i class="fas fa-check-circle mr-0.5"></i> 150 Workers Registered</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-landmark"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">FBR WHT (Sec 149)</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">Rs. 142,500</h4>
+                            <p class="text-[9px] text-blue-600 font-medium">Income tax withholding</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Overtime Expenditure</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">Rs. 320,000</h4>
+                            <p class="text-[9px] text-orange-600 font-medium">46.5 site hours total</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-business-time"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">PEC Registered Staff</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">28 <span class="text-[10px] text-purple-600 font-normal">Engineers</span></h4>
+                            <p class="text-[9px] text-purple-600 font-medium">PEC compliance 100%</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-id-card-alt"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Executive 1-Click Report Downloads Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <!-- Card 1: EOBI -->
+                    <div class="bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[9px] bg-green-50 text-green-700 font-bold px-2 py-0.5 rounded border border-green-200 uppercase">Statutory Form PR-02A</span>
+                                <i class="fas fa-file-excel text-green-600"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-gray-800">EOBI Monthly Contribution Statement</h4>
+                            <p class="text-[10px] text-gray-500 mt-1">Official statement listing all 150 employees with employer (5%) & employee (1%) shares.</p>
+                        </div>
+                        <div class="mt-3 pt-2.5 border-t border-gray-100 flex gap-2">
+                            <button onclick="exportToExcel('EOBI_Form_PR02A_Sep2026')" class="flex-1 bg-white border border-gray-200 hover:border-green-600 text-green-700 py-1.5 rounded text-xs font-bold transition flex items-center justify-center gap-1"><i class="fas fa-download text-[10px]"></i> Excel</button>
+                            <button onclick="exportToPDF('EOBI_Challan_Sep2026')" class="flex-1 bg-[#242b5f] text-white py-1.5 rounded text-xs font-bold hover:opacity-90 transition flex items-center justify-center gap-1"><i class="fas fa-print text-[10px]"></i> Challan PDF</button>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: FBR Tax -->
+                    <div class="bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[9px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded border border-blue-200 uppercase">FBR Withholding (WHT)</span>
+                                <i class="fas fa-file-pdf text-red-500"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-gray-800">Section 149 Annual Tax Register</h4>
+                            <p class="text-[10px] text-gray-500 mt-1">Salary tax deducted per employee with NTN, CPR numbers & taxable slab certifications.</p>
+                        </div>
+                        <div class="mt-3 pt-2.5 border-t border-gray-100 flex gap-2">
+                            <button onclick="exportToExcel('FBR_WHT_Sec149_Register')" class="flex-1 bg-white border border-gray-200 hover:border-green-600 text-green-700 py-1.5 rounded text-xs font-bold transition flex items-center justify-center gap-1"><i class="fas fa-download text-[10px]"></i> Excel</button>
+                            <button onclick="openModal('Generate Tax Certificates', '<p class=text-xs>Generate individual CPR Salary Tax Deduction Certificates (Form 149) for all 150 employees?</p>', () => showToast('150 Tax Certificates Generated in ZIP!', 'success'))" class="flex-1 bg-[#242b5f] text-white py-1.5 rounded text-xs font-bold hover:opacity-90 transition flex items-center justify-center gap-1"><i class="fas fa-certificate text-[10px]"></i> Batch Certs</button>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Site Cost Centers -->
+                    <div class="bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[9px] bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded border border-purple-200 uppercase">Cost Accounting</span>
+                                <i class="fas fa-chart-pie text-purple-600"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-gray-800">Site-Wise Project Labor Audit</h4>
+                            <p class="text-[10px] text-gray-500 mt-1">Cost allocation of technicians across 8 projects for client billing and project profitability.</p>
+                        </div>
+                        <div class="mt-3 pt-2.5 border-t border-gray-100 flex gap-2">
+                            <button onclick="exportToExcel('Site_Labor_Cost_Allocation')" class="flex-1 bg-white border border-gray-200 hover:border-green-600 text-green-700 py-1.5 rounded text-xs font-bold transition flex items-center justify-center gap-1"><i class="fas fa-download text-[10px]"></i> Excel</button>
+                            <button onclick="exportToPDF('Site_Cost_Audit_Report')" class="flex-1 bg-[#242b5f] text-white py-1.5 rounded text-xs font-bold hover:opacity-90 transition flex items-center justify-center gap-1"><i class="fas fa-file-pdf text-[10px]"></i> PDF Audit</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Site Labor Distribution & Compliance Register -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex flex-wrap justify-between items-center bg-gray-50/50 gap-2">
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                                <i class="fas fa-project-diagram text-[#242b5f]"></i> Site Project Labor & Cost Center Summary
+                            </h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                                <input type="text" oninput="filterTableRows(this, 'reports-table-body')" placeholder="Filter site or client..." class="text-xs border border-gray-200 rounded-md pl-7 pr-2.5 py-1 focus:outline-none focus:border-[#242b5f] w-48 bg-white">
+                            </div>
+                            <button onclick="exportToExcel('Site_Cost_Report')" class="bg-white border border-gray-200 text-gray-700 px-2 py-1 rounded text-xs font-bold hover:border-green-600 hover:text-green-700 transition flex items-center gap-1"><i class="fas fa-file-excel text-green-600"></i> Excel</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto min-h-[250px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Project Site & Location</th>
+                                    <th class="px-4 py-2.5 font-bold">Project Manager</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Engineers</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Technicians</th>
+                                    <th class="px-4 py-2.5 font-bold">Monthly Labor Bill</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Compliance</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reports-table-body" class="divide-y divide-gray-100 bg-white">
+                                
+                                <!-- Site 1: Karachi High-Rise -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Karachi High-Rise Commercial Tower</div>
+                                        <span class="text-[9.5px] text-gray-400">Clifton Block 4 • HVAC Ducts & VRF</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Engr. Tariq Farooq (PE)</td>
+                                    <td class="px-4 py-2.5 text-center font-bold text-[#242b5f]">6</td>
+                                    <td class="px-4 py-2.5 text-center font-bold text-gray-700">32</td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-800">Rs. 1,280,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9px] font-bold border border-green-200 uppercase">100% Verified</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="openModal('Site Labor Voucher - Karachi', '<p class=text-xs>Print Client Reimbursable Site Labor Sheet for Karachi High-Rise?</p><p class=\\'text-[10px] text-gray-500 mt-1\\'>38 workers verified via GPS biometrics.</p>', () => showToast('Client invoice generated!', 'success'))" class="bg-[#242b5f] text-white px-2.5 py-1 rounded text-[10px] font-bold hover:opacity-90 transition">
+                                            Site Sheet
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Site 2: Islamabad Govt Complex -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Islamabad Federal Secretariat Complex</div>
+                                        <span class="text-[9.5px] text-gray-400">Constitution Ave • Chiller Plant Overhaul</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Engr. Salman Raza (PE)</td>
+                                    <td class="px-4 py-2.5 text-center font-bold text-[#242b5f]">4</td>
+                                    <td class="px-4 py-2.5 text-center font-bold text-gray-700">24</td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-800">Rs. 950,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9px] font-bold border border-green-200 uppercase">100% Verified</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="showToast('Islamabad site timesheets downloaded', 'info')" class="bg-white border border-gray-200 text-gray-700 px-2.5 py-1 rounded text-[10px] font-bold hover:bg-gray-50 transition">
+                                            Timesheet
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Site 3: Lahore Head Office & Workshop -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Head Office, Warehouse & Fabrication Yard</div>
+                                        <span class="text-[9.5px] text-gray-400">Gulberg III Lahore • Central Operations</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">John Doe (PM)</td>
+                                    <td class="px-4 py-2.5 text-center font-bold text-[#242b5f]">10</td>
+                                    <td class="px-4 py-2.5 text-center font-bold text-gray-700">22</td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-800">Rs. 1,420,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9px] font-bold border border-green-200 uppercase">Audited</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="showToast('HQ Cost Center exported', 'success')" class="bg-white border border-gray-200 text-gray-700 px-2.5 py-1 rounded text-[10px] font-bold hover:bg-gray-50 transition">
+                                            Timesheet
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Site 4: Peshawar Industrial Textile Mill -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Peshawar Industrial Textile HVAC Mill</div>
+                                        <span class="text-[9.5px] text-gray-400">Hayatabad Industrial Estate • Ventilation</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Engr. Naveed Khattak</td>
+                                    <td class="px-4 py-2.5 text-center font-bold text-[#242b5f]">3</td>
+                                    <td class="px-4 py-2.5 text-center font-bold text-gray-700">18</td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-800">Rs. 680,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-[9px] font-bold border border-yellow-200 uppercase">Pending CEO Lock</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button onclick="showToast('Site timesheet ready for review', 'info')" class="bg-white border border-gray-200 text-gray-700 px-2.5 py-1 rounded text-[10px] font-bold hover:bg-gray-50 transition">
+                                            Timesheet
+                                        </button>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        `);
+    </script>
+</body>
+</html>

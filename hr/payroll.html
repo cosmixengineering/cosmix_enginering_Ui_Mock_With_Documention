@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Payroll Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('payroll');
+        setPageContent('5. Payroll Engine', `
+            <div class="space-y-4">
+                
+                <!-- 1. Interactive Payroll Explanation / Process Workflow Guide -->
+                <div class="bg-gradient-to-r from-[#242b5f] to-[#3a4484] text-white p-4 rounded-xl shadow-md border border-indigo-900/30">
+                    <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/10">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-lg text-amber-300">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-sm font-bold tracking-tight">How Cosmix Payroll Engine Works (Site & Office Rules)</h2>
+                                    <span class="bg-amber-400/20 text-amber-200 text-[9px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/30 uppercase">Automated Cycle</span>
+                                </div>
+                                <p class="text-[11px] text-indigo-100/80 mt-0.5">Biometric sync, role-specific calculation (Office Salaried vs Site Hourly/OT), loan EMI deductions, and bank transfer advice.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="togglePayrollGuide()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5">
+                                <i class="fas fa-info-circle text-amber-300"></i> <span id="guide-toggle-text">Hide Formula Guide</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4-Step Visual Calculation Steps -->
+                    <div id="payroll-flow-steps" class="grid grid-cols-1 md:grid-cols-4 gap-3 pt-3">
+                        <div class="bg-white/5 border border-white/10 rounded-lg p-2.5">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-5 h-5 rounded-full bg-amber-400 text-[#242b5f] font-bold text-[10px] flex items-center justify-center">1</span>
+                                <h4 class="text-xs font-bold text-white">Shift & Attendance</h4>
+                            </div>
+                            <p class="text-[10.5px] text-indigo-200/90 leading-relaxed">Pulls daily biometric punches against <strong>09:00-18:00 (Office)</strong> and <strong>08:00-17:00 (Site)</strong> shifts. Tallies present days, grace lates, and approved leaves.</p>
+                        </div>
+
+                        <div class="bg-white/5 border border-white/10 rounded-lg p-2.5">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-5 h-5 rounded-full bg-amber-400 text-[#242b5f] font-bold text-[10px] flex items-center justify-center">2</span>
+                                <h4 class="text-xs font-bold text-white">Workplace Formulas</h4>
+                            </div>
+                            <p class="text-[10.5px] text-indigo-200/90 leading-relaxed"><strong>Office Staff:</strong> Fixed monthly base + medical/fuel (no site OT).<br><strong>Site MEP Staff:</strong> Base + 1.5x OT + Rs. 500 night allowance.</p>
+                        </div>
+
+                        <div class="bg-white/5 border border-white/10 rounded-lg p-2.5">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-5 h-5 rounded-full bg-amber-400 text-[#242b5f] font-bold text-[10px] flex items-center justify-center">3</span>
+                                <h4 class="text-xs font-bold text-white">Deductions & Advances</h4>
+                            </div>
+                            <p class="text-[10.5px] text-indigo-200/90 leading-relaxed">Auto-deducts monthly EMI for approved <strong>Salary Advance / Emergency Loans</strong>, income tax brackets, and un-waived absent days.</p>
+                        </div>
+
+                        <div class="bg-white/5 border border-white/10 rounded-lg p-2.5">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-5 h-5 rounded-full bg-amber-400 text-[#242b5f] font-bold text-[10px] flex items-center justify-center">4</span>
+                                <h4 class="text-xs font-bold text-white">CEO Lock & Bank Batch</h4>
+                            </div>
+                            <p class="text-[10.5px] text-indigo-200/90 leading-relaxed">HR locks the cycle for CEO final sign-off. Exports bank advice files (HBL, Meezan, MCB) & sends WhatsApp/PDF payslips.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Compact Financial Metric Bar -->
+                <div class="bg-white p-3.5 rounded-xl shadow-xs border border-gray-100 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center text-base">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-gray-800 text-sm">September 2026 Master Payroll</h3>
+                                <span class="bg-yellow-100 text-yellow-800 text-[8.5px] px-2 py-0.5 rounded-md font-bold uppercase border border-yellow-200">Draft Review</span>
+                            </div>
+                            <p class="text-[10.5px] text-gray-400">150 Total Personnel (45 Corporate & Regional Office • 105 Site Engineers & Technicians)</p>
+                        </div>
+                    </div>
+
+                    <!-- Financial Totals -->
+                    <div class="flex items-center gap-4 text-left">
+                        <div class="border-r border-gray-100 pr-3">
+                            <p class="text-[8.5px] text-gray-400 font-bold uppercase tracking-wider">Gross Base</p>
+                            <p class="text-xs font-bold text-gray-700">Rs. 5.12M</p>
+                        </div>
+                        <div class="border-r border-gray-100 pr-3">
+                            <p class="text-[8.5px] text-green-600 font-bold uppercase tracking-wider">Allowances & OT</p>
+                            <p class="text-xs font-bold text-green-700">+Rs. 385K</p>
+                        </div>
+                        <div class="border-r border-gray-100 pr-3">
+                            <p class="text-[8.5px] text-red-600 font-bold uppercase tracking-wider">Deductions (Loan/Tax)</p>
+                            <p class="text-xs font-bold text-red-600">-Rs. 65K</p>
+                        </div>
+                        <div>
+                            <p class="text-[8.5px] text-[#242b5f] font-bold uppercase tracking-wider">Net Bank Transfer</p>
+                            <p class="text-sm font-extrabold text-[#242b5f]">Rs. 5,440,000</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Filter Tabs (Office vs Site) & Action Toolbar -->
+                <div class="bg-white p-2.5 rounded-xl shadow-xs border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    
+                    <!-- Left: Category Tabs -->
+                    <div class="flex items-center gap-1 bg-gray-100 p-0.5 rounded-lg text-xs font-bold">
+                        <button id="pfilter-all" onclick="filterPayrollWorkplace('all')" class="px-3 py-1.5 rounded-md text-xs font-bold transition shadow-xs bg-white text-[#242b5f] flex items-center gap-1.5">
+                            <i class="fas fa-users"></i> All Staff <span class="bg-gray-200 text-gray-700 text-[9px] px-1.5 py-0.2 rounded-full font-bold">150</span>
+                        </button>
+                        <button id="pfilter-office" onclick="filterPayrollWorkplace('office')" class="px-3 py-1.5 rounded-md text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5">
+                            <i class="fas fa-building text-purple-600"></i> 🏢 Head & Regional Office <span class="bg-purple-100 text-purple-700 text-[9px] px-1.5 py-0.2 rounded-full font-bold">45</span>
+                        </button>
+                        <button id="pfilter-site" onclick="filterPayrollWorkplace('site')" class="px-3 py-1.5 rounded-md text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5">
+                            <i class="fas fa-hard-hat text-amber-600"></i> 🏗️ Site Technical / MEP <span class="bg-amber-100 text-amber-700 text-[9px] px-1.5 py-0.2 rounded-full font-bold">105</span>
+                        </button>
+                    </div>
+
+                    <!-- Right: Search and Export / Calculation Actions -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <div class="relative w-44">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input type="text" oninput="filterTableRows(this, 'payroll-table-body')" placeholder="Search employee..." class="w-full text-xs border border-gray-200 rounded-md pl-7 pr-3 py-1 focus:outline-none focus:border-[#242b5f] bg-white">
+                        </div>
+                        <button onclick="exportToExcel('Payroll_Bank_Sheet_Sep_2026')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-xs transition flex items-center gap-1.5" title="Export Bank Advice">
+                            <i class="fas fa-file-excel text-green-600 text-xs"></i> Bank Excel
+                        </button>
+                        <button onclick="exportToPDF('Master_Payroll_Summary_Sep_2026')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-xs transition flex items-center gap-1.5" title="Print Payslips">
+                            <i class="fas fa-file-pdf text-red-500 text-xs"></i> Payslips PDF
+                        </button>
+                        <button onclick="openImportModal('Incentives & Deductions')" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-2.5 py-1 rounded-md text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
+                            <i class="fas fa-file-import text-blue-600 text-xs"></i> Adjustments
+                        </button>
+                        <button onclick="openModal('Run Payroll Engine', '<p class=text-xs>Recalculate biometric hours, deductions, and site allowances for all 150 employees?</p>', () => showToast('Monthly payroll recalculated successfully!', 'success'))" class="bg-[#242b5f] text-white hover:opacity-90 px-3 py-1 rounded-md text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                            <i class="fas fa-sync-alt text-[10px]"></i> Re-Calculate
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4. Master Payroll Table with Both Office & Site Records -->
+                <div class="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex flex-wrap justify-between items-center bg-gray-50/50 gap-2">
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                                <i class="fas fa-users text-[#242b5f]"></i> Employee Salary & Compensation Breakdown
+                            </h3>
+                            <span id="active-workplace-label" class="bg-indigo-50 text-[#242b5f] text-[9.5px] font-bold px-2 py-0.5 rounded border border-indigo-200">Showing All 150 Employees</span>
+                        </div>
+                        <span class="text-[10px] text-gray-400 font-medium">Synced with Shift Master & Biometric Device Logs</span>
+                    </div>
+                    
+                    <div class="overflow-x-auto min-h-[300px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Employee & Workplace</th>
+                                    <th class="px-4 py-2.5 font-bold">Workplace / Shift Rule</th>
+                                    <th class="px-4 py-2.5 font-bold">Base Salary</th>
+                                    <th class="px-4 py-2.5 font-bold text-green-700">Additions (+)</th>
+                                    <th class="px-4 py-2.5 font-bold text-red-600">Deductions (-)</th>
+                                    <th class="px-4 py-2.5 font-bold text-[#242b5f]">Net Payable</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payroll-table-body" class="divide-y divide-gray-100 bg-white">
+                                
+                                <!-- Office Row 1: Farhan Malik (Senior Accountant) -->
+                                <tr class="hover:bg-blue-50/20 transition group payroll-row" data-workplace="office">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[10px]">FM</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Farhan Malik</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1048 • Senior Accountant</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-purple-50 text-purple-700 text-[9px] font-bold px-2 py-0.5 rounded border border-purple-200 inline-flex items-center gap-1">
+                                            <i class="fas fa-building text-[8.5px]"></i> Head Office (09:00 AM - 06:00 PM)
+                                        </span>
+                                        <p class="text-[8.5px] text-gray-400 mt-0.5">Finance & Accounts • Fixed Salaried</p>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-semibold text-gray-700">Rs. 95,000</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-green-700 font-bold">+Rs. 7,000</div>
+                                        <div class="text-[9px] text-gray-400">Executive & Conveyance</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-red-600 font-bold">-Rs. 3,500</div>
+                                        <div class="text-[9px] text-gray-400">Income Tax (Salaried)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-extrabold text-[#242b5f] text-sm">Rs. 98,500</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-green-200">Approved</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="openPayslipModal({ name: 'Farhan Malik', role: 'Senior Accountant', empId: 'EMP-1048', site: 'Head Office (Lahore)', base: 95000, allowance: 7000, ot: 0, advanceEmi: 0, tax: 3500, bank: 'Meezan Bank - Gulberg Branch', iban: 'PK32MEZN009988776655' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar text-[#242b5f] w-4"></i> View Salary Invoice</button>
+                                            <button onclick="showToast('Pay stub sent via email to Farhan Malik', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-envelope w-4 text-blue-600"></i> Email Payslip</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Office Row 2: Zainab Ali (HR Assistant) -->
+                                <tr class="hover:bg-blue-50/20 transition group payroll-row" data-workplace="office">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center font-bold text-[10px]">ZA</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Zainab Ali</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1045 • HR Assistant</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-purple-50 text-purple-700 text-[9px] font-bold px-2 py-0.5 rounded border border-purple-200 inline-flex items-center gap-1">
+                                            <i class="fas fa-building text-[8.5px]"></i> Head Office (09:00 AM - 06:00 PM)
+                                        </span>
+                                        <p class="text-[8.5px] text-gray-400 mt-0.5">Human Resources • Fixed Salaried</p>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-semibold text-gray-700">Rs. 55,000</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-green-700 font-bold">+Rs. 4,000</div>
+                                        <div class="text-[9px] text-gray-400">Medical Allowance</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-red-600 font-bold">-Rs. 1,000</div>
+                                        <div class="text-[9px] text-gray-400">Income Tax Deduction</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-extrabold text-[#242b5f] text-sm">Rs. 58,000</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-green-200">Approved</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="openPayslipModal({ name: 'Zainab Ali', role: 'HR Assistant', empId: 'EMP-1045', site: 'Head Office (Lahore)', base: 55000, allowance: 4000, ot: 0, advanceEmi: 0, tax: 1000, bank: 'Habib Bank Limited - Main Blvd', iban: 'PK44HABB001122334455' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar text-[#242b5f] w-4"></i> View Salary Invoice</button>
+                                            <button onclick="showToast('Pay stub sent via email to Zainab Ali', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-envelope w-4 text-blue-600"></i> Email Payslip</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Office Row 3: Babar Siddiqui (Procurement Manager) -->
+                                <tr class="hover:bg-blue-50/20 transition group payroll-row" data-workplace="office">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[10px]">BS</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Babar Siddiqui</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1049 • Procurement Manager</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-purple-50 text-purple-700 text-[9px] font-bold px-2 py-0.5 rounded border border-purple-200 inline-flex items-center gap-1">
+                                            <i class="fas fa-building text-[8.5px]"></i> Head Office (09:00 AM - 06:00 PM)
+                                        </span>
+                                        <p class="text-[8.5px] text-gray-400 mt-0.5">Supply Chain & Stores • Fixed Salaried</p>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-semibold text-gray-700">Rs. 120,000</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-green-700 font-bold">+Rs. 10,000</div>
+                                        <div class="text-[9px] text-gray-400">Fuel & Vehicle Allowance</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-red-600 font-bold">-Rs. 6,500</div>
+                                        <div class="text-[9px] text-gray-400">Income Tax (Higher Slab)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-extrabold text-[#242b5f] text-sm">Rs. 123,500</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-blue-200"><i class="fas fa-lock mr-1"></i> Locked</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="openPayslipModal({ name: 'Babar Siddiqui', role: 'Procurement Manager', empId: 'EMP-1049', site: 'Head Office (Lahore)', base: 120000, allowance: 10000, ot: 0, advanceEmi: 0, tax: 6500, bank: 'Bank Alfalah - Gulberg Branch', iban: 'PK19ALFH003322110099' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar text-[#242b5f] w-4"></i> View Salary Invoice</button>
+                                            <button onclick="showToast('Disbursement approved and queued in bank batch.', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2"><i class="fas fa-paper-plane w-4"></i> Send to Bank</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Office Row 4: Sara Ahmed (Sales Executive) -->
+                                <tr class="hover:bg-blue-50/20 transition group payroll-row" data-workplace="office">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px]">SA</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Sara Ahmed</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1043 • Sales Executive</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-purple-50 text-purple-700 text-[9px] font-bold px-2 py-0.5 rounded border border-purple-200 inline-flex items-center gap-1">
+                                            <i class="fas fa-building text-[8.5px]"></i> Head Office (09:00 AM - 06:00 PM)
+                                        </span>
+                                        <p class="text-[8.5px] text-gray-400 mt-0.5">Sales & CRM • Base + Commission</p>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-semibold text-gray-700">Rs. 65,000</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-green-700 font-bold">+Rs. 12,000</div>
+                                        <div class="text-[9px] text-gray-400">Sales Commission (Q3 Deals)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-red-600 font-bold">-Rs. 1,500</div>
+                                        <div class="text-[9px] text-gray-400">Income Tax</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-extrabold text-[#242b5f] text-sm">Rs. 75,500</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-yellow-200">Draft</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="openPayslipModal({ name: 'Sara Ahmed', role: 'Sales Executive', empId: 'EMP-1043', site: 'Head Office (Lahore)', base: 65000, allowance: 5000, ot: 0, advanceEmi: 0, tax: 1500, bank: 'MCB Bank - Gulberg Branch', iban: 'PK12MUCB005566778899' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar text-[#242b5f] w-4"></i> View Salary Invoice</button>
+                                            <button onclick="showToast('Commission slip printed for Sara Ahmed', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-print w-4 text-gray-500"></i> Print Pay Stub</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Site Row 1: John Doe (Project Manager) -->
+                                <tr class="hover:bg-blue-50/20 transition group payroll-row" data-workplace="site">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center font-bold text-[10px]">JD</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">John Doe</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1039 • Project Mgr</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-amber-50 text-amber-700 text-[9px] font-bold px-2 py-0.5 rounded border border-amber-200 inline-flex items-center gap-1">
+                                            <i class="fas fa-hard-hat text-[8.5px]"></i> Lahore Commercial Complex (08:00 AM - 05:00 PM)
+                                        </span>
+                                        <p class="text-[8.5px] text-gray-400 mt-0.5">Engineering Management • Site Hardship</p>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-semibold text-gray-700">Rs. 150,000</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-green-700 font-bold">+Rs. 15,000</div>
+                                        <div class="text-[9px] text-gray-400">TA/DA + Site Allowance</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-red-600 font-bold">-Rs. 5,000</div>
+                                        <div class="text-[9px] text-gray-400">Advance Loan EMI (2 of 6)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-extrabold text-[#242b5f] text-sm">Rs. 160,000</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center" id="payroll-status-1">
+                                        <span class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-yellow-200">Draft</span>
+                                    </td>
+                                     <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="openPayslipModal({ name: 'John Doe', role: 'Project Manager', empId: 'EMP-1039', site: 'Lahore Commercial Complex', base: 150000, allowance: 15000, ot: 0, advanceEmi: 5000, tax: 8500, bank: 'HBL Pakistan - Main Branch', iban: 'PK02HABB001092837465' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar text-[#242b5f] w-4"></i> View Salary Invoice</button>
+                                            <button onclick="openModal('Lock & Send', '<p class=text-xs>Lock this draft and forward to CEO / Accounts for disbursement?</p>', () => { showToast('Draft locked and sent to CEO!', 'success'); document.getElementById('payroll-status-1').innerHTML = '<span class=\\'bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-blue-200\\'><i class=\\'fas fa-lock mr-1\\'></i> Locked</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50 font-medium flex items-center gap-2"><i class="fas fa-lock w-4"></i> Lock & Send to CEO</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <button onclick="showToast('Draft flagged for HR adjustment', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-edit w-4"></i> Edit Allowances</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Site Row 2: Ali Syed (HVAC Tech) -->
+                                <tr class="hover:bg-blue-50/20 transition group payroll-row" data-workplace="site">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center font-bold text-[10px]">AS</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Ali Syed</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1048 • HVAC Tech</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-amber-50 text-amber-700 text-[9px] font-bold px-2 py-0.5 rounded border border-amber-200 inline-flex items-center gap-1">
+                                            <i class="fas fa-hard-hat text-[8.5px]"></i> Karachi High-Rise (08:00 AM - 05:00 PM)
+                                        </span>
+                                        <p class="text-[8.5px] text-gray-400 mt-0.5">Field Technical • 1.5x Overtime Eligible</p>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-semibold text-gray-700">Rs. 45,000</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-green-700 font-bold">+Rs. 8,000</div>
+                                        <div class="text-[9px] text-gray-400">Overtime (20hrs @ 1.5x rate)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-red-600 font-bold">-Rs. 1,500</div>
+                                        <div class="text-[9px] text-gray-400">1 Unwaived Absent Day</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-extrabold text-[#242b5f] text-sm">Rs. 51,500</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-blue-200"><i class="fas fa-lock mr-1"></i> Locked</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="openPayslipModal({ name: 'Ali Syed', role: 'HVAC Technician', empId: 'EMP-1048', site: 'Karachi High-Rise', base: 45000, allowance: 3000, ot: 8000, otHours: '20h', advanceEmi: 0, tax: 500, lateDed: 1500, bank: 'Bank Alfalah - Clifton Branch', iban: 'PK45ALFH009988776655' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar text-[#242b5f] w-4"></i> View Salary Invoice</button>
+                                            <button onclick="showToast('Disbursement approved and queued in bank batch.', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2"><i class="fas fa-paper-plane w-4"></i> Send to Bank</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Site Row 3: Ali Khan (HVAC Engineer) -->
+                                <tr class="hover:bg-blue-50/20 transition group payroll-row" data-workplace="site">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center font-bold text-[10px]">AK</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Ali Khan</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1042 • HVAC Engineer</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-amber-50 text-amber-700 text-[9px] font-bold px-2 py-0.5 rounded border border-amber-200 inline-flex items-center gap-1">
+                                            <i class="fas fa-hard-hat text-[8.5px]"></i> Karachi High-Rise (08:00 AM - 05:00 PM)
+                                        </span>
+                                        <p class="text-[8.5px] text-gray-400 mt-0.5">Site Engineering • Shift Supervision</p>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-semibold text-gray-700">Rs. 85,000</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-green-700 font-bold">+Rs. 13,000</div>
+                                        <div class="text-[9px] text-gray-400">Overtime + Site Hardship</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-red-600 font-bold">-Rs. 10,000</div>
+                                        <div class="text-[9px] text-gray-400">Advance Recovery EMI (4 of 5)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-extrabold text-[#242b5f] text-sm">Rs. 88,000</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-green-200">Approved</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="openPayslipModal({ name: 'Ali Khan', role: 'HVAC Engineer', empId: 'EMP-1042', site: 'Karachi High-Rise', base: 85000, allowance: 5000, ot: 8000, advanceEmi: 10000, tax: 2500, bank: 'Meezan Bank - Clifton Branch', iban: 'PK36MEZN00010982347101' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar text-[#242b5f] w-4"></i> View Salary Invoice</button>
+                                            <button onclick="showToast('Salary advice printed for Ali Khan', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-print w-4 text-gray-500"></i> Print Pay Stub</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Site Row 4: Usman Tariq (AC Technician) -->
+                                <tr class="hover:bg-blue-50/20 transition group payroll-row" data-workplace="site">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-[10px]">UT</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Usman Tariq</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1044 • AC Technician</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-amber-50 text-amber-700 text-[9px] font-bold px-2 py-0.5 rounded border border-amber-200 inline-flex items-center gap-1">
+                                            <i class="fas fa-hard-hat text-[8.5px]"></i> Islamabad Govt Complex (08:00 AM - 05:00 PM)
+                                        </span>
+                                        <p class="text-[8.5px] text-gray-400 mt-0.5">Field Maintenance • 1.5x Overtime Eligible</p>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-semibold text-gray-700">Rs. 45,000</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-green-700 font-bold">+Rs. 6,000</div>
+                                        <div class="text-[9px] text-gray-400">Overtime (15hrs site)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-red-600 font-bold">-Rs. 500</div>
+                                        <div class="text-[9px] text-gray-400">Tax / EOBI Deduction</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-extrabold text-[#242b5f] text-sm">Rs. 50,500</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-yellow-200">Draft</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="openPayslipModal({ name: 'Usman Tariq', role: 'AC Technician', empId: 'EMP-1044', site: 'Islamabad Govt Complex', base: 45000, allowance: 4000, ot: 6000, advanceEmi: 0, tax: 500, bank: 'Allied Bank - Blue Area', iban: 'PK88ABPA003344556677' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar text-[#242b5f] w-4"></i> View Salary Invoice</button>
+                                            <button onclick="showToast('Pay stub sent to Usman Tariq', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-print w-4 text-gray-500"></i> Print Pay Stub</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        `);
+
+        // Helper functions for Payroll Page
+        window.togglePayrollGuide = function() {
+            const steps = document.getElementById('payroll-flow-steps');
+            const txt = document.getElementById('guide-toggle-text');
+            if (steps.classList.contains('hidden')) {
+                steps.classList.remove('hidden');
+                txt.innerText = 'Hide Formula Guide';
+            } else {
+                steps.classList.add('hidden');
+                txt.innerText = 'Show Formula Guide';
+            }
+        };
+
+        window.filterPayrollWorkplace = function(type) {
+            const rows = document.querySelectorAll('.payroll-row');
+            const label = document.getElementById('active-workplace-label');
+            
+            // Toggle active classes on tabs
+            ['all', 'office', 'site'].forEach(t => {
+                const btn = document.getElementById('pfilter-' + t);
+                if (btn) {
+                    if (t === type) {
+                        btn.className = 'px-3 py-1.5 rounded-md text-xs font-bold transition shadow-xs bg-white text-[#242b5f] flex items-center gap-1.5';
+                    } else {
+                        btn.className = 'px-3 py-1.5 rounded-md text-xs font-bold transition text-gray-600 hover:text-gray-900 flex items-center gap-1.5';
+                    }
+                }
+            });
+
+            let visibleCount = 0;
+            rows.forEach(r => {
+                if (type === 'all' || r.getAttribute('data-workplace') === type) {
+                    r.style.display = '';
+                    visibleCount++;
+                } else {
+                    r.style.display = 'none';
+                }
+            });
+
+            if (type === 'all') {
+                label.innerText = 'Showing All 150 Personnel (Office + Site)';
+            } else if (type === 'office') {
+                label.innerText = 'Showing Corporate & Regional Office Personnel (45 Staff)';
+            } else if (type === 'site') {
+                label.innerText = 'Showing Project Site & Technical Trades (105 Staff)';
+            }
+        };
+    </script>
+</body>
+</html>
