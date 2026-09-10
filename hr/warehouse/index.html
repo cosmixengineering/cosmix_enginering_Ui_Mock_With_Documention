@@ -3,151 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse & Stock Dashboard | Cosmix ERP</title>
+    <title>Warehouse Overview | Cosmix Engineering</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
-</head>
-<body class="text-gray-800">
-    <div id="app-layout" class="flex min-h-screen"></div>
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/inventory.css">
+</head>
+<body class="inventory-app text-gray-800">
+    <div id="app-layout" class="flex h-screen overflow-hidden"></div>
     <script src="../../assets/js/shared.js"></script>
-    <script>
-        renderLayout('dashboard');
-        setPageContent('Warehouse & Stock Dashboard', `
-<!-- Top Header -->
-            
-
-            <!-- Dashboard Content -->
-            
-                
-                <!-- KPI Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl mr-4">
-                            <i class="fa-solid fa-cubes"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium mb-1">Total Stock Value</p>
-                            <h3 class="text-2xl font-bold text-gray-900">Rs. 4.2M</h3>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mr-4">
-                            <i class="fa-solid fa-boxes-packing"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium mb-1">Total Items</p>
-                            <h3 class="text-2xl font-bold text-gray-900">1,245</h3>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xl mr-4">
-                            <i class="fa-solid fa-truck-fast"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium mb-1">Pending Dispatches</p>
-                            <h3 class="text-2xl font-bold text-gray-900">12</h3>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center text-xl mr-4">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500 font-medium mb-1">Low Stock Alerts</p>
-                            <h3 class="text-2xl font-bold text-gray-900">8</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tables Section -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    <!-- Pending Site Requests -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-800">Pending Site Requests</h3>
-                            <a href="outward.html" class="text-sm text-blue-600 hover:underline">View All</a>
-                        </div>
-                        <div class="p-6">
-                            <!-- Request 1 -->
-                            <div class="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
-                                <div>
-                                    <h4 class="font-bold text-gray-800">VRF Outdoor Units (20 HP)</h4>
-                                    <p class="text-xs text-gray-500 mt-1">Requested by: Site A (DHA Phase 8)</p>
-                                </div>
-                                <div class="text-right">
-                                    <span class="font-bold text-gray-900 block mb-1">2 Units</span>
-                                    <a href="hr/warehouse/outward.html" class="text-xs font-semibold text-white bg-[#242b5f] px-3 py-1.5 rounded hover:bg-blue-800 transition">Process Request <i class="fas fa-arrow-right ml-1"></i></a>
-                                </div>
-                            </div>
-                            
-                            <!-- Request 2 -->
-                            <div class="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
-                                <div>
-                                    <h4 class="font-bold text-gray-800">Copper Coil Tube 5/8"</h4>
-                                    <p class="text-xs text-gray-500 mt-1">Requested by: Site B (Clifton)</p>
-                                </div>
-                                <div class="text-right">
-                                    <span class="font-bold text-gray-900 block mb-1">5 Coils</span>
-                                    <a href="hr/warehouse/outward.html" class="text-xs font-semibold text-white bg-[#242b5f] px-3 py-1.5 rounded hover:bg-blue-800 transition">Process Request <i class="fas fa-arrow-right ml-1"></i></a>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Low Stock Alerts -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-800">Low Stock Alerts</h3>
-                            <button class="text-sm text-blue-600 hover:underline"><i class="fa-solid fa-plus mr-1"></i>Purchase Requisition</button>
-                        </div>
-                        <div class="p-0">
-                            <table class="w-full text-left text-sm text-gray-600">
-                                <thead class="bg-gray-50 text-gray-700 border-b border-gray-200">
-                                    <tr>
-                                        <th class="px-6 py-3 font-medium">Item Name</th>
-                                        <th class="px-6 py-3 font-medium">Current Stock</th>
-                                        <th class="px-6 py-3 font-medium">Min Level</th>
-                                        <th class="px-6 py-3 font-medium">Status</th>
-                                        <th class="px-6 py-3 font-medium text-right">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 font-medium text-gray-900">PVC Pipes 4"</td>
-                                        <td class="px-6 py-4 text-red-600 font-bold">12 ft</td>
-                                        <td class="px-6 py-4">50 ft</td>
-                                        <td class="px-6 py-4"><span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">Critical</span></td>
-                                        <td class="px-6 py-4 text-right"><button class="text-xs font-bold text-[#242b5f] hover:text-blue-800 border border-[#242b5f] hover:bg-blue-50 px-3 py-1 rounded transition shadow-sm">Generate PR</button></td>
-                                    </tr>
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 font-medium text-gray-900">Safety Helmets</td>
-                                        <td class="px-6 py-4 text-amber-600 font-bold">5</td>
-                                        <td class="px-6 py-4">20</td>
-                                        <td class="px-6 py-4"><span class="bg-amber-100 text-amber-700 px-2 py-1 rounded-full text-xs font-semibold">Warning</span></td>
-                                        <td class="px-6 py-4 text-right"><button class="text-xs font-bold text-[#242b5f] hover:text-blue-800 border border-[#242b5f] hover:bg-blue-50 px-3 py-1 rounded transition shadow-sm">Generate PR</button></td>
-                                    </tr>
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 font-medium text-gray-900">Drill Bits Set</td>
-                                        <td class="px-6 py-4 text-amber-600 font-bold">2</td>
-                                        <td class="px-6 py-4">10</td>
-                                        <td class="px-6 py-4"><span class="bg-amber-100 text-amber-700 px-2 py-1 rounded-full text-xs font-semibold">Warning</span></td>
-                                        <td class="px-6 py-4 text-right"><button class="text-xs font-bold text-[#242b5f] hover:text-blue-800 border border-[#242b5f] hover:bg-blue-50 px-3 py-1 rounded transition shadow-sm">Generate PR</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                </div>
-        `);
-    </script>
+    <script src="../../assets/js/inventory-store.js"></script>
+    <script src="../../assets/js/inventory-ui.js"></script>
+    <script src="../../assets/js/inventory-requests.js"></script>
+    <script src="../../assets/js/inventory-procurement.js"></script>
+    <script>Inv.start('index');</script>
 </body>
 </html>

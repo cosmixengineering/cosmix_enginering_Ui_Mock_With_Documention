@@ -787,7 +787,9 @@ const renderLayout = (activePage) => {
     const logoImg = document.getElementById('logo-img');
     const menuLabel = document.getElementById('menu-label');
     const menuTexts = document.querySelectorAll('.menu-text');
-    let isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    // Local HTML previews may deny storage. A sidebar preference must not stop page startup.
+    let isCollapsed = false;
+    try { isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true'; } catch (_) {}
 
     const updateSidebarState = () => {
         if (isCollapsed) {
@@ -807,7 +809,7 @@ const renderLayout = (activePage) => {
 
     window.toggleSidebar = () => {
         isCollapsed = !isCollapsed;
-        localStorage.setItem('sidebarCollapsed', isCollapsed);
+        try { localStorage.setItem('sidebarCollapsed', isCollapsed); } catch (_) {}
         updateSidebarState();
     };
 

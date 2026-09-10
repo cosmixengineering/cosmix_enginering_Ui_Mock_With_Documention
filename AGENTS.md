@@ -1,0 +1,16 @@
+# Cosmix Engineering mockup workspace
+
+Read `PROJECT_CONTEXT.md` and `inventory/documentation/Inventory_Workflows.md` before changing workflows. These files preserve the project manager's confirmed instructions across sessions.
+
+- This repository is a requirements and HTML mockup project for Cosmix Engineering, Pakistan. Production execution starts after management approval. Do not introduce a backend, migrate the stack, publish the mockup, or change other departments without an applicable request.
+- The project manager leads a four-person team on a planned six-month project and uses Codex as a senior development collaborator. Communicate in clear Roman Urdu when following the user's conversational language.
+- Mobile is for employees/workers and clients, with role-based access. Office staff and site staff have employee self-service for their own salary, attendance, deductions, overtime, leaves, advance requests and loan requests. Supervisor is a role within site staff; material/tool request access belongs to that role, not every worker. Add further role permissions only as requirements are confirmed.
+- Department management panels (including Inventory, HR and Accounts) belong to the web application. Do not treat the existing mobile InventoryDashboard prototype as a requirement to implement mobile inventory administration. Employee operational mobile actions and personal HR access are distinct from department management permissions.
+- Site Supervisor mobile material/tool requests go DIRECTLY to Inventory. No Project Manager approval in this flow.
+- Available warehouse stock goes with an internal office rider. Warehouse dispatch is non-financial.
+- For shortages, Inventory chooses ONE Administrator OR Director to approve a purchase request. After approval the company purchaser obtains goods from a vendor and arranges delivery.
+- Review the mobile reference and existing mobile screens when adjusting inventory handoffs. Keep confirmed rules distinct from proposed mockup behavior.
+- Maintain existing HTML/CSS/JavaScript styling and department boundaries. Mock state and role simulations must be visibly identified as demonstrations, never represented as a working backend/mobile integration.
+- Inventory UI must match HR/Accounts compact sizing and shared navy-active sidebar. Avoid oversized cards, headings and banners. Keep item selection and purchase quantity inputs visible; stock checks should not impose a separate confusing prerequisite. The user opens HTML directly in Chrome, so preserve normal navigation state without requiring a server.
+- Flow changes do not authorize replacing existing forms or removing their fields. Preserve the master-item material/SKU code, description/specifications, category, unit, per-piece/unit purchase price, minimum stock, bin and opening stock. Optional product variations use an ON/OFF toggle and add/remove rows with distinct material codes, specifications and per-unit prices. Keep changes narrowly scoped to the user's requested correction.
+- Record new confirmed requirements, open decisions, completed changes and validation in project documentation. Do not claim permanent personal memory; repository files are the durable reference.

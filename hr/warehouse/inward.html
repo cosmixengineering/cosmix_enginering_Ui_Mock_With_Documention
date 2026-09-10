@@ -3,113 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inward (GRN) | Cosmix ERP</title>
+    <title>Inward and GRN | Cosmix Engineering</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
-</head>
-<body class="text-gray-800">
-    <div id="app-layout" class="flex min-h-screen"></div>
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/inventory.css">
+</head>
+<body class="inventory-app text-gray-800">
+    <div id="app-layout" class="flex h-screen overflow-hidden"></div>
     <script src="../../assets/js/shared.js"></script>
-    <script>
-        renderLayout('inward');
-        setPageContent('Inward (GRN)', `
-<h3 class="text-lg font-bold text-gray-800 mb-4">Pending Deliveries & Site Returns</h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Delivery Card 1 -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 flex justify-between items-center">
-                            <span class="font-bold text-gray-800">PO-2026-089</span>
-                            <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded">Awaiting Delivery</span>
-                        </div>
-                        <div class="p-5">
-                            <p class="text-sm text-gray-500 mb-1">Supplier / Vendor</p>
-                            <p class="font-semibold text-gray-900 mb-4">Al-Fatah Hardware & Steels</p>
-                            
-                            <div class="space-y-2 mb-4">
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">Steel Rebar 60 Grade</span>
-                                    <span class="font-bold">10 Tons</span>
-                                </div>
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">Binding Wire</span>
-                                    <span class="font-bold">50 kg</span>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center gap-2 text-xs text-gray-500 mb-5">
-                                <i class="fa-regular fa-clock"></i> Expected: Today
-                            </div>
-                            
-                            <button onclick="openModal('grnModal')" class="w-full bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 font-semibold py-2 rounded-md transition-colors">
-                                Receive & Generate GRN
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Delivery Card 2 -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 flex justify-between items-center">
-                            <span class="font-bold text-gray-800">PO-2026-092</span>
-                            <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded">Awaiting Delivery</span>
-                        </div>
-                        <div class="p-5">
-                            <p class="text-sm text-gray-500 mb-1">Supplier / Vendor</p>
-                            <p class="font-semibold text-gray-900 mb-4">Popular Pipes Official</p>
-                            
-                            <div class="space-y-2 mb-4">
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">PVC Pipe 4"</span>
-                                    <span class="font-bold">200 Lengths</span>
-                                </div>
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">PVC Elbow 4"</span>
-                                    <span class="font-bold">50 Pcs</span>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center gap-2 text-xs text-gray-500 mb-5">
-                                <i class="fa-regular fa-clock"></i> Expected: Tomorrow
-                            </div>
-                            
-                            <button onclick="openModal('grnModal')" class="w-full bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 font-semibold py-2 rounded-md transition-colors">
-                                Receive & Generate GRN
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <h3 class="text-lg font-bold text-gray-800 mt-10 mb-4">Recent GRN History</h3>
-                <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
-                    <table class="w-full text-left text-sm text-gray-600">
-                        <thead class="bg-gray-50 text-gray-700 border-b border-gray-200 uppercase text-xs font-semibold">
-                            <tr>
-                                <th class="px-6 py-4">GRN No.</th>
-                                <th class="px-6 py-4">Date & Time</th>
-                                <th class="px-6 py-4">Vendor</th>
-                                <th class="px-6 py-4">Ref PO</th>
-                                <th class="px-6 py-4">Received By</th>
-                                <th class="px-6 py-4 text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <tr>
-                                <td class="px-6 py-4 font-mono font-semibold text-blue-600">GRN-2609-001</td>
-                                <td class="px-6 py-4">09-Sep-2026 14:30</td>
-                                <td class="px-6 py-4 font-semibold text-gray-800">Lucky Cement Ltd</td>
-                                <td class="px-6 py-4 text-gray-500">PO-2026-085</td>
-                                <td class="px-6 py-4">Tariq Mehmood</td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold"><i class="fa-solid fa-check mr-1"></i> Added to Stock</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-        `);
-    </script>
+    <script src="../../assets/js/inventory-store.js"></script>
+    <script src="../../assets/js/inventory-ui.js"></script>
+    <script src="../../assets/js/inventory-requests.js"></script>
+    <script src="../../assets/js/inventory-procurement.js"></script>
+    <script>Inv.start('inward');</script>
 </body>
 </html>
