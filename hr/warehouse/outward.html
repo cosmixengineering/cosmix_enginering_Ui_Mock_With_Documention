@@ -51,16 +51,19 @@
                         </div>
                         <div class="bg-gray-50 border-l border-gray-200 p-6 md:w-1/4 flex flex-col justify-center items-center gap-3">
                             <div class="w-full text-center">
-                                <p class="text-xs text-gray-500 mb-1">Assign to Logistics</p>
-                                <select class="w-full border border-gray-300 text-gray-700 py-2 px-3 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                    <option>Select Field Supplier...</option>
-                                    <option>Imran Khan</option>
-                                    <option>Kamran Ahmed</option>
+                                <p class="text-xs text-gray-500 mb-1">Assign Delivery / Handover</p>
+                                <select class="w-full border border-gray-300 text-gray-700 py-2 px-3 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2">
+                                    <option>Select Supply Guy...</option>
+                                    <option>Imran Khan (Rider)</option>
+                                    <option>Kamran Ahmed (Driver)</option>
                                 </select>
+                                <button onclick="openModal('dispatchModal')" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition-colors shadow-sm text-xs mb-2">
+                                    Hand Over Delivery
+                                </button>
+                                <button class="w-full bg-white border border-red-200 text-red-600 font-semibold py-2 rounded-md hover:bg-red-50 transition-colors shadow-sm text-xs">
+                                    Send to Administrator (Purchase)
+                                </button>
                             </div>
-                            <button class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition-colors shadow-sm">
-                                Issue & Generate Challan
-                            </button>
                         </div>
                     </div>
 
@@ -87,16 +90,19 @@
                         </div>
                         <div class="bg-gray-50 border-l border-gray-200 p-6 md:w-1/4 flex flex-col justify-center items-center gap-3">
                             <div class="w-full text-center">
-                                <p class="text-xs text-gray-500 mb-1">Assign to Logistics</p>
-                                <select class="w-full border border-gray-300 text-gray-700 py-2 px-3 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                    <option>Select Field Supplier...</option>
-                                    <option>Imran Khan</option>
-                                    <option>Kamran Ahmed</option>
+                                <p class="text-xs text-gray-500 mb-1">Assign Delivery / Handover</p>
+                                <select class="w-full border border-gray-300 text-gray-700 py-2 px-3 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2">
+                                    <option>Select Supply Guy...</option>
+                                    <option>Imran Khan (Rider)</option>
+                                    <option>Kamran Ahmed (Driver)</option>
                                 </select>
+                                <button onclick="openModal('dispatchModal')" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition-colors shadow-sm text-xs mb-2">
+                                    Hand Over Delivery
+                                </button>
+                                <button class="w-full bg-white border border-red-200 text-red-600 font-semibold py-2 rounded-md hover:bg-red-50 transition-colors shadow-sm text-xs">
+                                    Send to Administrator (Purchase)
+                                </button>
                             </div>
-                            <button class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition-colors shadow-sm">
-                                Issue & Generate Challan
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -156,7 +162,7 @@
                         </div>
                         <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end gap-3 rounded-b-xl">
                             <button onclick="closeModal('dispatchModal')" class="px-4 py-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-100 font-semibold text-sm transition">Cancel</button>
-                            <button onclick="closeModal('dispatchModal')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold text-sm transition shadow-sm">Issue & Print MIS</button>
+                            <button onclick="closeModal('dispatchModal')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold text-sm transition shadow-sm">Hand Over & Print MIS</button>
                         </div>
                     </div>
                 </div>
