@@ -6,10 +6,12 @@
     <title>Cosmix ERP - Corporate Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         html { font-size: 13px !important; }
         body { font-family: 'Inter', sans-serif; }
+        .font-mono, [class*="font-mono"] { font-family: 'JetBrains Mono', monospace !important; font-variant-numeric: tabular-nums; }
         .slide-fade {
             animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -145,6 +147,7 @@
                             </button>
                         </div>
                     </div>
+
 
                     <!-- Remember Me -->
                     <div class="flex items-center text-xs pt-1">
@@ -298,10 +301,12 @@
             btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Authenticating...`;
             btn.disabled = true;
 
+            // Direct login into the Cosmix ERP portal
+            const targetUrl = 'accounts/index.html';
+
             setTimeout(() => {
-                // Route directly to HR Dashboard for review and approval
-                window.location.href = 'hr/index.html';
-            }, 600);
+                window.location.href = targetUrl;
+            }, 500);
         }
 
         function openForgotModal() {

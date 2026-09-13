@@ -1,0 +1,2664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Supply Purchases, Site Expense Invoicing & Field Slips</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; } 
+        body { font-family: 'Inter', sans-serif; } 
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; } 
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+        .stamp-box {
+            border: 2px dashed #b91c1c;
+            color: #b91c1c;
+            transform: rotate(-3deg);
+            padding: 4px 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            border-radius: 4px;
+        }
+        .stamp-official {
+            border: 2px solid #15803d;
+            color: #15803d;
+            transform: rotate(2deg);
+            padding: 4px 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            border-radius: 4px;
+        }
+        @keyframes highlightPulse {
+            0% { background-color: rgba(34, 197, 94, 0.3); transform: scale(1.02); }
+            100% { background-color: transparent; transform: scale(1); }
+        }
+        .highlight-updated {
+            animation: highlightPulse 2s ease-out;
+        }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('purchases');
+        setPageContent('Site Purchases, Expense Invoices & Slip Inspection', `
+            <div class="space-y-4">
+                
+                <!-- VIEW 1: MASTER LIST VIEW (TABLE, KPIS & SITE EXPENSE LEDGER) -->
+                <div id="purchases-list-view" class="space-y-4">
+                
+                <!-- Header: Top Sub-nav Switcher & Quick Actions -->
+                <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl shadow-xs border border-gray-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm font-bold text-gray-800">Field Supply Purchases, Site Expense Invoicing & Bill Slips</h2>
+                            <span id="pending-badge-header" class="bg-amber-50 text-amber-800 text-[9px] font-bold px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> 3 Purchased with Slip (Awaiting Invoicing)
+                            </span>
+                        </div>
+                        <p class="text-[10.5px] text-gray-400 mt-0.5">
+                            Purchasing team buys items & submits slips with "Purchased Done". Accounts inspects attached slips and generates official Expense Invoices posted to Today's Expense & Site Ledgers.
+                        </p>
+                    </div>
+
+                    <!-- Module Switcher & Primary Actions -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex items-center bg-gray-100 p-0.5 rounded-lg text-xs font-bold">
+                            <a href="invoices.html" class="px-2.5 py-1 rounded-md text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5">
+                                <i class="fas fa-file-invoice text-purple-600"></i> Client Billing (IPCs)
+                            </a>
+                            <span class="px-2.5 py-1 rounded-md bg-white text-[#242b5f] shadow-2xs flex items-center gap-1.5">
+                                <i class="fas fa-truck-loading text-amber-600"></i> Supply & Expenses
+                            </span>
+                        </div>
+
+                        <!-- Button to simulate incoming field purchase with pre-attached slip -->
+                        <button onclick="openIncomingFieldPurchaseModal()" class="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-xs transition flex items-center gap-1.5" title="Receive purchase made by site staff with attached slip">
+                            <i class="fas fa-receipt text-amber-200"></i> + Receive Field Purchase Slip ("Purchased Done")
+                        </button>
+                        
+                        <button onclick="exportToExcel('Cosmix_Site_Expenses_Register')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-2xs transition flex items-center gap-1.5">
+                            <i class="fas fa-file-excel text-green-600"></i> Export Register
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4 Top KPI Financial Summary Cards (With Today's Expense & Site Calculations) -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    
+                    <!-- KPI 1: TODAY'S EXPENSE (AAJ KA KHARCHA) - LIVE UPDATING -->
+                    <div class="bg-gradient-to-br from-emerald-50/80 to-white p-3 rounded-xl border border-emerald-200 shadow-xs relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[9px] text-emerald-800 font-bold uppercase tracking-wider flex items-center gap-1">
+                                <i class="fas fa-calendar-day text-emerald-600"></i> Today's Incurred Expense (Aaj Ka Kharcha)
+                            </p>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        </div>
+                        <h4 id="kpi-today-expense" class="text-xl font-extrabold text-emerald-800 mt-1 font-mono transition-all duration-300">
+                            Rs. 251,450
+                        </h4>
+                        <div class="flex items-center justify-between text-[9px] mt-1 pt-1 border-t border-emerald-100">
+                            <span id="kpi-today-count" class="text-emerald-700 font-bold">1 Expense Invoice Added Today</span>
+                            <span class="text-gray-400 font-mono">28 Sep 2026</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2: Incoming Queue (Purchased Done with Slip - Awaiting Invoicing) -->
+                    <div class="bg-white p-3 rounded-xl border border-amber-200 shadow-xs">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[9px] text-amber-800 font-bold uppercase tracking-wider">Awaiting Accounts Invoicing</p>
+                            <span class="bg-amber-100 text-amber-800 text-[8.5px] font-bold px-1.5 py-0.2 rounded">Field Slips</span>
+                        </div>
+                        <h4 id="kpi-pending-count" class="text-xl font-extrabold text-amber-600 mt-1">
+                            3 Purchases <span id="kpi-pending-amt" class="text-xs font-normal text-gray-500 font-mono">(Rs. 1,085,420)</span>
+                        </h4>
+                        <p class="text-[9px] text-amber-700 font-semibold mt-1 flex items-center gap-1">
+                            <i class="fas fa-clock text-amber-500"></i> Slips Attached • Click "Generate Invoice"
+                        </p>
+                    </div>
+
+                    <!-- KPI 3: Total Project Sites Expenses (Calculated) -->
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-xs">
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Project Sites Expense (YTD)</p>
+                        <h4 id="kpi-total-expenses" class="text-xl font-extrabold text-gray-900 mt-1 font-mono">
+                            Rs. 24,180,000
+                        </h4>
+                        <p class="text-[9px] text-indigo-600 font-semibold mt-1"><i class="fas fa-chart-pie mr-0.5"></i> Live Accumulated across 7 Sites</p>
+                    </div>
+
+                    <!-- KPI 4: Paid & Settled (Disbursed) -->
+                    <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-xs">
+                        <p class="text-[9px] text-[#242b5f] font-bold uppercase tracking-wider">Disbursed Payments (Meezan/Cash)</p>
+                        <h4 class="text-xl font-extrabold text-[#242b5f] mt-1 font-mono">
+                            Rs. 6,150,000
+                        </h4>
+                        <p class="text-[9px] text-blue-600 font-medium mt-1">Via Bank Advice & Site Imprest</p>
+                    </div>
+                </div>
+
+                <!-- PROJECT SITE EXPENSE CALCULATED LEDGER BAR (DYNAMIC LIVE UPDATES) -->
+                <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-100">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-indigo-50 text-[#242b5f] flex items-center justify-center text-xs font-bold">
+                                <i class="fas fa-building"></i>
+                            </span>
+                            <div>
+                                <h3 class="text-xs font-bold text-gray-900">Project Site Expense Breakdown (Calculated Live)</h3>
+                                <p class="text-[10px] text-gray-400">Jab bhi Accounts invoice banata hai, us specific site ka kharcha yahan live calculate ho jata hai.</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-200">
+                            Click any site to filter table
+                        </span>
+                    </div>
+
+                    <div id="site-expense-pills" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Filter Tabs & Multi-Criteria Navigation Toolbar -->
+                <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-100 space-y-2.5">
+                    
+                    <!-- Top Row: Status Tabs -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2">
+                        <div class="flex items-center gap-1.5 overflow-x-auto">
+                            <button onclick="filterPurchaseTab('all', this)" class="purchase-tab-btn px-3 py-1 text-xs font-bold rounded-lg bg-[#242b5f] text-white shadow-2xs transition">
+                                All Records (<span id="tab-count-all">9</span>)
+                            </button>
+                            <button onclick="filterPurchaseTab('pending', this)" class="purchase-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition flex items-center gap-1">
+                                🟢 Purchased Done (Slip Attached) <span id="tab-count-pending" class="bg-amber-100 text-amber-800 text-[9px] px-1.5 py-0.2 rounded-full font-bold">3</span>
+                            </button>
+                            <button onclick="filterPurchaseTab('invoiced', this)" class="purchase-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition flex items-center gap-1">
+                                ✅ Invoiced & Added to Site Expense <span id="tab-count-invoiced" class="bg-emerald-100 text-emerald-800 text-[9px] px-1.5 py-0.2 rounded-full font-bold">2</span>
+                            </button>
+                            <button onclick="filterPurchaseTab('paid', this)" class="purchase-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition">
+                                Paid & Disbursed (4)
+                            </button>
+                        </div>
+
+                        <div class="text-[11px] text-gray-500 font-medium">
+                            Showing <span id="filtered-count" class="font-bold text-gray-800">9</span> Purchases & Invoices
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row: Filter Bar with Search, Type Dropdown, and Site Filter -->
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        
+                        <!-- Search Box -->
+                        <div class="relative flex-1 min-w-[200px] max-w-xs">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input id="purchase-search" type="text" oninput="filterPurchasesTable()" placeholder="Search requisition #, invoice #, vendor, site, item..." class="w-full bg-gray-50 border border-gray-200 text-xs rounded-md pl-7 pr-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                        </div>
+
+                        <!-- Dropdowns Group -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            
+                            <!-- 1. INVOICE / EXPENSE TYPE DROPDOWN -->
+                            <div class="flex items-center gap-1 bg-amber-50/60 p-0.5 rounded-lg border border-amber-200">
+                                <span class="text-[10px] font-bold text-amber-800 pl-1.5 pr-0.5"><i class="fas fa-filter text-amber-600 mr-0.5"></i> Expense Type:</span>
+                                <select id="type-select-filter" onchange="filterPurchasesTable()" class="bg-white border-0 text-xs font-bold text-gray-800 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                                    <option value="">All Expense & Invoice Types</option>
+                                    <option value="material">Material & Equipment Purchase</option>
+                                    <option value="subcontractor">Subcontractor / Labour Bill</option>
+                                    <option value="fuel">Site Fuel & Generator Running</option>
+                                    <option value="machinery">Machinery & Heavy Equipment Rental</option>
+                                    <option value="logistics">Site Freight & Logistics Transport</option>
+                                    <option value="safety">Safety PPE & Consumables</option>
+                                    <option value="mess">Site Mess, Fooding & Catering</option>
+                                    <option value="petty_cash">Site Imprest / Petty Cash Voucher</option>
+                                    <option value="admin">Site CAD Blueprints & Stationery</option>
+                                </select>
+                            </div>
+
+                            <!-- 2. Project Site Dropdown -->
+                            <select id="site-select-filter" onchange="filterPurchasesTable()" class="bg-gray-50 border border-gray-200 text-xs rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                                <option value="">All Project Sites</option>
+                                <option value="Packages Mall">Packages Mall, Lahore</option>
+                                <option value="Lucky One Mall">Lucky One Mall, Karachi</option>
+                                <option value="Engro Complex">Engro Complex, Daharki</option>
+                                <option value="DHA City">DHA City Sector 3, Karachi</option>
+                                <option value="Bahria Town">Bahria Town Civic Center, Rawalpindi</option>
+                                <option value="Lucky Cement">Lucky Cement Plant, Pezu KPK</option>
+                                <option value="Head Office">Head Office PECHS, Karachi</option>
+                            </select>
+
+                            <!-- 3. Reset Button -->
+                            <button onclick="resetFilters()" class="text-xs text-gray-500 hover:text-red-600 px-2 py-1 transition" title="Clear all filters">
+                                <i class="fas fa-undo mr-1"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Master Purchases, Slip Verification & Invoicing Table -->
+                <div class="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="purchases-main-table">
+                            <thead>
+                                <tr class="bg-gray-50/80 border-b border-gray-100 text-gray-500 font-bold">
+                                    <th>Req / Invoice #</th>
+                                    <th>Date & Priority</th>
+                                    <th>Project Site</th>
+                                    <th>Expense Type</th>
+                                    <th>Purchased By (Field Staff)</th>
+                                    <th>Vendor / Supplier</th>
+                                    <th>Scope & Items</th>
+                                    <th class="text-right">Amount (PKR)</th>
+                                    <th class="text-center">Field Slip Photo</th>
+                                    <th class="text-center">Status & Site Ledger</th>
+                                    <th class="text-center">Accounts Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-xs" id="purchases-table-body">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                </div>
+                <!-- End #purchases-list-view -->
+
+                <!-- VIEW 2: DEDICATED FULL-PAGE VIEW: GENERATE SITE EXPENSE INVOICE (LIKE ADD EMPLOYEE) -->
+                <div id="expense-invoice-create-view" class="hidden space-y-4"></div>
+
+                <!-- VIEW 3: DEDICATED FULL-PAGE VIEW: OFFICIAL EXPENSE INVOICE VOUCHER -->
+                <div id="expense-invoice-voucher-view" class="hidden space-y-4"></div>
+
+                <!-- VIEW 4: DEDICATED FULL-PAGE VIEW: RECEIVE FIELD PURCHASE SLIP ("PURCHASED DONE WITH SLIP") -->
+                <div id="field-purchase-view" class="hidden">
+
+                    <!-- Page Header Bar -->
+                    <div class="flex items-center justify-between bg-white px-5 py-3.5 rounded-xl shadow-xs border border-gray-100 mb-4">
+                        <div class="flex items-center gap-3">
+                            <button onclick="hideFieldPurchaseView()" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition">
+                                <i class="fas fa-arrow-left text-xs"></i>
+                            </button>
+                            <div>
+                                <h2 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                    <i class="fas fa-receipt text-amber-600"></i>
+                                    Receive Field Purchase — "Purchased Done with Slip"
+                                </h2>
+                                <p class="text-[10.5px] text-gray-400 mt-0.5">Site ya market se khareed karne ke baad field staff apni slip ke sath yahan request drop karta hai. Accounts department inspect karke invoice banayega.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-amber-50 text-amber-800 text-[9px] font-bold px-2.5 py-1 rounded-full border border-amber-200 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Field Purchase Simulator
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Context Banner -->
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl px-5 py-3.5 mb-4 flex items-start gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-truck-loading text-amber-700"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-amber-900 text-xs">Field / Site Staff Purchase Simulator</h4>
+                            <p class="text-[10.5px] text-amber-800 mt-0.5 leading-relaxed">
+                                Company ke jo log site ya market se purchase karke aaye hain, wo slip ke sath purchase submit karte hain.
+                                Yeh request Accounts me <b class="text-amber-900">"Purchased Done with Slip"</b> status ke sath drop hogi.
+                                Accounts wala slip dekhega, verify karega, aur official Expense Invoice generate karega.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Main 3-Column Form -->
+                    <form id="field-purchase-form-full" onsubmit="event.preventDefault(); submitIncomingFieldPurchaseFull();" class="space-y-4">
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+                            <!-- ── COLUMN 1: Purchase Details ── -->
+                            <div class="lg:col-span-1 space-y-4">
+
+                                <div class="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
+                                    <div class="bg-[#242b5f] px-4 py-2.5">
+                                        <h3 class="text-xs font-bold text-white flex items-center gap-2">
+                                            <i class="fas fa-map-marker-alt text-blue-300"></i> Purchase Origin
+                                        </h3>
+                                    </div>
+                                    <div class="p-4 space-y-3">
+
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-gray-600 uppercase tracking-wide mb-1">Project Site <span class="text-red-500">*</span></label>
+                                            <select id="fp-site" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#242b5f]" required>
+                                                <option value="Packages Mall, Lahore">Packages Mall, Lahore</option>
+                                                <option value="Lucky One Mall, Karachi">Lucky One Mall, Karachi</option>
+                                                <option value="Engro Complex, Daharki">Engro Complex, Daharki</option>
+                                                <option value="DHA City Sector 3, Karachi">DHA City Sector 3, Karachi</option>
+                                                <option value="Bahria Town Civic Center, Rawalpindi">Bahria Town Civic Center, Rawalpindi</option>
+                                                <option value="Lucky Cement Plant, Pezu KPK">Lucky Cement Plant, Pezu KPK</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-gray-600 uppercase tracking-wide mb-1">Purchaser (Field Staff / Engineer) <span class="text-red-500">*</span></label>
+                                            <input id="fp-requester" type="text" value="Engr. Ali Khan (HVAC Site Incharge)" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#242b5f]" required>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-gray-600 uppercase tracking-wide mb-1">Expense Type <span class="text-red-500">*</span></label>
+                                            <select id="fp-exp-type" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#242b5f]">
+                                                <option value="material">Material &amp; Equipment Purchase</option>
+                                                <option value="fuel">Site Fuel &amp; Generator Running</option>
+                                                <option value="subcontractor">Subcontractor / Labour Bill</option>
+                                                <option value="machinery">Machinery Rental</option>
+                                                <option value="safety">Safety PPE &amp; Consumables</option>
+                                                <option value="logistics">Site Freight &amp; Transport</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-gray-600 uppercase tracking-wide mb-1">Vendor / Shop Name <span class="text-red-500">*</span></label>
+                                            <input id="fp-vendor" type="text" value="Al-Madina Hardware &amp; Pipe Traders" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#242b5f]" required>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-gray-600 uppercase tracking-wide mb-1">Purchase Priority</label>
+                                            <select id="fp-priority" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#242b5f]">
+                                                <option value="Urgent">Urgent</option>
+                                                <option value="Emergency">Emergency</option>
+                                                <option value="Normal">Normal</option>
+                                                <option value="Planned">Planned</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-gray-600 uppercase tracking-wide mb-1">Payment Method Used</label>
+                                            <select id="fp-payment" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-semibold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#242b5f]">
+                                                <option value="Site Imprest Petty Cash">Site Imprest Petty Cash</option>
+                                                <option value="Personal Expense (Reimbursable)">Personal Expense (Reimbursable)</option>
+                                                <option value="Company Credit Card">Company Credit Card</option>
+                                                <option value="Bank Transfer">Bank Transfer</option>
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- ── COLUMN 2: Item Details & Slip ── -->
+                            <div class="lg:col-span-1 space-y-4">
+
+                                <div class="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
+                                    <div class="bg-[#242b5f] px-4 py-2.5">
+                                        <h3 class="text-xs font-bold text-white flex items-center gap-2">
+                                            <i class="fas fa-boxes text-blue-300"></i> Purchased Item Details
+                                        </h3>
+                                    </div>
+                                    <div class="p-4 space-y-3">
+
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-gray-600 uppercase tracking-wide mb-1">Item Description &amp; Purpose</label>
+                                            <textarea id="fp-scope" rows="3" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#242b5f] resize-none">Urgent 410A Refrigerant Gas Cylinders &amp; Flare Couplers for AHU Commissioning</textarea>
+                                        </div>
+
+                                        <!-- Line Item Row -->
+                                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
+                                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Line Item</p>
+                                            <input id="fp-item-name" type="text" value="Honeywell R-410A Gas Cylinder (11.3 Kg)" placeholder="Item Name" class="w-full bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-[#242b5f]">
+                                            <div class="grid grid-cols-3 gap-2">
+                                                <div>
+                                                    <label class="block text-[9px] text-gray-400 font-bold uppercase mb-0.5">Qty</label>
+                                                    <input id="fp-item-qty" type="number" value="4" min="1" oninput="calcFPTotal()" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center font-mono focus:outline-none focus:ring-2 focus:ring-[#242b5f]">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[9px] text-gray-400 font-bold uppercase mb-0.5">Unit</label>
+                                                    <input id="fp-item-unit" type="text" value="Cylinders" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center focus:outline-none focus:ring-2 focus:ring-[#242b5f]">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[9px] text-gray-400 font-bold uppercase mb-0.5">Rate (Rs.)</label>
+                                                    <input id="fp-item-rate" type="number" value="38500" oninput="calcFPTotal()" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-right font-mono focus:outline-none focus:ring-2 focus:ring-[#242b5f]">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Live Totals -->
+                                        <div class="bg-[#242b5f]/5 border border-[#242b5f]/10 rounded-lg p-3 space-y-1.5">
+                                            <div class="flex justify-between text-xs text-gray-600">
+                                                <span>Gross Amount:</span>
+                                                <span id="fp-gross" class="font-mono font-bold text-gray-800">Rs. 154,000</span>
+                                            </div>
+                                            <div class="flex justify-between text-xs text-gray-600">
+                                                <span>Sales Tax (18% GST):</span>
+                                                <span id="fp-tax" class="font-mono text-gray-600">+ Rs. 27,720</span>
+                                            </div>
+                                            <div class="flex justify-between text-sm font-black text-emerald-800 border-t border-[#242b5f]/15 pt-1.5">
+                                                <span>Net Total:</span>
+                                                <span id="fp-net" class="font-mono">Rs. 181,720</span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- ── COLUMN 3: Bill Slip & Submission ── -->
+                            <div class="lg:col-span-1 space-y-4">
+
+                                <div class="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
+                                    <div class="bg-[#242b5f] px-4 py-2.5">
+                                        <h3 class="text-xs font-bold text-white flex items-center gap-2">
+                                            <i class="fas fa-camera text-blue-300"></i> Bill Slip Evidence
+                                        </h3>
+                                    </div>
+                                    <div class="p-4 space-y-3">
+
+                                        <!-- Pre-attached Slip Indicator -->
+                                        <div class="bg-emerald-50 border border-emerald-300 rounded-lg p-3 flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center">
+                                                <i class="fas fa-camera-retro"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="font-bold text-emerald-900 text-xs">Bill Slip Captured &amp; Attached</p>
+                                                <p class="text-[9.5px] text-emerald-700 mt-0.5">IMG_SLIP_MARKET_PURCHASE.JPG<br><span class="font-semibold">Signed &amp; Stamped by Vendor</span></p>
+                                            </div>
+                                            <span class="text-[9px] font-bold bg-white text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded shrink-0">Slip Pre-attached</span>
+                                        </div>
+
+                                        <!-- Slip Upload Simulation -->
+                                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-amber-400 hover:bg-amber-50/50 transition cursor-pointer">
+                                            <i class="fas fa-cloud-upload-alt text-2xl text-gray-300 mb-2"></i>
+                                            <p class="text-xs font-bold text-gray-500">Upload Additional Slip / Cash Memo</p>
+                                            <p class="text-[9.5px] text-gray-400 mt-0.5">JPG, PNG, PDF — Max 10MB</p>
+                                            <button type="button" class="mt-2 px-3 py-1 text-[10px] font-bold bg-white border border-gray-300 rounded-lg hover:border-amber-500 hover:text-amber-700 transition">Browse File</button>
+                                        </div>
+
+                                        <!-- Remarks -->
+                                        <div>
+                                            <label class="block text-[10.5px] font-bold text-gray-600 uppercase tracking-wide mb-1">Site Foreman / Incharge Remarks</label>
+                                            <textarea id="fp-remarks" rows="3" placeholder="Koi special note ya urgent requirement..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#242b5f] resize-none"></textarea>
+                                        </div>
+
+                                        <!-- Checklist -->
+                                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
+                                            <p class="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Submission Checklist</p>
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="checkbox" checked class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+                                                <span class="text-xs text-gray-700">Bill slip attached (signed &amp; stamped)</span>
+                                            </label>
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="checkbox" checked class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+                                                <span class="text-xs text-gray-700">Site Incharge ka verbal approval liya</span>
+                                            </label>
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="checkbox" class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+                                                <span class="text-xs text-gray-700">Warranty / delivery challan attached</span>
+                                            </label>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="bg-white rounded-xl border border-gray-200 shadow-xs p-4 space-y-2.5">
+                                    <button type="submit" class="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow transition flex items-center justify-center gap-2">
+                                        <i class="fas fa-paper-plane"></i> Submit "Purchased Done with Slip" to Accounts
+                                    </button>
+                                    <button type="button" onclick="hideFieldPurchaseView()" class="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+                                        <i class="fas fa-times"></i> Cancel &amp; Go Back
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <!-- End #field-purchase-view -->
+
+        `);
+
+        // =========================================================================
+        // PROJECT SITES FINANCIAL LEDGER STATE (Accumulated Incurred Expenses)
+        // =========================================================================
+        window.SITE_EXPENSES = {
+            'Packages Mall, Lahore': 4820000,
+            'Lucky One Mall, Karachi': 3450000,
+            'Engro Complex, Daharki': 6200000,
+            'DHA City Sector 3, Karachi': 1850000,
+            'Bahria Town Civic Center, Rawalpindi': 2100000,
+            'Lucky Cement Plant, Pezu KPK': 1950000,
+            'Head Office PECHS, Karachi': 840000
+        };
+
+        window.TODAY_EXPENSE_TOTAL = 251450; // Starts with PR-2026-091 posted today
+        window.TODAY_INVOICES_COUNT = 1;
+
+        // =========================================================================
+        // DATABASE FOR FIELD PURCHASES, SLIPS & ACCOUNTS EXPENSE INVOICES
+        // =========================================================================
+        window.PURCHASES_DATA = [
+            {
+                id: 'PR-2026-094',
+                expenseInvoiceNo: null, // Pending accounts invoice generation
+                billNo: 'INV-4412-MD',
+                date: '28 Sep 2026',
+                isToday: true,
+                priority: 'Emergency',
+                priorityClass: 'bg-red-100 text-red-700 border-red-200',
+                site: 'Packages Mall, Lahore',
+                city: 'Lahore',
+                expenseType: 'material',
+                expenseTypeLabel: 'Material & Equipment Purchase',
+                typeBadge: 'bg-blue-50 text-blue-700 border-blue-200',
+                typeIcon: 'fas fa-boxes',
+                requester: 'Engr. Ali Khan',
+                role: 'HVAC Site Incharge (Purchased at Market)',
+                empId: 'EMP-1042',
+                vendor: 'Al-Madina Hardware & Pipe Traders',
+                vendorNtn: '2981042-3',
+                vendorPhone: '+92 42 35789120',
+                vendorAddress: 'Badami Bagh Industrial Area, Lahore',
+                category: 'mep',
+                categoryLabel: 'MEP Materials & Piping',
+                scope: 'Urgent Mueller Copper Pipes 5/8" & 3/4" with brass fittings for AHU-3 chiller line extension.',
+                items: [
+                    { name: 'Mueller Copper Pipe (5/8" Heavy Gauge)', qty: 15, unit: 'Lengths (20ft)', rate: 12500, tax: 33750, total: 221250 },
+                    { name: 'Mueller Copper Pipe (3/4" Heavy Gauge)', qty: 10, unit: 'Lengths (20ft)', rate: 15800, tax: 28440, total: 186440 },
+                    { name: 'Silver Brazing Alloy Rods (5% Silver)', qty: 25, unit: 'Kg', rate: 2400, tax: 10800, total: 70800 },
+                    { name: 'High-Temp Armaflex Insulation Tubes', qty: 40, unit: 'Pcs', rate: 850, tax: 6120, total: 40120 }
+                ],
+                grossAmount: 439500,
+                taxAmount: 79110, // 18% Sales Tax
+                netAmount: 518610,
+                paymentMethod: 'Direct Bank Transfer (Meezan)',
+                receiptType: 'cash-memo',
+                receiptTitle: 'Al-Madina Hardware Cash Memo Slip',
+                slipAttached: true,
+                slipDate: '28-09-2026 11:30 AM',
+                status: 'purchased_done', // USER REQUEST: "purchased done with slip"
+                statusLabel: '🟢 Purchased Done (Slip Attached)',
+                statusClass: 'bg-amber-100 text-amber-900 border-amber-300',
+                stampText: 'PURCHASED DONE & SLIP ATTACHED - ENGR. ALI KHAN',
+                verifiedBy: 'Engr. Ali Khan (HVAC Incharge)',
+                verifiedDate: '28-09-2026 11:30 AM'
+            },
+            {
+                id: 'PR-2026-093',
+                expenseInvoiceNo: null,
+                billNo: 'AR-DCT-1092',
+                date: '28 Sep 2026',
+                isToday: true,
+                priority: 'Urgent',
+                priorityClass: 'bg-orange-100 text-orange-700 border-orange-200',
+                site: 'Lucky One Mall, Karachi',
+                city: 'Karachi',
+                expenseType: 'subcontractor',
+                expenseTypeLabel: 'Subcontractor / Labour Bill',
+                typeBadge: 'bg-purple-50 text-purple-700 border-purple-200',
+                typeIcon: 'fas fa-user-cog',
+                requester: 'Usman Tariq',
+                role: 'AC Technician Foreman (Subcontractor Measurement)',
+                empId: 'EMP-1044',
+                vendor: 'Al-Rehman Duct Fabricators & Erectors',
+                vendorNtn: '4192018-7',
+                vendorPhone: '+92 21 36981240',
+                vendorAddress: 'Sector 11-E, North Karachi Industrial Area',
+                category: 'mep',
+                categoryLabel: 'Subcontractor Labour',
+                scope: 'Fabrication, hanging & acoustic lining of 2,400 sq.ft GI Sheet Air Ducts for Food Court zone.',
+                items: [
+                    { name: 'GI Sheet Rectangular Duct Fabrication (24 Gauge)', qty: 1800, unit: 'Sq.Ft', rate: 95, tax: 25650, total: 196650 },
+                    { name: 'High-Level Duct Erection & Threaded Rod Hanging', qty: 1800, unit: 'Sq.Ft', rate: 45, tax: 12150, total: 93150 },
+                    { name: 'Fiberglass Acoustic Insulation Lining with Sealant', qty: 600, unit: 'Sq.Ft', rate: 85, tax: 7650, total: 58650 }
+                ],
+                grossAmount: 294000,
+                taxAmount: 45450, // 13% SRB Service Tax
+                netAmount: 339450,
+                paymentMethod: 'Direct Bank Transfer (Meezan)',
+                receiptType: 'subcontractor-memo',
+                receiptTitle: 'Al-Rehman Duct Works Measurement Slip',
+                slipAttached: true,
+                slipDate: '28-09-2026 10:15 AM',
+                status: 'purchased_done',
+                statusLabel: '🟢 Purchased Done (Slip Attached)',
+                statusClass: 'bg-amber-100 text-amber-900 border-amber-300',
+                stampText: 'SITE MEASUREMENTS CONFIRMED - 2400 SQFT',
+                verifiedBy: 'Usman Tariq (Foreman)',
+                verifiedDate: '28-09-2026 10:15 AM'
+            },
+            {
+                id: 'PR-2026-090',
+                expenseInvoiceNo: null,
+                billNo: 'BCM-CR-089',
+                date: '28 Sep 2026',
+                isToday: true,
+                priority: 'Routine',
+                priorityClass: 'bg-gray-100 text-gray-700 border-gray-200',
+                site: 'Packages Mall, Lahore',
+                city: 'Lahore',
+                expenseType: 'machinery',
+                expenseTypeLabel: 'Machinery & Heavy Equipment Rental',
+                typeBadge: 'bg-orange-50 text-orange-700 border-orange-200',
+                typeIcon: 'fas fa-truck-pickup',
+                requester: 'Engr. Ali Khan',
+                role: 'HVAC Site Incharge',
+                empId: 'EMP-1042',
+                vendor: 'Bilal Heavy Crane Movers & Rigging',
+                vendorNtn: '1829031-2',
+                vendorPhone: '+92 42 35912040',
+                vendorAddress: 'Band Road Industrial Truck Stand, Lahore',
+                category: 'machinery',
+                categoryLabel: 'Equipment Rental',
+                scope: '25-Ton Mobile Telescopic Crane 3-Day Rental with operator for hoisting rooftop cooling towers & pumps.',
+                items: [
+                    { name: '25-Ton Telescopic Crane Rental (8-Hour Shift)', qty: 3, unit: 'Days', rate: 45000, tax: 21600, total: 156600 },
+                    { name: 'Certified Rigging Gang (1 Foreman + 4 Riggers)', qty: 3, unit: 'Days', rate: 12000, tax: 5760, total: 41760 },
+                    { name: 'Trailer Mobilization & Demobilization Charges', qty: 1, unit: 'Trip', rate: 25000, tax: 4000, total: 29000 }
+                ],
+                grossAmount: 196000,
+                taxAmount: 31360, // 16% PRA Tax
+                netAmount: 227360,
+                paymentMethod: 'Direct Bank Transfer (Meezan)',
+                receiptType: 'rental-invoice',
+                receiptTitle: 'Bilal Crane Rental Timesheet & Slip',
+                slipAttached: true,
+                slipDate: '28-09-2026 09:30 AM',
+                status: 'purchased_done',
+                statusLabel: '🟢 Purchased Done (Slip Attached)',
+                statusClass: 'bg-amber-100 text-amber-900 border-amber-300',
+                stampText: 'CRANE HOISTING TIMESHEET SIGNED - ROOFTOP',
+                verifiedBy: 'Engr. Ali Khan (Site Incharge)',
+                verifiedDate: '28-09-2026 09:30 AM'
+            },
+            {
+                id: 'PR-2026-091',
+                expenseInvoiceNo: 'INV-EXP-2026-091', // Already invoiced today!
+                billNo: 'SHL-DS-1092',
+                date: '28 Sep 2026',
+                isToday: true,
+                priority: 'Urgent',
+                priorityClass: 'bg-orange-100 text-orange-700 border-orange-200',
+                site: 'DHA City Sector 3, Karachi',
+                city: 'Karachi',
+                expenseType: 'fuel',
+                expenseTypeLabel: 'Site Fuel & Generator Running',
+                typeBadge: 'bg-amber-50 text-amber-800 border-amber-200',
+                typeIcon: 'fas fa-gas-pump',
+                requester: 'Rashid Mehmood',
+                role: 'Site Supervisor (Fuel Bowser Delivery)',
+                empId: 'EMP-1007',
+                vendor: 'Shell Petroleum Super Highway Station',
+                vendorNtn: '0812930-4',
+                vendorPhone: '+92 21 34912001',
+                vendorAddress: 'Km 34, Super Highway M-9, Karachi',
+                category: 'fuel',
+                categoryLabel: 'Generator Fuel & Oil',
+                scope: 'High-Speed Diesel (HSD) for 250kVA Perkins site prime generator during underground trenching.',
+                items: [
+                    { name: 'High-Speed Diesel (HSD) for 250kVA Gen-Set', qty: 650, unit: 'Liters', rate: 282, tax: 0, total: 183300 },
+                    { name: 'Shell Rimula R4 X 15W-40 Heavy Duty Oil', qty: 2, unit: 'Buckets (20L)', rate: 21500, tax: 7740, total: 50740 },
+                    { name: 'Fleetguard Lube & Fuel Filters Set', qty: 1, unit: 'Set', rate: 14500, tax: 2610, total: 17110 }
+                ],
+                grossAmount: 241100,
+                taxAmount: 10350,
+                netAmount: 251450,
+                paymentMethod: 'Site Petty Cash (Imprest)',
+                receiptType: 'fuel-memo',
+                receiptTitle: 'Shell Site Fuel Cash Receipt',
+                slipAttached: true,
+                slipDate: '28-09-2026 08:30 AM',
+                status: 'invoiced',
+                statusLabel: '✅ Invoiced & Added to Site Expense',
+                statusClass: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+                stampText: 'VERIFIED DIESEL DELIVERED TO SITE TANK',
+                verifiedBy: 'Rashid Mehmood (Site Supervisor)',
+                verifiedDate: '28-09-2026 09:00 AM'
+            },
+            {
+                id: 'PR-2026-092',
+                expenseInvoiceNo: 'INV-EXP-2026-092',
+                billNo: 'PKC-TX-88219',
+                date: '27 Sep 2026',
+                isToday: false,
+                priority: 'Urgent',
+                priorityClass: 'bg-orange-100 text-orange-700 border-orange-200',
+                site: 'Engro Complex, Daharki',
+                city: 'Daharki',
+                expenseType: 'material',
+                expenseTypeLabel: 'Material & Equipment Purchase',
+                typeBadge: 'bg-blue-50 text-blue-700 border-blue-200',
+                typeIcon: 'fas fa-boxes',
+                requester: 'Engr. Bilal Ahmed',
+                role: 'Field Electrical Engineer (Factory Pick)',
+                empId: 'EMP-1046',
+                vendor: 'Pak Cables Limited',
+                vendorNtn: '0711928-1',
+                vendorPhone: '+92 21 32561170',
+                vendorAddress: 'B-21 S.I.T.E. Industrial Area, Karachi / Daharki Depot',
+                category: 'electrical',
+                categoryLabel: 'Electrical Switchgear',
+                scope: '4-Core 70mm² XLPE Armored Low-Voltage Copper Cables for Substation Panel interconnection.',
+                items: [
+                    { name: '4-Core 70mm² Cu/XLPE/SWA/PVC 0.6/1kV Cable', qty: 180, unit: 'Meters', rate: 2850, tax: 92340, total: 605340 },
+                    { name: 'Heavy Duty Compression Cable Lugs (70mm²)', qty: 60, unit: 'Pcs', rate: 320, tax: 3456, total: 22656 },
+                    { name: 'Heat Shrink Outdoor Termination Kits', qty: 6, unit: 'Sets', rate: 7500, tax: 8100, total: 53100 }
+                ],
+                grossAmount: 576200,
+                taxAmount: 103896, // 18% GST
+                netAmount: 680096,
+                paymentMethod: 'Direct Bank Transfer (Meezan)',
+                receiptType: 'computerized-tax',
+                receiptTitle: 'Pak Cables Ltd Sales Tax Invoice Slip',
+                slipAttached: true,
+                slipDate: '27-09-2026 03:00 PM',
+                status: 'invoiced',
+                statusLabel: '✅ Invoiced & Added to Site Expense',
+                statusClass: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+                stampText: 'RECEIVED & TESTED AT DAHARKI SUBSTATION - OK',
+                verifiedBy: 'Engr. Bilal Ahmed',
+                verifiedDate: '27-09-2026 04:15 PM'
+            },
+            {
+                id: 'PR-2026-089',
+                expenseInvoiceNo: 'INV-EXP-2026-089',
+                billNo: 'SGT-FR-441',
+                date: '25 Sep 2026',
+                isToday: false,
+                priority: 'Routine',
+                priorityClass: 'bg-gray-100 text-gray-700 border-gray-200',
+                site: 'Engro Complex, Daharki',
+                city: 'Daharki',
+                expenseType: 'logistics',
+                expenseTypeLabel: 'Site Freight & Logistics Transport',
+                typeBadge: 'bg-teal-50 text-teal-700 border-teal-200',
+                typeIcon: 'fas fa-shipping-fast',
+                requester: 'Engr. Bilal Ahmed',
+                role: 'Field Electrical Engineer',
+                empId: 'EMP-1046',
+                vendor: 'Shahbaz Goods Transport Company',
+                vendorNtn: '2019482-0',
+                vendorPhone: '+92 21 32410982',
+                vendorAddress: 'Mauripur Truck Stand, Karachi',
+                category: 'logistics',
+                categoryLabel: 'Freight & Cartage',
+                scope: 'Inter-city freight for electrical busways & heavy cable drums dispatched from Karachi warehouse to Daharki.',
+                items: [
+                    { name: '22ft Long Mazda Truck Freight (Karachi to Daharki)', qty: 2, unit: 'Vehicles', rate: 68000, tax: 0, total: 136000 },
+                    { name: 'Crane Loading at Central Warehouse Karachi', qty: 2, unit: 'Jobs', rate: 7500, tax: 0, total: 15000 },
+                    { name: 'Unloading Labor & Toll Taxes (National Highway)', qty: 1, unit: 'Lump Sum', rate: 12500, tax: 0, total: 12500 }
+                ],
+                grossAmount: 163500,
+                taxAmount: 0,
+                netAmount: 163500,
+                paymentMethod: 'Direct Bank Transfer (Meezan)',
+                receiptType: 'builty-memo',
+                receiptTitle: 'Shahbaz Goods Transport Bilty Slip',
+                slipAttached: true,
+                slipDate: '25-09-2026 04:00 PM',
+                status: 'paid',
+                statusLabel: 'Paid via Meezan Bank',
+                statusClass: 'bg-blue-100 text-blue-800 border-blue-200',
+                stampText: 'MATERIAL RECEIVED UNDAMAGED AT DAHARKI GATE',
+                verifiedBy: 'Engr. Bilal Ahmed',
+                verifiedDate: '25-09-2026 05:30 PM'
+            },
+            {
+                id: 'PR-2026-088',
+                expenseInvoiceNo: 'INV-EXP-2026-088',
+                billNo: 'HLT-ISB-201',
+                date: '25 Sep 2026',
+                isToday: false,
+                priority: 'Routine',
+                priorityClass: 'bg-gray-100 text-gray-700 border-gray-200',
+                site: 'Bahria Town Civic Center, Rawalpindi',
+                city: 'Rawalpindi',
+                expenseType: 'safety',
+                expenseTypeLabel: 'Safety PPE & Consumables',
+                typeBadge: 'bg-rose-50 text-rose-700 border-rose-200',
+                typeIcon: 'fas fa-hard-hat',
+                requester: 'Zubair Shah',
+                role: 'Site Mechanical Supervisor (Purchased in I-9 Islamabad)',
+                empId: 'EMP-1022',
+                vendor: 'Hilti / Fasteners & Power Tools Hub',
+                vendorNtn: '3109245-5',
+                vendorPhone: '+92 51 5129480',
+                vendorAddress: 'I-9/2 Industrial Area, Islamabad',
+                category: 'safety',
+                categoryLabel: 'Safety & Tools',
+                scope: 'Full-body safety harnesses, high-ankle steel toe boots, chemical anchors & heavy drill bits.',
+                items: [
+                    { name: 'Full-Body Fall Arrest Safety Harness with Lanyard', qty: 6, unit: 'Sets', rate: 8500, tax: 9180, total: 60180 },
+                    { name: 'ISI Certified Steel-Toe Site Safety Boots', qty: 12, unit: 'Pairs', rate: 4200, tax: 9072, total: 59472 },
+                    { name: 'Hilti HIT-RE 500 V4 Chemical Anchor Cartridges', qty: 12, unit: 'Tubes', rate: 6800, tax: 14688, total: 96288 }
+                ],
+                grossAmount: 183400,
+                taxAmount: 32940,
+                netAmount: 216340,
+                paymentMethod: 'Direct Bank Transfer (Meezan)',
+                receiptType: 'cash-memo',
+                receiptTitle: 'Hilti Safety Fasteners Bill Slip',
+                slipAttached: true,
+                slipDate: '25-09-2026 10:00 AM',
+                status: 'paid',
+                statusLabel: 'Paid via Meezan Bank',
+                statusClass: 'bg-blue-100 text-blue-800 border-blue-200',
+                stampText: 'SAFETY PPE DISTRIBUTED TO TECHNICIANS',
+                verifiedBy: 'Zubair Shah',
+                verifiedDate: '25-09-2026 11:00 AM'
+            },
+            {
+                id: 'PR-2026-087',
+                expenseInvoiceNo: 'INV-EXP-2026-087',
+                billNo: 'AMC-MSS-09',
+                date: '24 Sep 2026',
+                isToday: false,
+                priority: 'Routine',
+                priorityClass: 'bg-gray-100 text-gray-700 border-gray-200',
+                site: 'Lucky Cement Plant, Pezu KPK',
+                city: 'Pezu',
+                expenseType: 'mess',
+                expenseTypeLabel: 'Site Mess, Fooding & Catering',
+                typeBadge: 'bg-yellow-50 text-yellow-800 border-yellow-200',
+                typeIcon: 'fas fa-utensils',
+                requester: 'Engr. Hamza Khan',
+                role: 'Site Incharge (Local Camp Purchase)',
+                empId: 'EMP-1006',
+                vendor: 'Al-Madina Catering & Camp Mess',
+                vendorNtn: '4912019-3',
+                vendorPhone: '+92 969 510291',
+                vendorAddress: 'Camp Mess Facility, Pezu, Khyber Pakhtunkhwa',
+                category: 'mess',
+                categoryLabel: 'Staff Fooding',
+                scope: 'Monthly fooding subsidy & meal catering for 35 resident site engineers & technicians deployed at cement plant.',
+                items: [
+                    { name: 'Technicians Mess Catering (Lunch & Dinner)', qty: 35, unit: 'Staff (15 Days)', rate: 4200, tax: 0, total: 147000 },
+                    { name: 'Mineral Drinking Water Cans (19 Liters)', qty: 60, unit: 'Cans', rate: 180, tax: 0, total: 10800 },
+                    { name: 'Morning & Evening Site Tea & Refreshment', qty: 15, unit: 'Days', rate: 1200, tax: 0, total: 18000 }
+                ],
+                grossAmount: 175800,
+                taxAmount: 0,
+                netAmount: 175800,
+                paymentMethod: 'Site Petty Cash (Imprest)',
+                receiptType: 'cash-memo',
+                receiptTitle: 'Al-Madina Camp Mess Voucher Slip',
+                slipAttached: true,
+                slipDate: '24-09-2026 08:30 PM',
+                status: 'paid',
+                statusLabel: 'Paid via Site Petty Cash',
+                statusClass: 'bg-blue-100 text-blue-800 border-blue-200',
+                stampText: 'CAMP MESS ATTENDANCE VERIFIED - 35 STAFF',
+                verifiedBy: 'Engr. Hamza Khan (Site Incharge)',
+                verifiedDate: '24-09-2026 09:30 PM'
+            },
+            {
+                id: 'PR-2026-086',
+                expenseInvoiceNo: 'INV-EXP-2026-086',
+                billNo: 'PTY-KHI-401',
+                date: '23 Sep 2026',
+                isToday: false,
+                priority: 'Routine',
+                priorityClass: 'bg-gray-100 text-gray-700 border-gray-200',
+                site: 'Head Office PECHS, Karachi',
+                city: 'Karachi',
+                expenseType: 'admin',
+                expenseTypeLabel: 'Site CAD Blueprints & Stationery',
+                typeBadge: 'bg-slate-100 text-slate-700 border-slate-200',
+                typeIcon: 'fas fa-print',
+                requester: 'Muhammad Tariq',
+                role: 'Procurement Officer (Tariq Road Print Shop)',
+                empId: 'EMP-1001',
+                vendor: 'Fine Art Engineering Plotters & Blueprinting',
+                vendorNtn: '1928301-4',
+                vendorPhone: '+92 21 34521092',
+                vendorAddress: 'Tariq Road PECHS, Karachi',
+                category: 'admin',
+                categoryLabel: 'Office & Drawings',
+                scope: 'Large format A0 & A1 CAD blueprints printing & site engineering drawing folders for client submissions.',
+                items: [
+                    { name: 'A0 Size CAD Architectural & MEP Drawings Plotting', qty: 45, unit: 'Sheets', rate: 350, tax: 2835, total: 18585 },
+                    { name: 'A1 Size Electrical Schematics & Riser Diagrams', qty: 60, unit: 'Sheets', rate: 220, tax: 2376, total: 15576 },
+                    { name: 'Heavy Duty Plasticised Drawing Archiving Binders', qty: 10, unit: 'Binders', rate: 850, tax: 1530, total: 10030 }
+                ],
+                grossAmount: 37400,
+                taxAmount: 6741,
+                netAmount: 44141,
+                paymentMethod: 'Site Petty Cash (Imprest)',
+                receiptType: 'cash-memo',
+                receiptTitle: 'Fine Art Plotters Cash Memo Slip',
+                slipAttached: true,
+                slipDate: '23-09-2026 02:00 PM',
+                status: 'paid',
+                statusLabel: 'Paid via Site Petty Cash',
+                statusClass: 'bg-blue-100 text-blue-800 border-blue-200',
+                stampText: 'DRAWINGS DELIVERED TO ENGINEERING DESK',
+                verifiedBy: 'Muhammad Tariq',
+                verifiedDate: '23-09-2026 03:00 PM'
+            }
+        ];
+
+        // =========================================================================
+        // RE-CALCULATION & KPI RENDER FUNCTIONS
+        // =========================================================================
+        window.updateFinancialKPIs = () => {
+            // Today's Expense
+            const todayEl = document.getElementById('kpi-today-expense');
+            if (todayEl) {
+                todayEl.innerText = 'Rs. ' + window.TODAY_EXPENSE_TOTAL.toLocaleString();
+                todayEl.classList.add('highlight-updated');
+                setTimeout(() => todayEl.classList.remove('highlight-updated'), 2000);
+            }
+            const todayCountEl = document.getElementById('kpi-today-count');
+            if (todayCountEl) {
+                todayCountEl.innerText = `${window.TODAY_INVOICES_COUNT} Expense Invoice${window.TODAY_INVOICES_COUNT > 1 ? 's' : ''} Added Today`;
+            }
+
+            // Pending Queue ("Purchased Done with Slip")
+            const pendingItems = window.PURCHASES_DATA.filter(p => p.status === 'purchased_done');
+            const pendingTotal = pendingItems.reduce((sum, p) => sum + p.netAmount, 0);
+
+            const pendingCountEl = document.getElementById('kpi-pending-count');
+            if (pendingCountEl) {
+                pendingCountEl.innerHTML = `${pendingItems.length} Purchases <span id="kpi-pending-amt" class="text-xs font-normal text-gray-500 font-mono">(Rs. ${pendingTotal.toLocaleString()})</span>`;
+            }
+            const pendingBadgeHeader = document.getElementById('pending-badge-header');
+            if (pendingBadgeHeader) {
+                pendingBadgeHeader.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> ${pendingItems.length} Purchased with Slip (Awaiting Invoicing)`;
+            }
+
+            // Tab counts
+            const tabPending = document.getElementById('tab-count-pending');
+            if (tabPending) tabPending.innerText = pendingItems.length;
+
+            const invoicedItems = window.PURCHASES_DATA.filter(p => p.status === 'invoiced');
+            const tabInvoiced = document.getElementById('tab-count-invoiced');
+            if (tabInvoiced) tabInvoiced.innerText = invoicedItems.length;
+
+            const tabAll = document.getElementById('tab-count-all');
+            if (tabAll) tabAll.innerText = window.PURCHASES_DATA.length;
+
+            // Total Projects Expense Calculation
+            let totalSitesSum = 0;
+            for (let site in window.SITE_EXPENSES) {
+                totalSitesSum += window.SITE_EXPENSES[site];
+            }
+            const totalSitesEl = document.getElementById('kpi-total-expenses');
+            if (totalSitesEl) {
+                totalSitesEl.innerText = 'Rs. ' + totalSitesSum.toLocaleString();
+            }
+        };
+
+        // Render the Project Sites Expense Ledger Cards
+        window.renderSiteExpenseLedger = (highlightSite = null) => {
+            const container = document.getElementById('site-expense-pills');
+            if (!container) return;
+
+            const siteKeys = Object.keys(window.SITE_EXPENSES);
+            container.innerHTML = siteKeys.map(site => {
+                const amount = window.SITE_EXPENSES[site];
+                const shortName = site.split(',')[0];
+                const city = site.split(',')[1] ? site.split(',')[1].trim() : '';
+                const isHighlighted = highlightSite && site.toLowerCase().includes(highlightSite.toLowerCase());
+
+                return `
+                    <div onclick="filterBySitePill('${shortName}')" class="cursor-pointer p-2 rounded-lg border transition ${isHighlighted ? 'bg-emerald-50 border-emerald-400 ring-2 ring-emerald-300' : 'bg-gray-50/70 hover:bg-indigo-50/50 border-gray-200'}">
+                        <div class="flex items-center justify-between text-[8.5px] font-bold text-gray-500 uppercase">
+                            <span class="truncate">${shortName}</span>
+                            <span class="text-red-600 font-semibold">${city}</span>
+                        </div>
+                        <div class="font-extrabold text-gray-900 font-mono text-xs mt-1">
+                            Rs. ${(amount / 1000000).toFixed(2)}M
+                        </div>
+                        <div class="text-[8px] text-gray-400 mt-0.5 flex items-center justify-between">
+                            <span>Calculated</span>
+                            <i class="fas fa-chevron-right text-[7px] text-gray-300"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.filterBySitePill = (siteName) => {
+            const siteSelect = document.getElementById('site-select-filter');
+            if (siteSelect) {
+                siteSelect.value = siteName;
+                window.filterPurchasesTable();
+            }
+        };
+
+        // =========================================================================
+        // PURCHASES TABLE RENDER ENGINE
+        // =========================================================================
+        window.renderPurchasesTable = (filterTab = 'all', query = '', typeFilter = '', siteFilter = '') => {
+            const tbody = document.getElementById('purchases-table-body');
+            if (!tbody) return;
+
+            const filtered = window.PURCHASES_DATA.filter(p => {
+                const matchesTab = filterTab === 'all' ? true :
+                                   filterTab === 'pending' ? p.status === 'purchased_done' :
+                                   filterTab === 'invoiced' ? p.status === 'invoiced' :
+                                   filterTab === 'paid' ? p.status === 'paid' : true;
+                
+                const matchesType = !typeFilter || p.expenseType === typeFilter;
+                const matchesSite = !siteFilter || p.site.toLowerCase().includes(siteFilter.toLowerCase());
+                
+                const q = query.toLowerCase();
+                const matchesQuery = !query || 
+                    p.id.toLowerCase().includes(q) || 
+                    (p.expenseInvoiceNo && p.expenseInvoiceNo.toLowerCase().includes(q)) ||
+                    p.billNo.toLowerCase().includes(q) || 
+                    p.site.toLowerCase().includes(q) || 
+                    p.vendor.toLowerCase().includes(q) || 
+                    p.requester.toLowerCase().includes(q) || 
+                    p.expenseTypeLabel.toLowerCase().includes(q) ||
+                    p.scope.toLowerCase().includes(q);
+
+                return matchesTab && matchesType && matchesSite && matchesQuery;
+            });
+
+            const countEl = document.getElementById('filtered-count');
+            if (countEl) countEl.innerText = filtered.length;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" class="text-center py-8 text-gray-400">
+                            <i class="fas fa-search text-3xl mb-2 text-gray-300"></i>
+                            <p class="font-bold text-gray-600">No expense records match your filter criteria.</p>
+                            <p class="text-[10px] mt-1">Try selecting 'All Records' or clear the search query.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(p => `
+                <tr class="border-b border-gray-100 hover:bg-gray-50 transition text-gray-800">
+                    
+                    <!-- Req # / Official Expense Invoice # -->
+                    <td class="font-mono align-top py-3 pl-3">
+                        <div class="font-semibold text-[11px]">${p.id}</div>
+                        ${p.expenseInvoiceNo ? `
+                            <div class="text-[10px] text-gray-500 mt-0.5">
+                                Inv: ${p.expenseInvoiceNo}
+                            </div>
+                        ` : `
+                            <div class="text-[10px] text-gray-400 mt-0.5">
+                                Needs Invoice
+                            </div>
+                        `}
+                        <div class="text-[10px] text-gray-400 mt-0.5">Slip: ${p.billNo}</div>
+                    </td>
+
+                    <!-- Date & Priority -->
+                    <td class="align-top py-3 text-[11px]">
+                        <div>${p.date}</div>
+                        <div class="text-gray-500 mt-0.5 text-[10px]">
+                            ${p.priority} ${p.isToday ? ' (Today)' : ''}
+                        </div>
+                    </td>
+
+                    <!-- Project Site & City -->
+                    <td class="align-top py-3 text-[11px]">
+                        <div class="font-semibold">${p.site}</div>
+                        <div class="text-gray-500 mt-0.5 text-[10px]">
+                            ${p.city}
+                        </div>
+                    </td>
+
+                    <!-- Expense Type -->
+                    <td class="align-top py-3 text-[11px]">
+                        <div class="text-gray-700">${p.expenseTypeLabel}</div>
+                    </td>
+
+                    <!-- Purchased By -->
+                    <td class="align-top py-3 text-[11px]">
+                        <div class="font-semibold">${p.requester}</div>
+                        <div class="text-gray-500 truncate max-w-[130px]" title="${p.role}">${p.role}</div>
+                    </td>
+
+                    <!-- Vendor / Supplier -->
+                    <td class="align-top py-3 text-[11px]">
+                        <div class="font-semibold truncate max-w-[140px]" title="${p.vendor}">${p.vendor}</div>
+                        <div class="text-gray-500 font-mono mt-0.5 text-[10px]">NTN: ${p.vendorNtn}</div>
+                    </td>
+
+                    <!-- Scope & Items -->
+                    <td class="max-w-[160px] align-top py-3 text-[11px]">
+                        <div class="text-gray-700 truncate" title="${p.scope}">${p.scope}</div>
+                        <div class="text-gray-500 mt-0.5 text-[10px]">${p.items.length} Line Item(s)</div>
+                    </td>
+
+                    <!-- Amount PKR -->
+                    <td class="text-right font-mono align-top py-3 text-[11px]">
+                        <div class="font-bold text-gray-900">Rs. ${p.netAmount.toLocaleString()}</div>
+                        <div class="text-gray-500 mt-0.5 text-[10px]">GST: Rs. ${p.taxAmount.toLocaleString()}</div>
+                    </td>
+
+                    <!-- Scanned Slip / Bill Photo -->
+                    <td class="text-center align-top py-3">
+                        <button onclick="openInvoiceImageModal('${p.id}')" class="text-gray-500 hover:text-[#242b5f] transition flex flex-col items-center justify-center mx-auto" title="View attached receipt">
+                            <i class="fas fa-paperclip text-[14px]"></i>
+                            <span class="text-[9px] font-medium mt-1">View Slip</span>
+                        </button>
+                    </td>
+
+                    <!-- Status -->
+                    <td class="text-center align-top py-3 text-[11px]">
+                        <span class="text-gray-700 font-medium">${p.statusLabel.replace('🟢', '').replace(' (Slip Attached)', '').trim()}</span>
+                        ${p.status === 'invoiced' || p.status === 'paid' ? `
+                            <div class="text-[9px] text-gray-500 mt-1">
+                                Added to Ledger
+                            </div>
+                        ` : `
+                            <div class="text-[9px] text-gray-400 mt-1">
+                                Pending Ledger
+                            </div>
+                        `}
+                    </td>
+
+                    <!-- Accounts Primary Action -->
+                    <td class="text-center align-top py-3 pr-3">
+                        ${p.status === 'purchased_done' ? `
+                            <button onclick="showGenerateExpenseInvoiceView('${p.id}')" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded text-[11px] font-semibold transition mx-auto shadow-xs">
+                                Generate Invoice
+                            </button>
+                        ` : `
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="showExpenseInvoiceVoucherView('${p.id}')" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-2.5 py-1.5 rounded text-[10px] font-semibold transition shadow-xs" title="View Posted Expense Invoice Voucher">
+                                    Invoice
+                                </button>
+                                ${p.status === 'invoiced' ? `
+                                    <button onclick="openPaymentVoucherModal('${p.id}')" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-2.5 py-1.5 rounded text-[10px] font-semibold transition shadow-xs" title="Issue Bank Payment Voucher">
+                                        Pay
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `}
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        // Filter handlers
+        window.currentTab = 'all';
+        window.filterPurchaseTab = (tab, btn) => {
+            window.currentTab = tab;
+            document.querySelectorAll('.purchase-tab-btn').forEach(b => {
+                b.className = 'purchase-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition';
+            });
+            btn.className = 'purchase-tab-btn px-3 py-1 text-xs font-bold rounded-lg bg-[#242b5f] text-white shadow-2xs transition';
+            window.filterPurchasesTable();
+        };
+
+        window.filterPurchasesTable = () => {
+            const query = document.getElementById('purchase-search')?.value || '';
+            const typeFilter = document.getElementById('type-select-filter')?.value || '';
+            const siteFilter = document.getElementById('site-select-filter')?.value || '';
+            window.renderPurchasesTable(window.currentTab, query, typeFilter, siteFilter);
+        };
+
+        window.resetFilters = () => {
+            const s = document.getElementById('purchase-search'); if (s) s.value = '';
+            const t = document.getElementById('type-select-filter'); if (t) t.value = '';
+            const site = document.getElementById('site-select-filter'); if (site) site.value = '';
+            window.filterPurchasesTable();
+        };
+
+        // =========================================================================
+        // MODAL 1: HIGH-RES BILL / RECEIPT SLIP IMAGE VIEWER (Uploaded by Field)
+        // =========================================================================
+        window.currentZoom = 1;
+        window.currentRotation = 0;
+
+        window.openInvoiceImageModal = (purchaseId) => {
+            const item = window.PURCHASES_DATA.find(p => p.id === purchaseId);
+            if (!item) return;
+
+            window.currentZoom = 1;
+            window.currentRotation = 0;
+
+            const modalHTML = `
+                <div class="space-y-3">
+                    
+                    <!-- Top Toolbar for Image View: Zoom, Rotate, Print, Download -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 bg-gray-100 p-2 rounded-lg border border-gray-200">
+                        <div class="flex items-center gap-1.5 text-xs">
+                            <span class="bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded text-[9.5px]">
+                                <i class="fas fa-camera mr-0.5"></i> Field Attached Slip
+                            </span>
+                            <span class="font-bold text-gray-800">${item.billNo}</span>
+                            <span class="text-gray-400">|</span>
+                            <span class="text-gray-600 font-semibold">${item.vendor}</span>
+                            <span class="text-[9.5px] font-bold px-2 py-0.5 rounded border ${item.typeBadge}">${item.expenseTypeLabel}</span>
+                        </div>
+
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="zoomInvoiceImage(0.15)" class="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-bold transition flex items-center gap-1" title="Zoom In">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button onclick="zoomInvoiceImage(-0.15)" class="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-bold transition flex items-center gap-1" title="Zoom Out">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button onclick="rotateInvoiceImage()" class="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-bold transition flex items-center gap-1" title="Rotate 90°">
+                                <i class="fas fa-redo"></i> Rotate
+                            </button>
+                            <button onclick="resetInvoiceImage()" class="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-bold transition" title="Reset View">
+                                Reset
+                            </button>
+                            <button onclick="window.print()" class="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-2.5 py-1 rounded text-xs font-bold transition flex items-center gap-1">
+                                <i class="fas fa-print"></i> Print Slip
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Authentic Scanned Paper Receipt Slip Visual Simulation -->
+                    <div class="overflow-auto max-h-[58vh] bg-slate-200 p-4 rounded-xl border border-slate-300 shadow-inner flex justify-center">
+                        <div id="invoice-paper-canvas" class="bg-[#fffef8] text-gray-800 p-6 rounded shadow-xl border border-amber-100 max-w-xl w-full transition-transform duration-200 select-none relative" style="transform-origin: center center; min-height: 480px; font-family: 'Courier New', Courier, monospace;">
+                            
+                            <!-- Purchaser's Verification Stamp on top right -->
+                            <div class="absolute top-7 right-6 pointer-events-none">
+                                <div class="stamp-box">
+                                    <div class="text-[9.5px]">PURCHASED DONE WITH SLIP</div>
+                                    <div class="text-[8px] mt-0.5">${item.site.toUpperCase()}</div>
+                                    <div class="text-[7.5px] mt-0.5">${item.slipDate}</div>
+                                </div>
+                            </div>
+
+                            <!-- Vendor Header -->
+                            <div class="border-b-2 border-dashed border-gray-400 pb-3 mb-3 text-center">
+                                <h1 class="text-base font-black tracking-wider uppercase text-gray-900">${item.vendor}</h1>
+                                <p class="text-[10px] text-gray-600 mt-0.5">${item.vendorAddress}</p>
+                                <p class="text-[9.5px] text-gray-600">Ph: ${item.vendorPhone} | NTN: <b>${item.vendorNtn}</b></p>
+                                <div class="inline-block mt-2 px-3 py-0.5 bg-gray-100 border border-gray-400 font-bold text-[10px] tracking-widest uppercase">
+                                    ORIGINAL CASH MEMO / BILL SLIP
+                                </div>
+                            </div>
+
+                            <!-- Meta: Bill #, Date, Customer -->
+                            <div class="grid grid-cols-2 gap-2 text-[10.5px] border-b border-dashed border-gray-300 pb-3 mb-3">
+                                <div>
+                                    <p><b>Vendor Slip #:</b> <span class="text-red-700 font-bold">${item.billNo}</span></p>
+                                    <p><b>Date:</b> ${item.date}</p>
+                                    <p><b>Expense Type:</b> <b>${item.expenseTypeLabel}</b></p>
+                                </div>
+                                <div class="text-right">
+                                    <p><b>Purchased For:</b> Cosmix Engineering (Pvt) Ltd</p>
+                                    <p><b>Site:</b> ${item.site}</p>
+                                    <p><b>Buyer (Field Staff):</b> <span class="text-indigo-800 font-bold">${item.requester}</span></p>
+                                </div>
+                            </div>
+
+                            <!-- Line Items in Bill Slip -->
+                            <table class="w-full text-[10px] border-collapse mb-3">
+                                <thead>
+                                    <tr class="border-b-2 border-gray-600 text-left">
+                                        <th class="py-1">#</th>
+                                        <th class="py-1">Description</th>
+                                        <th class="py-1 text-center">Qty</th>
+                                        <th class="py-1 text-right">Rate (PKR)</th>
+                                        <th class="py-1 text-right">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-dashed divide-gray-300">
+                                    ${item.items.map((it, idx) => `
+                                        <tr>
+                                            <td class="py-1.5 font-bold">${idx + 1}</td>
+                                            <td class="py-1.5">${it.name}</td>
+                                            <td class="py-1.5 text-center">${it.qty} ${it.unit}</td>
+                                            <td class="py-1.5 text-right font-mono">${it.rate.toLocaleString()}</td>
+                                            <td class="py-1.5 text-right font-mono font-bold">${(it.rate * it.qty).toLocaleString()}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+
+                            <!-- Total & Calculations -->
+                            <div class="border-t-2 border-dashed border-gray-600 pt-2 text-[11px] space-y-1">
+                                <div class="flex justify-between">
+                                    <span>Subtotal (Ex-Tax):</span>
+                                    <span class="font-mono">Rs. ${item.grossAmount.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between text-gray-700">
+                                    <span>GST / Sales Tax (18%):</span>
+                                    <span class="font-mono">+ Rs. ${item.taxAmount.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between font-black text-sm border-t border-b-2 border-gray-800 py-1 mt-1 text-gray-900">
+                                    <span>TOTAL PAID / PAYABLE:</span>
+                                    <span class="font-mono text-red-800">PKR ${item.netAmount.toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            <!-- Signatures on Slip -->
+                            <div class="grid grid-cols-2 gap-4 mt-6 pt-3 border-t border-dashed border-gray-400 text-[9px]">
+                                <div class="text-center">
+                                    <div class="font-script text-indigo-900 text-sm italic font-bold" style="font-family: cursive;">${item.requester}</div>
+                                    <div class="border-t border-gray-400 mt-1 pt-0.5">
+                                        <b>Field Staff / Site Engineer</b>
+                                        <p class="text-[8px] text-gray-500">Purchased & Received at Site</p>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-script text-gray-800 text-sm italic font-bold" style="font-family: cursive;">Shopkeeper</div>
+                                    <div class="border-t border-gray-400 mt-1 pt-0.5">
+                                        <b>Vendor Signature & Stamp</b>
+                                        <p class="text-[8px] text-gray-500">${item.vendor}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Bottom Verification Summary & Action -->
+                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div>
+                            <p class="font-bold text-gray-800 flex items-center gap-1.5">
+                                <i class="fas fa-check-circle text-amber-600"></i> ${item.stampText}
+                            </p>
+                            <p class="text-[10px] text-gray-600 mt-0.5">
+                                Slip uploaded by <b>${item.requester}</b> at <b>${item.slipDate}</b>. Accounts officer reviews details and generates the expense invoice.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${p.status === 'purchased_done' ? `
+                                <button onclick="closeModal(); openGenerateExpenseInvoiceModal('${item.id}');" class="bg-[#242b5f] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-opacity-90 transition flex items-center gap-1.5 shadow-sm">
+                                    <i class="fas fa-bolt text-amber-300"></i> Generate Expense Invoice
+                                </button>
+                            ` : `
+                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded border border-emerald-300">
+                                    <i class="fas fa-check-double mr-1"></i> Invoiced: ${item.expenseInvoiceNo}
+                                </span>
+                            `}
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            openModal(`Field Bill Slip: ${item.billNo} (${item.vendor})`, modalHTML, null);
+        };
+
+        window.zoomInvoiceImage = (delta) => {
+            window.currentZoom = Math.min(Math.max(0.6, window.currentZoom + delta), 1.8);
+            const canvas = document.getElementById('invoice-paper-canvas');
+            if (canvas) canvas.style.transform = `scale(${window.currentZoom}) rotate(${window.currentRotation}deg)`;
+        };
+
+        window.rotateInvoiceImage = () => {
+            window.currentRotation = (window.currentRotation + 90) % 360;
+            const canvas = document.getElementById('invoice-paper-canvas');
+            if (canvas) canvas.style.transform = `scale(${window.currentZoom}) rotate(${window.currentRotation}deg)`;
+        };
+
+        window.resetInvoiceImage = () => {
+            window.currentZoom = 1;
+            window.currentRotation = 0;
+            const canvas = document.getElementById('invoice-paper-canvas');
+            if (canvas) canvas.style.transform = `scale(1) rotate(0deg)`;
+        };
+
+        // =========================================================================
+        // MODAL 2: ACCOUNTS GENERATES OFFICIAL EXPENSE INVOICE (USER CORE REQUIREMENT)
+        // =========================================================================
+        
+        // =========================================================================
+        // FULL-PAGE ENTERPRISE VIEW CONTROLLERS (LIKE ADD EMPLOYEE / EMPLOYEE MASTER)
+        // =========================================================================
+        window.showGenerateExpenseInvoiceView = (purchaseId) => {
+            const item = window.PURCHASES_DATA.find(p => p.id === purchaseId);
+            if (!item) return;
+
+            const suggestedInvoiceNo = 'INV-EXP-2026-' + item.id.replace('PR-2026-', '');
+            const currentSiteTotal = window.SITE_EXPENSES[item.site] || 0;
+            const newSiteTotal = currentSiteTotal + item.netAmount;
+            const baseAmount = item.netAmount - item.taxAmount;
+
+            const viewContainer = document.getElementById('expense-invoice-create-view');
+            if (!viewContainer) return;
+
+            viewContainer.innerHTML = `
+                <!-- Top Navigation & Action Header (Matching employee-master.html & invoices.html) -->
+                <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl shadow-xs border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="hideGenerateExpenseInvoiceView()" class="w-9 h-9 rounded-xl border border-slate-200 hover:border-[#242b5f] text-slate-600 hover:text-[#242b5f] bg-white flex items-center justify-center transition shadow-2xs group" title="Back to Purchases Register">
+                            <i class="fas fa-arrow-left text-sm group-hover:-translate-x-0.5 transition-transform"></i>
+                        </button>
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h2 class="text-base font-bold text-slate-900 tracking-tight">Generate & Post Site Expense Invoice</h2>
+                                <span class="bg-indigo-50 text-[#242b5f] border border-indigo-200 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md">${item.id}</span>
+                                <span class="bg-amber-100 text-amber-800 border border-amber-300 text-[9.5px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Purchased Done with Slip
+                                </span>
+                                <span class="${item.priorityClass} text-[9.5px] font-bold px-2 py-0.5 rounded-full border">${item.priority}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">
+                                Accounts audit: inspect vendor physical cash memo, cross-check quantities, verify 18% GST tax, and post to <b class="text-emerald-700">Today's Expense (Aaj Ka Kharcha)</b> & <b class="text-[#242b5f]">${item.site}</b> ledger.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="hideGenerateExpenseInvoiceView()" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition flex items-center gap-1">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="button" onclick="submitFullPageExpenseInvoice('${item.id}')" class="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-5 py-2 rounded-lg text-xs font-bold shadow-md shadow-emerald-950/20 hover:shadow-lg transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer">
+                            <i class="fas fa-check-circle text-emerald-200"></i> Confirm & Post to Today's Expense
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3-Column Wide Enterprise Layout (Matching Add Employee Form) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                    
+                    <!-- COLUMN 1: Requisition, Site & Accounting Classification (4 cols) -->
+                    <div class="lg:col-span-4 space-y-4">
+                        
+                        <!-- Card 1.1: Requisition & Engineer Meta -->
+                        <div class="bg-white p-4 rounded-xl shadow-xs border border-gray-100 space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                                    <i class="fas fa-clipboard-list text-[#242b5f]"></i> Requisition & Field Purchaser
+                                </span>
+                                <span class="text-[10px] text-gray-400 font-mono">${item.date}</span>
+                            </div>
+
+                            <div class="space-y-2.5 text-xs">
+                                <div class="flex items-center gap-2.5 p-2 bg-slate-50 rounded-lg border border-slate-200/80">
+                                    <div class="w-9 h-9 rounded-full bg-[#242b5f] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                                        ${item.requester.split(' ').map(n=>n[0]).join('')}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-gray-900">${item.requester}</p>
+                                        <p class="text-[10px] text-gray-500">${item.role} • <span class="font-mono text-indigo-700 font-semibold">${item.empId}</span></p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-500 uppercase">Site Work / Scope Description</label>
+                                    <p class="text-xs text-gray-700 font-medium mt-0.5 bg-gray-50 p-2 rounded border border-gray-200">${item.scope}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 1.2: Assigned Project Site & Live Ledger Calculation -->
+                        <div class="bg-white p-4 rounded-xl shadow-xs border border-gray-100 space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                                    <i class="fas fa-building text-indigo-600"></i> Assigned Project Site
+                                </span>
+                                <span class="text-[10px] font-bold text-gray-500">${item.city}</span>
+                            </div>
+
+                            <div>
+                                <div class="font-bold text-gray-900 text-sm flex items-center gap-1.5">
+                                    <i class="fas fa-map-marker-alt text-red-500"></i> ${item.site}
+                                </div>
+                                <p class="text-[10px] text-gray-400 mt-0.5">Commercial Engineering Division • Active Site</p>
+                            </div>
+
+                            <!-- Live Site Ledger Calculation Box -->
+                            <div class="bg-gradient-to-br from-indigo-50/60 to-white p-3 rounded-lg border border-indigo-200 space-y-2">
+                                <div class="flex items-center justify-between text-[10px] font-bold text-indigo-950 uppercase tracking-wider">
+                                    <span>Site Expense Ledger Impact</span>
+                                    <span class="text-indigo-600 font-mono">Live Sync</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div class="bg-white p-2 rounded border border-indigo-100">
+                                        <span class="text-[9px] text-gray-400 font-bold block uppercase">Current Site Total</span>
+                                        <span class="font-bold font-mono text-gray-800 text-xs">Rs. ${currentSiteTotal.toLocaleString()}</span>
+                                        <span class="text-[8.5px] text-gray-400 block font-mono">(${(currentSiteTotal/1000000).toFixed(2)}M)</span>
+                                    </div>
+                                    <div class="bg-white p-2 rounded border border-emerald-200">
+                                        <span class="text-[9px] text-emerald-700 font-bold block uppercase">After This Invoice</span>
+                                        <span class="font-bold font-mono text-emerald-800 text-xs">Rs. ${newSiteTotal.toLocaleString()}</span>
+                                        <span class="text-[8.5px] text-emerald-600 block font-mono font-bold">(${(newSiteTotal/1000000).toFixed(2)}M)</span>
+                                    </div>
+                                </div>
+                                <p class="text-[9.5px] text-emerald-700 font-semibold flex items-center gap-1 mt-1">
+                                    <i class="fas fa-plus-circle text-emerald-500"></i> + Rs. ${item.netAmount.toLocaleString()} will be automatically accumulated to ${item.site}.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Card 1.3: Expense Classification & Accounting Posting -->
+                        <div class="bg-white p-4 rounded-xl shadow-xs border border-gray-100 space-y-3">
+                            <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5 border-b border-gray-100 pb-2">
+                                <i class="fas fa-file-invoice text-emerald-600"></i> Invoice & Posting Configuration
+                            </span>
+
+                            <div class="space-y-2.5 text-xs">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Generated Invoice # <span class="text-red-500">*</span></label>
+                                        <input id="full-gen-inv-no" type="text" value="${suggestedInvoiceNo}" class="w-full bg-white border border-gray-300 rounded-lg p-2 font-mono font-bold text-[#242b5f] text-xs focus:ring-1 focus:ring-[#242b5f] focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Posting Date <span class="text-red-500">*</span></label>
+                                        <input id="full-gen-inv-date" type="text" value="28 Sep 2026 (Today)" class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 font-semibold text-gray-800 text-xs focus:outline-none">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-600 mb-1">Expense Head / Category</label>
+                                    <select id="full-gen-exp-type" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-semibold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                                        <option value="Material & Equipment Purchase" ${item.expenseType === 'material' ? 'selected' : ''}>Material & Equipment Purchase</option>
+                                        <option value="Site Hardware & Piping Supplies">Site Hardware & Piping Supplies</option>
+                                        <option value="Subcontractor / Labour Bill" ${item.expenseType === 'subcontractor' ? 'selected' : ''}>Subcontractor / Labour Bill</option>
+                                        <option value="Site Fuel & Generator Running" ${item.expenseType === 'fuel' ? 'selected' : ''}>Site Fuel & Generator Running</option>
+                                        <option value="Machinery & Heavy Equipment Rental" ${item.expenseType === 'machinery' ? 'selected' : ''}>Machinery & Heavy Equipment Rental</option>
+                                        <option value="Site Freight & Logistics Transport" ${item.expenseType === 'logistics' ? 'selected' : ''}>Site Freight & Logistics Transport</option>
+                                        <option value="Safety PPE & Consumables" ${item.expenseType === 'safety' ? 'selected' : ''}>Safety PPE & Consumables</option>
+                                        <option value="Site Imprest / Petty Cash Voucher" ${item.expenseType === 'petty_cash' ? 'selected' : ''}>Site Imprest / Petty Cash Voucher</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-600 mb-1">Financial Posting Account</label>
+                                    <select id="full-gen-ledger-acc" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-semibold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                                        <option value="Accounts Payable - Project Supplies">Accounts Payable - Project Supplies</option>
+                                        <option value="Site Imprest Petty Cash">Site Imprest Petty Cash (${item.site})</option>
+                                        <option value="Meezan Corporate Bank Disbursement">Meezan Corporate Bank Disbursement (A/C: 0109-8234-71)</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-600 mb-1">Accounts Audit Note</label>
+                                    <input id="full-gen-audit-note" type="text" value="Verified against vendor physical slip & site engineer receipt stamp." class="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- COLUMN 2: Scanned Field Bill / Physical Slip Inspection (4 cols) -->
+                    <div class="lg:col-span-4 space-y-4">
+                        
+                        <div class="bg-white p-4 rounded-xl shadow-xs border border-gray-100 space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                                    <i class="fas fa-camera text-amber-600"></i> Attached Field Bill / Cash Memo
+                                </span>
+                                <span class="bg-green-100 text-green-800 border border-green-300 text-[8.5px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <i class="fas fa-check-circle text-green-600"></i> SLIP VERIFIED
+                                </span>
+                            </div>
+
+                            <!-- Vendor Identification Bar -->
+                            <div class="bg-amber-50/70 p-2.5 rounded-lg border border-amber-200 text-xs">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-bold text-amber-950 text-xs">${item.vendor}</p>
+                                        <p class="text-[10px] text-gray-500 mt-0.5">NTN: <span class="font-mono text-gray-700">${item.vendorNtn}</span> • STRN: <span class="font-mono text-gray-700">${item.vendorStrn}</span></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="font-mono font-bold text-red-700 bg-white px-1.5 py-0.5 rounded border border-amber-300 text-[10.5px]">
+                                            Slip: ${item.billNo}
+                                        </span>
+                                        <p class="text-[9px] text-gray-400 mt-0.5">Uploaded: ${item.slipDate}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Slip Zoom & Rotate Controls Toolbar -->
+                            <div class="flex items-center justify-between bg-gray-100 p-1.5 rounded-lg text-xs">
+                                <span class="text-[10px] font-bold text-gray-500 uppercase px-1">Slip Controls</span>
+                                <div class="flex items-center gap-1">
+                                    <button type="button" onclick="zoomInvoiceImage(0.15)" class="px-2 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-bold hover:bg-gray-50" title="Zoom In">
+                                        <i class="fas fa-search-plus text-gray-700"></i>
+                                    </button>
+                                    <button type="button" onclick="zoomInvoiceImage(-0.15)" class="px-2 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-bold hover:bg-gray-50" title="Zoom Out">
+                                        <i class="fas fa-search-minus text-gray-700"></i>
+                                    </button>
+                                    <button type="button" onclick="rotateInvoiceImage()" class="px-2 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-bold hover:bg-gray-50" title="Rotate 90">
+                                        <i class="fas fa-redo text-gray-700"></i>
+                                    </button>
+                                    <button type="button" onclick="resetInvoiceImage()" class="px-2 py-0.5 bg-white border border-gray-200 rounded text-[10px] font-bold hover:bg-gray-50" title="Reset">
+                                        Reset
+                                    </button>
+                                    <button type="button" onclick="openInvoiceImageModal('${item.id}')" class="px-2 py-0.5 bg-[#242b5f] text-white rounded text-[10px] font-bold hover:bg-opacity-90" title="Popup Zoom">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- The Realistic Rendered Bill Slip Canvas Container -->
+                            <div class="bg-gray-200/80 p-3 rounded-xl border border-gray-300 overflow-hidden min-h-[380px] flex items-center justify-center relative shadow-inner">
+                                
+                                <div id="invoice-paper-canvas" class="bg-[#fefce8] p-5 rounded-lg border-2 border-dashed border-amber-300 shadow-md text-gray-800 w-full max-w-sm text-[10px] font-mono leading-tight space-y-2 relative transform transition-transform duration-200 origin-center" style="background-image: repeating-linear-gradient(0deg, #fefce8, #fefce8 19px, #fef9c3 20px);">
+                                    
+                                    <!-- Vendor Letterhead -->
+                                    <div class="text-center border-b-2 border-gray-700 pb-1.5">
+                                        <div class="text-[12px] font-black text-gray-900 tracking-wider">${item.vendor.toUpperCase()}</div>
+                                        <div class="text-[8px] text-gray-600">Hardware, Chilled Water Piping & Sanitary Store</div>
+                                        <div class="text-[8px] text-gray-500">88-Brandreth Road, Lahore • Tel: 042-37651234 • NTN: ${item.vendorNtn}</div>
+                                        <div class="inline-block bg-black text-white px-2 py-0.2 rounded text-[8px] font-bold tracking-widest mt-0.5">CASH MEMO / TAX INVOICE</div>
+                                    </div>
+
+                                    <!-- Bill Meta -->
+                                    <div class="flex justify-between border-b border-gray-400 pb-1 text-[8.5px]">
+                                        <div>
+                                            <div><b>MEMO #:</b> <span class="text-red-700 font-bold">${item.billNo}</span></div>
+                                            <div><b>DATE:</b> ${item.date}</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div><b>SITE:</b> ${item.site.split(',')[0]}</div>
+                                            <div><b>BUYER:</b> ${item.requester}</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bill Items Table -->
+                                    <div class="border border-gray-400 bg-white/70">
+                                        <table class="w-full text-left text-[8.5px]">
+                                            <thead class="border-b border-gray-400 bg-gray-100 font-bold">
+                                                <tr>
+                                                    <th class="p-1">ITEM</th>
+                                                    <th class="p-1 text-center">QTY</th>
+                                                    <th class="p-1 text-right">RATE</th>
+                                                    <th class="p-1 text-right">TOTAL</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-300">
+                                                ${item.items.map(it => `
+                                                    <tr>
+                                                        <td class="p-1 font-semibold">${it.name}</td>
+                                                        <td class="p-1 text-center">${it.qty} ${it.unit}</td>
+                                                        <td class="p-1 text-right">${it.rate.toLocaleString()}</td>
+                                                        <td class="p-1 text-right font-bold">${(it.qty * it.rate).toLocaleString()}</td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                            <tfoot class="border-t border-gray-700 bg-amber-50/70 font-bold text-[8.5px]">
+                                                <tr>
+                                                    <td colspan="3" class="p-1 text-right">Subtotal:</td>
+                                                    <td class="p-1 text-right">PKR ${baseAmount.toLocaleString()}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="3" class="p-1 text-right">18% GST:</td>
+                                                    <td class="p-1 text-right text-green-800">PKR ${item.taxAmount.toLocaleString()}</td>
+                                                </tr>
+                                                <tr class="text-[9.5px] border-t border-gray-700 text-gray-900 font-extrabold">
+                                                    <td colspan="3" class="p-1 text-right">PAID NET TOTAL:</td>
+                                                    <td class="p-1 text-right text-red-900 font-black">PKR ${item.netAmount.toLocaleString()}</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+
+                                    <!-- Physical Stamps Simulation -->
+                                    <div class="flex items-center justify-between pt-1">
+                                        <div class="stamp-box text-[8px] leading-tight">
+                                            PAID IN CASH<br><span class="text-[6.5px] font-mono">${item.date}</span>
+                                        </div>
+                                        <div class="stamp-official text-[8px] leading-tight">
+                                            SITE RECEIVED<br><span class="text-[6.5px] font-mono">${item.empId}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center text-[7px] text-gray-500 pt-0.5 border-t border-gray-300">
+                                        * Goods received in original condition. Thank you for your business. *
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- Audit Checklist -->
+                            <div class="p-3 bg-emerald-50/70 rounded-lg border border-emerald-200 space-y-1.5 text-xs">
+                                <p class="font-bold text-emerald-900 text-[11px] flex items-center gap-1.5">
+                                    <i class="fas fa-clipboard-check text-emerald-600"></i> Accounts Audit Verification Checklist
+                                </p>
+                                <label class="flex items-center gap-2 text-[10px] text-gray-700 cursor-pointer">
+                                    <input type="checkbox" checked class="rounded text-emerald-600 focus:ring-0">
+                                    <span>Physical receipt matches site requisition quantities & specs</span>
+                                </label>
+                                <label class="flex items-center gap-2 text-[10px] text-gray-700 cursor-pointer">
+                                    <input type="checkbox" checked class="rounded text-emerald-600 focus:ring-0">
+                                    <span>Vendor NTN is active & 18% GST invoice is valid</span>
+                                </label>
+                                <label class="flex items-center gap-2 text-[10px] text-gray-700 cursor-pointer">
+                                    <input type="checkbox" checked class="rounded text-emerald-600 focus:ring-0">
+                                    <span>Delivery confirmed on site by ${item.requester}</span>
+                                </label>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- COLUMN 3: Line-Item Breakdown & Today's Expense Hero Summary (4 cols) -->
+                    <div class="lg:col-span-4 space-y-4">
+                        
+                        <!-- Card 3.1: Line-Item Breakdown Table -->
+                        <div class="bg-white p-4 rounded-xl shadow-xs border border-gray-100 space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                                    <i class="fas fa-list-ol text-[#242b5f]"></i> Invoice Line-Items Breakdown
+                                </span>
+                                <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">${item.items.length} Items</span>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <table class="w-full text-xs text-left">
+                                    <thead class="bg-gray-50 text-gray-600 font-bold border-b border-gray-200 text-[10px]">
+                                        <tr>
+                                            <th class="p-2">Item Description</th>
+                                            <th class="p-2 text-center">Qty</th>
+                                            <th class="p-2 text-right">Rate</th>
+                                            <th class="p-2 text-right">Tax (18%)</th>
+                                            <th class="p-2 text-right">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100 text-xs">
+                                        ${item.items.map(it => `
+                                            <tr>
+                                                <td class="p-2">
+                                                    <div class="font-semibold text-gray-900">${it.name}</div>
+                                                </td>
+                                                <td class="p-2 text-center font-bold text-indigo-700">${it.qty} ${it.unit}</td>
+                                                <td class="p-2 text-right font-mono text-gray-600">${it.rate.toLocaleString()}</td>
+                                                <td class="p-2 text-right font-mono text-gray-400">${it.tax.toLocaleString()}</td>
+                                                <td class="p-2 text-right font-mono font-bold text-gray-900">${it.total.toLocaleString()}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                    <tfoot class="bg-gray-50 border-t border-gray-200 font-bold text-xs">
+                                        <tr>
+                                            <td colspan="4" class="p-2 text-right text-gray-600">Subtotal (Excl. Tax):</td>
+                                            <td class="p-2 text-right font-mono text-gray-800">PKR ${baseAmount.toLocaleString()}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" class="p-2 text-right text-gray-600">18% Sales Tax (GST):</td>
+                                            <td class="p-2 text-right font-mono text-emerald-700">+ PKR ${item.taxAmount.toLocaleString()}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Card 3.2: Financial Hero Summary Card (The Big Box) -->
+                        <div class="bg-gradient-to-br from-[#242b5f] to-[#161a38] text-white p-5 rounded-2xl shadow-xl shadow-indigo-950/20 space-y-4">
+                            
+                            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                                <div>
+                                    <span class="text-[10px] text-amber-300 font-bold uppercase tracking-wider">Financial Expense Summary</span>
+                                    <h3 class="text-sm font-bold text-white mt-0.5">Post to Company Accounts</h3>
+                                </div>
+                                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Ready to Post
+                                </span>
+                            </div>
+
+                            <!-- Financial Calculation Breakdown -->
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between text-slate-300">
+                                    <span>Base Items Amount:</span>
+                                    <span class="font-mono font-semibold">Rs. ${baseAmount.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between text-slate-300">
+                                    <span>18% Sales Tax (GST FBR):</span>
+                                    <span class="font-mono text-emerald-400 font-bold">+ Rs. ${item.taxAmount.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between border-t border-white/10 pt-2 text-sm font-bold">
+                                    <span class="text-white">Gross Invoice Total:</span>
+                                    <span class="font-mono text-amber-300 text-base font-extrabold">Rs. ${item.netAmount.toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            <!-- TODAY'S EXPENSE (AAJ KA KHARCHA) HERO HIGHLIGHT -->
+                            <div class="bg-emerald-500/15 border border-emerald-400/40 p-3 rounded-xl space-y-1">
+                                <div class="flex items-center justify-between text-[10px] font-extrabold text-emerald-300 uppercase tracking-wide">
+                                    <span class="flex items-center gap-1">
+                                        <i class="fas fa-calendar-day text-emerald-400"></i> Today's Incurred Expense Impact
+                                    </span>
+                                    <span class="font-mono">Aaj Ka Kharcha</span>
+                                </div>
+                                <div class="flex items-center justify-between mt-1">
+                                    <span class="text-xs text-slate-200">Current Today's Expense:</span>
+                                    <span class="font-mono text-xs text-slate-200">Rs. ${window.TODAY_EXPENSE_TOTAL.toLocaleString()}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-emerald-300">New Today's Expense:</span>
+                                    <span class="font-mono text-sm font-black text-emerald-300">Rs. ${(window.TODAY_EXPENSE_TOTAL + item.netAmount).toLocaleString()}</span>
+                                </div>
+                                <p class="text-[9px] text-emerald-200/80 pt-1 border-t border-emerald-400/20">
+                                    ⚡ + Rs. ${item.netAmount.toLocaleString()} will be posted immediately upon clicking below.
+                                </p>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="space-y-2 pt-1">
+                                <button type="button" onclick="submitFullPageExpenseInvoice('${item.id}')" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white p-3 rounded-xl text-xs font-black shadow-lg shadow-emerald-950/40 hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+                                    <i class="fas fa-check-circle text-base text-emerald-200"></i> Confirm & Post to Today's Expense
+                                </button>
+                                <button type="button" onclick="hideGenerateExpenseInvoiceView()" class="w-full bg-white/10 hover:bg-white/15 text-white/80 p-2 rounded-lg text-xs font-semibold transition text-center cursor-pointer">
+                                    Cancel & Return to Master Table
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+
+            // Switch views smoothly
+            document.getElementById('purchases-list-view')?.classList.add('hidden');
+            document.getElementById('expense-invoice-voucher-view')?.classList.add('hidden');
+            viewContainer.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.hideGenerateExpenseInvoiceView = () => {
+            document.getElementById('expense-invoice-create-view')?.classList.add('hidden');
+            document.getElementById('purchases-list-view')?.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.submitFullPageExpenseInvoice = (purchaseId) => {
+            const item = window.PURCHASES_DATA.find(p => p.id === purchaseId);
+            if (!item) return;
+
+            const invNo = document.getElementById('full-gen-inv-no')?.value || ('INV-EXP-2026-' + item.id.replace('PR-2026-', ''));
+
+            // 1. Update record status & invoice #
+            item.status = 'invoiced';
+            item.expenseInvoiceNo = invNo;
+            item.statusLabel = '✅ Invoiced & Added to Site Expense';
+            item.statusClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+            item.invoicedDate = '28 Sep 2026';
+            item.isToday = true;
+
+            // 2. Add to Today's Expense (Aaj Ka Kharcha)
+            window.TODAY_EXPENSE_TOTAL += item.netAmount;
+            window.TODAY_INVOICES_COUNT += 1;
+
+            // 3. Add to Site's calculated ledger total
+            if (window.SITE_EXPENSES[item.site] !== undefined) {
+                window.SITE_EXPENSES[item.site] += item.netAmount;
+            } else {
+                window.SITE_EXPENSES[item.site] = item.netAmount;
+            }
+
+            // 4. Return to list view
+            window.hideGenerateExpenseInvoiceView();
+
+            // 5. Update UI counters and site ledger
+            window.updateFinancialKPIs();
+            window.renderSiteExpenseLedger(item.site);
+            window.filterPurchasesTable();
+
+            // 6. Toast notification
+            showToast(`Expense Invoice ${invNo} posted! Rs. ${item.netAmount.toLocaleString()} added to Today's Expense & ${item.site} ledger.`, 'success');
+        };
+
+        // Official Voucher Full-Page Controller
+        window.showExpenseInvoiceVoucherView = (purchaseId) => {
+            const item = window.PURCHASES_DATA.find(p => p.id === purchaseId);
+            if (!item) return;
+
+            const viewContainer = document.getElementById('expense-invoice-voucher-view');
+            if (!viewContainer) return;
+
+            viewContainer.innerHTML = `
+                <!-- Header: Action & Navigation Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl shadow-xs border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="hideExpenseInvoiceVoucherView()" class="w-9 h-9 rounded-xl border border-slate-200 hover:border-[#242b5f] text-slate-600 hover:text-[#242b5f] bg-white flex items-center justify-center transition shadow-2xs group" title="Back to Register">
+                            <i class="fas fa-arrow-left text-sm group-hover:-translate-x-0.5 transition-transform"></i>
+                        </button>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base font-bold text-slate-900 tracking-tight">Official Posted Expense Invoice Voucher</h2>
+                                <span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md">${item.expenseInvoiceNo || 'INV-EXP-2026-POSTED'}</span>
+                                <span class="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+                                    <i class="fas fa-check-double mr-1"></i> Posted to Site Ledger
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">
+                                Official accounting record charged to <b class="text-[#242b5f]">${item.site}</b> • Prepared by Accounts Department with attached audit slip evidence.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="hideExpenseInvoiceVoucherView()" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition flex items-center gap-1">
+                            <i class="fas fa-arrow-left"></i> Back to Register
+                        </button>
+                        <button type="button" onclick="window.print()" class="bg-[#242b5f] hover:bg-[#1b214a] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md shadow-indigo-950/20 hover:shadow-lg transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer">
+                            <i class="fas fa-print text-amber-300"></i> Print Official Voucher
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2-Column Wide Enterprise Printable Container -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                    
+                    <!-- Left: Printable Official Voucher (8 cols) -->
+                    <div class="lg:col-span-8 bg-white p-6 rounded-xl border border-gray-300 shadow-sm space-y-4" id="voucher-print-area">
+                        <!-- Top Header with Cosmix Logo & Details -->
+                        <div class="flex items-center justify-between border-b-2 border-[#242b5f] pb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-[#242b5f] text-white flex items-center justify-center font-black text-base shadow">
+                                    CE
+                                </div>
+                                <div>
+                                    <h2 class="text-base font-extrabold text-[#242b5f] tracking-tight">COSMIX ENGINEERING (PVT) LTD</h2>
+                                    <p class="text-[10px] text-gray-500 font-semibold">Corporate Accounts Department • Pakistan</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="stamp-official text-[10px]">POSTED EXPENSE INVOICE</span>
+                                <div class="font-mono text-xs font-bold text-gray-800 mt-1">${item.expenseInvoiceNo || 'INV-EXP-2026-POSTED'}</div>
+                            </div>
+                        </div>
+
+                        <!-- Meta Info Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200 text-xs">
+                            <div>
+                                <p class="text-[8.5px] text-gray-400 font-bold uppercase">Posting Date</p>
+                                <p class="font-bold text-gray-900">${item.date}</p>
+                                <p class="text-[9px] text-emerald-700 font-bold">Added to Today's Expense</p>
+                            </div>
+                            <div>
+                                <p class="text-[8.5px] text-gray-400 font-bold uppercase">Charged Project Site</p>
+                                <p class="font-bold text-[#242b5f]">${item.site}</p>
+                                <p class="text-[9px] text-gray-500">City: ${item.city}</p>
+                            </div>
+                            <div>
+                                <p class="text-[8.5px] text-gray-400 font-bold uppercase">Field Purchaser</p>
+                                <p class="font-bold text-gray-900">${item.requester}</p>
+                                <p class="text-[9px] text-gray-500 font-mono">${item.empId}</p>
+                            </div>
+                            <div>
+                                <p class="text-[8.5px] text-gray-400 font-bold uppercase">Vendor & Slip Reference</p>
+                                <p class="font-bold text-gray-900 truncate">${item.vendor}</p>
+                                <p class="text-[9px] text-gray-500 font-mono">Slip: ${item.billNo}</p>
+                            </div>
+                        </div>
+
+                        <!-- Scope & Line Items Table -->
+                        <div>
+                            <div class="text-[10.5px] text-gray-700 font-semibold mb-2">
+                                <b>Description of Work / Supplies:</b> ${item.scope}
+                            </div>
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <table class="w-full text-xs text-left">
+                                    <thead class="bg-gray-100 font-bold text-gray-700 border-b border-gray-200">
+                                        <tr>
+                                            <th class="p-2">#</th>
+                                            <th class="p-2">Line Item Description</th>
+                                            <th class="p-2 text-center">Qty / Unit</th>
+                                            <th class="p-2 text-right">Unit Rate</th>
+                                            <th class="p-2 text-right">GST (18%)</th>
+                                            <th class="p-2 text-right">Total (PKR)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        ${item.items.map((it, idx) => `
+                                            <tr>
+                                                <td class="p-2 font-bold">${idx + 1}</td>
+                                                <td class="p-2 font-semibold text-gray-800">${it.name}</td>
+                                                <td class="p-2 text-center font-bold text-indigo-700">${it.qty} ${it.unit}</td>
+                                                <td class="p-2 text-right font-mono text-gray-700">Rs. ${it.rate.toLocaleString()}</td>
+                                                <td class="p-2 text-right font-mono text-gray-500">Rs. ${it.tax.toLocaleString()}</td>
+                                                <td class="p-2 text-right font-mono font-bold text-gray-900">Rs. ${it.total.toLocaleString()}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                    <tfoot class="bg-gray-50 border-t border-gray-200 font-bold">
+                                        <tr>
+                                            <td colspan="5" class="p-2 text-right text-gray-600">Net Charged Amount to Project Site:</td>
+                                            <td class="p-2 text-right font-mono text-[#242b5f] font-extrabold text-sm">
+                                                Rs. ${item.netAmount.toLocaleString()}
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- General Ledger Double Entry Preview -->
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs">
+                            <p class="font-bold text-slate-800 text-[10px] uppercase tracking-wide mb-1.5">General Ledger Accounting Distribution (JV)</p>
+                            <div class="grid grid-cols-2 gap-2 font-mono text-[11px]">
+                                <div class="bg-white p-2 rounded border border-slate-200">
+                                    <span class="text-blue-700 font-bold">Dr. Site Direct Material Expenses</span>
+                                    <p class="text-[9.5px] text-gray-500">${item.site}</p>
+                                    <p class="font-bold text-gray-800 mt-1">PKR ${item.netAmount.toLocaleString()}</p>
+                                </div>
+                                <div class="bg-white p-2 rounded border border-slate-200">
+                                    <span class="text-emerald-700 font-bold">Cr. Accounts Payable / Imprest Cash</span>
+                                    <p class="text-[9.5px] text-gray-500">${item.vendor} (${item.billNo})</p>
+                                    <p class="font-bold text-gray-800 mt-1">PKR ${item.netAmount.toLocaleString()}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formal Sign-Off Footer -->
+                        <div class="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200 text-center text-[9px] text-gray-500">
+                            <div>
+                                <div class="font-script text-indigo-900 text-base italic leading-none font-bold" style="font-family: cursive;">${item.requester}</div>
+                                <div class="border-t border-gray-300 mt-1 pt-1">
+                                    <b>Field Purchaser / Site Incharge</b>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-script text-emerald-900 text-base italic leading-none font-bold" style="font-family: cursive;">Huma Khan</div>
+                                <div class="border-t border-gray-300 mt-1 pt-1">
+                                    <b>Accounts Officer (Invoice Generator)</b>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-script text-gray-800 text-base italic leading-none font-bold" style="font-family: cursive;">CFO Approved</div>
+                                <div class="border-t border-gray-300 mt-1 pt-1">
+                                    <b>Head of Finance / Internal Audit</b>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right: Attached Physical Slip Audit Card (4 cols) -->
+                    <div class="lg:col-span-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                            <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                                <i class="fas fa-camera text-amber-600"></i> Physical Audit Evidence
+                            </span>
+                            <span class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
+                                Verified Slip
+                            </span>
+                        </div>
+
+                        <div class="bg-amber-50 p-2.5 rounded-lg border border-amber-200 text-xs">
+                            <p class="font-bold text-amber-950">${item.vendor}</p>
+                            <p class="text-[10px] text-gray-600">Cash Memo: <span class="font-mono font-bold text-red-700">${item.billNo}</span> • NTN: ${item.vendorNtn}</p>
+                            <p class="text-[9.5px] text-gray-500 mt-1">Uploaded by site engineer ${item.requester} at ${item.slipDate}</p>
+                        </div>
+
+                        <div class="p-3 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center">
+                            <div class="bg-[#fefce8] p-3 rounded border border-amber-300 shadow text-[9px] font-mono w-full leading-tight text-center space-y-1">
+                                <p class="font-bold text-gray-900">${item.vendor.toUpperCase()}</p>
+                                <p class="text-[8px] text-gray-500">CASH MEMO # ${item.billNo}</p>
+                                <div class="stamp-box text-[7.5px] my-1">PAID IN CASH</div>
+                                <div class="stamp-official text-[7.5px] my-1">SITE RECEIVED</div>
+                                <p class="font-bold text-red-800 text-[10px] pt-1 border-t border-gray-300">TOTAL: PKR ${item.netAmount.toLocaleString()}</p>
+                            </div>
+                        </div>
+
+                        <button onclick="openInvoiceImageModal('${item.id}')" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5">
+                            <i class="fas fa-search-plus text-amber-600"></i> Inspect Full Scanned Slip Modal
+                        </button>
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('purchases-list-view')?.classList.add('hidden');
+            document.getElementById('expense-invoice-create-view')?.classList.add('hidden');
+            viewContainer.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.hideExpenseInvoiceVoucherView = () => {
+            document.getElementById('expense-invoice-voucher-view')?.classList.add('hidden');
+            document.getElementById('purchases-list-view')?.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.openGenerateExpenseInvoiceModal = (purchaseId) => { window.showGenerateExpenseInvoiceView(purchaseId); };
+        window.oldOpenGenerateExpenseInvoiceModal = (purchaseId) => {
+            const item = window.PURCHASES_DATA.find(p => p.id === purchaseId);
+            if (!item) return;
+
+            const suggestedInvoiceNo = 'INV-EXP-2026-' + item.id.replace('PR-2026-', '');
+            const currentSiteTotal = window.SITE_EXPENSES[item.site] || 0;
+            const newSiteTotal = currentSiteTotal + item.netAmount;
+
+            const modalHTML = `
+                <div class="space-y-3.5 text-xs">
+                    
+                    <!-- Alert: Workflow Context -->
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200 flex items-start gap-2.5">
+                        <div class="w-7 h-7 rounded-full bg-[#242b5f] text-white flex items-center justify-center shrink-0 mt-0.5 text-xs">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900 text-xs">Accounts Expense Invoice Generation & Posting</h4>
+                            <p class="text-[10px] text-gray-600 mt-0.5">
+                                Yeh purchase request field team (<b>${item.requester}</b>) ne slip ke sath drop ki hai. Is invoice ko post karne se yeh 
+                                <b class="text-emerald-800 font-bold">Today's Expense (Aaj Ka Kharcha)</b> aur <b class="text-[#242b5f] font-bold">${item.site}</b> ke expense total me calculate ho jayegi.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Verified Slip Snapshot Preview Card -->
+                    <div class="bg-amber-50/60 p-2.5 rounded-lg border border-amber-200 grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                        <div class="sm:col-span-2">
+                            <div class="flex items-center gap-1.5 text-gray-800">
+                                <span class="bg-green-600 text-white text-[8px] font-bold px-1.5 py-0.2 rounded">SLIP VERIFIED</span>
+                                <span class="font-bold text-xs">${item.vendor}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-0.5">
+                                Slip #: <b class="text-red-700 font-mono">${item.billNo}</b> • NTN: <span class="font-mono">${item.vendorNtn}</span>
+                            </p>
+                            <p class="text-[10px] text-gray-700 mt-1">
+                                <b>Scope:</b> ${item.scope}
+                            </p>
+                        </div>
+
+                        <div class="text-right sm:border-l border-amber-200 pl-2">
+                            <button onclick="openInvoiceImageModal('${item.id}')" class="bg-white border border-amber-300 hover:bg-amber-100/50 text-amber-900 px-2.5 py-1 rounded text-[10px] font-bold transition flex items-center gap-1 ml-auto">
+                                <i class="fas fa-camera text-amber-600"></i> Inspect Full Slip
+                            </button>
+                            <div class="text-[9px] text-gray-400 mt-1">Uploaded: ${item.slipDate}</div>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Generation Form -->
+                    <form id="gen-invoice-form" onsubmit="event.preventDefault(); postGeneratedExpenseInvoice('${item.id}');" class="space-y-3">
+                        
+                        <!-- Row 1: Generated Invoice # & Date -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Generated Invoice # <span class="text-red-500">*</span></label>
+                                <input id="gen-inv-no" type="text" value="${suggestedInvoiceNo}" class="w-full bg-white border border-gray-300 rounded p-1.5 font-mono font-bold text-[#242b5f] focus:outline-none focus:ring-1 focus:ring-[#242b5f]" required>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Posting Date <span class="text-red-500">*</span></label>
+                                <input id="gen-inv-date" type="text" value="28 Sep 2026 (Today)" readonly class="w-full bg-gray-100 border border-gray-300 rounded p-1.5 font-semibold text-gray-800">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Expense Head / Type</label>
+                                <input type="text" value="${item.expenseTypeLabel}" readonly class="w-full bg-gray-100 border border-gray-300 rounded p-1.5 font-semibold text-gray-700">
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Project Site & Live Calculation Preview -->
+                        <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-0.5">Assigned Project Site</label>
+                                <div class="font-bold text-gray-900 text-xs flex items-center gap-1">
+                                    <i class="fas fa-map-marker-alt text-red-500"></i> ${item.site}
+                                </div>
+                                <p class="text-[9.5px] text-gray-500 mt-0.5">Purchased by: <b>${item.requester}</b> (${item.empId})</p>
+                            </div>
+
+                            <div class="bg-white p-2 rounded border border-gray-200 text-right">
+                                <p class="text-[8.5px] text-gray-400 font-bold uppercase">Site Expense Ledger Calculation</p>
+                                <p class="text-xs font-bold text-gray-700 mt-0.5">
+                                    Current: <span class="font-mono">Rs. ${(currentSiteTotal/1000000).toFixed(2)}M</span>
+                                    &rarr; <span class="text-emerald-700 font-extrabold font-mono">Rs. ${(newSiteTotal/1000000).toFixed(2)}M</span>
+                                </p>
+                                <p class="text-[8.5px] text-emerald-600 font-semibold mt-0.5">+ Rs. ${item.netAmount.toLocaleString()} will be added to site total</p>
+                            </div>
+                        </div>
+
+                        <!-- Line Items Summary Table -->
+                        <div class="border border-gray-200 rounded-lg overflow-hidden">
+                            <table class="w-full text-xs text-left">
+                                <thead class="bg-gray-50 text-gray-600 font-bold border-b border-gray-200">
+                                    <tr>
+                                        <th class="p-2">Item Description</th>
+                                        <th class="p-2 text-center">Qty</th>
+                                        <th class="p-2 text-right">Rate (PKR)</th>
+                                        <th class="p-2 text-right">Tax (18%)</th>
+                                        <th class="p-2 text-right">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    ${item.items.map(it => `
+                                        <tr>
+                                            <td class="p-2 font-medium text-gray-800">${it.name}</td>
+                                            <td class="p-2 text-center font-bold text-indigo-700">${it.qty} ${it.unit}</td>
+                                            <td class="p-2 text-right font-mono text-gray-600">${it.rate.toLocaleString()}</td>
+                                            <td class="p-2 text-right font-mono text-gray-400">${it.tax.toLocaleString()}</td>
+                                            <td class="p-2 text-right font-mono font-bold text-gray-900">${it.total.toLocaleString()}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                                <tfoot class="bg-gray-100 border-t border-gray-200 font-bold">
+                                    <tr>
+                                        <td colspan="4" class="p-2 text-right text-gray-700">Total Invoice Amount (Gross + GST):</td>
+                                        <td class="p-2 text-right font-mono text-emerald-900 font-extrabold text-sm">
+                                            PKR ${item.netAmount.toLocaleString()}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <!-- Posting Account & Audit Signoff -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Financial Posting Account</label>
+                                <select id="gen-ledger-acc" class="w-full bg-white border border-gray-300 rounded p-1.5 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                                    <option value="Accounts Payable - Project Supplies">Accounts Payable - Project Supplies</option>
+                                    <option value="Site Imprest Petty Cash">Site Imprest Petty Cash (${item.site})</option>
+                                    <option value="Meezan Corporate Bank Disbursement">Meezan Corporate Bank Disbursement</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Accounts Audit Note</label>
+                                <input id="gen-audit-note" type="text" value="Verified against vendor physical slip & site engineer receipt stamp." class="w-full bg-white border border-gray-300 rounded p-1.5 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="pt-3 border-t border-gray-200 flex flex-wrap items-center justify-between gap-2">
+                            <div class="text-[10px] text-emerald-800 font-bold flex items-center gap-1">
+                                <i class="fas fa-arrow-circle-up text-emerald-600"></i>
+                                Today's Expense will increase by Rs. ${item.netAmount.toLocaleString()}
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="closeModal()" class="px-3 py-1.5 font-bold text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="px-4 py-1.5 font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-lg shadow-sm transition flex items-center gap-1.5">
+                                    <i class="fas fa-check-circle text-emerald-200"></i> Confirm & Post to Today's Expense
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
+            `;
+
+            openModal(`Generate Expense Invoice for ${item.id}`, modalHTML, null);
+        };
+
+        // Posting Function for Expense Invoice
+        window.postGeneratedExpenseInvoice = (purchaseId) => {
+            const item = window.PURCHASES_DATA.find(p => p.id === purchaseId);
+            if (!item) return;
+
+            const invNo = document.getElementById('gen-inv-no')?.value || ('INV-EXP-2026-' + item.id.replace('PR-2026-', ''));
+
+            // 1. Update record status & invoice #
+            item.status = 'invoiced';
+            item.expenseInvoiceNo = invNo;
+            item.statusLabel = '✅ Invoiced & Added to Site Expense';
+            item.statusClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+            item.invoicedDate = '28 Sep 2026';
+            item.isToday = true;
+
+            // 2. Add to Today's Expense (Aaj Ka Kharcha)
+            window.TODAY_EXPENSE_TOTAL += item.netAmount;
+            window.TODAY_INVOICES_COUNT += 1;
+
+            // 3. Add to Site's calculated ledger total
+            if (window.SITE_EXPENSES[item.site] !== undefined) {
+                window.SITE_EXPENSES[item.site] += item.netAmount;
+            } else {
+                window.SITE_EXPENSES[item.site] = item.netAmount;
+            }
+
+            closeModal();
+
+            // 4. Update UI counters and site ledger
+            window.updateFinancialKPIs();
+            window.renderSiteExpenseLedger(item.site);
+            window.filterPurchasesTable();
+
+            // 5. Toast notification
+            showToast(`Expense Invoice ${invNo} posted! Rs. ${item.netAmount.toLocaleString()} added to Today's Expense & ${item.site} ledger.`, 'success');
+        };
+
+        // =========================================================================
+        // MODAL 3: VIEW OFFICIAL POSTED EXPENSE INVOICE VOUCHER
+        // =========================================================================
+        window.openExpenseInvoiceVoucherModal = (purchaseId) => { window.showExpenseInvoiceVoucherView(purchaseId); };
+        window.oldOpenExpenseInvoiceVoucherModal = (purchaseId) => {
+            const item = window.PURCHASES_DATA.find(p => p.id === purchaseId);
+            if (!item) return;
+
+            const modalHTML = `
+                <div class="space-y-3.5 text-xs">
+                    
+                    <!-- Official Invoice Voucher Printable Container -->
+                    <div id="voucher-print-area" class="bg-white p-6 rounded-xl border border-gray-300 shadow-sm space-y-4">
+                        
+                        <!-- Top Header with Cosmix Logo & Details -->
+                        <div class="flex items-center justify-between border-b-2 border-[#242b5f] pb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-[#242b5f] text-white flex items-center justify-center font-black text-base shadow">
+                                    CE
+                                </div>
+                                <div>
+                                    <h2 class="text-base font-extrabold text-[#242b5f] tracking-tight">COSMIX ENGINEERING (PVT) LTD</h2>
+                                    <p class="text-[10px] text-gray-500 font-semibold">Corporate Accounts Department • Pakistan</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="stamp-official text-[10px]">POSTED EXPENSE INVOICE</span>
+                                <div class="font-mono text-xs font-bold text-gray-800 mt-1">${item.expenseInvoiceNo || 'INV-EXP-2026-POSTED'}</div>
+                            </div>
+                        </div>
+
+                        <!-- Meta Info Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-gray-50 p-2.5 rounded-lg border border-gray-200 text-xs">
+                            <div>
+                                <p class="text-[8.5px] text-gray-400 font-bold uppercase">Posting Date</p>
+                                <p class="font-bold text-gray-900">${item.date}</p>
+                                <p class="text-[9px] text-emerald-700 font-bold">Added to Today's Expense</p>
+                            </div>
+                            <div>
+                                <p class="text-[8.5px] text-gray-400 font-bold uppercase">Charged Project Site</p>
+                                <p class="font-bold text-[#242b5f]">${item.site}</p>
+                                <p class="text-[9px] text-gray-500">City: ${item.city}</p>
+                            </div>
+                            <div>
+                                <p class="text-[8.5px] text-gray-400 font-bold uppercase">Field Purchaser</p>
+                                <p class="font-bold text-gray-900">${item.requester}</p>
+                                <p class="text-[9px] text-gray-500 font-mono">${item.empId}</p>
+                            </div>
+                            <div>
+                                <p class="text-[8.5px] text-gray-400 font-bold uppercase">Vendor & Slip Reference</p>
+                                <p class="font-bold text-gray-900 truncate">${item.vendor}</p>
+                                <p class="text-[9px] text-gray-500 font-mono">Slip: ${item.billNo}</p>
+                            </div>
+                        </div>
+
+                        <!-- Scope & Line Items Table -->
+                        <div>
+                            <div class="text-[10.5px] text-gray-700 font-semibold mb-2">
+                                <b>Description of Work / Supplies:</b> ${item.scope}
+                            </div>
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <table class="w-full text-xs text-left">
+                                    <thead class="bg-gray-100 font-bold text-gray-700 border-b border-gray-200">
+                                        <tr>
+                                            <th class="p-2">#</th>
+                                            <th class="p-2">Line Item Description</th>
+                                            <th class="p-2 text-center">Qty / Unit</th>
+                                            <th class="p-2 text-right">Unit Rate</th>
+                                            <th class="p-2 text-right">GST (18%)</th>
+                                            <th class="p-2 text-right">Total (PKR)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        ${item.items.map((it, idx) => `
+                                            <tr>
+                                                <td class="p-2 font-bold">${idx + 1}</td>
+                                                <td class="p-2 font-semibold text-gray-800">${it.name}</td>
+                                                <td class="p-2 text-center font-bold text-indigo-700">${it.qty} ${it.unit}</td>
+                                                <td class="p-2 text-right font-mono text-gray-700">Rs. ${it.rate.toLocaleString()}</td>
+                                                <td class="p-2 text-right font-mono text-gray-500">Rs. ${it.tax.toLocaleString()}</td>
+                                                <td class="p-2 text-right font-mono font-bold text-gray-900">Rs. ${it.total.toLocaleString()}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                    <tfoot class="bg-gray-50 border-t border-gray-200 font-bold">
+                                        <tr>
+                                            <td colspan="5" class="p-2 text-right text-gray-600">Net Charged Amount to Project Site:</td>
+                                            <td class="p-2 text-right font-mono text-[#242b5f] font-extrabold text-sm">
+                                                Rs. ${item.netAmount.toLocaleString()}
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Formal Sign-Off Footer -->
+                        <div class="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200 text-center text-[9px] text-gray-500">
+                            <div>
+                                <div class="font-script text-indigo-900 text-base italic leading-none font-bold" style="font-family: cursive;">${item.requester}</div>
+                                <div class="border-t border-gray-300 mt-1 pt-1">
+                                    <b>Field Purchaser / Site Incharge</b>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-script text-emerald-900 text-base italic leading-none font-bold" style="font-family: cursive;">Huma Khan</div>
+                                <div class="border-t border-gray-300 mt-1 pt-1">
+                                    <b>Accounts Officer (Invoice Generator)</b>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-script text-gray-800 text-base italic leading-none font-bold" style="font-family: cursive;">CFO Approved</div>
+                                <div class="border-t border-gray-300 mt-1 pt-1">
+                                    <b>Head of Finance / Internal Audit</b>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Modal Actions -->
+                    <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                        <button onclick="openInvoiceImageModal('${item.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                            <i class="fas fa-camera text-amber-600"></i> View Attached Bill Slip
+                        </button>
+
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="closeModal()" class="px-3 py-1.5 font-bold text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                                Close
+                            </button>
+                            <button onclick="window.print()" class="bg-[#242b5f] text-white px-3.5 py-1.5 rounded-lg text-xs font-bold hover:bg-opacity-90 transition flex items-center gap-1.5">
+                                <i class="fas fa-print"></i> Print Expense Voucher
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            openModal(`Posted Expense Invoice Voucher: ${item.expenseInvoiceNo}`, modalHTML, null);
+        };
+
+        // =========================================================================
+        // MODAL 4: RECEIVE FIELD PURCHASE — FULL PAGE VIEW (PURCHASED DONE WITH SLIP)
+        // =========================================================================
+        window.openIncomingFieldPurchaseModal = () => showFieldPurchaseView(); // shim for old button
+
+        window.showFieldPurchaseView = () => {
+            document.getElementById('purchases-list-view')?.classList.add('hidden');
+            document.getElementById('expense-invoice-create-view')?.classList.add('hidden');
+            document.getElementById('expense-invoice-voucher-view')?.classList.add('hidden');
+            document.getElementById('field-purchase-view')?.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            calcFPTotal();
+        };
+
+        window.hideFieldPurchaseView = () => {
+            document.getElementById('field-purchase-view')?.classList.add('hidden');
+            document.getElementById('purchases-list-view')?.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.calcFPTotal = () => {
+            const qty = parseFloat(document.getElementById('fp-item-qty')?.value) || 0;
+            const rate = parseFloat(document.getElementById('fp-item-rate')?.value) || 0;
+            const gross = qty * rate;
+            const tax = Math.round(gross * 0.18);
+            const net = gross + tax;
+            const el = (id) => document.getElementById(id);
+            if (el('fp-gross')) el('fp-gross').innerText = 'Rs. ' + gross.toLocaleString();
+            if (el('fp-tax'))   el('fp-tax').innerText   = '+ Rs. ' + tax.toLocaleString();
+            if (el('fp-net'))   el('fp-net').innerText   = 'Rs. ' + net.toLocaleString();
+        };
+
+        window.submitIncomingFieldPurchaseFull = () => {
+            const site      = document.getElementById('fp-site')?.value;
+            const requester = document.getElementById('fp-requester')?.value;
+            const expType   = document.getElementById('fp-exp-type')?.value;
+            const vendor    = document.getElementById('fp-vendor')?.value || 'Market Supplier';
+            const priority  = document.getElementById('fp-priority')?.value || 'Urgent';
+            const payment   = document.getElementById('fp-payment')?.value || 'Site Imprest Petty Cash';
+            const scope     = document.getElementById('fp-scope')?.value;
+            const itemName  = document.getElementById('fp-item-name')?.value || 'Site Supplies';
+            const itemQty   = parseFloat(document.getElementById('fp-item-qty')?.value) || 1;
+            const itemUnit  = document.getElementById('fp-item-unit')?.value || 'Pcs';
+            const itemRate  = parseFloat(document.getElementById('fp-item-rate')?.value) || 25000;
+
+            const gross = itemQty * itemRate;
+            const tax   = Math.round(gross * 0.18);
+            const net   = gross + tax;
+
+            const newId     = 'PR-2026-0' + (window.PURCHASES_DATA.length + 95);
+            const newSlipNo = 'SLIP-' + Math.floor(1000 + Math.random() * 9000);
+
+            const typeMap = {
+                material:      { label: 'Material & Equipment Purchase',    badge: 'bg-blue-50 text-blue-700 border-blue-200',   icon: 'fas fa-boxes' },
+                subcontractor: { label: 'Subcontractor / Labour Bill',      badge: 'bg-purple-50 text-purple-700 border-purple-200', icon: 'fas fa-user-cog' },
+                fuel:          { label: 'Site Fuel & Generator Running',    badge: 'bg-amber-50 text-amber-800 border-amber-200', icon: 'fas fa-gas-pump' },
+                machinery:     { label: 'Machinery & Equipment Rental',     badge: 'bg-orange-50 text-orange-700 border-orange-200', icon: 'fas fa-truck-pickup' },
+                logistics:     { label: 'Site Freight & Transport',         badge: 'bg-teal-50 text-teal-700 border-teal-200',    icon: 'fas fa-shipping-fast' },
+                safety:        { label: 'Safety PPE & Consumables',         badge: 'bg-rose-50 text-rose-700 border-rose-200',    icon: 'fas fa-hard-hat' }
+            };
+            const selectedType = typeMap[expType] || typeMap['material'];
+
+            const newRecord = {
+                id: newId,
+                expenseInvoiceNo: null,
+                billNo: newSlipNo,
+                date: '28 Sep 2026',
+                isToday: true,
+                priority: priority,
+                priorityClass: priority === 'Emergency' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-orange-100 text-orange-700 border-orange-200',
+                site: site,
+                city: site.includes('Lahore') ? 'Lahore' : site.includes('Karachi') ? 'Karachi' : site.includes('Daharki') ? 'Daharki' : 'Rawalpindi',
+                expenseType: expType,
+                expenseTypeLabel: selectedType.label,
+                typeBadge: selectedType.badge,
+                typeIcon: selectedType.icon,
+                requester: requester.split('(')[0].trim(),
+                role: 'Field Purchaser / Site Engineer',
+                empId: 'EMP-1052',
+                vendor: vendor,
+                vendorNtn: '3912041-8',
+                vendorPhone: '+92 42 35891240',
+                vendorAddress: 'Local City Market',
+                category: expType,
+                categoryLabel: selectedType.label,
+                scope: scope,
+                items: [
+                    { name: itemName, qty: itemQty, unit: itemUnit, rate: itemRate, tax: tax, total: net }
+                ],
+                grossAmount: gross,
+                taxAmount: tax,
+                netAmount: net,
+                paymentMethod: payment,
+                receiptType: 'cash-memo',
+                receiptTitle: 'Market Purchase Cash Memo Slip',
+                slipAttached: true,
+                slipDate: '28-09-2026 ' + new Date().toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' }),
+                status: 'purchased_done',
+                statusLabel: 'Purchased Done with Slip',
+                statusClass: 'bg-amber-50 text-amber-800 border-amber-200',
+                stampText: 'PURCHASED DONE — SLIP ATTACHED',
+                verifiedBy: null,
+                verifiedDate: null
+            };
+
+            window.PURCHASES_DATA.unshift(newRecord);
+            window.updateFinancialKPIs();
+            hideFieldPurchaseView();
+            window.filterPurchasesTable();
+            showToast(`✅ Field Purchase "${newId}" received! Rs. ${net.toLocaleString()} — "${vendor}" — Slip attached. Accounts queue mein drop ho gaya.`, 'success');
+        };
+
+
+        // =========================================================================
+        // MODAL 5: PAYMENT DISBURSAL (MEEZAN / HBL / PETTY CASH)
+        // =========================================================================
+        window.openPaymentVoucherModal = (purchaseId) => {
+            const item = window.PURCHASES_DATA.find(p => p.id === purchaseId);
+            if (!item) return;
+
+            const whtRate = 0.045; // 4.5% Withholding Tax
+            const whtAmount = Math.round(item.grossAmount * whtRate);
+            const netDisbursal = item.netAmount - whtAmount;
+
+            const modalHTML = `
+                <div class="space-y-3 text-xs">
+                    <div class="bg-[#242b5f] text-white p-3 rounded-lg flex justify-between items-center">
+                        <div>
+                            <p class="text-[9px] text-blue-200 font-bold uppercase">Payment Disbursal Voucher</p>
+                            <h3 class="text-sm font-bold font-mono">PV-2026-${Math.floor(300 + Math.random()*100)}</h3>
+                        </div>
+                        <span class="bg-amber-400 text-gray-900 font-bold px-2 py-0.5 rounded text-[10px]">
+                            Ready for Payment
+                        </span>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-2">
+                        <div class="flex justify-between text-gray-600">
+                            <span>Vendor / Payee:</span>
+                            <span class="font-bold text-gray-900">${item.vendor}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Expense Invoice Ref:</span>
+                            <span class="font-bold font-mono text-emerald-800">${item.expenseInvoiceNo || item.id}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Project Site:</span>
+                            <span class="font-semibold text-gray-800">${item.site}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Gross Bill Amount:</span>
+                            <span class="font-mono font-bold text-gray-800">Rs. ${item.grossAmount.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Sales Tax / GST:</span>
+                            <span class="font-mono text-gray-700">+ Rs. ${item.taxAmount.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-red-600 font-semibold border-t border-gray-200 pt-1">
+                            <span>Less: Income Tax WHT (4.5% Sec 153):</span>
+                            <span class="font-mono">- Rs. ${whtAmount.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between font-black text-sm border-t border-gray-300 pt-1 text-emerald-800">
+                            <span>Net Cheque / Disbursal Amount:</span>
+                            <span class="font-mono">Rs. ${netDisbursal.toLocaleString()}</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1">Disbursal Bank Account <span class="text-red-500">*</span></label>
+                        <select id="disburse-account" class="w-full bg-gray-50 border border-gray-300 rounded p-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                            <option value="Meezan Bank Ltd - Corporate A/C (PK36 MEZN 0001 0982 3471 01)">Meezan Bank Ltd - Corporate A/C (Balance: Rs. 14.8M)</option>
+                            <option value="Habib Bank Limited - Project Escrow">Habib Bank Limited - Project Escrow (Balance: Rs. 8.2M)</option>
+                            <option value="Site Imprest Petty Cash">Site Imprest Petty Cash (${item.site})</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-2 border-t border-gray-100 flex justify-end gap-2">
+                        <button type="button" onclick="closeModal()" class="px-3 py-1.5 font-bold text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50">Cancel</button>
+                        <button type="button" onclick="confirmPaymentDisbursal('${item.id}')" class="px-4 py-1.5 font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition shadow-sm flex items-center gap-1.5">
+                            <i class="fas fa-check-circle"></i> Confirm Disbursal & Settle
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            openModal(`Issue Payment Voucher: ${item.id}`, modalHTML, null);
+        };
+
+        window.confirmPaymentDisbursal = (purchaseId) => {
+            const item = window.PURCHASES_DATA.find(p => p.id === purchaseId);
+            if (!item) return;
+            item.status = 'paid';
+            item.statusLabel = 'Paid via Meezan Bank';
+            item.statusClass = 'bg-blue-100 text-blue-800 border-blue-200';
+            closeModal();
+            showToast(`Payment Voucher settled! Rs. ${item.netAmount.toLocaleString()} disbursed to ${item.vendor}.`, 'success');
+            window.filterPurchasesTable();
+        };
+
+        // Initialize on Load
+        window.updateFinancialKPIs();
+        window.renderSiteExpenseLedger();
+        window.renderPurchasesTable();
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
-﻿/* Cosmix Engineering ERP - Global System Styles */
+/* Cosmix Engineering ERP - Global System Styles */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
     --cosmix-navy: #242b5f;
@@ -17,6 +18,13 @@ body {
     background-color: var(--cosmix-bg) !important;
     color: #1e293b;
     -webkit-font-smoothing: antialiased;
+}
+
+/* JetBrains Mono - Financial amounts, invoice numbers, monetary values */
+.font-mono, [class*="font-mono"] {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
 }
 
 /* Compact Table Formatting */

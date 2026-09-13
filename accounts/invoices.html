@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Invoices & Project Billing Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; } 
+        body { font-family: 'Inter', sans-serif; } 
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; } 
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+        .stamp-official {
+            border: 2px solid #15803d;
+            color: #15803d;
+            transform: rotate(2deg);
+            padding: 4px 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('invoices');
+        setPageContent('Client Invoices & Project Billing Engine', `
+            <div class="space-y-4">
+                
+                <!-- ========================================================================= -->
+                <!-- VIEW 1: Master Invoices & IPCs Directory Table View                       -->
+                <!-- ========================================================================= -->
+                <div id="invoices-list-view" class="space-y-4">
+                    
+                    <!-- Header: Invoicing Operations & Quick Actions -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl shadow-xs border border-gray-100">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-sm font-bold text-gray-800">Project Billing & Milestone IPCs (Interim Payment Certificates)</h2>
+                                <span class="bg-purple-50 text-purple-700 text-[9px] font-bold px-2 py-0.5 rounded-full border border-purple-200">
+                                    SRB / PRA / KPRA / FBR Tax Engine
+                                </span>
+                            </div>
+                            <p class="text-[10.5px] text-gray-400 mt-0.5">Generate client tax invoices, site milestone payment certificates, retention tracking, and sales tax registers.</p>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="flex items-center bg-gray-100 p-0.5 rounded-lg text-xs font-bold">
+                                <span class="px-2.5 py-1 rounded-md bg-white text-[#242b5f] shadow-2xs flex items-center gap-1.5">
+                                    <i class="fas fa-file-invoice text-purple-600"></i> Client Billing (IPCs)
+                                </span>
+                                <a href="purchases.html" class="px-2.5 py-1 rounded-md text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5">
+                                    <i class="fas fa-truck-loading text-amber-600"></i> Supply & Expenses (Payables)
+                                </a>
+                            </div>
+
+                            <!-- Big Form Trigger: Opens Full-Page View (Just like Add Employee) -->
+                            <button onclick="showCreateInvoiceForm()" class="bg-[#242b5f] hover:bg-opacity-90 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                                <i class="fas fa-plus-circle text-amber-300"></i> + Create New Invoice / IPC
+                            </button>
+                            <button onclick="exportToExcel('Cosmix_Full_Invoice_Register')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-2xs transition flex items-center gap-1.5">
+                                <i class="fas fa-file-excel text-green-600"></i> Export Tax Register
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4 Financial Summary Stat Cards -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-xs">
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Billed (YTD)</p>
+                            <h4 id="stat-total-billed" class="text-lg font-extrabold text-gray-900 mt-0.5">Rs. 48,650,000</h4>
+                            <p class="text-[9px] text-emerald-600 font-semibold mt-1"><i class="fas fa-check-circle mr-0.5"></i> <span id="stat-ipc-count">24</span> Project Milestone IPCs</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-xs">
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Realized / Cleared</p>
+                            <h4 class="text-lg font-extrabold text-emerald-700 mt-0.5">Rs. 34,370,000</h4>
+                            <p class="text-[9px] text-gray-400 mt-1">Deposited into Meezan & HBL</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-amber-100 shadow-xs">
+                            <p class="text-[9px] text-amber-700 font-bold uppercase tracking-wider">Outstanding Receivables</p>
+                            <h4 id="stat-receivables" class="text-lg font-extrabold text-amber-600 mt-0.5">Rs. 14,280,000</h4>
+                            <p class="text-[9px] text-amber-700 font-semibold mt-1"><i class="fas fa-clock mr-0.5"></i> 8 IPCs under consultant audit</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-purple-100 shadow-xs">
+                            <p class="text-[9px] text-purple-700 font-bold uppercase tracking-wider">Client Retention Money (5%)</p>
+                            <h4 class="text-lg font-extrabold text-purple-700 mt-0.5">Rs. 2,432,500</h4>
+                            <p class="text-[9px] text-gray-400 mt-1">Releasable on Defect Liability</p>
+                        </div>
+                    </div>
+
+                    <!-- Filters & Category Navigation Bar -->
+                    <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-100 flex flex-wrap items-center justify-between gap-3">
+                        <!-- Tab Buttons -->
+                        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                            <button onclick="filterInvoiceTab('all', this)" class="invoice-tab-btn px-3 py-1 text-xs font-bold rounded-lg bg-[#242b5f] text-white shadow-2xs transition">All Invoices (24)</button>
+                            <button onclick="filterInvoiceTab('ipc', this)" class="invoice-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition">Site IPCs (14)</button>
+                            <button onclick="filterInvoiceTab('commercial', this)" class="invoice-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition">Tax Invoices (6)</button>
+                            <button onclick="filterInvoiceTab('advance', this)" class="invoice-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition">Mobilization Advance (4)</button>
+                        </div>
+
+                        <!-- Search and Client Filter -->
+                        <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                                <input id="invoice-search" type="text" oninput="filterInvoicesTable()" placeholder="Search invoice #, client, site..." class="bg-gray-50 border border-gray-200 text-xs rounded-md pl-7 pr-3 py-1 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#242b5f] w-52">
+                            </div>
+                            <select id="client-select-filter" onchange="filterInvoicesTable()" class="bg-gray-50 border border-gray-200 text-xs rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                                <option value="">All Clients</option>
+                                <option value="Lucky Landmark">Lucky Landmark (Pvt) Ltd</option>
+                                <option value="Packages Real Estate">Packages Real Estate Ltd</option>
+                                <option value="Engro Fertilizers">Engro Fertilizers Complex</option>
+                                <option value="Lucky Cement">Lucky Cement Industrial Plant</option>
+                                <option value="DHA City">DHA City Sector 3</option>
+                                <option value="Bahria Town">Bahria Town Civic Center</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Master Invoices & IPCs Data Table -->
+                    <div class="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse" id="invoices-main-table">
+                                <thead>
+                                    <tr class="bg-gray-50/80 border-b border-gray-100 text-gray-500 font-bold">
+                                        <th>Invoice / IPC #</th>
+                                        <th>Date</th>
+                                        <th>Client / Company</th>
+                                        <th>Project Site</th>
+                                        <th>Billing Scope</th>
+                                        <th>Sales Tax</th>
+                                        <th class="text-right">Gross (PKR)</th>
+                                        <th class="text-right">Retention (5%)</th>
+                                        <th class="text-right">Net Payable</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 text-xs" id="invoices-table-body">
+                                    <!-- Populated dynamically by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- End #invoices-list-view -->
+
+
+                <!-- ========================================================================= -->
+                <!-- VIEW 2: DEDICATED FULL-PAGE INVOICE CREATION FORM (LIKE ADD EMPLOYEE)     -->
+                <!-- ========================================================================= -->
+                <div id="invoice-create-form-view" class="space-y-4 hidden">
+                    
+                    <!-- Top Action & Navigation Bar -->
+                    <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="showInvoicesListView()" class="w-9 h-9 rounded-xl border border-slate-200 hover:border-[#242b5f] text-slate-600 hover:text-[#242b5f] bg-white flex items-center justify-center transition shadow-2xs group" title="Back to All Invoices">
+                                <i class="fas fa-arrow-left text-xs transition-transform group-hover:-translate-x-0.5"></i>
+                            </button>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-base font-bold text-slate-900 tracking-tight">Generate New Project Billing Invoice / Milestone IPC</h2>
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                        <i class="fas fa-calculator text-[8.5px]"></i> Automatic Tax & Retention Calculation
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-0.5">Enter client contracting details, BOQ line item quantities, provincial sales tax, and payment advice</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="showInvoicesListView()" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition flex items-center gap-1">
+                                <i class="fas fa-times text-[10px]"></i> Cancel
+                            </button>
+                            <button type="button" onclick="submitFullProjectInvoice()" class="bg-[#242b5f] hover:bg-[#1b214a] text-white px-5 py-2 rounded-lg text-xs font-bold shadow-md shadow-indigo-950/20 hover:shadow-lg transition-all flex items-center gap-1.5 active:scale-95">
+                                <i class="fas fa-check-circle text-amber-300"></i> Save & Generate Tax Invoice
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3-Column Wide Horizontal Layout Across Full Screen -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+                        
+                        <!-- ================= COLUMN 1: Client & Project Site Details ================= -->
+                        <div class="space-y-4 flex flex-col">
+                            
+                            <!-- 1. Agreement & Billing Type -->
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/80 space-y-3.5 shadow-2xs">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        <span class="w-4 h-4 rounded-full bg-[#242b5f] text-white flex items-center justify-center text-[9px] font-bold">1</span>
+                                        Billing Type & Invoice Identification
+                                    </h4>
+                                    <span class="text-[9px] text-red-500 font-bold">* Required</span>
+                                </div>
+
+                                <div class="space-y-2.5">
+                                    <div>
+                                        <label class="block text-[10.5px] font-bold text-slate-700 mb-1">Billing Certificate Type <span class="text-red-500">*</span></label>
+                                        <select id="full_inv_type" onchange="calculateFullInvoiceForm()" class="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-xs bg-white text-slate-800 focus:outline-none focus:border-[#242b5f] font-semibold shadow-2xs">
+                                            <option value="ipc">📑 Interim Payment Certificate (IPC Milestone Work)</option>
+                                            <option value="commercial">📄 Sales Tax Commercial Invoice</option>
+                                            <option value="advance">💰 Mobilization Advance Request (10% Initial)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-700 mb-1">Invoice / IPC # <span class="text-red-500">*</span></label>
+                                            <input id="full_inv_no" type="text" value="INV-2026-090" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-slate-100 font-mono font-bold text-[#242b5f] outline-none" readonly>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-700 mb-1">Invoice Date <span class="text-red-500">*</span></label>
+                                            <input id="full_inv_date" type="date" value="2026-09-28" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white text-slate-800 font-medium focus:border-[#242b5f] outline-none">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-700 mb-1">Payment Due Terms</label>
+                                            <select id="full_inv_terms" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white text-slate-800 focus:outline-none">
+                                                <option value="Net 30 Days">Net 30 Days (Standard)</option>
+                                                <option value="Net 15 Days">Net 15 Days (Urgent)</option>
+                                                <option value="Net 45 Days">Net 45 Days</option>
+                                                <option value="Immediate on Consultant Sign-off">Immediate on Sign-off</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-700 mb-1">Client PO / Contract Ref</label>
+                                            <input id="full_inv_contract_ref" type="text" value="PO-LND-2026-9812" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white text-slate-800 font-mono outline-none focus:border-[#242b5f]">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Client & Project Site Location -->
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/80 space-y-3 shadow-2xs flex-1">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        <span class="w-4 h-4 rounded-full bg-[#242b5f] text-white flex items-center justify-center text-[9px] font-bold">2</span>
+                                        Client Enterprise & Project Site
+                                    </h4>
+                                    <span class="text-[9px] text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded">Corporate Client</span>
+                                </div>
+
+                                <div class="space-y-2.5">
+                                    <div>
+                                        <label class="block text-[10.5px] font-bold text-slate-700 mb-1">Client / Enterprise Name <span class="text-red-500">*</span></label>
+                                        <select id="full_inv_client" onchange="syncClientData(this.value)" class="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-xs bg-white text-slate-800 focus:outline-none focus:border-[#242b5f] font-semibold shadow-2xs">
+                                            <option value="Lucky Landmark (Pvt) Ltd">Lucky Landmark (Pvt) Ltd (NTN: 0819234-2)</option>
+                                            <option value="Packages Real Estate Ltd">Packages Real Estate Ltd (NTN: 1249871-5)</option>
+                                            <option value="Engro Fertilizers Complex">Engro Fertilizers Complex (NTN: 0711928-8)</option>
+                                            <option value="Lucky Cement Industrial Plant">Lucky Cement Industrial Plant (NTN: 0981245-1)</option>
+                                            <option value="DHA City Sector 3 Commercial">DHA City Sector 3 Commercial (NTN: 3318291-0)</option>
+                                            <option value="Bahria Town Civic Center">Bahria Town Civic Center (NTN: 2281903-4)</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[10.5px] font-bold text-slate-700 mb-1">Project Site Location & Region <span class="text-red-500">*</span></label>
+                                        <select id="full_inv_site" onchange="syncTaxWithSite(this.value)" class="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-xs bg-white text-slate-800 focus:outline-none focus:border-[#242b5f] font-semibold shadow-2xs">
+                                            <option value="Lucky One Mall, Karachi">Lucky One Mall, Karachi (Sindh)</option>
+                                            <option value="Packages Mall, Lahore">Packages Mall, Lahore (Punjab)</option>
+                                            <option value="Engro Complex, Daharki">Engro Complex, Daharki (Sindh)</option>
+                                            <option value="Lucky Cement Plant, Pezu KPK">Lucky Cement Plant, Pezu KPK (Khyber Pakhtunkhwa)</option>
+                                            <option value="DHA City Sector 3 Commercial, Karachi">DHA City Sector 3 Commercial, Karachi (Sindh)</option>
+                                            <option value="Bahria Town Civic Center, Rawalpindi">Bahria Town Civic Center, Rawalpindi (Punjab)</option>
+                                            <option value="Head Office PECHS, Karachi">Head Office PECHS, Karachi (Sindh)</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[10.5px] font-bold text-slate-700 mb-1">Engineering Milestone / Scope Header <span class="text-red-500">*</span></label>
+                                        <input id="full_inv_scope" type="text" value="Chilled Water Pipe Insulation & Valve Automation - 3rd Floor" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 outline-none focus:border-[#242b5f] font-medium" placeholder="e.g. Chiller Commissioning, Fire Hydrant Installation">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ================= COLUMN 2: Line Items & Measurement Breakdown (BOQ) ================= -->
+                        <div class="space-y-4 flex flex-col">
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/80 space-y-3 flex-1 shadow-2xs">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-4 h-4 rounded-full bg-[#242b5f] text-white flex items-center justify-center text-[9px] font-bold">3</span>
+                                        <h4 class="text-xs font-bold text-slate-800">Bill of Quantities (BOQ) & Measurement Items</h4>
+                                    </div>
+                                    <button type="button" onclick="addBOQRow()" class="bg-indigo-50 hover:bg-indigo-100 text-[#242b5f] font-bold text-[10.5px] px-2.5 py-1 rounded-lg border border-indigo-200 transition flex items-center gap-1">
+                                        <i class="fas fa-plus text-[9px]"></i> Add Item
+                                    </button>
+                                </div>
+
+                                <p class="text-[10px] text-gray-500">
+                                    Measurement quantities and rates as verified by site resident engineer and consulting inspectors.
+                                </p>
+
+                                <!-- Line Items Container -->
+                                <div class="space-y-2 max-h-[380px] overflow-y-auto pr-1" id="boq-items-container">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+
+                                <!-- Subtotal (Gross Sum) -->
+                                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1.5 mt-2">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="font-bold text-slate-700 uppercase tracking-wider">Subtotal Gross Base Amount:</span>
+                                        <span id="lbl-subtotal-gross" class="font-mono font-extrabold text-[#242b5f] text-sm">Rs. 5,000,000</span>
+                                    </div>
+                                    <p class="text-[9px] text-slate-400">Sum of all BOQ items before provincial sales tax and contract deductions.</p>
+                                </div>
+
+                                <!-- Client Verification Remarks -->
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-700 mb-1">Consultant Verification & Measurement Notes</label>
+                                    <textarea id="full_inv_remarks" rows="2" class="w-full border border-slate-200 rounded-lg p-2 text-xs text-slate-700 outline-none focus:border-[#242b5f] resize-none" placeholder="All physical measurements cross-checked against DPR and consultant measurement sheets."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ================= COLUMN 3: Provincial Taxes & Live Financial Summary ================= -->
+                        <div class="space-y-4 flex flex-col">
+                            
+                            <!-- Tax Deductions Setup -->
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/80 space-y-3 shadow-2xs">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        <span class="w-4 h-4 rounded-full bg-[#242b5f] text-white flex items-center justify-center text-[9px] font-bold">4</span>
+                                        Provincial Tax Engine & Deductions
+                                    </h4>
+                                    <span class="text-[9px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">FBR / SRB / PRA</span>
+                                </div>
+
+                                <div class="space-y-2.5">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-700 mb-1">Provincial Sales Tax Authority <span class="text-red-500">*</span></label>
+                                        <select id="full_tax_rate" onchange="calculateFullInvoiceForm()" class="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs bg-white text-slate-800 font-semibold focus:outline-none focus:border-[#242b5f]">
+                                            <option value="0.13">13% SRB (Sindh Revenue Board Services)</option>
+                                            <option value="0.16">16% PRA (Punjab Revenue Authority Services)</option>
+                                            <option value="0.15">15% KPRA (Khyber Pakhtunkhwa Revenue Authority)</option>
+                                            <option value="0.18">18% FBR (Federal GST on Goods / Supplies)</option>
+                                            <option value="0.0">0% (Tax Exempt Project)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-700 mb-1">Retention Money (Defect Liab.)</label>
+                                            <select id="full_retention_rate" onchange="calculateFullInvoiceForm()" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white text-slate-800 focus:outline-none">
+                                                <option value="0.05">5% Standard Retention</option>
+                                                <option value="0.10">10% Retention</option>
+                                                <option value="0.0">0% None</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-700 mb-1">Income Tax WHT (Sec 153)</label>
+                                            <select id="full_wht_rate" onchange="calculateFullInvoiceForm()" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white text-slate-800 focus:outline-none">
+                                                <option value="0.045">4.5% Active Filer Taxpayer</option>
+                                                <option value="0.075">7.5% Standard Tax Rate</option>
+                                                <option value="0.0">0% Exemption Certificate</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-700 mb-1">Remittance Bank Account</label>
+                                        <select id="full_bank_acc" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs bg-white text-slate-800 focus:outline-none">
+                                            <option value="Meezan Bank Ltd - Corporate A/C (PK36 MEZN 0001 0982 3471 01)">Meezan Bank Ltd - Corporate (PK36 MEZN 0001 0982 3471 01)</option>
+                                            <option value="Habib Bank Limited - Project Escrow (PK12 HABB 0092 1823 4401 02)">Habib Bank Limited - Escrow (PK12 HABB 0092 1823 4401 02)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Calculated Financial Summary Card (Hero Box) -->
+                            <div class="bg-gradient-to-br from-[#242b5f] to-[#1a1f42] text-white p-4 rounded-xl shadow-md space-y-2.5">
+                                <div class="flex justify-between items-center border-b border-indigo-900 pb-2">
+                                    <span class="text-[10px] text-indigo-200 font-bold uppercase tracking-wider">Invoice Financial Breakdown</span>
+                                    <span class="text-[9px] bg-amber-400 text-gray-900 px-2 py-0.5 rounded font-black">LIVE SUMMARY</span>
+                                </div>
+
+                                <div class="space-y-1.5 text-xs text-indigo-100">
+                                    <div class="flex justify-between">
+                                        <span>Gross Contract Value:</span>
+                                        <span id="hero-gross" class="font-mono font-bold text-white">Rs. 5,000,000</span>
+                                    </div>
+                                    <div class="flex justify-between text-emerald-300">
+                                        <span id="hero-tax-label">Sales Tax (+ 13% SRB):</span>
+                                        <span id="hero-tax" class="font-mono font-bold">+ Rs. 650,000</span>
+                                    </div>
+                                    <div class="flex justify-between text-indigo-300">
+                                        <span>Less Retention (- 5%):</span>
+                                        <span id="hero-retention" class="font-mono">- Rs. 250,000</span>
+                                    </div>
+                                    <div class="flex justify-between text-rose-300">
+                                        <span>Less Income Tax WHT (- 4.5%):</span>
+                                        <span id="hero-wht" class="font-mono">- Rs. 225,000</span>
+                                    </div>
+                                </div>
+
+                                <div class="pt-2 border-t border-indigo-800/80 flex justify-between items-center">
+                                    <div>
+                                        <p class="text-[9px] text-amber-300 font-bold uppercase tracking-wider">Net Receivable from Client:</p>
+                                        <p class="text-[8px] text-indigo-200">Reconciled in Real-time</p>
+                                    </div>
+                                    <div id="hero-net" class="text-lg font-black text-amber-300 font-mono">
+                                        PKR 5,175,000
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <!-- End #invoice-create-form-view -->
+
+                <!-- VIEW 3: DEDICATED FULL-PAGE VIEW: OFFICIAL CLIENT TAX INVOICE & IPC VOUCHER -->
+                <div id="invoice-view-voucher-view" class="hidden space-y-4"></div>
+
+            </div>
+        `);
+
+        // =========================================================================
+        // SEED DATA FOR INVOICES & IPCs REGISTER
+        // =========================================================================
+        window.INVOICES_DATA = [
+            {
+                id: 'INV-2026-089',
+                type: 'ipc',
+                date: '28 Sep 2026',
+                client: 'Lucky Landmark (Pvt) Ltd',
+                ntn: '0819234-2',
+                site: 'Lucky One Mall, Karachi',
+                city: 'Karachi',
+                scope: 'HVAC Chiller Plant Commissioning & Balancing (IPC-04)',
+                taxType: '13% SRB',
+                taxRate: 0.13,
+                gross: 6800000,
+                retentionRate: 0.05,
+                retention: 340000,
+                net: 7038000,
+                status: 'Consultant Review',
+                statusClass: 'bg-amber-100 text-amber-800'
+            },
+            {
+                id: 'INV-2026-088',
+                type: 'ipc',
+                date: '24 Sep 2026',
+                client: 'Packages Real Estate Ltd',
+                ntn: '1249871-5',
+                site: 'Packages Mall, Lahore',
+                city: 'Lahore',
+                scope: 'Firefighting Piping, Risers & Sprinkler Layout (IPC-03)',
+                taxType: '16% PRA',
+                taxRate: 0.16,
+                gross: 4250000,
+                retentionRate: 0.05,
+                retention: 212500,
+                net: 4505000,
+                status: 'Approved / Cheque Due',
+                statusClass: 'bg-green-100 text-green-800'
+            },
+            {
+                id: 'INV-2026-087',
+                type: 'commercial',
+                date: '20 Sep 2026',
+                client: 'Engro Fertilizers Complex',
+                ntn: '0711928-8',
+                site: 'Engro Complex, Daharki',
+                city: 'Daharki',
+                scope: 'Substation Electrical Cable Tray & Busway Supply & Testing',
+                taxType: '18% FBR',
+                taxRate: 0.18,
+                gross: 5600000,
+                retentionRate: 0.0,
+                retention: 0,
+                net: 5992000,
+                status: 'Paid',
+                statusClass: 'bg-emerald-100 text-emerald-800'
+            },
+            {
+                id: 'INV-2026-086',
+                type: 'ipc',
+                date: '15 Sep 2026',
+                client: 'Lucky Cement Industrial Plant',
+                ntn: '0981245-1',
+                site: 'Lucky Cement Plant, Pezu KPK',
+                city: 'Pezu',
+                scope: 'Kiln Exhaust Air Ventilation Ductwork & Heavy Blowers (IPC-02)',
+                taxType: '15% KPRA',
+                taxRate: 0.15,
+                gross: 3850000,
+                retentionRate: 0.05,
+                retention: 192500,
+                net: 4081000,
+                status: 'Submitted to Client',
+                statusClass: 'bg-blue-100 text-blue-800'
+            },
+            {
+                id: 'INV-2026-085',
+                type: 'advance',
+                date: '10 Sep 2026',
+                client: 'DHA City Sector 3 Commercial',
+                ntn: '3318291-0',
+                site: 'DHA City Sector 3 Commercial, Karachi',
+                city: 'Karachi',
+                scope: '10% Mobilization Advance for MEP Underground Utilities Contract',
+                taxType: '13% SRB',
+                taxRate: 0.13,
+                gross: 8500000,
+                retentionRate: 0.0,
+                retention: 0,
+                net: 9222500,
+                status: 'Paid',
+                statusClass: 'bg-emerald-100 text-emerald-800'
+            },
+            {
+                id: 'INV-2026-084',
+                type: 'commercial',
+                date: '05 Sep 2026',
+                client: 'Bahria Town Civic Center',
+                ntn: '2281903-4',
+                site: 'Bahria Town Civic Center, Rawalpindi',
+                city: 'Rawalpindi',
+                scope: 'Potable Water Hydro-pneumatic Booster Pump Supply & Integration',
+                taxType: '16% PRA',
+                taxRate: 0.16,
+                gross: 2900000,
+                retentionRate: 0.05,
+                retention: 145000,
+                net: 3074000,
+                status: 'Consultant Review',
+                statusClass: 'bg-amber-100 text-amber-800'
+            },
+            {
+                id: 'INV-2026-083',
+                type: 'ipc',
+                date: '28 Aug 2026',
+                client: 'Gulberg Galleria Commercial Plaza',
+                ntn: '1562910-3',
+                site: 'Gulberg Galleria Commercial, Lahore',
+                city: 'Lahore',
+                scope: 'Basement Mechanical Ventilation & Smoke Extraction Fans (IPC-05)',
+                taxType: '16% PRA',
+                taxRate: 0.16,
+                gross: 3400000,
+                retentionRate: 0.05,
+                retention: 170000,
+                net: 3604000,
+                status: 'Paid',
+                statusClass: 'bg-emerald-100 text-emerald-800'
+            },
+            {
+                id: 'INV-2026-082',
+                type: 'ipc',
+                date: '20 Aug 2026',
+                client: 'Quaid-e-Azam Solar Park Field',
+                ntn: '4192831-9',
+                site: 'Solar Park Field Substation, Bahawalpur',
+                city: 'Bahawalpur',
+                scope: 'Earthing & Lightning Protection Grid Network (IPC-01)',
+                taxType: '16% PRA',
+                taxRate: 0.16,
+                gross: 4100000,
+                retentionRate: 0.05,
+                retention: 205000,
+                net: 4346000,
+                status: 'Paid',
+                statusClass: 'bg-emerald-100 text-emerald-800'
+            }
+        ];
+
+        // Default BOQ Line Items for the big form
+        window.CURRENT_BOQ_ITEMS = [
+            { desc: 'Chilled Water Pipe Supply & Erection (Heavy Gauge Seamless)', qty: 450, unit: 'Meters', rate: 4200 },
+            { desc: 'Armaflex Class-O Nitrile Rubber Thermal Insulation (25mm)', qty: 450, unit: 'Meters', rate: 1250 },
+            { desc: 'Motorized Modulating 2-Way Control Valves with Actuators', qty: 12, unit: 'Sets', rate: 75000 },
+            { desc: 'Hydrostatic Pressure Testing (250 PSI) & Chemical Flushing', qty: 1, unit: 'Job', rate: 185000 }
+        ];
+
+        // =========================================================================
+        // VIEW TOGGLING (LIST VIEW <---> FULL BIG FORM VIEW)
+        // =========================================================================
+        window.showCreateInvoiceForm = () => {
+            const listView = document.getElementById('invoices-list-view');
+            const formView = document.getElementById('invoice-create-form-view');
+            if (listView && formView) {
+                listView.classList.add('hidden');
+                formView.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                renderBOQRows();
+                calculateFullInvoiceForm();
+            }
+        };
+
+        window.showInvoicesListView = () => {
+            const listView = document.getElementById('invoices-list-view');
+            const formView = document.getElementById('invoice-create-form-view');
+            if (listView && formView) {
+                formView.classList.add('hidden');
+                listView.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                renderInvoicesTable();
+            }
+        };
+
+        // Alias for backwards compatibility
+        window.openCreateInvoiceModal = () => {
+            window.showCreateInvoiceForm();
+        };
+
+        // =========================================================================
+        // DYNAMIC BOQ BUILDER FUNCTIONS
+        // =========================================================================
+        window.renderBOQRows = () => {
+            const container = document.getElementById('boq-items-container');
+            if (!container) return;
+
+            container.innerHTML = window.CURRENT_BOQ_ITEMS.map((item, idx) => `
+                <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50/70 hover:bg-slate-50 transition space-y-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-[9px] font-bold text-slate-500 uppercase">Item #${idx + 1}</span>
+                        ${window.CURRENT_BOQ_ITEMS.length > 1 ? `
+                            <button type="button" onclick="removeBOQRow(${idx})" class="text-red-500 hover:text-red-700 text-[10px] transition" title="Remove Item">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        ` : ''}
+                    </div>
+                    <input type="text" value="${item.desc}" oninput="updateBOQField(${idx}, 'desc', this.value)" class="w-full border border-slate-200 rounded p-1.5 text-xs bg-white text-slate-800 font-medium outline-none focus:border-[#242b5f]" placeholder="Item / work deliverable description">
+                    <div class="grid grid-cols-12 gap-1.5 text-xs">
+                        <div class="col-span-4">
+                            <label class="block text-[8px] font-bold text-slate-400 uppercase">Quantity</label>
+                            <input type="number" value="${item.qty}" oninput="updateBOQField(${idx}, 'qty', parseFloat(this.value)||0)" class="w-full border border-slate-200 rounded p-1 text-center font-bold bg-white outline-none">
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-[8px] font-bold text-slate-400 uppercase">Unit</label>
+                            <input type="text" value="${item.unit}" oninput="updateBOQField(${idx}, 'unit', this.value)" class="w-full border border-slate-200 rounded p-1 text-center bg-white outline-none">
+                        </div>
+                        <div class="col-span-5">
+                            <label class="block text-[8px] font-bold text-slate-400 uppercase text-right">Unit Rate (PKR)</label>
+                            <input type="number" value="${item.rate}" oninput="updateBOQField(${idx}, 'rate', parseFloat(this.value)||0)" class="w-full border border-slate-200 rounded p-1 text-right font-mono font-semibold bg-white outline-none">
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] pt-1 border-t border-slate-200/60">
+                        <span class="text-slate-500">Line Amount:</span>
+                        <span class="font-mono font-bold text-slate-900">Rs. ${(item.qty * item.rate).toLocaleString()}</span>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.addBOQRow = () => {
+            window.CURRENT_BOQ_ITEMS.push({
+                desc: 'Additional MEP Scope Deliverable Item',
+                qty: 10,
+                unit: 'Pcs',
+                rate: 15000
+            });
+            renderBOQRows();
+            calculateFullInvoiceForm();
+        };
+
+        window.removeBOQRow = (index) => {
+            if (window.CURRENT_BOQ_ITEMS.length > 1) {
+                window.CURRENT_BOQ_ITEMS.splice(index, 1);
+                renderBOQRows();
+                calculateFullInvoiceForm();
+            }
+        };
+
+        window.updateBOQField = (index, field, value) => {
+            if (window.CURRENT_BOQ_ITEMS[index]) {
+                window.CURRENT_BOQ_ITEMS[index][field] = value;
+                calculateFullInvoiceForm();
+            }
+        };
+
+        // =========================================================================
+        // CALCULATION ENGINE FOR FULL INVOICE FORM
+        // =========================================================================
+        window.calculateFullInvoiceForm = () => {
+            let gross = 0;
+            window.CURRENT_BOQ_ITEMS.forEach(it => {
+                gross += (it.qty || 0) * (it.rate || 0);
+            });
+
+            const taxRate = parseFloat(document.getElementById('full_tax_rate')?.value) || 0.13;
+            const retRate = parseFloat(document.getElementById('full_retention_rate')?.value) || 0.05;
+            const whtRate = parseFloat(document.getElementById('full_wht_rate')?.value) || 0.045;
+
+            const salesTax = Math.round(gross * taxRate);
+            const retention = Math.round(gross * retRate);
+            const wht = Math.round(gross * whtRate);
+            const net = (gross + salesTax) - (retention + wht);
+
+            // Subtotal gross in Column 2
+            const subGrossEl = document.getElementById('lbl-subtotal-gross');
+            if (subGrossEl) subGrossEl.innerText = 'Rs. ' + gross.toLocaleString();
+
+            // Hero Card in Column 3
+            const heroGross = document.getElementById('hero-gross');
+            if (heroGross) heroGross.innerText = 'Rs. ' + gross.toLocaleString();
+
+            const heroTax = document.getElementById('hero-tax');
+            if (heroTax) heroTax.innerText = '+ Rs. ' + salesTax.toLocaleString();
+
+            const heroTaxLabel = document.getElementById('hero-tax-label');
+            if (heroTaxLabel) {
+                const taxName = taxRate === 0.13 ? '13% SRB' : (taxRate === 0.16 ? '16% PRA' : (taxRate === 0.15 ? '15% KPRA' : (taxRate === 0.18 ? '18% FBR' : '0% Exempt')));
+                heroTaxLabel.innerText = `Sales Tax (+ ${taxName}):`;
+            }
+
+            const heroRet = document.getElementById('hero-retention');
+            if (heroRet) heroRet.innerText = '- Rs. ' + retention.toLocaleString();
+
+            const heroWht = document.getElementById('hero-wht');
+            if (heroWht) heroWht.innerText = '- Rs. ' + wht.toLocaleString();
+
+            const heroNet = document.getElementById('hero-net');
+            if (heroNet) heroNet.innerText = 'PKR ' + net.toLocaleString();
+        };
+
+        // Site to provincial tax helper
+        window.syncTaxWithSite = (site) => {
+            const taxSelect = document.getElementById('full_tax_rate');
+            if (!taxSelect) return;
+            if (site.includes('Karachi') || site.includes('Daharki')) {
+                taxSelect.value = '0.13'; // Sindh SRB
+            } else if (site.includes('Lahore') || site.includes('Rawalpindi')) {
+                taxSelect.value = '0.16'; // Punjab PRA
+            } else if (site.includes('Pezu')) {
+                taxSelect.value = '0.15'; // KPK KPRA
+            }
+            calculateFullInvoiceForm();
+        };
+
+        window.syncClientData = (client) => {
+            const siteSelect = document.getElementById('full_inv_site');
+            if (!siteSelect) return;
+            if (client.includes('Lucky Landmark')) siteSelect.value = 'Lucky One Mall, Karachi';
+            else if (client.includes('Packages')) siteSelect.value = 'Packages Mall, Lahore';
+            else if (client.includes('Engro')) siteSelect.value = 'Engro Complex, Daharki';
+            else if (client.includes('Lucky Cement')) siteSelect.value = 'Lucky Cement Plant, Pezu KPK';
+            else if (client.includes('DHA City')) siteSelect.value = 'DHA City Sector 3 Commercial, Karachi';
+            else if (client.includes('Bahria Town')) siteSelect.value = 'Bahria Town Civic Center, Rawalpindi';
+            syncTaxWithSite(siteSelect.value);
+        };
+
+        // Submit Full Form
+        window.submitFullProjectInvoice = () => {
+            const invNo = document.getElementById('full_inv_no').value || 'INV-2026-090';
+            const client = document.getElementById('full_inv_client').value;
+            const site = document.getElementById('full_inv_site').value;
+            const scope = document.getElementById('full_inv_scope').value || 'MEP Scope Deliverable';
+            const type = document.getElementById('full_inv_type').value;
+            const date = document.getElementById('full_inv_date').value || '2026-09-28';
+
+            let gross = 0;
+            window.CURRENT_BOQ_ITEMS.forEach(it => {
+                gross += (it.qty || 0) * (it.rate || 0);
+            });
+
+            const taxRate = parseFloat(document.getElementById('full_tax_rate').value) || 0.13;
+            const retRate = parseFloat(document.getElementById('full_retention_rate').value) || 0.05;
+            const whtRate = parseFloat(document.getElementById('full_wht_rate').value) || 0.045;
+
+            const salesTax = Math.round(gross * taxRate);
+            const retention = Math.round(gross * retRate);
+            const wht = Math.round(gross * whtRate);
+            const net = (gross + salesTax) - (retention + wht);
+
+            const taxTypeStr = taxRate === 0.13 ? '13% SRB' : (taxRate === 0.16 ? '16% PRA' : (taxRate === 0.15 ? '15% KPRA' : (taxRate === 0.18 ? '18% FBR' : '0% Exempt')));
+
+            const newInv = {
+                id: invNo,
+                type: type,
+                date: '28 Sep 2026',
+                client: client,
+                ntn: '0819234-2',
+                site: site,
+                city: site.includes('Lahore') ? 'Lahore' : (site.includes('Rawalpindi') ? 'Rawalpindi' : 'Karachi'),
+                scope: scope,
+                taxType: taxTypeStr,
+                taxRate: taxRate,
+                gross: gross,
+                retentionRate: retRate,
+                retention: retention,
+                net: net,
+                status: 'Submitted to Client',
+                statusClass: 'bg-blue-100 text-blue-800'
+            };
+
+            window.INVOICES_DATA.unshift(newInv);
+
+            // Update KPI stats
+            const totalBilledEl = document.getElementById('stat-total-billed');
+            if (totalBilledEl) totalBilledEl.innerText = 'Rs. 53,650,000';
+            const countEl = document.getElementById('stat-ipc-count');
+            if (countEl) countEl.innerText = window.INVOICES_DATA.length;
+            const recEl = document.getElementById('stat-receivables');
+            if (recEl) recEl.innerText = 'Rs. 19,455,000';
+
+            window.showInvoicesListView();
+            showToast(`Tax Invoice ${invNo} for ${client} generated and posted to accounts!`, 'success');
+        };
+
+        // =========================================================================
+        // TABLE RENDER & FILTERS
+        // =========================================================================
+        window.currentTab = 'all';
+
+        window.renderInvoicesTable = () => {
+            const tbody = document.getElementById('invoices-table-body');
+            const searchVal = (document.getElementById('invoice-search')?.value || '').toLowerCase().trim();
+            const clientVal = (document.getElementById('client-select-filter')?.value || '').trim();
+
+            const filtered = INVOICES_DATA.filter(inv => {
+                if (currentTab !== 'all' && inv.type !== currentTab) return false;
+                if (clientVal && !inv.client.includes(clientVal)) return false;
+                if (searchVal) {
+                    const match = inv.id.toLowerCase().includes(searchVal) ||
+                                  inv.client.toLowerCase().includes(searchVal) ||
+                                  inv.site.toLowerCase().includes(searchVal) ||
+                                  inv.scope.toLowerCase().includes(searchVal);
+                    if (!match) return false;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" class="text-center py-8 text-gray-400 font-medium">
+                            No invoices match your selected filters.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(inv => `
+                <tr class="hover:bg-blue-50/30 transition group">
+                    <td class="font-mono font-bold text-[#242b5f] whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <i class="fas fa-file-invoice text-indigo-500 text-xs"></i>
+                            <span>${inv.id}</span>
+                        </div>
+                    </td>
+                    <td class="whitespace-nowrap text-gray-600 font-medium">${inv.date}</td>
+                    <td>
+                        <p class="font-bold text-gray-900 leading-tight">${inv.client}</p>
+                        <p class="text-[9.5px] text-gray-400 font-mono mt-0.5">NTN: ${inv.ntn}</p>
+                    </td>
+                    <td>
+                        <p class="font-semibold text-gray-800 leading-tight">${inv.site}</p>
+                        <p class="text-[9px] text-gray-400 mt-0.5"><i class="fas fa-map-marker-alt text-red-500 mr-0.5"></i> ${inv.city}</p>
+                    </td>
+                    <td class="max-w-[180px]">
+                        <p class="text-gray-700 truncate" title="${inv.scope}">${inv.scope}</p>
+                    </td>
+                    <td>
+                        <span class="bg-blue-50 text-blue-700 border border-blue-200 px-1.5 py-0.5 rounded text-[9px] font-bold">
+                            ${inv.taxType}
+                        </span>
+                    </td>
+                    <td class="text-right font-mono font-semibold text-gray-900 whitespace-nowrap">
+                        Rs. ${inv.gross.toLocaleString()}
+                    </td>
+                    <td class="text-right font-mono text-purple-700 whitespace-nowrap">
+                        ${inv.retention > 0 ? 'Rs. ' + inv.retention.toLocaleString() : '<span class="text-gray-400">N/A</span>'}
+                    </td>
+                    <td class="text-right font-mono font-bold text-gray-900 whitespace-nowrap">
+                        Rs. ${inv.net.toLocaleString()}
+                    </td>
+                    <td class="text-center whitespace-nowrap">
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${inv.statusClass}">
+                            ${inv.status}
+                        </span>
+                    </td>
+                    <td class="text-right whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <button onclick="showViewInvoicePage('${inv.id}')" title="Preview / Print Invoice" class="w-6 h-6 rounded bg-gray-100 hover:bg-[#242b5f] hover:text-white text-gray-600 flex items-center justify-center transition">
+                                <i class="fas fa-eye text-[10px]"></i>
+                            </button>
+                            <button onclick="recordPaymentModal('${inv.id}')" title="Record Client Payment" class="w-6 h-6 rounded bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 flex items-center justify-center transition">
+                                <i class="fas fa-check text-[10px]"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.filterInvoiceTab = (tab, btn) => {
+            window.currentTab = tab;
+            document.querySelectorAll('.invoice-tab-btn').forEach(b => {
+                b.classList.remove('bg-[#242b5f]', 'text-white', 'shadow-2xs');
+                b.classList.add('text-gray-600');
+            });
+            btn.classList.add('bg-[#242b5f]', 'text-white', 'shadow-2xs');
+            btn.classList.remove('text-gray-600');
+            renderInvoicesTable();
+        };
+
+        window.filterInvoicesTable = () => {
+            renderInvoicesTable();
+        };
+
+        // =========================================================================
+        // VIEW PRINTABLE TAX INVOICE MODAL
+        // =========================================================================
+        
+        // =========================================================================
+        // FULL-PAGE CLIENT TAX INVOICE & IPC VIEWER (REPLACES NARROW MODAL)
+        // =========================================================================
+        window.showViewInvoicePage = (invId) => {
+            const inv = window.INVOICES_DATA.find(i => i.id === invId);
+            if (!inv) return;
+
+            const salesTax = Math.round(inv.gross * inv.taxRate);
+            const wht = Math.round(inv.gross * 0.045);
+            const container = document.getElementById('invoice-view-voucher-view');
+            if (!container) return;
+
+            container.innerHTML = `
+                <!-- Top Action & Navigation Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl shadow-xs border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="hideViewInvoicePage()" class="w-9 h-9 rounded-xl border border-slate-200 hover:border-[#242b5f] text-slate-600 hover:text-[#242b5f] bg-white flex items-center justify-center transition shadow-2xs group" title="Back to All Invoices">
+                            <i class="fas fa-arrow-left text-sm group-hover:-translate-x-0.5 transition-transform"></i>
+                        </button>
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h2 class="text-base font-bold text-slate-900 tracking-tight">Official Client Tax Invoice & Milestone IPC</h2>
+                                <span class="bg-indigo-50 text-[#242b5f] border border-indigo-200 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md">${inv.id}</span>
+                                <span class="${inv.statusClass} text-[9.5px] font-bold px-2.5 py-0.5 rounded-full border">${inv.status}</span>
+                                <span class="bg-purple-50 text-purple-700 text-[9.5px] font-bold px-2 py-0.5 rounded-md border border-purple-200 uppercase">${inv.type.toUpperCase()} Billing</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">
+                                Client: <b class="text-slate-900">${inv.client}</b> (NTN: ${inv.ntn}) • Project: <b class="text-[#242b5f]">${inv.site}</b>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="hideViewInvoicePage()" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition flex items-center gap-1">
+                            <i class="fas fa-arrow-left"></i> Back to Invoices
+                        </button>
+                        <button type="button" onclick="window.print()" class="bg-[#242b5f] hover:bg-[#1b214a] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md shadow-indigo-950/20 hover:shadow-lg transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer">
+                            <i class="fas fa-print text-amber-300"></i> Print Official Tax Invoice
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2-Column Wide Enterprise Invoice Container -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                    
+                    <!-- Main Printable Tax Invoice (8 cols) -->
+                    <div class="lg:col-span-8 bg-white p-6 rounded-2xl border border-gray-300 shadow-sm space-y-4" id="tax-invoice-printable-area">
+                        
+                        <!-- Top Header with Cosmix Corporate Branding & FBR Meta -->
+                        <div class="flex flex-wrap items-center justify-between border-b-2 border-[#242b5f] pb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-xl bg-[#242b5f] text-white flex items-center justify-center font-black text-lg shadow-md">
+                                    CE
+                                </div>
+                                <div>
+                                    <h2 class="text-base font-black text-[#242b5f] uppercase tracking-wider">Cosmix Engineering (Pvt) Ltd</h2>
+                                    <p class="text-[10px] text-gray-500 font-semibold">MEP Contracting, HVAC, Electrical, Firefighting & Plumbing Systems</p>
+                                    <p class="text-[9.5px] text-gray-400 font-mono">NTN: 4129841-7 • STRN: 3277876123456 • 45-C, PECHS Block 6, Karachi</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-[#242b5f] text-white text-[9px] font-bold px-2.5 py-1 rounded uppercase tracking-wider">Official Sales Tax Invoice</span>
+                                <p class="text-sm font-mono font-black text-gray-900 mt-1">${inv.id}</p>
+                                <p class="text-[9.5px] text-gray-500">Invoice Date: <b>${inv.date}</b></p>
+                                <p class="text-[9.5px] text-amber-700 font-bold">Payment Terms: Net 30 Days</p>
+                            </div>
+                        </div>
+
+                        <!-- Client & Project Site Details Grid -->
+                        <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Billed To (Client)</p>
+                                <p class="font-bold text-gray-900 text-sm mt-0.5">${inv.client}</p>
+                                <p class="text-[10px] text-gray-600 mt-0.5">Client NTN: <span class="font-mono font-bold text-gray-800">${inv.ntn}</span></p>
+                                <p class="text-[9.5px] text-gray-500">Authorized Procurement & Engineering Directorate</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Project Site Location</p>
+                                <p class="font-bold text-[#242b5f] text-sm mt-0.5">${inv.site}</p>
+                                <p class="text-[10px] text-gray-600 mt-0.5">Contractor: <span class="font-semibold text-gray-800">Cosmix Engineering (Pvt) Ltd</span></p>
+                                <p class="text-[9.5px] text-emerald-700 font-bold">Certification Status: ${inv.status}</p>
+                            </div>
+                        </div>
+
+                        <!-- Scope & BOQ Line Items -->
+                        <div>
+                            <div class="text-xs text-gray-800 font-bold mb-2 flex items-center gap-1.5">
+                                <i class="fas fa-tasks text-[#242b5f]"></i> Bill of Quantities (BOQ) & Contract Scope Description
+                            </div>
+                            <div class="border border-gray-200 rounded-xl overflow-hidden shadow-2xs">
+                                <table class="w-full text-xs">
+                                    <thead class="bg-gray-100/80 text-gray-700 font-bold border-b border-gray-200">
+                                        <tr>
+                                            <th class="py-2 px-3 text-left">Item / Deliverable Description</th>
+                                            <th class="py-2 px-3 text-center">Unit</th>
+                                            <th class="py-2 px-3 text-center">Qty</th>
+                                            <th class="py-2 px-3 text-right">Unit Rate (PKR)</th>
+                                            <th class="py-2 px-3 text-right">Gross Amount (PKR)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <tr>
+                                            <td class="py-3 px-3">
+                                                <p class="font-bold text-gray-900 text-xs">${inv.scope}</p>
+                                                <p class="text-[9.5px] text-gray-500 mt-0.5">Supply, fabrication, installation, testing and commissioning as per certified milestone measurements.</p>
+                                            </td>
+                                            <td class="py-3 px-3 text-center font-bold text-indigo-700">Job</td>
+                                            <td class="py-3 px-3 text-center font-bold text-gray-700">1.0</td>
+                                            <td class="py-3 px-3 text-right font-mono font-semibold text-gray-700">Rs. ${inv.gross.toLocaleString()}</td>
+                                            <td class="py-3 px-3 text-right font-mono font-bold text-gray-900">Rs. ${inv.gross.toLocaleString()}</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="bg-gray-50 border-t border-gray-200 font-bold">
+                                        <tr>
+                                            <td colspan="4" class="py-2 px-3 text-right text-gray-600">Subtotal Gross Scope Value:</td>
+                                            <td class="py-2 px-3 text-right font-mono text-gray-900">Rs. ${inv.gross.toLocaleString()}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Formal Sign-Off Footer -->
+                        <div class="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200 text-center text-[9.5px] text-gray-500">
+                            <div>
+                                <div class="font-script text-indigo-900 text-base italic leading-none font-bold" style="font-family: cursive;">Engr. Faisal Tariq</div>
+                                <div class="border-t border-gray-300 mt-1 pt-1">
+                                    <b>Project Manager / Billing Engineer</b>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-script text-emerald-900 text-base italic leading-none font-bold" style="font-family: cursive;">Huma Khan</div>
+                                <div class="border-t border-gray-300 mt-1 pt-1">
+                                    <b>Head of Accounts & Taxation</b>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-script text-gray-800 text-base italic leading-none font-bold" style="font-family: cursive;">Client Directorate</div>
+                                <div class="border-t border-gray-300 mt-1 pt-1">
+                                    <b>Client Resident Engineer Stamp</b>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Column: Tax Breakdown & Remittance Advice (4 cols) -->
+                    <div class="lg:col-span-4 space-y-4">
+                        
+                        <!-- Financial & Provincial Tax Summary Card -->
+                        <div class="bg-gradient-to-br from-[#242b5f] to-[#161a38] text-white p-5 rounded-2xl shadow-xl shadow-indigo-950/20 space-y-4">
+                            <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                                <span class="text-[10px] text-amber-300 font-bold uppercase tracking-wider">Billing Breakdown</span>
+                                <span class="text-[10px] font-mono text-slate-300">${inv.id}</span>
+                            </div>
+
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between text-slate-300">
+                                    <span>Gross Scope Value:</span>
+                                    <span class="font-mono font-semibold">Rs. ${inv.gross.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between text-emerald-400">
+                                    <span>Sales Tax (${inv.taxType}):</span>
+                                    <span class="font-mono font-bold">+ Rs. ${salesTax.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between text-purple-300">
+                                    <span>Retention Held (${Math.round(inv.retentionRate * 100)}%):</span>
+                                    <span class="font-mono">- Rs. ${inv.retention.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between text-rose-300">
+                                    <span>Income Tax WHT (4.5% Sec 153):</span>
+                                    <span class="font-mono">- Rs. ${wht.toLocaleString()}</span>
+                                </div>
+                                
+                                <div class="border-t border-white/15 pt-2.5 flex justify-between items-center text-sm font-bold">
+                                    <span class="text-white">Net Receivable:</span>
+                                    <span class="font-mono text-amber-300 text-base font-black">Rs. ${inv.net.toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-white/10">
+                                <button type="button" onclick="recordPaymentModal('${inv.id}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
+                                    <i class="fas fa-money-bill-wave"></i> Record Client Payment
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Direct Bank Remittance Advice Card -->
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-xs text-xs space-y-2">
+                            <p class="font-bold text-gray-900 text-xs flex items-center gap-1.5">
+                                <i class="fas fa-university text-[#242b5f]"></i> Direct Bank Payment Advice
+                            </p>
+                            <div class="p-2.5 bg-blue-50/70 border border-blue-100 rounded-lg text-[10px] space-y-1 text-gray-700">
+                                <p><strong>Bank:</strong> Meezan Bank Limited (Corporate Branch)</p>
+                                <p><strong>Account Title:</strong> Cosmix Engineering (Pvt) Ltd</p>
+                                <p><strong>Account #:</strong> 0109-8234-71</p>
+                                <p><strong>IBAN:</strong> PK36 MEZN 0001 0982 3471 01</p>
+                            </div>
+                            <p class="text-[9.5px] text-gray-500 italic">
+                                Remittance advice should be sent to accounts@cosmix.com.pk with invoice reference.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('invoices-list-view')?.classList.add('hidden');
+            document.getElementById('invoice-create-form-view')?.classList.add('hidden');
+            container.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.hideViewInvoicePage = () => {
+            document.getElementById('invoice-view-voucher-view')?.classList.add('hidden');
+            document.getElementById('invoices-list-view')?.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.viewTaxInvoice = (invId) => { window.showViewInvoicePage(invId); };
+        window.oldViewTaxInvoice = (invId) => {
+            const inv = INVOICES_DATA.find(i => i.id === invId);
+            if (!inv) return;
+
+            const salesTax = Math.round(inv.gross * inv.taxRate);
+            const wht = Math.round(inv.gross * 0.045);
+
+            const html = `
+                <div class="space-y-3.5 print:p-0">
+                    <div class="border-b border-gray-200 pb-3 flex flex-wrap justify-between items-start gap-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-[#242b5f] text-white flex items-center justify-center font-black text-base shadow">
+                                CE
+                            </div>
+                            <div>
+                                <h4 class="font-black text-xs text-[#242b5f] uppercase tracking-wider">Cosmix Engineering (Pvt) Ltd</h4>
+                                <p class="text-[9.5px] text-gray-500">MEP Contracting, HVAC, Electrical, Firefighting & Plumbing</p>
+                                <p class="text-[9px] text-gray-400">NTN: 4129841-7 • STRN: 3277876123456 • PECHS, Karachi</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="bg-[#242b5f] text-white text-[8.5px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Official Sales Tax Invoice</span>
+                            <p class="text-xs font-mono font-bold text-gray-900 mt-1">${inv.id}</p>
+                            <p class="text-[9px] text-gray-500">Date: ${inv.date}</p>
+                            <p class="text-[9px] text-amber-700 font-semibold">Terms: Net 30 Days</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase">Billed To (Client)</p>
+                            <p class="font-bold text-gray-900 text-xs">${inv.client}</p>
+                            <p class="text-[10px] text-gray-600">Client NTN: ${inv.ntn}</p>
+                            <p class="text-[9.5px] text-gray-500">Authorized Engineering Directorate</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase">Project Site Location</p>
+                            <p class="font-bold text-gray-900 text-xs">${inv.site}</p>
+                            <p class="text-[10px] text-gray-600">MEP Contractor: Cosmix Engineering</p>
+                            <p class="text-[9.5px] text-emerald-700 font-bold">Status: ${inv.status}</p>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <table class="w-full text-xs">
+                            <thead class="bg-gray-50 text-gray-600 font-bold border-b border-gray-200">
+                                <tr>
+                                    <th class="py-1.5 px-3 text-left">Item / Deliverable Description</th>
+                                    <th class="py-1.5 px-3 text-center">Unit</th>
+                                    <th class="py-1.5 px-3 text-center">Qty</th>
+                                    <th class="py-1.5 px-3 text-right">Unit Rate (PKR)</th>
+                                    <th class="py-1.5 px-3 text-right">Amount (PKR)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr>
+                                    <td class="py-2.5 px-3">
+                                        <p class="font-bold text-gray-800">${inv.scope}</p>
+                                        <p class="text-[9.5px] text-gray-400">Supply, fabrication, installation, testing and commissioning as per BOQ specifications.</p>
+                                    </td>
+                                    <td class="py-2.5 px-3 text-center text-gray-500">Job</td>
+                                    <td class="py-2.5 px-3 text-center text-gray-500">1.0</td>
+                                    <td class="py-2.5 px-3 text-right font-mono text-gray-700">Rs. ${inv.gross.toLocaleString()}</td>
+                                    <td class="py-2.5 px-3 text-right font-mono font-bold text-gray-900">Rs. ${inv.gross.toLocaleString()}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="p-2.5 bg-blue-50/60 border border-blue-100 rounded-lg text-[10px] space-y-1 text-gray-600">
+                            <p class="font-bold text-gray-800 text-xs"><i class="fas fa-university mr-1 text-[#242b5f]"></i> Direct Bank Payment Advice</p>
+                            <p><strong>Bank:</strong> Meezan Bank Limited (Corporate Branch)</p>
+                            <p><strong>Account Title:</strong> Cosmix Engineering (Pvt) Ltd</p>
+                            <p><strong>IBAN:</strong> PK36 MEZN 0001 0982 3471 01</p>
+                            <p class="text-gray-400 italic">Please quote invoice number on bank remittance voucher.</p>
+                        </div>
+
+                        <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-200 space-y-1.5 text-xs">
+                            <div class="flex justify-between text-gray-600">
+                                <span>Gross Contract Value:</span>
+                                <span class="font-semibold text-gray-800">Rs. ${inv.gross.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>Sales Tax (${inv.taxType}):</span>
+                                <span class="font-mono text-green-700 font-bold">+ Rs. ${salesTax.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>Retention Held (${Math.round(inv.retentionRate * 100)}%):</span>
+                                <span class="font-mono text-purple-700">- Rs. ${inv.retention.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>Income Tax WHT (4.5% Sec 153):</span>
+                                <span class="font-mono text-red-600">- Rs. ${wht.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between border-t border-gray-300 pt-1.5 font-bold text-sm text-gray-900">
+                                <span>Net Receivable:</span>
+                                <span class="text-indigo-900 font-mono">Rs. ${inv.net.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-gray-100 flex justify-end gap-2">
+                        <button onclick="closeModal()" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-semibold">Close</button>
+                        <button onclick="window.print()" class="px-3.5 py-1 bg-[#242b5f] text-white rounded text-xs font-bold hover:bg-opacity-90 transition flex items-center gap-1">
+                            <i class="fas fa-print text-xs"></i> Print Official Invoice
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            openModal(`Official Tax Invoice: ${inv.id} - ${inv.client}`, html, null);
+        };
+
+        // Record Payment Modal
+        window.recordPaymentModal = (invId) => {
+            const inv = INVOICES_DATA.find(i => i.id === invId);
+            if (!inv) return;
+
+            const modalHTML = `
+                <div class="space-y-3 text-xs">
+                    <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-200 space-y-1">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Invoice Reference:</span>
+                            <span class="font-bold text-[#242b5f] font-mono">${inv.id}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Client:</span>
+                            <span class="font-semibold text-gray-800">${inv.client}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Site:</span>
+                            <span class="text-gray-700">${inv.site}</span>
+                        </div>
+                        <div class="flex justify-between border-t border-gray-200 pt-1">
+                            <span class="font-bold text-gray-700">Net Receivable:</span>
+                            <span class="font-bold font-mono text-green-700">Rs. ${inv.net.toLocaleString()}</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-600 uppercase mb-0.5">Receipt Amount (PKR)</label>
+                            <input id="pay_amt" type="number" value="${inv.net}" class="w-full bg-white border border-gray-200 rounded p-1.5 font-bold font-mono text-gray-800 text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-600 uppercase mb-0.5">Deposit Bank Account</label>
+                            <select id="pay_bank" class="w-full bg-white border border-gray-200 rounded p-1.5 text-xs font-semibold">
+                                <option>Meezan Bank Ltd - Corporate (A/C: 0109-8234-71)</option>
+                                <option>Habib Bank Limited - Escrow (A/C: 0092-1823-44)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-600 uppercase mb-0.5">Cheque / Pay Order / Online Reference #</label>
+                            <input id="pay_ref" type="text" placeholder="e.g. CHQ-991204 / 1-Link Ref 441029" class="w-full bg-white border border-gray-200 rounded p-1.5 text-xs">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                        <button type="button" onclick="closeModal()" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-semibold transition">Cancel</button>
+                        <button type="button" onclick="confirmPayment('${inv.id}')" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition flex items-center gap-1">
+                            <i class="fas fa-check-circle"></i> Settle & Mark as Paid
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            openModal(`Record Payment for ${inv.id}`, modalHTML, null);
+        };
+
+        window.confirmPayment = (invId) => {
+            const inv = INVOICES_DATA.find(i => i.id === invId);
+            if (!inv) return;
+            inv.status = 'Paid';
+            inv.statusClass = 'bg-emerald-100 text-emerald-800';
+            closeModal();
+            renderInvoicesTable();
+            showToast(`Payment of Rs. ${inv.net.toLocaleString()} recorded for ${inv.id}!`, 'success');
+        };
+
+        // Check URL parameter to auto-open full form if requested
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('create') === 'true' || urlParams.get('action') === 'create') {
+            window.showCreateInvoiceForm();
+        }
+
+        // Initial table load
+        window.renderInvoicesTable();
+    </script>
+</body>
+</html>
