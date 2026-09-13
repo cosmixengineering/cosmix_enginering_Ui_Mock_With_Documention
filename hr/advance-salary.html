@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Advance & Loan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('advance');
+        setPageContent('3. Advance Salary & Loan', `
+            <div class="space-y-4">
+                
+                <!-- Compact Top Stat Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Pending Requests</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">5 <span class="text-[9px] text-orange-500 font-normal">Need Review</span></h4>
+                            <p class="text-[8.5px] text-orange-600 font-medium">Total requested: Rs. 165K</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Disbursed This Month</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">Rs. 150,000</h4>
+                            <p class="text-[8.5px] text-blue-600 font-medium">8 Approved advances</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
+                            <i class="fas fa-money-check-alt"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-green-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-green-700 font-bold uppercase tracking-wider">Active EMI Deductions</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">18 <span class="text-[9px] text-green-600 font-normal">EMIs Running</span></h4>
+                            <p class="text-[8.5px] text-green-600 font-medium">Automatic payroll deduction</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar: Excel, PDF, Import, New Advance -->
+                <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2 flex-1 max-w-sm">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input type="text" oninput="filterTableRows(this, 'advance-table-body')" placeholder="Search advance or employee..." class="w-full text-xs border border-gray-200 rounded-md pl-7 pr-3 py-1 focus:outline-none focus:border-[#242b5f] bg-white">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="exportToExcel('Advance_Loans')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export Excel">
+                            <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel
+                        </button>
+                        <button onclick="exportToPDF('Loan_Disbursement_Register')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export PDF">
+                            <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF
+                        </button>
+                        <button onclick="openImportModal('Advance Requests')" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-file-import text-blue-600 text-xs"></i> Import
+                        </button>
+                        <button onclick="openModal('Request Salary Advance', '<div class=space-y-3><label class=\\'text-xs font-bold\\'>Select Employee</label><select class=\\'w-full border rounded p-1.5 text-xs\\'><option>Ali Khan (Rs. 85,000 Base)</option><option>Bilal Ahmed (Rs. 60,000 Base)</option><option>Kamran Naqvi (Rs. 95,000 Base)</option></select><div class=\\'grid grid-cols-2 gap-2\\'><div><label class=\\'text-xs font-bold\\'>Advance Amount</label><input type=number value=25000 class=\\'w-full border rounded p-1.5 text-xs\\'></div><div><label class=\\'text-xs font-bold\\'>Repayment EMIs</label><select class=\\'w-full border rounded p-1.5 text-xs\\'><option>1 Month (Full)</option><option>2 Months (50%/mo)</option><option>3 Months</option></select></div></div><label class=\\'text-xs font-bold\\'>Reason</label><textarea class=\\'w-full border rounded p-1.5 text-xs\\' placeholder=\\'Medical or household need\\'></textarea></div>', () => showToast('Advance application submitted for CEO approval!', 'success'))" class="bg-[#242b5f] text-white hover:opacity-90 px-3 py-1 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-plus text-[10px]"></i> New Advance
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Advance Requests Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-money-bill-wave text-orange-600"></i> Active Advance & Loan Queue
+                        </h3>
+                        <span class="text-[10px] text-gray-400 font-medium">Auto-deductions tracked</span>
+                    </div>
+                    
+                    <div class="overflow-x-auto min-h-[250px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Employee</th>
+                                    <th class="px-4 py-2.5 font-bold">Request Details</th>
+                                    <th class="px-4 py-2.5 font-bold">HR Eligibility Check</th>
+                                    <th class="px-4 py-2.5 font-bold">Repayment Plan</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="advance-table-body" class="divide-y divide-gray-100 bg-white">
+                                <!-- Row 1 -->
+                                <tr class="hover:bg-orange-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center font-bold text-[10px]">BA</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Bilal Ahmed</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1046 • Field Tech</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Rs. 50,000</div>
+                                        <div class="text-[9.5px] text-gray-400">Medical Emergency</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-[9.5px] text-gray-500">Salary: Rs. 60,000</div>
+                                        <div class="text-[9.5px] text-green-600 font-bold"><i class="fas fa-check-circle mr-0.5"></i> No Prior Loans</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">5 EMIs</div>
+                                        <div class="text-[9px] text-gray-400">Rs. 10,000 / month</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center" id="adv-status-1">
+                                        <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-blue-200 shadow-sm">CEO Review</span>
+                                    </td>
+                                     <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                                <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Manager Actions</p>
+                                            </div>
+                                            <button onclick="openModal('Approve Advance', '<p class=text-xs>Approve Rs. 50,000 for Bilal Ahmed?</p><p class=\\'text-[10px] mt-1 text-gray-500\\'>Rs. 10,000 will be deducted automatically from next 5 payroll runs.</p>', () => { showToast('Advance Approved', 'success'); document.getElementById('adv-status-1').innerHTML = '<span class=\\'bg-green-100 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-green-200\\'>Approved</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-green-600 hover:bg-green-50 font-medium flex items-center gap-2"><i class="fas fa-check w-4"></i> Approve Request</button>
+                                            <button onclick="openModal('Reject Advance', '<p class=text-xs>Reject advance request?</p><textarea class=\\'w-full mt-2 border rounded p-1.5 text-xs\\' placeholder=\\'Reason\\'></textarea>', () => { showToast('Request Rejected', 'error'); document.getElementById('adv-status-1').innerHTML = '<span class=\\'bg-red-100 text-red-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-red-200\\'>Rejected</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 font-medium flex items-center gap-2"><i class="fas fa-times w-4"></i> Reject Request</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 2 -->
+                                <tr class="hover:bg-gray-50/50 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center font-bold text-[10px]">KN</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Kamran Naqvi</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1047 • Sales Exec</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Rs. 200,000</div>
+                                        <div class="text-[9.5px] text-blue-600 font-semibold">Company Loan</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-[9.5px] text-gray-500">Tenure: 2.5 yrs</div>
+                                        <div class="text-[9.5px] text-blue-600 font-bold"><i class="fas fa-shield-alt mr-0.5"></i> Collateral Verified</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">12 Months</div>
+                                        <div class="text-[9px] text-gray-400">Rs. 16,666 / month</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center" id="adv-status-2">
+                                        <span class="bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-blue-100 uppercase tracking-wide flex items-center justify-center gap-1 mx-auto w-max"><i class="fas fa-spinner fa-spin"></i> CEO Review</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="showToast('Reminder sent to CEO.', 'success'); document.getElementById('adv-status-2').innerHTML = '<span class=\\'bg-purple-50 text-purple-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-purple-100 uppercase tracking-wide flex items-center gap-1 w-max mx-auto\\'><i class=\\'fas fa-envelope\\'></i> CEO Nudged</span>';" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-paper-plane w-4 text-blue-600"></i> Nudge CEO</button>
+                                            <button onclick="openModal('Add HR Remarks', '<textarea class=\\'w-full border rounded p-1.5 text-xs\\' placeholder=\\'Add remarks on repayment capacity\\'></textarea>', () => showToast('Remarks recorded.', 'success'))" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-comment w-4"></i> Add HR Remarks</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        `);
+    </script>
+</body>
+</html>
+

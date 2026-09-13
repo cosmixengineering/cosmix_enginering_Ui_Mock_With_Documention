@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Leave Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('leave');
+        setPageContent('4. Leave Management', `
+            <div class="space-y-4">
+                
+                <!-- Compact Status Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Pending Requests</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">12 <span class="text-[9px] text-purple-600 font-normal">Need Action</span></h4>
+                            <p class="text-[8.5px] text-purple-600 font-medium">HR & Manager queue</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Approved This Month</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">28 <span class="text-[9px] text-green-600 font-normal">Leaves</span></h4>
+                            <p class="text-[8.5px] text-green-600 font-medium">96% SLA clearance</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Awaiting CEO Approval</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">3 <span class="text-[9px] text-orange-500 font-normal">Long Leaves</span></h4>
+                            <p class="text-[8.5px] text-orange-600 font-medium">&gt; 3 Days requires executive approval</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center text-sm">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar: Search + Excel / PDF / Import / Apply Leave -->
+                <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2 flex-1 max-w-sm">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input type="text" oninput="filterTableRows(this, 'leave-table-body')" placeholder="Search leave requests, employee..." class="w-full text-xs border border-gray-200 rounded-md pl-7 pr-3 py-1 focus:outline-none focus:border-[#242b5f] bg-white">
+                        </div>
+                        <select onchange="filterTableRows({ value: this.value.includes('All') ? '' : this.value }, 'leave-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none">
+                            <option value="All Types">All Types</option>
+                            <option value="Sick">Sick Leave</option>
+                            <option value="Casual">Casual Leave</option>
+                            <option value="Annual">Annual Leave</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="exportToExcel('Leave_Requests')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export Excel">
+                            <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel
+                        </button>
+                        <button onclick="exportToPDF('Leave_Register')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export PDF">
+                            <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF
+                        </button>
+                        <button onclick="openImportModal('Leave Balances')" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-file-import text-blue-600 text-xs"></i> Import
+                        </button>
+                        <button onclick="openModal('Apply Leave Request', '<div class=space-y-3><label class=\\'text-xs font-bold\\'>Select Employee</label><select class=\\'w-full border rounded p-1.5 text-xs\\'><option>Sara Ahmed (Sales Exec)</option><option>Ali Khan (HVAC Eng)</option><option>Zainab Ali (HR Asst)</option></select><div class=\\'grid grid-cols-2 gap-2\\'><div><label class=\\'text-xs font-bold\\'>Leave Type</label><select class=\\'w-full border rounded p-1.5 text-xs\\'><option>Sick Leave</option><option>Casual Leave</option><option>Annual Leave</option></select></div><div><label class=\\'text-xs font-bold\\'>Days</label><input type=number value=2 class=\\'w-full border rounded p-1.5 text-xs\\'></div></div><label class=\\'text-xs font-bold\\'>Reason</label><textarea class=\\'w-full border rounded p-1.5 text-xs\\' placeholder=\\'Reason for absence\\'></textarea></div>', () => showToast('Leave request submitted to HR & CEO!', 'success'))" class="bg-[#242b5f] text-white hover:opacity-90 px-3 py-1 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-plus text-[10px]"></i> Apply Leave
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Leave Requests Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-list-ul text-purple-600"></i> Active Leave Applications
+                        </h3>
+                        <span class="text-[10px] text-gray-400 font-medium">Showing 3 of 12 requests</span>
+                    </div>
+                    
+                    <div class="overflow-x-auto min-h-[250px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Employee</th>
+                                    <th class="px-4 py-2.5 font-bold">Leave Details</th>
+                                    <th class="px-4 py-2.5 font-bold">Balance Available</th>
+                                    <th class="px-4 py-2.5 font-bold">Type</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leave-table-body" class="divide-y divide-gray-100 bg-white">
+                                <!-- Row 1 -->
+                                <tr class="hover:bg-purple-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px]">SA</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Sara Ahmed</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1043 • Sales Exec</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">Sick Leave (2 Days)</div>
+                                        <div class="text-[9.5px] text-gray-400">Sep 8 - Sep 9, 2026</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-green-600 font-bold">10 Days Left</div>
+                                        <div class="text-[9px] text-gray-400">Total: 14 | Taken: 4</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase tracking-wider border border-purple-100">Short Leave</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center" id="leave-status-1">
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100 uppercase tracking-wide">Needs HR Review</span>
+                                    </td>
+                                     <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                                <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Approval Actions</p>
+                                            </div>
+                                            <button onclick="openModal('Approve Leave', '<p class=text-xs>Approve 2 days Sick Leave for Sara Ahmed?</p>', () => { showToast('Leave Approved', 'success'); document.getElementById('leave-status-1').innerHTML = '<span class=\\'bg-green-100 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide\\'>Approved</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-green-600 hover:bg-green-50 font-medium flex items-center gap-2"><i class="fas fa-check w-4"></i> Approve Leave</button>
+                                            <button onclick="openModal('Reject Leave', '<p class=text-xs>Reject leave request?</p><textarea class=\\'w-full mt-2 border rounded p-1.5 text-xs\\' placeholder=\\'Reason for rejection\\'></textarea>', () => { showToast('Leave Rejected', 'error'); document.getElementById('leave-status-1').innerHTML = '<span class=\\'bg-red-100 text-red-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-red-200 uppercase tracking-wide\\'>Rejected</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 font-medium flex items-center gap-2"><i class="fas fa-times w-4"></i> Reject Leave</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <button onclick="openMonthHistoryModal('Sara Ahmed', 'Sales Executive', 'EMP-1043')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-history w-4 text-[#242b5f]"></i> View History</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 2 -->
+                                <tr class="hover:bg-purple-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center font-bold text-[10px]">ZA</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Zainab Ali</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1045 • HR Asst</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">Annual Leave (10 Days)</div>
+                                        <div class="text-[9.5px] text-gray-400">Oct 1 - Oct 10, 2026</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-orange-500 font-bold">12 Days Left</div>
+                                        <div class="text-[9px] text-gray-400">Total: 14 | Taken: 2</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase tracking-wider border border-blue-100">Long Leave</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center" id="leave-status-2">
+                                        <span class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded text-[9.5px] font-bold uppercase border border-orange-200">Pending CEO</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="showToast('Reminder sent to CEO for approval', 'success'); document.getElementById('leave-status-2').innerHTML = '<span class=\\'bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[9.5px] font-bold\\'>CEO Nudged</span>'" class="w-full text-left px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50 font-medium flex items-center gap-2"><i class="fas fa-paper-plane w-4"></i> Nudge CEO</button>
+                                            <button onclick="openModal('CEO Override', '<p class=text-xs>Approve directly under HR Director authority?</p>', () => { showToast('Approved by Director authority', 'success'); document.getElementById('leave-status-2').innerHTML = '<span class=\\'bg-green-100 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold\\'>Director Approved</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-green-600 hover:bg-green-50 font-medium flex items-center gap-2"><i class="fas fa-check-double w-4"></i> Director Override</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <button onclick="openMonthHistoryModal('Zainab Ali', 'HR Assistant', 'EMP-1045')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-history w-4 text-[#242b5f]"></i> View History</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        `);
+    </script>
+</body>
+</html>
+

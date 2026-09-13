@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
+</head>
+<body class="text-gray-800">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('dashboard');
+        setPageContent('Dashboard', `
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 leading-tight">Welcome back, HR Manager</h3>
+                    <p class="text-xs text-gray-500">Cosmix Engineering HR operations & enterprise modules.</p>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button onclick="exportToExcel('HR_Activity_Log')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                        <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel Summary
+                    </button>
+                    <button onclick="exportToPDF('HR_Dashboard_Report')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                        <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4 Top KPI Stat Summary Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                <a href="employee-master.html" class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:border-[#242b5f]/30 transition flex items-center justify-between group">
+                    <div>
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Workforce</p>
+                        <h4 class="text-lg font-bold text-gray-800 mt-0.5">150 <span class="text-[10px] text-green-600 font-normal">Active</span></h4>
+                        <p class="text-[9px] text-green-600 font-semibold"><i class="fas fa-arrow-up mr-0.5"></i> +6 this month</p>
+                    </div>
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] group-hover:bg-[#242b5f] group-hover:text-white transition flex items-center justify-center text-sm">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </a>
+
+                <a href="attendance.html" class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:border-green-300 transition flex items-center justify-between group">
+                    <div>
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Today's Turnout</p>
+                        <h4 class="text-lg font-bold text-gray-800 mt-0.5">142 / 150</h4>
+                        <p class="text-[9px] text-green-600 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block mr-1"></span> 94.6% Present (8 Sites)</p>
+                    </div>
+                    <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 group-hover:bg-green-600 group-hover:text-white transition flex items-center justify-center text-sm">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                </a>
+
+                <a href="advance-salary.html" class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 hover:border-orange-300 transition flex items-center justify-between group">
+                    <div>
+                        <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Pending Approvals</p>
+                        <h4 class="text-lg font-bold text-gray-800 mt-0.5">5 <span class="text-[10px] text-orange-500 font-normal">Cases</span></h4>
+                        <p class="text-[9px] text-orange-600 font-medium">Advances & Long Leaves</p>
+                    </div>
+                    <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition flex items-center justify-center text-sm">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                </a>
+
+                <a href="payroll.html" class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:border-purple-300 transition flex items-center justify-between group">
+                    <div>
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Estimated Payroll</p>
+                        <h4 class="text-lg font-bold text-gray-800 mt-0.5">Rs. 4.52M</h4>
+                        <p class="text-[9px] text-purple-600 font-semibold">Sep 2026 Cycle</p>
+                    </div>
+                    <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition flex items-center justify-center text-sm">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- HR Module Navigation Grid (8 Core Enterprise Modules) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <a href="employee-master.html" class="bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:border-[#242b5f]/30 transition-all group block">
+                    <div class="w-8 h-8 rounded-md bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm mb-2.5 group-hover:bg-[#242b5f] group-hover:text-white transition-colors">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-gray-800 mb-0.5">1. Employee Master</h4>
+                    <p class="text-[10px] text-gray-500 leading-normal">Directory, Onboarding, Profiles, Credentials & Roles.</p>
+                </a>
+
+                <a href="attendance.html" class="bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:border-green-300 transition-all group block">
+                    <div class="w-8 h-8 rounded-md bg-green-50 text-green-600 flex items-center justify-center text-sm mb-2.5 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-gray-800 mb-0.5">2. Attendance Tracking</h4>
+                    <p class="text-[10px] text-gray-500 leading-normal">Biometrics, GPS Radius, Exceptions & Interactive Calendar.</p>
+                </a>
+
+                <a href="advance-salary.html" class="bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:border-orange-300 transition-all group block">
+                    <div class="w-8 h-8 rounded-md bg-orange-50 text-orange-600 flex items-center justify-center text-sm mb-2.5 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-gray-800 mb-0.5">3. Advance & Loan</h4>
+                    <p class="text-[10px] text-gray-500 leading-normal">Loan approvals, EMI installments & payroll deductions.</p>
+                </a>
+
+                <a href="leave-management.html" class="bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:border-purple-300 transition-all group block">
+                    <div class="w-8 h-8 rounded-md bg-purple-50 text-purple-600 flex items-center justify-center text-sm mb-2.5 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <i class="fas fa-umbrella-beach"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-gray-800 mb-0.5">4. Leave Management</h4>
+                    <p class="text-[10px] text-gray-500 leading-normal">Leave balances, Paid/Unpaid reviews & CEO approval chain.</p>
+                </a>
+
+                <a href="payroll.html" class="bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:border-teal-300 transition-all group block">
+                    <div class="w-8 h-8 rounded-md bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center text-sm mb-2.5 group-hover:bg-[#242b5f] group-hover:text-white transition-colors">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-gray-800 mb-0.5">5. Payroll Engine</h4>
+                    <p class="text-[10px] text-gray-500 leading-normal">Auto-calculation, earnings, deductions, payslips & bank transfers.</p>
+                </a>
+
+                <a href="offboarding.html" class="bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:border-red-300 transition-all group block">
+                    <div class="w-8 h-8 rounded-md bg-red-50 text-red-600 flex items-center justify-center text-sm mb-2.5 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-gray-800 mb-0.5">6. Offboarding</h4>
+                    <p class="text-[10px] text-gray-500 leading-normal">Warnings, F&F settlement, clearances & role replacement.</p>
+                </a>
+
+                <a href="assets.html" class="bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:border-indigo-300 transition-all group block">
+                    <div class="w-8 h-8 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm mb-2.5 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-gray-800 mb-0.5">7. Asset & Tools</h4>
+                    <p class="text-[10px] text-gray-500 leading-normal">Site equipment, PPE gear, laptops & offboarding custody return.</p>
+                </a>
+
+                <a href="reports.html" class="bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-400 transition-all group block">
+                    <div class="w-8 h-8 rounded-md bg-blue-50 text-blue-700 flex items-center justify-center text-sm mb-2.5 group-hover:bg-blue-700 group-hover:text-white transition-colors">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-gray-800 mb-0.5">8. Reports & Tax</h4>
+                    <p class="text-[10px] text-gray-500 leading-normal">EOBI statements, FBR WHT certificates & site project labor costs.</p>
+                </a>
+            </div>
+            
+            <!-- Recent Request Activity Section -->
+            <div class="mt-5">
+                <div class="flex items-center justify-between mb-2.5">
+                    <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Recent HR Activity & Pending Approvals</h3>
+                    <a href="attendance.html" class="text-[10px] font-bold text-[#242b5f] hover:underline flex items-center gap-1">View Full Logs <i class="fas fa-arrow-right text-[8px]"></i></a>
+                </div>
+                <div class="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+                        <thead>
+                            <tr class="bg-gray-50/50 border-b border-gray-100 text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                                <th class="px-4 py-2.5">Employee</th>
+                                <th class="px-4 py-2.5">Request Type</th>
+                                <th class="px-4 py-2.5">Details</th>
+                                <th class="px-4 py-2.5">Time</th>
+                                <th class="px-4 py-2.5">Status</th>
+                                <th class="px-4 py-2.5 text-right">Quick Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <!-- Row 1: Advance -->
+                            <tr class="hover:bg-gray-50/50 transition">
+                                <td class="px-4 py-2.5 text-xs font-semibold text-gray-800">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-[9px] font-bold">FH</div>
+                                        <a href="employee-profile.html" class="hover:underline font-bold text-[#242b5f]">Fahad Hussain</a>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2.5 text-xs text-gray-600"><span class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded text-[9.5px] font-bold border border-orange-100">Salary Advance</span></td>
+                                <td class="px-4 py-2.5 text-xs text-gray-500">Requested Rs. 15,000 for emergency</td>
+                                <td class="px-4 py-2.5 text-[9.5px] text-gray-400 font-medium">10 mins ago</td>
+                                <td class="px-4 py-2.5" id="dash-status-1"><span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-yellow-200">Pending HR</span></td>
+                                <td class="px-4 py-2.5 text-right relative dropdown">
+                                    <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1.5 rounded-lg hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                        <i class="fas fa-ellipsis-v text-xs"></i>
+                                    </button>
+                                    <div class="dropdown-menu absolute right-4 top-9 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                                        <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                            <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Fahad Hussain — Advance</p>
+                                        </div>
+                                        <button onclick="openModal('Approve Advance Request', '<p class=text-xs>Approve Rs. 15,000 salary advance for Fahad Hussain?</p>', () => { showToast('Advance approved! Payroll deduction scheduled.', 'success'); document.getElementById('dash-status-1').innerHTML = '<span class=\\'bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-green-200\\'>Approved</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-green-700 hover:bg-green-50 flex items-center gap-2 font-semibold"><i class="fas fa-check-circle w-4 text-green-600"></i> Approve Advance</button>
+                                        <button onclick="openModal('Reject Advance Request', '<p class=text-xs>Reject Rs. 15,000 advance request by Fahad Hussain? A rejection note will be sent.</p>', () => { showToast('Advance request rejected.', 'info'); document.getElementById('dash-status-1').innerHTML = '<span class=\\'bg-red-50 text-red-600 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-red-200\\'>Rejected</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"><i class="fas fa-times-circle w-4 text-red-500"></i> Reject Request</button>
+                                        <div class="h-px bg-gray-100 my-1"></div>
+                                        <a href="advance-salary.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-hand-holding-usd w-4 text-orange-500"></i> Open Advance Module</a>
+                                        <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge w-4 text-[#242b5f]"></i> View Employee Profile</a>
+                                        <button onclick="showToast('Reminder SMS sent to Fahad Hussain', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-bell w-4 text-amber-500"></i> Send Reminder</button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 2: Leave -->
+                            <tr class="hover:bg-gray-50/50 transition">
+                                <td class="px-4 py-2.5 text-xs font-semibold text-gray-800">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-[9px] font-bold">SA</div>
+                                        <a href="employee-profile.html" class="hover:underline font-bold text-[#242b5f]">Sara Ahmed</a>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2.5 text-xs text-gray-600"><span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-[9.5px] font-bold border border-purple-100">Casual Leave</span></td>
+                                <td class="px-4 py-2.5 text-xs text-gray-500">Requested 2 days leave (15-16 Sep)</td>
+                                <td class="px-4 py-2.5 text-[9.5px] text-gray-400 font-medium">1 hour ago</td>
+                                <td class="px-4 py-2.5" id="dash-status-2"><span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-blue-200">Pending CEO</span></td>
+                                <td class="px-4 py-2.5 text-right relative dropdown">
+                                    <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1.5 rounded-lg hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                        <i class="fas fa-ellipsis-v text-xs"></i>
+                                    </button>
+                                    <div class="dropdown-menu absolute right-4 top-9 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                                        <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                            <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Sara Ahmed — Leave Request</p>
+                                        </div>
+                                        <button onclick="openModal('Forward to CEO', '<p class=text-xs>Forward Sara Ahmed casual leave (15-16 Sep) to CEO for final approval?</p>', () => { showToast('Leave forwarded to CEO for approval!', 'success'); document.getElementById('dash-status-2').innerHTML = '<span class=\\'bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-blue-200\\'>CEO Review</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-[#242b5f] hover:bg-blue-50 flex items-center gap-2 font-semibold"><i class="fas fa-paper-plane w-4 text-[#242b5f]"></i> Forward to CEO</button>
+                                        <button onclick="openModal('Approve Leave (HR)', '<p class=text-xs>Approve 2-day casual leave for Sara Ahmed directly?</p>', () => { showToast('Leave approved by HR!', 'success'); document.getElementById('dash-status-2').innerHTML = '<span class=\\'bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-green-200\\'>Approved</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-green-700 hover:bg-green-50 flex items-center gap-2 font-semibold"><i class="fas fa-check w-4 text-green-600"></i> Approve (HR Override)</button>
+                                        <button onclick="openModal('Reject Leave', '<p class=text-xs>Reject Sara Ahmed leave request? A rejection reason will be notified.</p>', () => { showToast('Leave request rejected.', 'info'); document.getElementById('dash-status-2').innerHTML = '<span class=\\'bg-red-50 text-red-600 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-red-200\\'>Rejected</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"><i class="fas fa-ban w-4 text-red-500"></i> Reject Leave</button>
+                                        <div class="h-px bg-gray-100 my-1"></div>
+                                        <a href="leave-management.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-calendar-minus w-4 text-purple-500"></i> Open Leave Module</a>
+                                        <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge w-4 text-[#242b5f]"></i> View Employee Profile</a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 3: Biometric Exception -->
+                            <tr class="hover:bg-gray-50/50 transition">
+                                <td class="px-4 py-2.5 text-xs font-semibold text-gray-800">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-[9px] font-bold">ZA</div>
+                                        <a href="employee-profile.html" class="hover:underline font-bold text-[#242b5f]">Zainab Ali</a>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2.5 text-xs text-gray-600"><span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-100">Check-in Waiver</span></td>
+                                <td class="px-4 py-2.5 text-xs text-gray-500">Late check-in waived by HR</td>
+                                <td class="px-4 py-2.5 text-[9.5px] text-gray-400 font-medium">3 hours ago</td>
+                                <td class="px-4 py-2.5"><span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-green-200">Approved</span></td>
+                                <td class="px-4 py-2.5 text-right relative dropdown">
+                                    <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1.5 rounded-lg hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                        <i class="fas fa-ellipsis-v text-xs"></i>
+                                    </button>
+                                    <div class="dropdown-menu absolute right-4 top-9 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                                        <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                            <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Zainab Ali — Attendance</p>
+                                        </div>
+                                        <a href="attendance.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-clock w-4 text-green-600"></i> View Attendance Logs</a>
+                                        <button onclick="openModal('Revert Waiver', '<p class=text-xs>Revert the check-in waiver for Zainab Ali? Deduction will be applied.</p>', () => showToast('Waiver reverted. Deduction applied.', 'info'))" class="w-full text-left px-3 py-1.5 text-xs text-orange-600 hover:bg-orange-50 flex items-center gap-2"><i class="fas fa-undo w-4 text-orange-500"></i> Revert Waiver</button>
+                                        <button onclick="showToast('Attendance exception report downloaded', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-file-download w-4 text-blue-500"></i> Download Exception Report</button>
+                                        <div class="h-px bg-gray-100 my-1"></div>
+                                        <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge w-4 text-[#242b5f]"></i> View Employee Profile</a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 4: Salary Invoice -->
+                            <tr class="hover:bg-gray-50/50 transition">
+                                <td class="px-4 py-2.5 text-xs font-semibold text-gray-800">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-[#242b5f] text-white flex items-center justify-center text-[9px] font-bold">AK</div>
+                                        <a href="employee-profile.html" class="hover:underline font-bold text-[#242b5f]">Ali Khan</a>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2.5 text-xs text-gray-600"><span class="bg-teal-50 text-teal-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-teal-100">Salary Invoice</span></td>
+                                <td class="px-4 py-2.5 text-xs text-gray-500">September 2026 Net: Rs. 88,000</td>
+                                <td class="px-4 py-2.5 text-[9.5px] text-gray-400 font-medium">Calculated</td>
+                                <td class="px-4 py-2.5"><span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-green-200">Ready</span></td>
+                                <td class="px-4 py-2.5 text-right relative dropdown">
+                                    <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1.5 rounded-lg hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                        <i class="fas fa-ellipsis-v text-xs"></i>
+                                    </button>
+                                    <div class="dropdown-menu absolute right-4 top-9 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                                        <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                            <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Ali Khan — Payroll</p>
+                                        </div>
+                                        <button onclick="openPayslipModal({ name: 'Ali Khan', role: 'HVAC Engineer', empId: 'EMP-1042', site: 'Karachi High-Rise', base: 85000, allowance: 5000, ot: 8000, advanceEmi: 10000, tax: 2500, bank: 'Meezan Bank - Clifton Branch', iban: 'PK36MEZN00010982347101' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-[#242b5f]"></i> View Salary Invoice</button>
+                                        <button onclick="showToast('Payslip PDF downloaded for Ali Khan', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-file-pdf w-4 text-red-500"></i> Download Payslip PDF</button>
+                                        <button onclick="openModal('Send to Bank', '<p class=text-xs>Forward Ali Khan salary advice (Rs. 88,000) to bank for disbursement?</p>', () => showToast('Bank advice sent! Disbursement queued.', 'success'))" class="w-full text-left px-3 py-1.5 text-xs text-green-700 hover:bg-green-50 flex items-center gap-2 font-semibold"><i class="fas fa-university w-4 text-green-600"></i> Send to Bank</button>
+                                        <div class="h-px bg-gray-100 my-1"></div>
+                                        <a href="payroll.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-wallet w-4 text-purple-500"></i> Open Payroll Module</a>
+                                        <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge w-4 text-[#242b5f]"></i> View Employee Profile</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `);
+    </script>
+</body>
+</html>
+

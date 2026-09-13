@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Employee Master Directory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('employee');
+        
+        const pageHTML = `
+            <div class="space-y-4">
+                
+                <!-- Quick Stats Row -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Headcount</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">150 <span class="text-[10px] text-green-600 font-normal">Active</span></h4>
+                            <p class="text-[9px] text-green-600 font-semibold"><i class="fas fa-arrow-up mr-0.5"></i> +6 this month</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Field Engineers</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">92 <span class="text-[10px] text-blue-600 font-normal">On Sites</span></h4>
+                            <p class="text-[9px] text-gray-500 font-medium">8 active project sites</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-hard-hat"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Pending CEO Approvals</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5" id="stat-pending-ceo">2 <span class="text-[10px] text-orange-500 font-normal">Drafts</span></h4>
+                            <p class="text-[9px] text-orange-600 font-medium">Onboarding negotiation</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center text-sm">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Monthly Payroll Cost</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">Rs. 4.52M</h4>
+                            <p class="text-[9px] text-gray-500 font-medium">Avg Rs. 30.1K / worker</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar: Search + Excel, PDF, Import, + Add New Employee -->
+                <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2 flex-1 max-w-sm">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input type="text" oninput="filterTableRows(this, 'employee-table-body')" placeholder="Search employees by name, ID, role, site..." class="w-full border border-gray-200 rounded-md pl-7 pr-3 py-1 text-xs outline-none focus:border-[#242b5f] bg-white">
+                        </div>
+                        <select onchange="filterTableRows({ value: this.value === 'All Roles' ? '' : this.value }, 'employee-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none">
+                            <option value="All Roles">All Roles</option>
+                            <option value="HVAC">HVAC Engineers</option>
+                            <option value="AC Technician">AC Technicians</option>
+                            <option value="Sales">Sales & Admin</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="exportToExcel('Employee_Master_Directory')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export to Excel">
+                            <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel
+                        </button>
+                        <button onclick="exportToPDF('Employee_Directory_Report')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export to PDF">
+                            <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF
+                        </button>
+                        <button onclick="openImportModal('Employee Master')" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-file-import text-blue-600 text-xs"></i> Import Excel
+                        </button>
+                        <button onclick="document.getElementById('onboard-modal').classList.remove('hidden')" class="bg-[#242b5f] text-white px-3 py-1 rounded-md text-xs font-bold shadow-sm hover:opacity-90 transition flex items-center gap-1.5">
+                            <i class="fas fa-user-plus text-[10px]"></i> Add New Employee
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Employee Directory Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-address-book text-[#242b5f]"></i> Master Employee Directory
+                        </h3>
+                        <span class="text-[10px] text-gray-400 font-medium">Click on any employee name to view full profile</span>
+                    </div>
+
+                    <div class="overflow-x-auto min-h-[350px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Employee Name</th>
+                                    <th class="px-4 py-2.5 font-bold">Emp ID</th>
+                                    <th class="px-4 py-2.5 font-bold">Department / Role</th>
+                                    <th class="px-4 py-2.5 font-bold">Site Allocation</th>
+                                    <th class="px-4 py-2.5 font-bold">Contact / CNIC</th>
+                                    <th class="px-4 py-2.5 font-bold">Base Salary</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employee-table-body" class="divide-y divide-gray-100 bg-white">
+                                
+                                <!-- Row 1: Ali Khan -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center font-bold text-[10px] relative">
+                                                AK
+                                                <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
+                                            </div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Ali Khan</a>
+                                                <p class="text-[9.5px] text-gray-400">HVAC Engineer</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1042</span></td>
+                                    <td class="px-4 py-2.5 text-gray-600">MEP & Execution</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Karachi High-Rise</td>
+                                    <td class="px-4 py-2.5 text-gray-500">
+                                        <div>+92 300 1234567</div>
+                                        <div class="text-[9px] text-gray-400">42201-1234567-1</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-700">Rs. 85,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                         <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-[#242b5f] flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>
+                                            <button onclick="openMonthHistoryModal('Ali Khan', 'HVAC Engineer', 'EMP-1042')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>
+                                            <button onclick="openPayslipModal({ name: 'Ali Khan', role: 'HVAC Engineer', empId: 'EMP-1042', site: 'Karachi High-Rise', base: 85000, allowance: 5000, ot: 8000, advanceEmi: 10000, tax: 2500, bank: 'Meezan Bank - Clifton Branch', iban: 'PK36MEZN00010982347101' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="offboarding.html" class="block px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"><i class="fas fa-user-minus w-4"></i> Initiate Offboarding</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Row 2: Sara Ahmed -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px] relative">
+                                                SA
+                                                <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
+                                            </div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Sara Ahmed</a>
+                                                <p class="text-[9.5px] text-gray-400">Sales Executive</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1043</span></td>
+                                    <td class="px-4 py-2.5 text-gray-600">Sales & CRM</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Head Office (Lahore)</td>
+                                    <td class="px-4 py-2.5 text-gray-500">
+                                        <div>+92 321 9876543</div>
+                                        <div class="text-[9px] text-gray-400">35201-7654321-2</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-700">Rs. 65,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-[#242b5f] flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>
+                                            <button onclick="openMonthHistoryModal('Sara Ahmed', 'Sales Executive', 'EMP-1043')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>
+                                            <button onclick="openPayslipModal({ name: 'Sara Ahmed', role: 'Sales Executive', empId: 'EMP-1043', site: 'Head Office (Lahore)', base: 65000, allowance: 5000, ot: 0, advanceEmi: 0, tax: 1500, bank: 'MCB Bank - Gulberg Branch', iban: 'PK12MUCB005566778899' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <a href="offboarding.html" class="block px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"><i class="fas fa-user-minus w-4"></i> Initiate Offboarding</a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 3: Usman Tariq -->
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-[10px] relative">
+                                                UT
+                                                <div class="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
+                                            </div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Usman Tariq</a>
+                                                <p class="text-[9.5px] text-gray-400">AC Technician</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded">EMP-1044</span></td>
+                                    <td class="px-4 py-2.5 text-gray-600">Field Maintenance</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Islamabad Govt Complex</td>
+                                    <td class="px-4 py-2.5 text-gray-500">
+                                        <div>+92 333 4455667</div>
+                                        <div class="text-[9px] text-gray-400">61101-9988776-5</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-bold text-gray-700">Rs. 45,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 hover:text-[#242b5f] flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>
+                                            <button onclick="openMonthHistoryModal('Usman Tariq', 'AC Technician', 'EMP-1044')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>
+                                            <button onclick="openPayslipModal({ name: 'Usman Tariq', role: 'AC Technician', empId: 'EMP-1044', site: 'Islamabad Govt Complex', base: 45000, allowance: 4000, ot: 6000, advanceEmi: 0, tax: 500, bank: 'Allied Bank - Blue Area', iban: 'PK88ABPA003344556677' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Slide-over Onboarding Drawer Modal -->
+                <div id="onboard-modal" class="fixed inset-0 z-50 hidden">
+                    <!-- Backdrop -->
+                    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="document.getElementById('onboard-modal').classList.add('hidden')"></div>
+                    
+                    <!-- Drawer Container -->
+                    <div class="absolute inset-y-0 right-0 w-full max-w-2xl bg-white shadow-2xl flex flex-col border-l border-gray-200">
+                        
+                        <!-- Header -->
+                        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 bg-gray-50/50">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-md bg-[#e8eaf6] text-[#242b5f] flex items-center justify-center text-xs">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-[#242b5f]">Onboard New Worker / Employee</h3>
+                                    <p class="text-[10px] text-gray-400">Creates worker profile & submits for CEO review</p>
+                                </div>
+                            </div>
+                            <button onclick="document.getElementById('onboard-modal').classList.add('hidden')" class="text-gray-400 hover:text-red-500 text-base p-1 rounded hover:bg-gray-100 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Form Body (Scrollable) -->
+                        <div class="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+                            
+                            <!-- Personal Details -->
+                            <div class="bg-gray-50/60 p-3.5 rounded-lg border border-gray-200">
+                                <h4 class="text-xs font-bold text-gray-700 mb-2.5 flex items-center gap-1.5">
+                                    <i class="fas fa-id-card text-gray-400"></i> 1. Personal & Contact Details
+                                </h4>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Full Name <span class="text-red-500">*</span></label>
+                                        <input id="emp_name" type="text" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-[#242b5f] bg-white outline-none" placeholder="e.g. Tariq Mehmood">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Contact Phone <span class="text-red-500">*</span></label>
+                                        <input id="emp_contact" type="text" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-[#242b5f] bg-white outline-none" placeholder="+92 300 0000000">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">CNIC / Identification <span class="text-red-500">*</span></label>
+                                        <input id="emp_cnic" type="text" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-[#242b5f] bg-white outline-none" placeholder="42101-0000000-1">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Blood Group</label>
+                                        <select class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs bg-white focus:outline-none">
+                                            <option>O+</option><option>A+</option><option>B+</option><option>AB+</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Role & Deployment -->
+                            <div class="bg-gray-50/60 p-3.5 rounded-lg border border-gray-200">
+                                <h4 class="text-xs font-bold text-gray-700 mb-2.5 flex items-center gap-1.5">
+                                    <i class="fas fa-briefcase text-gray-400"></i> 2. Role, Site & Proposed Salary
+                                </h4>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Designation / Role <span class="text-red-500">*</span></label>
+                                        <select id="emp_role" class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs bg-white focus:outline-none">
+                                            <option value="HVAC Engineer">HVAC Engineer</option>
+                                            <option value="AC Technician">AC Technician</option>
+                                            <option value="MEP Supervisor">MEP Supervisor</option>
+                                            <option value="Electrician / Plumber">Electrician / Plumber</option>
+                                            <option value="Sales Executive">Sales Executive</option>
+                                            <option value="Store Incharge">Store Incharge</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Site / Project Allocation <span class="text-red-500">*</span></label>
+                                        <select id="emp_site" class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs bg-white focus:outline-none">
+                                            <option>Karachi High-Rise Project</option>
+                                            <option>Islamabad Govt Complex</option>
+                                            <option>Head Office (Lahore)</option>
+                                            <option>Peshawar Industrial Site</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Proposed Base Salary (PKR) <span class="text-red-500">*</span></label>
+                                        <input id="emp_salary" type="number" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-[#242b5f] bg-white outline-none" placeholder="55000">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Shift Timings</label>
+                                        <select class="w-full border border-gray-200 rounded px-2 py-1.5 text-xs bg-white focus:outline-none">
+                                            <option>General Site Shift (08:00 AM - 05:00 PM)</option>
+                                            <option>Morning Shift (09:00 AM - 06:00 PM)</option>
+                                            <option>Night Maintenance (08:00 PM - 05:00 AM)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mobile App Credentials -->
+                            <div class="bg-blue-50/50 p-3.5 rounded-lg border border-blue-100">
+                                <h4 class="text-xs font-bold text-[#242b5f] mb-2.5 flex items-center gap-1.5">
+                                    <i class="fas fa-mobile-alt text-blue-600"></i> 3. Cosmix Mobile App Credentials
+                                </h4>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">App Username / Email</label>
+                                        <input type="text" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs bg-white outline-none" placeholder="worker@cosmix.com">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-600 mb-1">Temporary Password</label>
+                                        <input type="password" value="cosmix123" class="w-full border border-gray-200 rounded px-2.5 py-1.5 text-xs bg-white outline-none">
+                                    </div>
+                                </div>
+                                <p class="text-[9px] text-gray-400 mt-1.5"><i class="fas fa-info-circle mr-0.5"></i> Employee will use this for GPS check-in on the mobile app.</p>
+                            </div>
+
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="px-5 py-3 border-t border-gray-200 bg-white flex justify-between items-center">
+                            <span class="text-[10px] text-gray-400 font-bold uppercase"><i class="fas fa-lock mr-1"></i> Will queue in CEO loop</span>
+                            <div class="flex gap-2">
+                                <button onclick="document.getElementById('onboard-modal').classList.add('hidden')" class="px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-md transition">Cancel</button>
+                                <button onclick="submitNewWorker()" class="bg-[#242b5f] text-white px-4 py-1.5 rounded-md text-xs font-bold shadow-sm hover:opacity-90 transition flex items-center gap-1.5">
+                                    <i class="fas fa-paper-plane text-[10px]"></i> Submit to CEO
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        `;
+
+        setPageContent('1. Employee Master Directory', pageHTML);
+
+        // Interactive submission logic: adds row to the table with "Pending CEO"
+        window.submitNewWorker = function() {
+            const name = document.getElementById('emp_name').value.trim();
+            const contact = document.getElementById('emp_contact').value.trim();
+            const role = document.getElementById('emp_role').value;
+            const site = document.getElementById('emp_site').value;
+            const salary = document.getElementById('emp_salary').value || '50,000';
+            const cnic = document.getElementById('emp_cnic').value || '42101-XXXXXXX-X';
+
+            if (!name || !contact) {
+                showToast('Please enter Employee Name and Contact Number!', 'error');
+                return;
+            }
+
+            // Generate initials
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() || 'NW';
+            const newEmpId = 'EMP-' + Math.floor(1050 + Math.random() * 50);
+
+            const tbody = document.getElementById('employee-table-body');
+            const newRow = document.createElement('tr');
+            newRow.className = 'hover:bg-blue-50/20 transition group bg-blue-50/20 border-l-4 border-[#242b5f]';
+            
+            newRow.innerHTML = '' +
+                '<td class="px-4 py-2.5">' +
+                    '<div class="flex items-center gap-2.5">' +
+                        '<div class="w-7 h-7 rounded-full bg-[#242b5f] text-white flex items-center justify-center font-bold text-[10px]">' + initials + '</div>' +
+                        '<div>' +
+                            '<a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">' + name + '</a>' +
+                            '<p class="text-[9.5px] text-gray-400">' + role + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                '</td>' +
+                '<td class="px-4 py-2.5"><span class="text-[10px] font-bold text-gray-700 bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded">' + newEmpId + '</span></td>' +
+                '<td class="px-4 py-2.5 text-gray-600">Pending Setup</td>' +
+                '<td class="px-4 py-2.5 text-gray-700 font-medium">' + site + '</td>' +
+                '<td class="px-4 py-2.5 text-gray-500"><div>' + contact + '</div><div class="text-[9px] text-gray-400">' + cnic + '</div></td>' +
+                '<td class="px-4 py-2.5 font-bold text-gray-700">Rs. ' + Number(salary).toLocaleString() + '</td>' +
+                '<td class="px-4 py-2.5 text-center">' +
+                    '<span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-200 uppercase tracking-wide flex items-center justify-center gap-1 mx-auto w-max"><i class="fas fa-spinner fa-spin text-[8px]"></i> Pending CEO</span>' +
+                '</td>' +
+                '<td class="px-4 py-2.5 text-right relative dropdown">' +
+                    '<button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)"><i class="fas fa-ellipsis-v text-xs"></i></button>' +
+                    '<div class="dropdown-menu absolute right-4 top-8 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">' +
+                        '<a href="employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-user-circle w-4 text-[#242b5f]"></i> View Profile</a>' +
+                        '<button onclick="openMonthHistoryModal(\'' + name.replace(/'/g, "\\'") + '\', \'' + role + '\', \'' + newEmpId + '\')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-calendar-alt w-4 text-green-600"></i> Attendance Log</button>' +
+                        '<button onclick="openPayslipModal({ name: \'' + name.replace(/'/g, "\\'") + '\', role: \'' + role + '\', empId: \'' + newEmpId + '\', base: ' + Number(salary) + ', site: \'' + site + '\' })" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-semibold"><i class="fas fa-file-invoice-dollar w-4 text-blue-600"></i> Salary Invoice</button>' +
+                    '</div>' +
+                '</td>';
+
+            tbody.insertBefore(newRow, tbody.firstChild);
+
+            // Update CEO counter badge
+            const pendingStat = document.getElementById('stat-pending-ceo');
+            if (pendingStat) pendingStat.innerHTML = '3 <span class="text-[10px] text-orange-500 font-normal">Drafts</span>';
+
+            // Close modal & reset
+            document.getElementById('onboard-modal').classList.add('hidden');
+            document.getElementById('emp_name').value = '';
+            document.getElementById('emp_contact').value = '';
+
+            showToast('New Worker ' + name + ' submitted! Added to directory as Pending CEO.', 'success');
+        };
+    </script>
+</body>
+</html>
+

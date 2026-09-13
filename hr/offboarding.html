@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Offboarding & Exit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }</style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('offboarding');
+        setPageContent('6. Offboarding & Replacement', `
+            <div class="space-y-4">
+                
+                <!-- Compact Status Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-red-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-red-600 font-bold uppercase tracking-wider">Active Warnings</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">4 <span class="text-[9px] text-red-500 font-normal">Issued</span></h4>
+                            <p class="text-[8.5px] text-red-600 font-medium">Disciplinary & performance track</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center text-sm">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">In Offboarding</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">2 <span class="text-[9px] text-orange-500 font-normal">Cases</span></h4>
+                            <p class="text-[8.5px] text-orange-600 font-medium">Full & Final (F&F) clearance pending</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center text-sm">
+                            <i class="fas fa-user-minus"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-green-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-green-700 font-bold uppercase tracking-wider">Cleared & Settled</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">14 <span class="text-[9px] text-green-600 font-normal">Workers</span></h4>
+                            <p class="text-[8.5px] text-green-600 font-medium">Past 90 days total</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar: Excel, PDF, Import, Initiate Offboarding -->
+                <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2 flex-1 max-w-md">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input type="text" oninput="filterTableRows(this, 'offboarding-table-body')" placeholder="Search offboarding records by name, ID, reason..." class="w-full text-xs border border-gray-200 rounded-md pl-7 pr-3 py-1 focus:outline-none focus:border-[#242b5f] bg-white">
+                        </div>
+                        <select onchange="filterTableRows({ value: this.value.includes('All') ? '' : this.value }, 'offboarding-table-body')" class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none shrink-0">
+                            <option value="All Cases">All Cases</option>
+                            <option value="Resignation">Resignation</option>
+                            <option value="Termination">Termination</option>
+                            <option value="Contract Expiry">Contract Expiry</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="exportToExcel('Offboarding_Clearances')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export Excel">
+                            <i class="fas fa-file-excel text-green-600 text-xs"></i> Excel
+                        </button>
+                        <button onclick="exportToPDF('Clearance_Certificates')" class="bg-white border border-gray-200 hover:border-red-600 text-gray-700 hover:text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5" title="Export PDF">
+                            <i class="fas fa-file-pdf text-red-500 text-xs"></i> PDF
+                        </button>
+                        <button onclick="openImportModal('Offboarding Logs')" class="bg-white border border-gray-200 hover:border-[#242b5f] text-gray-700 hover:text-[#242b5f] px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-file-import text-blue-600 text-xs"></i> Import
+                        </button>
+                        <button onclick="openModal('Initiate Worker Offboarding', '<div class=space-y-3><label class=\\'text-xs font-bold\\'>Select Worker</label><select class=\\'w-full border rounded p-1.5 text-xs\\'><option>Ali Khan (EMP-1042)</option><option>Sara Ahmed (EMP-1043)</option><option>Usman Tariq (EMP-1044)</option></select><div class=\\'grid grid-cols-2 gap-2\\'><div><label class=\\'text-xs font-bold\\'>Exit Reason</label><select class=\\'w-full border rounded p-1.5 text-xs\\'><option>Resignation (Notice Given)</option><option>Project Completed</option><option>Disciplinary Termination</option></select></div><div><label class=\\'text-xs font-bold\\'>Last Working Day</label><input type=date class=\\'w-full border rounded p-1.5 text-xs\\' value=\\'2026-09-30\\'></div></div></div>', () => showToast('Offboarding process initiated. Asset clearance checklist generated.', 'success'))" class="bg-[#242b5f] text-white hover:opacity-90 px-3 py-1 rounded-md text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                            <i class="fas fa-user-times text-[10px]"></i> Initiate Exit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Offboarding Pipeline Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-sign-out-alt text-[#242b5f]"></i> Active Offboarding Pipeline
+                        </h3>
+                        <span class="text-[10px] text-gray-400 font-medium">Clearance & Settlement Workflow</span>
+                    </div>
+                    
+                    <div class="overflow-x-auto min-h-[250px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Employee</th>
+                                    <th class="px-4 py-2.5 font-bold">Exit Type & Reason</th>
+                                    <th class="px-4 py-2.5 font-bold">Last Working Day</th>
+                                    <th class="px-4 py-2.5 font-bold">F&F Settlement</th>
+                                    <th class="px-4 py-2.5 font-bold">Replacement Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="offboarding-table-body" class="divide-y divide-gray-100 bg-white">
+                                
+                                <!-- Row 1 -->
+                                <tr class="hover:bg-gray-50/50 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center font-bold text-[10px]">MJ</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Mike Johnson</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1035 • Field Tech</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">Resignation</div>
+                                        <div class="text-[9.5px] text-gray-400">Personal Relocation</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Oct 1, 2026</td>
+                                    <td class="px-4 py-2.5" id="offboard-status-1">
+                                        <span class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-yellow-200 uppercase tracking-wide">F&F Pending</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Pending Assignment</span>
+                                    </td>
+                                     <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <div class="px-3 py-1 border-b border-gray-50 mb-1">
+                                                <p class="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider">Offboarding Steps</p>
+                                            </div>
+                                            <button onclick="openModal('Process Full & Final Settlement', '<p class=text-xs>Process Rs. 125,000 for Mike Johnson?</p><p class=\\'text-[10px] text-gray-500 mt-1\\'>Gratuity, pending salary and asset returns cleared.</p>', () => { showToast('F&F Settlement Processed Successfully!'); document.getElementById('offboard-status-1').innerHTML = '<span class=\\'bg-green-100 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide\\'>Settled</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2"><i class="fas fa-file-invoice-dollar w-4"></i> Process Full & Final</button>
+                                            <button onclick="openModal('Assign Replacement', '<div class=space-y-2><label class=\\'text-xs font-bold\\'>Select Replacement</label><select class=\\'w-full border rounded p-1.5 text-xs\\'><option>Ali Khan (HVAC Eng)</option><option>John Doe</option></select></div>', () => showToast('Replacement Assigned!'))" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-exchange-alt w-4"></i> Assign Replacement</button>
+                                            <div class="h-px bg-gray-100 my-1"></div>
+                                            <button onclick="openModal('Revoke Access', '<p class=text-xs text-red-600 font-bold>Revoke all system & biometric permissions immediately?</p>', () => showToast('System Access Revoked!', 'error'))" class="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"><i class="fas fa-power-off w-4"></i> Deactivate Access</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 2 -->
+                                <tr class="hover:bg-gray-50/50 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-yellow-100 text-yellow-700 flex items-center justify-center font-bold text-[10px]">TY</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Taha Yaseen</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1031 • Store Officer</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-red-600">Termination</div>
+                                        <div class="text-[9.5px] text-gray-400">Attendance Disciplinary</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Sep 15, 2026</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200">Cleared (Rs. 45k)</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-100 flex items-center gap-1 w-max"><i class="fas fa-check"></i> Handover Complete</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="showToast('Downloading Clearance Certificate PDF...', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-print w-4"></i> Print Clearance</button>
+                                            <button onclick="showToast('Final archive completed', 'success')" class="w-full text-left px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50 flex items-center gap-2"><i class="fas fa-archive w-4"></i> Archive Employee</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 3: Hamza Tariq -->
+                                <tr class="hover:bg-gray-50/50 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-blue-100 text-[#242b5f] flex items-center justify-center font-bold text-[10px]">HT</div>
+                                            <div>
+                                                <a href="employee-profile.html" class="font-bold text-[#242b5f] hover:underline block leading-tight">Hamza Tariq</a>
+                                                <span class="text-[9.5px] text-gray-400">EMP-1028 • Site Electrician</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-semibold text-gray-800">Resignation</div>
+                                        <div class="text-[9.5px] text-gray-400">Overseas Employment</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Sep 20, 2026</td>
+                                    <td class="px-4 py-2.5" id="offboard-status-3">
+                                        <span class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-yellow-200 uppercase tracking-wide">Audit in Progress</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-purple-100">Tool Handover Done</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right relative dropdown">
+                                        <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 transition focus:outline-none" onclick="toggleDropdown(this, event)">
+                                            <i class="fas fa-ellipsis-v text-xs"></i>
+                                        </button>
+                                        <div class="dropdown-menu absolute right-4 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
+                                            <button onclick="openModal('Release Gratuity & Clearance', '<p class=text-xs>Approve clearance and issue experience letter for Hamza Tariq?</p>', () => { showToast('Clearance & Experience Letter approved!', 'success'); document.getElementById('offboard-status-3').innerHTML = '<span class=\\'bg-green-100 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase tracking-wide\\'>Settled</span>'; })" class="w-full text-left px-3 py-1.5 text-xs text-green-600 hover:bg-green-50 flex items-center gap-2"><i class="fas fa-certificate w-4"></i> Issue Experience Letter</button>
+                                            <button onclick="showToast('Inventory returned: Toolset #42, PPE Kit, Site Badge verified', 'info')" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-tools w-4 text-blue-600"></i> View Asset Return</button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        `);
+    </script>
+</body>
+</html>
+
