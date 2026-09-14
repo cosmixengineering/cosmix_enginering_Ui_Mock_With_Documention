@@ -5,6 +5,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import SelectorScreen from './screens/SelectorScreen';
+import LoginScreen from './screens/auth/LoginScreen';
+import OTPScreen from './screens/auth/OTPScreen';
+import SplashScreen from './screens/auth/SplashScreen';
 import OfficeDashboard from './screens/office/OfficeDashboard';
 import AttendanceCalendar from './screens/office/AttendanceCalendar';
 import RequestsScreen from './screens/office/RequestsScreen';
@@ -22,77 +25,64 @@ import ClientDashboard from './screens/client/ClientDashboard';
 import SupplierDashboard from './screens/supplier/SupplierDashboard';
 import DispatchScreen from './screens/supplier/DispatchScreen';
 
-import { View, Platform } from 'react-native';
+import { View, Platform, TouchableOpacity, StatusBar } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// --- BEAUTIFUL ROUNDED TAB BAR STYLES ---
-const floatingTabScreenOptions = ({ route }) => ({
+// --- PREMIUM TAB BAR STYLES ---
+const tabScreenOptions = ({ route, navigation }) => ({
   tabBarShowLabel: true,
   tabBarLabelStyle: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '700',
-    paddingBottom: Platform.OS === 'ios' ? 0 : 5,
+    paddingBottom: Platform.OS === 'ios' ? 0 : 8,
   },
   tabBarStyle: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
     backgroundColor: '#ffffff',
-    borderRadius: 35, // Round edges
-    height: 65,
+    height: Platform.OS === 'ios' ? 88 : 68,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+    elevation: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 8,
-    borderTopWidth: 0,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    paddingTop: 8,
   },
   headerStyle: { backgroundColor: '#242b5f', elevation: 0, shadowOpacity: 0 },
   headerTintColor: '#fff',
-  headerTitleStyle: { fontWeight: '800', fontSize: 16 },
+  headerTitleStyle: { fontWeight: '800', fontSize: 18 },
+  headerLeft: () => (
+    <TouchableOpacity onPress={() => navigation.navigate('Selector')} style={{ paddingLeft: 16, paddingRight: 10 }}>
+      <Ionicons name="arrow-back" size={24} color="#fff" />
+    </TouchableOpacity>
+  ),
   tabBarActiveTintColor: '#242b5f',
   tabBarInactiveTintColor: '#9ca3af',
   tabBarIcon: ({ focused, color, size }) => {
-    let iconName;
+    let iconName = 'ellipse-outline'; // fallback icon
 
-    // Site Staff Icons
-    if (route.name === 'Dashboard') {
-      iconName = focused ? 'business' : 'business-outline';
-    } else if (route.name === 'MaterialRequest') {
-      iconName = focused ? 'hammer' : 'hammer-outline';
-    } else if (route.name === 'HR Requests') {
-      iconName = focused ? 'cash' : 'cash-outline';
-    } 
-    // Office Staff Specific Icons
-    else if (route.name === 'OfficeHome') {
-      iconName = focused ? 'home' : 'home-outline';
-    } else if (route.name === 'Attendance') {
-      iconName = focused ? 'calendar' : 'calendar-outline';
-    } else if (route.name === 'OfficeRequests') {
-      iconName = focused ? 'document-text' : 'document-text-outline';
-    }
-    // Client Specific Icons
-    else if (route.name === 'ClientHome') {
-      iconName = focused ? 'briefcase' : 'briefcase-outline';
-    } else if (route.name === 'ClientFinance') {
-      iconName = focused ? 'wallet' : 'wallet-outline';
-    }
+    if (route.name === 'Dashboard') iconName = focused ? 'business' : 'business-outline';
+    else if (route.name === 'MaterialRequest') iconName = focused ? 'hammer' : 'hammer-outline';
+    else if (route.name === 'HR Requests') iconName = focused ? 'cash' : 'cash-outline';
+    else if (route.name === 'OfficeHome') iconName = focused ? 'home' : 'home-outline';
+    else if (route.name === 'Attendance') iconName = focused ? 'calendar' : 'calendar-outline';
+    else if (route.name === 'OfficeRequests') iconName = focused ? 'document-text' : 'document-text-outline';
+    else if (route.name === 'ClientHome') iconName = focused ? 'briefcase' : 'briefcase-outline';
+    else if (route.name === 'ClientFinance') iconName = focused ? 'wallet' : 'wallet-outline';
 
-    // Wrap in a circular pill background when active
     return (
       <View style={{
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: focused ? '#e0e7ff' : 'transparent',
         paddingVertical: 6,
-        paddingHorizontal: 16,
+        paddingHorizontal: 20,
         borderRadius: 20,
-        marginTop: 5,
+        marginBottom: 2,
       }}>
-        <Ionicons name={iconName} size={22} color={focused ? '#242b5f' : color} />
+        <Ionicons name={iconName} size={22} color={focused ? '#3730a3' : '#9ca3af'} />
       </View>
     );
   }
@@ -100,7 +90,7 @@ const floatingTabScreenOptions = ({ route }) => ({
 
 function ClientTabs() {
   return (
-    <Tab.Navigator screenOptions={floatingTabScreenOptions}>
+    <Tab.Navigator screenOptions={tabScreenOptions}>
       <Tab.Screen name="ClientHome" component={ClientDashboard} options={{ title: 'Project Overview' }} />
       {/* Reusing Dashboard as a placeholder for Finance tab for now */}
       <Tab.Screen name="ClientFinance" component={ClientDashboard} options={{ title: 'Billing & Payments' }} />
@@ -110,7 +100,7 @@ function ClientTabs() {
 
 function SiteStaffTabs() {
   return (
-    <Tab.Navigator screenOptions={floatingTabScreenOptions}>
+    <Tab.Navigator screenOptions={tabScreenOptions}>
       <Tab.Screen name="Dashboard" component={SiteDashboard} options={{ title: 'Site Home' }} />
       <Tab.Screen name="MaterialRequest" component={MaterialRequestScreen} options={{ title: 'Items' }} />
       <Tab.Screen name="HR Requests" component={SiteRequestsScreen} options={{ title: 'Leave/Loan' }} />
@@ -129,7 +119,7 @@ function SiteStaffStack() {
 
 function OfficeStaffTabs() {
   return (
-    <Tab.Navigator screenOptions={floatingTabScreenOptions}>
+    <Tab.Navigator screenOptions={tabScreenOptions}>
       <Tab.Screen name="OfficeHome" component={OfficeDashboard} options={{ title: 'Home' }} />
       <Tab.Screen name="Attendance" component={AttendanceCalendar} options={{ title: 'Attendance' }} />
       <Tab.Screen name="OfficeRequests" component={RequestsScreen} options={{ title: 'Requests' }} />
@@ -157,8 +147,25 @@ function PurchasingStack() {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Selector">
+    <>
+      <StatusBar barStyle="light-content" backgroundColor="#242b5f" />
+      <NavigationContainer>
+      <Stack.Navigator initialRouteName="Splash">
+        <Stack.Screen 
+          name="Splash" 
+          component={SplashScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="Login" 
+          component={LoginScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="OTP" 
+          component={OTPScreen} 
+          options={{ headerShown: false }} 
+        />
         <Stack.Screen 
           name="Selector" 
           component={SelectorScreen} 
@@ -191,5 +198,6 @@ export default function App() {
         />
       </Stack.Navigator>
     </NavigationContainer>
+    </>
   );
 }

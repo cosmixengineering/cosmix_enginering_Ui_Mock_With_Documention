@@ -44,25 +44,25 @@ export default function OfficeDashboard({ navigation }) {
         {/* Quick Actions */}
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.actionsGrid}>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Requests')}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('OfficeRequests')}>
             <View style={[styles.actionIcon, { backgroundColor: '#e0e7ff' }]}>
               <Ionicons name="calendar-outline" size={24} color="#3730a3" />
             </View>
             <Text style={styles.actionText}>Req Leave</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Requests')}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('OfficeRequests')}>
             <View style={[styles.actionIcon, { backgroundColor: '#fef3c7' }]}>
               <Ionicons name="cash-outline" size={24} color="#b45309" />
             </View>
             <Text style={styles.actionText}>Advance</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Requests')}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('OfficeRequests')}>
             <View style={[styles.actionIcon, { backgroundColor: '#ecfdf5' }]}>
               <Ionicons name="wallet-outline" size={24} color="#047857" />
             </View>
             <Text style={styles.actionText}>Loan</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Finance')}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Attendance')}>
             <View style={[styles.actionIcon, { backgroundColor: '#f3f4f6' }]}>
               <Ionicons name="document-text-outline" size={24} color="#4b5563" />
             </View>

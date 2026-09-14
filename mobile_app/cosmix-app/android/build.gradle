@@ -18,4 +18,25 @@ buildscript {
     }
 }
 
+allprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            project.android {
+                defaultConfig {
+                    externalNativeBuild {
+                        cmake {
+                            arguments "-DANDROID_STL=c++_shared", "-DCMAKE_SHARED_LINKER_FLAGS=-lc++_shared -lstdc++", "-DCMAKE_MODULE_LINKER_FLAGS=-lc++_shared -lstdc++"
+                        }
+                    }
+                }
+                externalNativeBuild {
+                    cmake {
+                        buildStagingDirectory = file("C:/tmp/cxx/${project.name}")
+                    }
+                }
+            }
+        }
+    }
+}
+
 apply plugin: "com.facebook.react.rootproject"

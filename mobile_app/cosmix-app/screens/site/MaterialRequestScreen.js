@@ -55,7 +55,7 @@ export default function MaterialRequestScreen() {
           {/* Issue/Reason text */}
           <Text style={styles.label}>
             {requestType === 'new' ? 'Reason for Request' : 'Damage Details'}
-          </View>
+          </Text>
           <TextInput 
             style={styles.textArea} 
             multiline={true} 
