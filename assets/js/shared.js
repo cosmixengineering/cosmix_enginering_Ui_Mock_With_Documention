@@ -13,14 +13,14 @@ const renderLayout = (activePage) => {
         currentDeptId = matched ? matched[1].toLowerCase() : 'root';
     }
     const isSubfolder = pathNorm.includes('/hr/') || pathNorm.includes('/accounts/') || pathNorm.includes('/warehouse/');
-    const p = pathNorm.includes('/warehouse/') ? '../../' : isSubfolder ? '../' : './';
+    const p = isSubfolder ? '../' : './';
 
     const DEPARTMENTS = [
         { id: 'hr', name: 'Human Resources', badge: 'HR', icon: 'fas fa-users-cog', color: 'text-indigo-600', bg: 'bg-indigo-50', url: p + 'hr/index.html' },
         { id: 'accounts', name: 'Accounts & Finance', badge: 'Accounts', icon: 'fas fa-file-invoice-dollar', color: 'text-purple-600', bg: 'bg-purple-50', url: p + 'accounts/index.html' },
         { id: 'sales', name: 'Sales & CRM', badge: 'Sales', icon: 'fas fa-chart-line', color: 'text-emerald-600', bg: 'bg-emerald-50', url: p + 'sales/index.html' },
         { id: 'finance', name: 'Finance & Accounts', badge: 'Finance', icon: 'fas fa-calculator', color: 'text-purple-600', bg: 'bg-purple-50', url: p + 'accounts/index.html' },
-        { id: 'warehouse', name: 'Warehouse & Stock', badge: 'Stores', icon: 'fas fa-boxes', color: 'text-amber-600', bg: 'bg-amber-50', url: p + 'hr/warehouse/index.html' },
+        { id: 'warehouse', name: 'Warehouse & Stock', badge: 'Stores', icon: 'fas fa-boxes', color: 'text-amber-600', bg: 'bg-amber-50', url: p + 'warehouse/index.html' },
         { id: 'admin', name: 'Admin & Fleet', badge: 'Admin', icon: 'fas fa-building', color: 'text-blue-600', bg: 'bg-blue-50', url: p + 'admin/index.html' },
         { id: 'administrator', name: 'System Administrator', badge: 'SuperAdmin', icon: 'fas fa-user-shield', color: 'text-red-600', bg: 'bg-red-50', url: p + 'administrator/index.html' },
         { id: 'engineering', name: 'MEP Operations', badge: 'Engr', icon: 'fas fa-hard-hat', color: 'text-orange-600', bg: 'bg-orange-50', url: p + 'engineering/index.html' },
@@ -68,18 +68,18 @@ const renderLayout = (activePage) => {
                 <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-100 transition-opacity duration-300">STORES</span>
             </div>
             <nav class="space-y-1">
-                ${createNavLink(p + 'hr/warehouse/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
-                ${createNavLink(p + 'hr/warehouse/inventory.html', 'Master Inventory', 'fas fa-boxes-stacked', activePage === 'inventory', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '1,245' })}
-                ${createNavLink(p + 'hr/warehouse/inward.html', 'Inward (GRN)', 'fas fa-arrow-right-to-bracket', activePage === 'inward')}
-                ${createNavLink(p + 'hr/warehouse/outward.html', 'Outward (Dispatch)', 'fas fa-truck-ramp-box', activePage === 'outward', { bg: 'bg-red-50 border border-red-200', text: 'text-red-700', label: '12' })}
-                  ${createNavLink(p + 'hr/warehouse/equipment.html', 'Tools & Equipment', 'fas fa-tools', activePage === 'equipment', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Assign' })}
-                  ${createNavLink(p + 'hr/warehouse/history.html', 'Stock History & Ledger', 'fas fa-history', activePage === 'history')}
-                  ${createNavLink(p + 'hr/warehouse/vendors.html', 'Vendor Directory', 'fas fa-handshake', activePage === 'vendors')}
+                ${createNavLink(p + 'warehouse/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
+                ${createNavLink(p + 'warehouse/inventory.html', 'Master Inventory', 'fas fa-boxes-stacked', activePage === 'inventory', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '1,245' })}
+                ${createNavLink(p + 'warehouse/inward.html', 'Inward (GRN)', 'fas fa-arrow-right-to-bracket', activePage === 'inward')}
+                ${createNavLink(p + 'warehouse/outward.html', 'Outward (Dispatch)', 'fas fa-truck-ramp-box', activePage === 'outward', { bg: 'bg-red-50 border border-red-200', text: 'text-red-700', label: '12' })}
+                  ${createNavLink(p + 'warehouse/equipment.html', 'Tools & Equipment', 'fas fa-tools', activePage === 'equipment', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Assign' })}
+                  ${createNavLink(p + 'warehouse/history.html', 'Stock History & Ledger', 'fas fa-history', activePage === 'history')}
+                  ${createNavLink(p + 'warehouse/vendors.html', 'Vendor Directory', 'fas fa-handshake', activePage === 'vendors')}
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'hr/index.html', 'HR Operations Portal', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
                     ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Accounts' })}
-                    ${createNavLink(p + 'hr/warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
             </nav>
         </div>` : isAccounts ? `
@@ -99,7 +99,7 @@ const renderLayout = (activePage) => {
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'hr/index.html', 'HR Operations Portal', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
-                    ${createNavLink(p + 'hr/warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
             </nav>
         </div>
@@ -126,7 +126,7 @@ const renderLayout = (activePage) => {
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Accounts' })}
-                    ${createNavLink(p + 'hr/warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
             </nav>
         </div>
@@ -241,8 +241,8 @@ const renderLayout = (activePage) => {
                 <!-- Top Bar Quick Links -->
                 <div class="hidden xl:flex items-center gap-1">
                     ${isWarehouse ? `
-                        ${createTopBarLink(p + 'hr/warehouse/inward.html', 'fas fa-arrow-right-to-bracket', activePage === 'inward', 'Inward (Receive)')}
-                        ${createTopBarLink(p + 'hr/warehouse/outward.html', 'fas fa-truck-ramp-box', activePage === 'outward', 'Outward (Dispatch)')}
+                        ${createTopBarLink(p + 'warehouse/inward.html', 'fas fa-arrow-right-to-bracket', activePage === 'inward', 'Inward (Receive)')}
+                        ${createTopBarLink(p + 'warehouse/outward.html', 'fas fa-truck-ramp-box', activePage === 'outward', 'Outward (Dispatch)')}
                     ` : isAccounts ? `
                         ${createTopBarLink(p + 'accounts/invoices.html', 'fas fa-file-invoice-dollar', activePage === 'invoices', 'Invoices & Billing')}
                         ${createTopBarLink(p + 'accounts/purchases.html', 'fas fa-shopping-cart', activePage === 'purchases', 'Supply & Expenses')}
