@@ -31,14 +31,14 @@
                 { id: 'REQ-8888', site: 'Korangi Workshop', supervisor: 'Farhan Ali', date: '2026-09-09', needed: '2026-09-10', priority: 'Normal', reason: 'Workshop cable replacement.', checked: true, lines: [{ item: 'EL-001', qty: 20, allocated: 0, dispatched: 20 }], timeline: [{ text: 'Dispatched with company rider; awaiting site confirmation', time: '10 Sep 2026, 08:30' }] }
             ],
             purchases: [
-                { id: 'PUR-001', po: 'PO-2026-088', request: 'REQ-8880', vendor: 'Al-Fatah Hardware & Steels', site: 'Clifton Commercial Tower', purchaser: 'Bilal Ahmed  Company Purchaser', amount: 150000, date: '2026-09-01', expected: '2026-09-05', status: 'Delivered', lines: [{item: 'EL-001', qty: 100}, {item: 'SF-001', qty: 20}] },
-                { id: 'PUR-002', po: 'PO-2026-090', request: 'REQ-8885', vendor: 'Al-Fatah Hardware & Steels', site: 'Warehouse', purchaser: 'Ahmed Raza  Company Purchaser', amount: 45000, date: '2026-09-08', expected: '2026-09-12', status: 'Pending delivery', lines: [{item: 'TL-001', qty: 1}] },
-                { id: 'PUR-003', po: 'PO-2026-089', request: 'REQ-8890', vendor: 'Karachi HVAC Supplies', site: 'Warehouse', purchaser: 'Bilal Ahmed  Company Purchaser', amount: 211000, date: '2026-09-09', expected: '2026-09-11', status: 'Going for delivery', lines: [{item: 'HV-001', qty: 10}, {item: 'HV-003', qty: 40}] }
+                { id: 'PUR-001', po: 'PO-2026-088', request: 'REQ-8880', approver: 'Administrator', vendor: 'Al-Fatah Hardware & Steels', site: 'Clifton Commercial Tower', purchaser: 'Bilal Ahmed — Company Purchaser', amount: 150000, invoiceNo: 'AFH-INV-0268', invoiceDate: '2026-09-05', bill: { name: 'afh-invoice-0268.jpg', sample: true }, payment: 'Confirmed', date: '2026-09-01', expected: '2026-09-05', status: 'Delivered', lines: [{item: 'EL-001', qty: 100}, {item: 'SF-001', qty: 20}] },
+                { id: 'PUR-002', po: 'PO-2026-090', request: 'REQ-8885', approver: 'Administrator', vendor: 'Al-Fatah Hardware & Steels', site: 'Warehouse', purchaser: 'Ahmed Raza — Company Purchaser', amount: 45000, date: '2026-09-08', expected: '2026-09-12', status: 'Pending delivery', lines: [{item: 'TL-001', qty: 1}] },
+                { id: 'PUR-003', po: 'PO-2026-089', request: 'REQ-8890', approver: 'Director', vendor: 'Karachi HVAC Supplies', site: 'Warehouse', purchaser: 'Bilal Ahmed — Company Purchaser', amount: 211000, invoiceNo: 'KHS-INV-1089', invoiceDate: '2026-09-10', bill: { name: 'khs-invoice-1089.jpg', sample: true }, payment: 'Pending', date: '2026-09-09', expected: '2026-09-11', status: 'Going for delivery', lines: [{item: 'HV-001', qty: 10}, {item: 'HV-003', qty: 40}] }
             ],
             deliveries: [{ id: 'DEL-4200', request: 'REQ-8888', source: 'Warehouse', reference: 'MIS-4200', site: 'Korangi Workshop', receiver: 'Farhan Ali', rider: 'Nadeem — Company Driver', phone: '0300-0000002', date: '2026-09-10', status: 'OUT FOR DELIVERY', lines: [{ item: 'EL-001', qty: 20 }], remarks: 'Deliver to workshop store.', receipt: null }],
             inwards: [
                 { id: 'IN-0091', type: 'Vendor delivery', reference: 'PO-2026-089', vendor: 'Karachi HVAC Supplies', date: '2026-09-11', status: 'Pending receipt', lines: [{ item: 'HV-001', qty: 10, received: 0 }, { item: 'HV-003', qty: 40, received: 0 }] },
-                { id: 'IN-0085', type: 'Vendor delivery', reference: 'PO-2026-088', vendor: 'Al-Fatah Hardware & Steels', date: '2026-09-05', status: 'Received', lines: [{ item: 'EL-001', qty: 100, received: 100 }, { item: 'SF-001', qty: 20, received: 20 }] }
+                { id: 'IN-0085', type: 'Vendor delivery', reference: 'PO-2026-088', vendor: 'Al-Fatah Hardware & Steels', date: '2026-09-05', status: 'Received', lastGRN: 'GRN-0085', receipts: [{ id: 'GRN-0085', at: '05/09/2026, 14:20:00', receiver: 'Tariq Mehmood', externalReference: 'DC-AFH-088', reason: '', lines: [{ item: 'EL-001', good: 100, held: 0 }, { item: 'SF-001', good: 20, held: 0 }] }], lines: [{ item: 'EL-001', qty: 100, received: 100 }, { item: 'SF-001', qty: 20, received: 20 }] }
             ],
             assets: [{ id: 'TOOL-033', item: 'TL-002', serial: 'WM-250-033', person: 'Usman Tariq', site: 'Clifton Commercial Tower', issued: '2026-09-07', due: '2026-09-12', status: 'Assigned' }],
             issues: [{ id: 'DMG-009', type: 'Site damage report', site: 'Clifton Commercial Tower', reporter: 'Usman Tariq', item: 'TL-002', qty: 1, reason: 'Welding cable connector damaged during site work. Tool isolated for inspection.', photo: { name: 'welding-connector-damage.jpg', sample: true }, status: 'Open', asset: 'TOOL-033', date: '2026-09-10' }],
@@ -183,7 +183,10 @@
             assert(total > 0, 'Enter a physically received quantity.');
             if (input.lines.some(l => Number(l.held) > 0)) assert(input.reason.trim(), 'Enter a reason for holding damaged or rejected stock.');
             const reference = id('GRN');
+            const receivedLines = input.lines.map(l => ({ item: l.item, good: Number(l.good), held: Number(l.held) })).filter(l => l.good || l.held);
             input.lines.forEach(l => { const good = Number(l.good), held = Number(l.held); if (!good && !held) return; const line = receipt.lines.find(x => x.item === l.item); line.received = round(line.received + good + held); item(l.item).stock = round(item(l.item).stock + good); item(l.item).held = round(item(l.item).held + held); movement(l.item, good, held, receipt.type === 'Vendor delivery' ? 'Goods receipt' : 'Site / tool return', reference, input.receiver + ' · ' + input.reference + (held ? ' · Held: ' + input.reason : '')); });
+            receipt.receipts = receipt.receipts || [];
+            receipt.receipts.push({ id: reference, at: now(), receiver: input.receiver.trim(), externalReference: input.reference.trim(), reason: input.reason.trim(), lines: receivedLines });
             receipt.status = receipt.lines.every(l => l.received === l.qty) ? 'Received' : 'Partially received'; receipt.lastGRN = reference;
             if (receipt.asset && receipt.status === 'Received') data.assets.find(a => a.id === receipt.asset).status = input.lines.some(l => Number(l.held) > 0) ? 'Under inspection' : 'Returned';
             if (receipt.issue && receipt.status === 'Received') { const issue = data.issues.find(i => i.id === receipt.issue); issue.status = 'Resolved'; issue.resolution = 'Return physically received. ' + (input.lines.some(l => Number(l.held) > 0) ? 'Held for inspection.' : 'Accepted into available stock.'); }
@@ -203,7 +206,7 @@
                 data.inwards.unshift(inward); issue.returnRef = inward.id; issue.status = 'Return arranged';
                 if (issue.asset) data.assets.find(a => a.id === issue.asset).status = 'Return pending';
             } else issue.status = 'Resolved';
-            issue.resolution = action + ' · ' + note;
+            issue.resolution = action + ' · ' + note; issue.resolvedAt = now();
             if (delivery) { delivery.status = 'RESOLVED'; if (delivery.purchase) data.purchases.find(p => p.id === delivery.purchase).status = 'Resolved'; }
         }); },
         saveItem(input) { return transaction(() => {

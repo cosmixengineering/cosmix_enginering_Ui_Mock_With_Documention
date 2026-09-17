@@ -1,6 +1,6 @@
 # Cosmix Engineering — project context
 
-Last updated: 2026-09-10.
+Last updated: 2026-09-17.
 
 ## Purpose and team
 
@@ -8,7 +8,7 @@ Cosmix Engineering is a company in Pakistan. The project manager reports that de
 
 Current deliverable: reviewable HTML mockups. Management approval comes before production execution. Planned project duration is six months with a four-person team. The user is project manager; Codex assists as a senior development collaborator.
 
-HR and Accounts mockups have been prepared; Inventory is the current focus. Existing screen content is not automatically a confirmed company policy.
+HR, Accounts and Inventory mockups have been prepared. Sales discovery is now active. Existing screen content is not automatically a confirmed company policy.
 
 ## Confirmed mobile / web boundaries (latest clarification, 2026-09-10)
 
@@ -55,3 +55,23 @@ The user explicitly requested parallel sub-agent work for speed and wants clear 
 Refresh correction (2026-09-10): keep direct HTML startup resilient to denied browser storage. Shared sidebar preferences must never abort page rendering. The small shared.js guard is documented in Inventory_Workflows.md; this does not authorize changing HR/Accounts UI or workflows.
 
 Master-item update (2026-09-10): the user confirmed a preferred-vendor dropdown, a comprehensive unit-of-measure selector and selectable variation type/value controls. Save the active vendor ID. Variation rows retain unique code and per-unit price and add type plus selectable/common or custom specification values. Do not infer separate variation stock from this form metadata.
+
+Reports and documents update (2026-09-17): the client requested one compact Inventory page for operational reports and document-style records across Inventory work. Vendor bills are shown as financial invoices only when invoice evidence exists. Site requests, internal dispatches, purchase requests/orders, receiving, GRNs, damage reports, tool custody and site/tool returns use their correct non-financial notes, slips and receiving documents. A site/tool return is complete only after Inventory physically receives it; each warehouse receipt is retained in receipt history. The implemented page and open decisions are documented in inventory/documentation/Inventory_Workflows.md.
+
+## Sales discovery (confirmed 2026-09-17)
+
+- AUX produces the supplied Excel workbook as its selection/report export. The complete exported workbook is the known integration format; the exact AUX product/version and any API are still unconfirmed.
+- Staff manually enter commercial prices after selection. Their reference material includes a printed CEO-provided rate book for units, wires and other items. Some rates may be entered in USD and converted to PKR; the approved exchange-rate source and landed-cost formula remain open.
+- Boss/management decides profit, final discount and commercial approval. The system may calculate resulting profit/margin and variance, but must not invent or automatically choose the discount.
+- Boss/management also decides and approves model consolidation or substitution after AUX selection.
+- Freight, tax, duty, installation, overhead and profit do not follow one universal formula; their procedure can differ by item, category, supplier, project or deal. Sales costing therefore requires configurable cost components with manual override reasons and approval, not a single hard-coded percentage chain.
+- For market/non-catalogue items, the team obtains the best available vendor price and enters it. There is no fixed vendor-comparison count yet.
+- Rates may change at any time and tenders can be accepted months after submission. A submitted quotation must retain its original price snapshot. Expired or late-accepted offers require commercial revalidation and a new controlled revision rather than silently updating the old quotation.
+- Sales is the current department scope. Procurement has no panel yet; Sales may record pre-sale vendor rate enquiries and create a future procurement handoff after acceptance, but this does not authorize building the Procurement module now.
+- Sales/Inventory integration uses a shared product/model identity and availability lookup. Draft quotations do not reserve or reduce stock. Reservation or shortage purchasing starts only at the confirmed post-acceptance trigger, which still requires staff confirmation.
+- Post-acceptance values and requirements can move up or down. The accepted quotation remains an immutable commercial baseline; later scope, quantity, rate, tax, FX and actual-cost differences are recorded as approved change orders/revisions and departmental actuals instead of editing the accepted record.
+- Detailed evidence, workflow proposal and open decisions are recorded in `sales/documentation/Sales_Workflows.md`.
+- Deep Sales audit (2026-09-17): the direct-file mock now uses append-only quotation revisions, issue-gated selection validation, a frozen commercial approval snapshot, expired-quotation revalidation, item/specification-scoped vendor-rate selection, all 28 source costing rows, editable manual/PKR/USD line pricing, a full quotation detail page, and a Rate Book & Setup page. The HTML upload remains file-metadata simulation for the known reference mapping; it is not a generic AUX parser or retained file store. Remaining production/open requirements are listed in `sales/documentation/Sales_Workflows.md`.
+- Cassette pricing clarification (2026-09-17): the Rs. 33,000 visible beside the cassette unit calculations is the per-unit cassette grille add-on. The workbook totals Rs. 207,900 as Rs. 174,900 + Rs. 33,000 and Rs. 223,740 as Rs. 190,740 + Rs. 33,000. Show the breakdown without double-counting it. Separate Inventory SKU treatment remains to be confirmed.
+- Manual quotation builder (2026-09-17): Sales has an Excel-style draft page with category/model search and one package row per selected equipment model. Base unit, linked cassette grille, remote/controller and the explicitly selected Y-joint are columns within the same row, each with quantity and price; the Y-joint is never added as a separate automatic line. The worksheet is wide/tall with its own horizontal and vertical scrolling, actions sit below it, and output includes totals, local draft save, `.xlsx` export with fallback and A4 landscape print. The exact Y-joint compatibility formula remains unconfirmed and must not be auto-inferred.
+- Sales catalogue update (2026-09-17): `sales/catalog.html` is the master-data mockup behind Manual Quotation search. It supports searchable product listing, manual add/edit, active/inactive control, CSV template download, Excel/CSV import, duplicate-model updates and optional controller/grille mappings. Active browser-local catalogue records appear immediately in Manual Quotation; this is not a production database or server upload.

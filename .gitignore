@@ -1,0 +1,19 @@
+# Local analysis and one-off workspace helpers
+/tmp/
+/temp_scratch.txt
+/check_*.js
+/read_*.js
+/update_*.js
+/fix_*.js
+/split_*.js
+/convert_*.js
+/find_*.js
+/test_*_page.js
+/add_mock_data.js
+/add_tools.js
+
+# React Native local bundle output
+/mobile_app/cosmix-app/android/app/src/main/assets/index.android.bundle
+/mobile_app/cosmix-app/android/app/src/main/res/drawable-*/node_modules_*.png
+/mobile_app/cosmix-app/android/app/src/main/res/drawable-*/src_assets_*.png
+/mobile_app/cosmix-app/android/app/src/main/res/raw/keep.xml

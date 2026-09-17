@@ -36,12 +36,41 @@
             display: inline-block;
             border-radius: 4px;
         }
-        @keyframes highlightPulse {
-            0% { background-color: rgba(34, 197, 94, 0.3); transform: scale(1.02); }
-            100% { background-color: transparent; transform: scale(1); }
+        .finance-command {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 14px;
         }
-        .highlight-updated {
-            animation: highlightPulse 2s ease-out;
+        .finance-kpi {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 11px 12px;
+            min-height: 92px;
+        }
+        .finance-kpi-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #242b5f;
+            background: #f1f3f8;
+        }
+        .finance-kpi-value {
+            color: #172033;
+            font-size: 18px;
+            line-height: 1.25;
+            font-weight: 750;
+            letter-spacing: -0.02em;
+        }
+        .site-ledger {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -58,116 +87,104 @@
                 <!-- VIEW 1: MASTER LIST VIEW (TABLE, KPIS & SITE EXPENSE LEDGER) -->
                 <div id="purchases-list-view" class="space-y-4">
                 
-                <!-- Header: Top Sub-nav Switcher & Quick Actions -->
-                <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl shadow-xs border border-gray-100">
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-sm font-bold text-gray-800">Field Supply Purchases, Site Expense Invoicing & Bill Slips</h2>
-                            <span id="pending-badge-header" class="bg-amber-50 text-amber-800 text-[9px] font-bold px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> 3 Purchased with Slip (Awaiting Invoicing)
-                            </span>
-                        </div>
-                        <p class="text-[10.5px] text-gray-400 mt-0.5">
-                            Purchasing team buys items & submits slips with "Purchased Done". Accounts inspects attached slips and generates official Expense Invoices posted to Today's Expense & Site Ledgers.
-                        </p>
-                    </div>
-
-                    <!-- Module Switcher & Primary Actions -->
-                    <div class="flex flex-wrap items-center gap-2">
-                        <div class="flex items-center bg-gray-100 p-0.5 rounded-lg text-xs font-bold">
-                            <a href="invoices.html" class="px-2.5 py-1 rounded-md text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5">
-                                <i class="fas fa-file-invoice text-purple-600"></i> Client Billing (IPCs)
-                            </a>
-                            <span class="px-2.5 py-1 rounded-md bg-white text-[#242b5f] shadow-2xs flex items-center gap-1.5">
-                                <i class="fas fa-truck-loading text-amber-600"></i> Supply & Expenses
-                            </span>
-                        </div>
-
-                        <!-- Button to simulate incoming field purchase with pre-attached slip -->
-                        <button onclick="openIncomingFieldPurchaseModal()" class="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-xs transition flex items-center gap-1.5" title="Receive purchase made by site staff with attached slip">
-                            <i class="fas fa-receipt text-amber-200"></i> + Receive Field Purchase Slip ("Purchased Done")
-                        </button>
-                        
-                        <button onclick="exportToExcel('Cosmix_Site_Expenses_Register')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-2xs transition flex items-center gap-1.5">
-                            <i class="fas fa-file-excel text-green-600"></i> Export Register
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 4 Top KPI Financial Summary Cards (With Today's Expense & Site Calculations) -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    
-                    <!-- KPI 1: TODAY'S EXPENSE (AAJ KA KHARCHA) - LIVE UPDATING -->
-                    <div class="bg-gradient-to-br from-emerald-50/80 to-white p-3 rounded-xl border border-emerald-200 shadow-xs relative overflow-hidden">
-                        <div class="flex items-center justify-between">
-                            <p class="text-[9px] text-emerald-800 font-bold uppercase tracking-wider flex items-center gap-1">
-                                <i class="fas fa-calendar-day text-emerald-600"></i> Today's Incurred Expense (Aaj Ka Kharcha)
-                            </p>
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                        </div>
-                        <h4 id="kpi-today-expense" class="text-xl font-extrabold text-emerald-800 mt-1 font-mono transition-all duration-300">
-                            Rs. 251,450
-                        </h4>
-                        <div class="flex items-center justify-between text-[9px] mt-1 pt-1 border-t border-emerald-100">
-                            <span id="kpi-today-count" class="text-emerald-700 font-bold">1 Expense Invoice Added Today</span>
-                            <span class="text-gray-400 font-mono">28 Sep 2026</span>
-                        </div>
-                    </div>
-
-                    <!-- KPI 2: Incoming Queue (Purchased Done with Slip - Awaiting Invoicing) -->
-                    <div class="bg-white p-3 rounded-xl border border-amber-200 shadow-xs">
-                        <div class="flex items-center justify-between">
-                            <p class="text-[9px] text-amber-800 font-bold uppercase tracking-wider">Awaiting Accounts Invoicing</p>
-                            <span class="bg-amber-100 text-amber-800 text-[8.5px] font-bold px-1.5 py-0.2 rounded">Field Slips</span>
-                        </div>
-                        <h4 id="kpi-pending-count" class="text-xl font-extrabold text-amber-600 mt-1">
-                            3 Purchases <span id="kpi-pending-amt" class="text-xs font-normal text-gray-500 font-mono">(Rs. 1,085,420)</span>
-                        </h4>
-                        <p class="text-[9px] text-amber-700 font-semibold mt-1 flex items-center gap-1">
-                            <i class="fas fa-clock text-amber-500"></i> Slips Attached • Click "Generate Invoice"
-                        </p>
-                    </div>
-
-                    <!-- KPI 3: Total Project Sites Expenses (Calculated) -->
-                    <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-xs">
-                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Project Sites Expense (YTD)</p>
-                        <h4 id="kpi-total-expenses" class="text-xl font-extrabold text-gray-900 mt-1 font-mono">
-                            Rs. 24,180,000
-                        </h4>
-                        <p class="text-[9px] text-indigo-600 font-semibold mt-1"><i class="fas fa-chart-pie mr-0.5"></i> Live Accumulated across 7 Sites</p>
-                    </div>
-
-                    <!-- KPI 4: Paid & Settled (Disbursed) -->
-                    <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-xs">
-                        <p class="text-[9px] text-[#242b5f] font-bold uppercase tracking-wider">Disbursed Payments (Meezan/Cash)</p>
-                        <h4 class="text-xl font-extrabold text-[#242b5f] mt-1 font-mono">
-                            Rs. 6,150,000
-                        </h4>
-                        <p class="text-[9px] text-blue-600 font-medium mt-1">Via Bank Advice & Site Imprest</p>
-                    </div>
-                </div>
-
-                <!-- PROJECT SITE EXPENSE CALCULATED LEDGER BAR (DYNAMIC LIVE UPDATES) -->
-                <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-100">
-                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2 mb-2">
-                        <div class="flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-lg bg-indigo-50 text-[#242b5f] flex items-center justify-center text-xs font-bold">
-                                <i class="fas fa-building"></i>
-                            </span>
-                            <div>
-                                <h3 class="text-xs font-bold text-gray-900">Project Site Expense Breakdown (Calculated Live)</h3>
-                                <p class="text-[10px] text-gray-400">Jab bhi Accounts invoice banata hai, us specific site ka kharcha yahan live calculate ho jata hai.</p>
+                <!-- Accounts command bar -->
+                <section class="finance-command">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="text-[9px] font-bold uppercase tracking-[0.12em] text-gray-400">Accounts Payable · Field Procurement</p>
+                            <div class="flex flex-wrap items-center gap-2 mt-0.5">
+                                <h2 class="text-[15px] font-bold text-[#172033]">Site Purchases & Expense Control</h2>
+                                <span id="pending-badge-header" class="inline-flex items-center gap-1.5 rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-[9px] font-semibold text-amber-800">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> 3 slips awaiting invoice
+                                </span>
                             </div>
+                            <p class="mt-1 text-[10px] text-gray-500">Review field purchase slips, create expense invoices and monitor site spending.</p>
                         </div>
-                        <span class="text-[10px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-200">
-                            Click any site to filter table
-                        </span>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="flex items-center rounded-md border border-gray-200 bg-gray-50 p-0.5 text-[10px] font-semibold">
+                                <a href="invoices.html" class="flex items-center gap-1.5 rounded px-2.5 py-1.5 text-gray-500 hover:bg-white hover:text-gray-800">
+                                    <i class="fas fa-file-invoice"></i> Client Billing
+                                </a>
+                                <span class="flex items-center gap-1.5 rounded bg-white px-2.5 py-1.5 text-[#242b5f] shadow-sm">
+                                    <i class="fas fa-receipt"></i> Supply Expenses
+                                </span>
+                            </div>
+                            <button onclick="exportToExcel('Cosmix_Site_Expenses_Register')" class="flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-gray-600 hover:bg-gray-50">
+                                <i class="fas fa-file-export"></i> Export
+                            </button>
+                            <button onclick="openIncomingFieldPurchaseModal()" class="flex items-center gap-1.5 rounded-md bg-[#242b5f] px-3 py-1.5 text-[10px] font-semibold text-white hover:bg-[#303978]" title="Receive a completed field purchase slip">
+                                <i class="fas fa-plus"></i> Receive purchase slip
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Financial summary -->
+                <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="finance-kpi">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Expense posted today</p>
+                                <h4 id="kpi-today-expense" class="finance-kpi-value mt-1.5 font-mono">Rs. 251,450</h4>
+                            </div>
+                            <span class="finance-kpi-icon"><i class="fas fa-calendar-check"></i></span>
+                        </div>
+                        <div class="mt-2 flex items-center justify-between border-t border-gray-100 pt-1.5 text-[9px] text-gray-500">
+                            <span id="kpi-today-count">1 expense invoice</span>
+                            <span class="font-mono">28 Sep 2026</span>
+                        </div>
                     </div>
 
-                    <div id="site-expense-pills" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                    <div class="finance-kpi">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Awaiting invoice</p>
+                                <h4 id="kpi-pending-count" class="finance-kpi-value mt-1.5">
+                                    3 purchases <span id="kpi-pending-amt" class="block text-[10px] font-medium text-gray-500 font-mono">Rs. 1,085,420</span>
+                                </h4>
+                            </div>
+                            <span class="finance-kpi-icon"><i class="fas fa-inbox"></i></span>
+                        </div>
+                        <p class="mt-2 border-t border-gray-100 pt-1.5 text-[9px] text-gray-500">Completed slips pending Accounts review</p>
+                    </div>
+
+                    <div class="finance-kpi">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Site expenses · YTD</p>
+                                <h4 id="kpi-total-expenses" class="finance-kpi-value mt-1.5 font-mono">Rs. 24,180,000</h4>
+                            </div>
+                            <span class="finance-kpi-icon"><i class="fas fa-chart-column"></i></span>
+                        </div>
+                        <p class="mt-2 border-t border-gray-100 pt-1.5 text-[9px] text-gray-500">Accumulated across 7 active sites</p>
+                    </div>
+
+                    <div class="finance-kpi">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Payments disbursed</p>
+                                <h4 class="finance-kpi-value mt-1.5 font-mono">Rs. 6,150,000</h4>
+                            </div>
+                            <span class="finance-kpi-icon"><i class="fas fa-building-columns"></i></span>
+                        </div>
+                        <p class="mt-2 border-t border-gray-100 pt-1.5 text-[9px] text-gray-500">Bank advice and site imprest</p>
+                    </div>
+                </section>
+
+                <!-- Project site expense ledger -->
+                <section class="site-ledger">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 px-3 py-2.5">
+                        <div>
+                            <h3 class="text-[11px] font-bold text-[#172033]">Expense by project site</h3>
+                            <p class="mt-0.5 text-[9px] text-gray-500">Posted expense invoices grouped by site.</p>
+                        </div>
+                        <span class="text-[9px] font-medium text-gray-400">Select a site to filter the register</span>
+                    </div>
+                    <div id="site-expense-pills" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 divide-x divide-gray-100">
                         <!-- Populated by JavaScript -->
                     </div>
-                </div>
+                </section>
 
                 <!-- Filter Tabs & Multi-Criteria Navigation Toolbar -->
                 <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-100 space-y-2.5">
@@ -966,11 +983,11 @@
 
             const pendingCountEl = document.getElementById('kpi-pending-count');
             if (pendingCountEl) {
-                pendingCountEl.innerHTML = `${pendingItems.length} Purchases <span id="kpi-pending-amt" class="text-xs font-normal text-gray-500 font-mono">(Rs. ${pendingTotal.toLocaleString()})</span>`;
+                pendingCountEl.innerHTML = `${pendingItems.length} purchases <span id="kpi-pending-amt" class="block text-[10px] font-medium text-gray-500 font-mono">Rs. ${pendingTotal.toLocaleString()}</span>`;
             }
             const pendingBadgeHeader = document.getElementById('pending-badge-header');
             if (pendingBadgeHeader) {
-                pendingBadgeHeader.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> ${pendingItems.length} Purchased with Slip (Awaiting Invoicing)`;
+                pendingBadgeHeader.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> ${pendingItems.length} slip${pendingItems.length === 1 ? '' : 's'} awaiting invoice`;
             }
 
             // Tab counts
@@ -1008,19 +1025,11 @@
                 const isHighlighted = highlightSite && site.toLowerCase().includes(highlightSite.toLowerCase());
 
                 return `
-                    <div onclick="filterBySitePill('${shortName}')" class="cursor-pointer p-2 rounded-lg border transition ${isHighlighted ? 'bg-emerald-50 border-emerald-400 ring-2 ring-emerald-300' : 'bg-gray-50/70 hover:bg-indigo-50/50 border-gray-200'}">
-                        <div class="flex items-center justify-between text-[8.5px] font-bold text-gray-500 uppercase">
-                            <span class="truncate">${shortName}</span>
-                            <span class="text-red-600 font-semibold">${city}</span>
-                        </div>
-                        <div class="font-extrabold text-gray-900 font-mono text-xs mt-1">
-                            Rs. ${(amount / 1000000).toFixed(2)}M
-                        </div>
-                        <div class="text-[8px] text-gray-400 mt-0.5 flex items-center justify-between">
-                            <span>Calculated</span>
-                            <i class="fas fa-chevron-right text-[7px] text-gray-300"></i>
-                        </div>
-                    </div>
+                    <button type="button" onclick="filterBySitePill('${shortName}')" class="min-w-0 px-3 py-2.5 text-left transition ${isHighlighted ? 'bg-indigo-50 shadow-[inset_0_-2px_0_#242b5f]' : 'bg-white hover:bg-gray-50'}">
+                        <span class="block truncate text-[9px] font-semibold uppercase tracking-wide text-gray-500">${shortName}</span>
+                        <strong class="mt-1 block font-mono text-[12px] font-bold text-[#172033]">Rs. ${(amount / 1000000).toFixed(2)}M</strong>
+                        <span class="mt-0.5 block truncate text-[8px] text-gray-400">${city || 'Project site'}</span>
+                    </button>
                 `;
             }).join('');
         };

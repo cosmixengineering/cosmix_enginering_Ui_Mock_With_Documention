@@ -24,6 +24,42 @@
             display: inline-block;
             border-radius: 4px;
         }
+        .finance-command {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .finance-kpi {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 11px 12px;
+            min-height: 92px;
+        }
+        .finance-kpi-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #242b5f;
+            background: #f1f3f8;
+        }
+        .finance-kpi-value {
+            color: #172033;
+            font-size: 18px;
+            line-height: 1.25;
+            font-weight: 750;
+            letter-spacing: -0.02em;
+        }
+        .invoice-register-toolbar {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 9px 11px;
+        }
     </style>
 </head>
 <body class="text-gray-800 bg-[#f8fafc]">
@@ -41,79 +77,98 @@
                 <!-- ========================================================================= -->
                 <div id="invoices-list-view" class="space-y-4">
                     
-                    <!-- Header: Invoicing Operations & Quick Actions -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl shadow-xs border border-gray-100">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-sm font-bold text-gray-800">Project Billing & Milestone IPCs (Interim Payment Certificates)</h2>
-                                <span class="bg-purple-50 text-purple-700 text-[9px] font-bold px-2 py-0.5 rounded-full border border-purple-200">
-                                    SRB / PRA / KPRA / FBR Tax Engine
-                                </span>
-                            </div>
-                            <p class="text-[10.5px] text-gray-400 mt-0.5">Generate client tax invoices, site milestone payment certificates, retention tracking, and sales tax registers.</p>
-                        </div>
-
-                        <div class="flex flex-wrap items-center gap-2">
-                            <div class="flex items-center bg-gray-100 p-0.5 rounded-lg text-xs font-bold">
-                                <span class="px-2.5 py-1 rounded-md bg-white text-[#242b5f] shadow-2xs flex items-center gap-1.5">
-                                    <i class="fas fa-file-invoice text-purple-600"></i> Client Billing (IPCs)
-                                </span>
-                                <a href="purchases.html" class="px-2.5 py-1 rounded-md text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5">
-                                    <i class="fas fa-truck-loading text-amber-600"></i> Supply & Expenses (Payables)
-                                </a>
+                    <!-- Accounts receivable command bar -->
+                    <section class="finance-command">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-[9px] font-bold uppercase tracking-[0.12em] text-gray-400">Accounts Receivable · Project Billing</p>
+                                <div class="mt-0.5 flex flex-wrap items-center gap-2">
+                                    <h2 class="text-[15px] font-bold text-[#172033]">Client Billing & Project IPCs</h2>
+                                    <span class="rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-[9px] font-semibold text-gray-600">SRB · PRA · KPRA · FBR</span>
+                                </div>
+                                <p class="mt-1 text-[10px] text-gray-500">Issue client invoices, track milestone certificates, receivables and retention.</p>
                             </div>
 
-                            <!-- Big Form Trigger: Opens Full-Page View (Just like Add Employee) -->
-                            <button onclick="showCreateInvoiceForm()" class="bg-[#242b5f] hover:bg-opacity-90 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5">
-                                <i class="fas fa-plus-circle text-amber-300"></i> + Create New Invoice / IPC
-                            </button>
-                            <button onclick="exportToExcel('Cosmix_Full_Invoice_Register')" class="bg-white border border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-2xs transition flex items-center gap-1.5">
-                                <i class="fas fa-file-excel text-green-600"></i> Export Tax Register
-                            </button>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="flex items-center rounded-md border border-gray-200 bg-gray-50 p-0.5 text-[10px] font-semibold">
+                                    <span class="flex items-center gap-1.5 rounded bg-white px-2.5 py-1.5 text-[#242b5f] shadow-sm">
+                                        <i class="fas fa-file-invoice"></i> Client Billing
+                                    </span>
+                                    <a href="purchases.html" class="flex items-center gap-1.5 rounded px-2.5 py-1.5 text-gray-500 hover:bg-white hover:text-gray-800">
+                                        <i class="fas fa-receipt"></i> Supply Expenses
+                                    </a>
+                                </div>
+                                <button onclick="exportToExcel('Cosmix_Full_Invoice_Register')" class="flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-gray-600 hover:bg-gray-50">
+                                    <i class="fas fa-file-export"></i> Export
+                                </button>
+                                <button onclick="showCreateInvoiceForm()" class="flex items-center gap-1.5 rounded-md bg-[#242b5f] px-3 py-1.5 text-[10px] font-semibold text-white hover:bg-[#303978]">
+                                    <i class="fas fa-plus"></i> New invoice / IPC
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <!-- 4 Financial Summary Stat Cards -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-xs">
-                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Billed (YTD)</p>
-                            <h4 id="stat-total-billed" class="text-lg font-extrabold text-gray-900 mt-0.5">Rs. 48,650,000</h4>
-                            <p class="text-[9px] text-emerald-600 font-semibold mt-1"><i class="fas fa-check-circle mr-0.5"></i> <span id="stat-ipc-count">24</span> Project Milestone IPCs</p>
+                    <!-- Financial summary -->
+                    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="finance-kpi">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Total billed · YTD</p>
+                                    <h4 id="stat-total-billed" class="finance-kpi-value mt-1.5 font-mono">Rs. 48,650,000</h4>
+                                </div>
+                                <span class="finance-kpi-icon"><i class="fas fa-file-invoice-dollar"></i></span>
+                            </div>
+                            <p class="mt-2 border-t border-gray-100 pt-1.5 text-[9px] text-gray-500"><span id="stat-ipc-count">24</span> project billing records</p>
                         </div>
-                        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-xs">
-                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Realized / Cleared</p>
-                            <h4 class="text-lg font-extrabold text-emerald-700 mt-0.5">Rs. 34,370,000</h4>
-                            <p class="text-[9px] text-gray-400 mt-1">Deposited into Meezan & HBL</p>
+                        <div class="finance-kpi">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Realized / cleared</p>
+                                    <h4 class="finance-kpi-value mt-1.5 font-mono">Rs. 34,370,000</h4>
+                                </div>
+                                <span class="finance-kpi-icon"><i class="fas fa-circle-check"></i></span>
+                            </div>
+                            <p class="mt-2 border-t border-gray-100 pt-1.5 text-[9px] text-gray-500">Received through company bank accounts</p>
                         </div>
-                        <div class="bg-white p-3 rounded-xl border border-amber-100 shadow-xs">
-                            <p class="text-[9px] text-amber-700 font-bold uppercase tracking-wider">Outstanding Receivables</p>
-                            <h4 id="stat-receivables" class="text-lg font-extrabold text-amber-600 mt-0.5">Rs. 14,280,000</h4>
-                            <p class="text-[9px] text-amber-700 font-semibold mt-1"><i class="fas fa-clock mr-0.5"></i> 8 IPCs under consultant audit</p>
+                        <div class="finance-kpi">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Outstanding receivables</p>
+                                    <h4 id="stat-receivables" class="finance-kpi-value mt-1.5 font-mono">Rs. 14,280,000</h4>
+                                </div>
+                                <span class="finance-kpi-icon"><i class="fas fa-clock"></i></span>
+                            </div>
+                            <p class="mt-2 border-t border-gray-100 pt-1.5 text-[9px] text-gray-500">8 IPCs under consultant review</p>
                         </div>
-                        <div class="bg-white p-3 rounded-xl border border-purple-100 shadow-xs">
-                            <p class="text-[9px] text-purple-700 font-bold uppercase tracking-wider">Client Retention Money (5%)</p>
-                            <h4 class="text-lg font-extrabold text-purple-700 mt-0.5">Rs. 2,432,500</h4>
-                            <p class="text-[9px] text-gray-400 mt-1">Releasable on Defect Liability</p>
+                        <div class="finance-kpi">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Retention held · 5%</p>
+                                    <h4 class="finance-kpi-value mt-1.5 font-mono">Rs. 2,432,500</h4>
+                                </div>
+                                <span class="finance-kpi-icon"><i class="fas fa-shield-halved"></i></span>
+                            </div>
+                            <p class="mt-2 border-t border-gray-100 pt-1.5 text-[9px] text-gray-500">Release subject to defect liability terms</p>
                         </div>
-                    </div>
+                    </section>
 
-                    <!-- Filters & Category Navigation Bar -->
-                    <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-100 flex flex-wrap items-center justify-between gap-3">
+                    <!-- Invoice register controls -->
+                    <section class="invoice-register-toolbar flex flex-wrap items-center justify-between gap-3">
                         <!-- Tab Buttons -->
                         <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                            <button onclick="filterInvoiceTab('all', this)" class="invoice-tab-btn px-3 py-1 text-xs font-bold rounded-lg bg-[#242b5f] text-white shadow-2xs transition">All Invoices (24)</button>
-                            <button onclick="filterInvoiceTab('ipc', this)" class="invoice-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition">Site IPCs (14)</button>
-                            <button onclick="filterInvoiceTab('commercial', this)" class="invoice-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition">Tax Invoices (6)</button>
-                            <button onclick="filterInvoiceTab('advance', this)" class="invoice-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition">Mobilization Advance (4)</button>
+                            <button onclick="filterInvoiceTab('all', this)" class="invoice-tab-btn rounded-md bg-[#242b5f] px-3 py-1.5 text-[10px] font-semibold text-white shadow-2xs transition">All invoices (24)</button>
+                            <button onclick="filterInvoiceTab('ipc', this)" class="invoice-tab-btn rounded-md px-3 py-1.5 text-[10px] font-semibold text-gray-600 hover:bg-gray-100 transition">Site IPCs (14)</button>
+                            <button onclick="filterInvoiceTab('commercial', this)" class="invoice-tab-btn rounded-md px-3 py-1.5 text-[10px] font-semibold text-gray-600 hover:bg-gray-100 transition">Tax invoices (6)</button>
+                            <button onclick="filterInvoiceTab('advance', this)" class="invoice-tab-btn rounded-md px-3 py-1.5 text-[10px] font-semibold text-gray-600 hover:bg-gray-100 transition">Mobilization advance (4)</button>
                         </div>
 
                         <!-- Search and Client Filter -->
                         <div class="flex items-center gap-2">
                             <div class="relative">
                                 <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
-                                <input id="invoice-search" type="text" oninput="filterInvoicesTable()" placeholder="Search invoice #, client, site..." class="bg-gray-50 border border-gray-200 text-xs rounded-md pl-7 pr-3 py-1 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#242b5f] w-52">
+                                <input id="invoice-search" type="text" oninput="filterInvoicesTable()" placeholder="Search invoice, client or site" class="bg-gray-50 border border-gray-200 text-[10px] rounded-md pl-7 pr-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#242b5f] w-56">
                             </div>
-                            <select id="client-select-filter" onchange="filterInvoicesTable()" class="bg-gray-50 border border-gray-200 text-xs rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
+                            <select id="client-select-filter" onchange="filterInvoicesTable()" class="bg-gray-50 border border-gray-200 text-[10px] rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
                                 <option value="">All Clients</option>
                                 <option value="Lucky Landmark">Lucky Landmark (Pvt) Ltd</option>
                                 <option value="Packages Real Estate">Packages Real Estate Ltd</option>
@@ -123,7 +178,7 @@
                                 <option value="Bahria Town">Bahria Town Civic Center</option>
                             </select>
                         </div>
-                    </div>
+                    </section>
 
                     <!-- Master Invoices & IPCs Data Table -->
                     <div class="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
