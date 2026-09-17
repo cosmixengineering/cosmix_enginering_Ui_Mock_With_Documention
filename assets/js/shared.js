@@ -794,16 +794,16 @@ const renderLayout = (activePage) => {
     const updateSidebarState = () => {
         if (isCollapsed) {
             sidebar.classList.remove('w-[215px]', 'w-[185px]');
-            sidebar.classList.add('w-[64px]');
+            sidebar.classList.add('w-[64px]', 'overflow-x-hidden');
             logoImg.classList.add('opacity-0', 'w-0', 'hidden');
-            menuLabel.classList.add('opacity-0', 'h-0', 'overflow-hidden', 'mb-0');
-            menuTexts.forEach(el => el.classList.add('opacity-0', 'w-0', 'hidden'));
+            if(menuLabel) menuLabel.classList.add('opacity-0', 'h-0', 'overflow-hidden', 'mb-0');
+            document.querySelectorAll('.menu-text').forEach(el => el.classList.add('opacity-0', 'w-0', 'hidden'));
         } else {
-            sidebar.classList.remove('w-[64px]');
+            sidebar.classList.remove('w-[64px]', 'overflow-x-hidden');
             sidebar.classList.add('w-[215px]');
             logoImg.classList.remove('opacity-0', 'w-0', 'hidden');
-            menuLabel.classList.remove('opacity-0', 'h-0', 'overflow-hidden', 'mb-0');
-            menuTexts.forEach(el => el.classList.remove('opacity-0', 'w-0', 'hidden'));
+            if(menuLabel) menuLabel.classList.remove('opacity-0', 'h-0', 'overflow-hidden', 'mb-0');
+            document.querySelectorAll('.menu-text').forEach(el => el.classList.remove('opacity-0', 'w-0', 'hidden'));
         }
     };
 
