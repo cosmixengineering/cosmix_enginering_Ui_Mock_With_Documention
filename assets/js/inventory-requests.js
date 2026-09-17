@@ -15,10 +15,10 @@
         return '<tr data-record data-status="' + h(status) + '" data-search="' + h([r.id, r.site, r.supervisor, r.priority, itemNames].join(' ')) + '">' +
             cell('<a href="' + href('request-detail', r.id) + '">' + h(r.id) + '</a><span class="sub">' + h(r.date) + '</span>') +
             cell('<strong>' + h(r.site) + '</strong><span class="sub">' + h(r.supervisor) + ' · Mobile request</span>', 'wrap') +
-            cell(r.lines.map(l => h(S.item(l.item).name) + ' <strong>' + n(l.qty) + '</strong> <small>' + h(S.item(l.item).unit) + '</small>').join('<br>'), 'wrap') +
+            cell('<strong>' + r.lines.length + '</strong> distinct item' + (r.lines.length === 1 ? '' : 's')) +
             cell(h(r.needed) + '<span class="sub">' + h(r.priority) + '</span>') +
             cell(I.badge(status)) +
-            cell(I.link('Review request', href('request-detail', r.id))) + '</tr>';
+            cell(I.link('Review detail', href('request-detail', r.id))) + '</tr>';
     });
 
     I.pages.outward = () => {
