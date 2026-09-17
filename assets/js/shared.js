@@ -12,7 +12,7 @@ const renderLayout = (activePage) => {
         const matched = pathNorm.match(/\/(sales|admin|administrator|engineering|procurement)(\/|$)/i);
         currentDeptId = matched ? matched[1].toLowerCase() : 'root';
     }
-    const isSubfolder = pathNorm.includes('/hr/') || pathNorm.includes('/accounts/') || pathNorm.includes('/warehouse/');
+    const isSubfolder = pathNorm.includes('/hr/') || pathNorm.includes('/accounts/') || pathNorm.includes('/warehouse/') || pathNorm.includes('/sales/');
     const p = isSubfolder ? '../' : './';
 
     const DEPARTMENTS = [
@@ -28,6 +28,7 @@ const renderLayout = (activePage) => {
     ];
     const isAccounts = (currentDeptId === 'accounts' || currentDeptId === 'finance');
     const isWarehouse = (currentDeptId === 'warehouse' || currentDeptId === 'inventory');
+    const isSales = currentDeptId === 'sales';
     const currentDept = DEPARTMENTS.find(d => d.id === currentDeptId) || (isAccounts ? DEPARTMENTS[1] : DEPARTMENTS[0]);
 
     // Ensure Font Awesome is always loaded across all pages
@@ -95,11 +96,31 @@ const renderLayout = (activePage) => {
                 ${createNavLink(p + 'accounts/payroll.html', 'Payroll Disbursement', 'fas fa-money-check-alt', activePage === 'payroll', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Sep 26' })}
                 ${createNavLink(p + 'accounts/attendance.html', 'Attendance & Roster', 'fas fa-user-clock', activePage === 'attendance', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Audit' })}
                 ${createNavLink(p + 'accounts/workers.html', 'Worker Profiles', 'fas fa-id-badge', activePage === 'workers' || activePage === 'employee')}
-                ${createNavLink(p + 'accounts/banking.html', 'Banking & Cash Flow', 'fas fa-university', activePage === 'banking')}
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'hr/index.html', 'HR Operations Portal', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
                     ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
+                </div>
+            </nav>
+        </div>
+    ` : isSales ? `
+        <div>
+            <div class="flex items-center justify-between px-2 mb-2">
+                <p id="menu-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider transition-opacity duration-300">Sales & Estimation</p>
+                <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 transition-opacity duration-300">SALES</span>
+            </div>
+            <nav class="space-y-1">
+                ${createNavLink(p + 'sales/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
+                ${createNavLink(p + 'sales/inquiries.html', 'Inquiries & Tenders', 'fas fa-inbox', activePage === 'inquiries', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: '6' })}
+                ${createNavLink(p + 'sales/selection.html', 'Technical Selection', 'fas fa-snowflake', activePage === 'selection', { bg: 'bg-cyan-50 border border-cyan-200', text: 'text-cyan-700', label: 'AUX' })}
+                ${createNavLink(p + 'sales/costing.html', 'BOQ & Costing', 'fas fa-calculator', activePage === 'costing', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '3' })}
+                ${createNavLink(p + 'sales/rates.html', 'Vendor Rate Enquiries', 'fas fa-tags', activePage === 'rates', { bg: 'bg-rose-50 border border-rose-200', text: 'text-rose-700', label: '2 Due' })}
+                ${createNavLink(p + 'sales/quotations.html', 'Quotations & Follow-up', 'fas fa-file-signature', activePage === 'quotations', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: '4' })}
+                ${createNavLink(p + 'sales/workflow.html', 'Sales Workflow', 'fas fa-diagram-project', activePage === 'workflow', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-[#242b5f]', label: 'Map' })}
+                <div class="pt-2 mt-2 border-t border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stock' })}
+                    ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Accounts' })}
                 </div>
             </nav>
         </div>
@@ -136,7 +157,7 @@ const renderLayout = (activePage) => {
         <aside id="sidebar" class="bg-white border-r border-slate-200/80 text-slate-800 flex flex-col transition-all duration-300 w-[215px] h-screen shrink-0 relative z-20 shadow-[1px_0_4px_rgba(0,0,0,0.02)] select-none">
             <!-- Sidebar Header / Logo -->
             <div class="px-3.5 py-2.5 flex items-center justify-between border-b border-slate-100 h-[54px] bg-white">
-                <a href="${isAccounts ? p + 'accounts/index.html' : p + 'hr/index.html'}" class="flex items-center gap-2 overflow-hidden whitespace-nowrap" title="Cosmix ERP">
+                <a href="${isAccounts ? p + 'accounts/index.html' : isWarehouse ? p + 'warehouse/index.html' : isSales ? p + 'sales/index.html' : p + 'hr/index.html'}" class="flex items-center gap-2 overflow-hidden whitespace-nowrap" title="Cosmix ERP">
                     <img id="logo-img" src="${p}assets/images/cosmix-logo.png" onerror="this.src='https://cosmixengineering.com/wp-content/uploads/2024/09/cropped-Cosmix-Logo-PNG-File-300x90.png'" alt="Cosmix Engineering" class="h-8 max-w-[130px] w-auto object-contain transition-all duration-300">
                 </a>
                 <button id="toggle-btn" onclick="toggleSidebar()" class="text-slate-400 hover:text-[#242b5f] hover:bg-slate-100 p-1.5 rounded-lg border border-slate-200/70 transition-all shrink-0" title="Collapse / Expand Menu">
@@ -156,9 +177,9 @@ const renderLayout = (activePage) => {
                         CE
                     </div>
                     <div class="min-w-0 flex-1">
-                        <p class="text-[11px] font-bold text-slate-800 truncate leading-tight">${isAccounts ? 'Accounts Desk' : 'HR Console'}</p>
+                        <p class="text-[11px] font-bold text-slate-800 truncate leading-tight">${isAccounts ? 'Accounts Desk' : isWarehouse ? 'Inventory Desk' : isSales ? 'Sales Desk' : 'HR Console'}</p>
                         <p class="text-[9px] text-emerald-600 font-semibold flex items-center gap-1 leading-tight">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> ${isAccounts ? 'Finance Online' : 'HR Online'}
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> ${isAccounts ? 'Finance Online' : isWarehouse ? 'Stores Online' : isSales ? 'Sales Online' : 'HR Online'}
                         </p>
                     </div>
                 </div>
@@ -199,12 +220,12 @@ const renderLayout = (activePage) => {
                     <div class="dropdown-menu absolute left-0 top-8 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
                         <div class="px-3 py-1 border-b border-gray-50 flex items-center justify-between">
                             <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Departments</span>
-                            <span class="text-[8px] bg-blue-50 text-blue-700 px-1 rounded font-bold">${isAccounts ? 'Accounts Active' : 'HR Active'}</span>
+                            <span class="text-[8px] bg-blue-50 text-blue-700 px-1 rounded font-bold">${isAccounts ? 'Accounts Active' : isWarehouse ? 'Stores Active' : isSales ? 'Sales Active' : 'HR Active'}</span>
                         </div>
                         <div class="py-1">
                             ${DEPARTMENTS.map(d => {
                                 const isThisDeptActive = d.id === currentDeptId || (d.id === 'accounts' && isAccounts);
-                                if (d.id === 'hr' || d.id === 'accounts' || d.id === 'finance' || d.id === 'warehouse') {
+                                if (d.id === 'hr' || d.id === 'accounts' || d.id === 'finance' || d.id === 'warehouse' || d.id === 'sales') {
                                     const targetUrl = d.url;
                                     return `
                                         <a href="${targetUrl}" class="flex items-center gap-2.5 px-3 py-1.5 text-xs ${isThisDeptActive ? 'bg-blue-50/70 text-[#242b5f] font-bold' : 'text-gray-700 hover:bg-gray-50'} transition">
@@ -248,7 +269,12 @@ const renderLayout = (activePage) => {
                         ${createTopBarLink(p + 'accounts/purchases.html', 'fas fa-shopping-cart', activePage === 'purchases', 'Supply & Expenses')}
                         ${createTopBarLink(p + 'accounts/payroll.html', 'fas fa-money-check-alt', activePage === 'payroll', 'Payroll Disbursement')}
                         ${createTopBarLink(p + 'accounts/attendance.html', 'fas fa-user-clock', activePage === 'attendance', 'Attendance Audit')}
-                        ${createTopBarLink(p + 'accounts/banking.html', 'fas fa-university', activePage === 'banking', 'Banking & Cash Flow')}
+                    ` : isSales ? `
+                        ${createTopBarLink(p + 'sales/inquiries.html', 'fas fa-inbox', activePage === 'inquiries', 'Inquiries & Tenders')}
+                        ${createTopBarLink(p + 'sales/selection.html', 'fas fa-snowflake', activePage === 'selection', 'Technical Selection')}
+                        ${createTopBarLink(p + 'sales/costing.html', 'fas fa-calculator', activePage === 'costing', 'BOQ & Costing')}
+                        ${createTopBarLink(p + 'sales/rates.html', 'fas fa-tags', activePage === 'rates', 'Vendor Rates')}
+                        ${createTopBarLink(p + 'sales/quotations.html', 'fas fa-file-signature', activePage === 'quotations', 'Quotations')}
                     ` : `
                         ${createTopBarLink(p + 'hr/employee-master.html', 'fas fa-user-plus', activePage === 'employee', 'Add Employee')}
                         ${createTopBarLink(p + 'hr/attendance.html', 'fas fa-clock', activePage === 'attendance', 'Attendance')}
@@ -374,10 +400,10 @@ const renderLayout = (activePage) => {
     // Global Floating Round Flowchart Button (Fixed bottom-right across all pages)
     if (!document.getElementById('global-flowchart-btn')) {
         document.body.insertAdjacentHTML('beforeend', `
-            <a href="${p}hr/flowchart.html" id="global-flowchart-btn" title="Open HR Process Flowchart" class="fixed bottom-6 right-6 z-[9990] w-14 h-14 rounded-full bg-gradient-to-tr from-[#242b5f] to-[#3b4594] text-white shadow-2xl hover:shadow-indigo-950/40 flex items-center justify-center text-xl border-2 border-white hover:scale-110 active:scale-95 transition-all duration-300 group cursor-pointer" aria-label="HR Process Flowchart">
+            <a href="${isSales ? p + 'sales/workflow.html' : p + 'hr/flowchart.html'}" id="global-flowchart-btn" title="${isSales ? 'Open Sales Workflow' : 'Open HR Process Flowchart'}" class="fixed bottom-6 right-6 z-[9990] w-14 h-14 rounded-full bg-gradient-to-tr from-[#242b5f] to-[#3b4594] text-white shadow-2xl hover:shadow-indigo-950/40 flex items-center justify-center text-xl border-2 border-white hover:scale-110 active:scale-95 transition-all duration-300 group cursor-pointer" aria-label="${isSales ? 'Sales Workflow' : 'HR Process Flowchart'}">
                 <i class="fas fa-diagram-project transition-transform duration-300 group-hover:rotate-12"></i>
                 <span class="absolute right-16 px-3 py-1.5 bg-slate-900/95 text-white text-xs font-bold rounded-lg shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-x-2 group-hover:translate-x-0 border border-slate-700/50 flex items-center gap-2">
-                    <i class="fas fa-sitemap text-indigo-400 text-xs"></i> HR Process Flowchart
+                    <i class="fas fa-sitemap text-indigo-400 text-xs"></i> ${isSales ? 'Sales Workflow' : 'HR Process Flowchart'}
                 </span>
                 <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
