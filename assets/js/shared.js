@@ -79,6 +79,7 @@ const renderLayout = (activePage) => {
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'hr/index.html', 'HR Operations Portal', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
+                    ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
                     ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Accounts' })}
                     ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
@@ -112,14 +113,16 @@ const renderLayout = (activePage) => {
             <nav class="space-y-1">
                 ${createNavLink(p + 'sales/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
                 ${createNavLink(p + 'sales/inquiries.html', 'Inquiries & Tenders', 'fas fa-inbox', activePage === 'inquiries', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: '6' })}
-                ${createNavLink(p + 'sales/selection.html', 'Technical Selection', 'fas fa-snowflake', activePage === 'selection', { bg: 'bg-cyan-50 border border-cyan-200', text: 'text-cyan-700', label: 'AUX' })}
+                ${createNavLink(p + 'sales/selection.html', 'Technical Selection', 'fas fa-snowflake', activePage === 'selection' || activePage === 'selection-detail', { bg: 'bg-cyan-50 border border-cyan-200', text: 'text-cyan-700', label: 'AUX' })}
                 ${createNavLink(p + 'sales/costing.html', 'BOQ & Costing', 'fas fa-calculator', activePage === 'costing', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '3' })}
                 ${createNavLink(p + 'sales/rates.html', 'Vendor Rate Enquiries', 'fas fa-tags', activePage === 'rates', { bg: 'bg-rose-50 border border-rose-200', text: 'text-rose-700', label: '2 Due' })}
-                ${createNavLink(p + 'sales/quotations.html', 'Quotations & Follow-up', 'fas fa-file-signature', activePage === 'quotations', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: '4' })}
+                ${createNavLink(p + 'sales/quotations.html', 'Quotations & Follow-up', 'fas fa-file-signature', activePage === 'quotations' || activePage === 'quotation-detail', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: '4' })}
+                ${createNavLink(p + 'sales/settings.html', 'Rate Book & Setup', 'fas fa-sliders', activePage === 'settings')}
                 ${createNavLink(p + 'sales/workflow.html', 'Sales Workflow', 'fas fa-diagram-project', activePage === 'workflow', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-[#242b5f]', label: 'Map' })}
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stock' })}
+                    ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
                     ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Accounts' })}
                 </div>
             </nav>
@@ -146,6 +149,7 @@ const renderLayout = (activePage) => {
                 ${createNavLink(p + 'hr/flowchart.html', 'HR Flowchart', 'fas fa-diagram-project', activePage === 'flowchart', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-[#242b5f]', label: 'Map' })}
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
+                    ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
                     ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Accounts' })}
                     ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
@@ -253,7 +257,7 @@ const renderLayout = (activePage) => {
             <div class="hidden md:flex items-center justify-center flex-1 max-w-md mx-4">
                 <div class="relative w-full">
                     <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[11px]"></i>
-                    <input id="global-search-input" type="text" oninput="handleGlobalSearch(this)" placeholder="Search employees, sites, records (Ctrl+/)..." class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-xs rounded-md pl-7 pr-3 py-1 focus:outline-none focus:ring-1 focus:ring-[#242b5f] focus:bg-white transition-all">
+                    <input id="global-search-input" type="text" oninput="handleGlobalSearch(this)" placeholder="${isSales ? 'Search inquiries, clients, quotations (Ctrl+/)...' : 'Search employees, sites, records (Ctrl+/)...'}" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-xs rounded-md pl-7 pr-3 py-1 focus:outline-none focus:ring-1 focus:ring-[#242b5f] focus:bg-white transition-all">
                 </div>
             </div>
 
@@ -298,6 +302,17 @@ const renderLayout = (activePage) => {
                             <span class="text-[8.5px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full font-bold">3 New</span>
                         </div>
                         <div class="max-h-60 overflow-y-auto">
+                            ${isSales ? `
+                            <a href="${p}sales/quotations.html" class="block px-3 py-2 hover:bg-gray-50 border-b border-gray-50 transition">
+                                <div class="flex items-start gap-2.5"><div class="w-6 h-6 rounded-full bg-red-50 text-red-500 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-triangle-exclamation text-[9px]"></i></div><div><p class="text-[11px] font-semibold text-gray-800">Commercial Revalidation</p><p class="text-[9.5px] text-gray-500">QTN-2604-006 was accepted after validity.</p><p class="text-[8.5px] text-gray-400">Action required</p></div></div>
+                            </a>
+                            <a href="${p}sales/costing.html" class="block px-3 py-2 hover:bg-gray-50 border-b border-gray-50 transition">
+                                <div class="flex items-start gap-2.5"><div class="w-6 h-6 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-user-check text-[9px]"></i></div><div><p class="text-[11px] font-semibold text-gray-800">Boss Approval Pending</p><p class="text-[9.5px] text-gray-500">BOQ-2609-014-R1 awaits commercial approval.</p><p class="text-[8.5px] text-gray-400">Today</p></div></div>
+                            </a>
+                            <a href="${p}sales/rates.html" class="block px-3 py-2 hover:bg-gray-50 transition">
+                                <div class="flex items-start gap-2.5"><div class="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-tags text-[9px]"></i></div><div><p class="text-[11px] font-semibold text-gray-800">Vendor Rate Due</p><p class="text-[9.5px] text-gray-500">Air-flow panel response is outstanding.</p><p class="text-[8.5px] text-gray-400">2 days waiting</p></div></div>
+                            </a>
+                            ` : `
                             <a href="${p}hr/attendance.html" class="block px-3 py-2 hover:bg-gray-50 border-b border-gray-50 transition">
                                 <div class="flex items-start gap-2.5">
                                     <div class="w-6 h-6 rounded-full bg-red-50 text-red-500 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-map-marker-alt text-[9px]"></i></div>
@@ -328,9 +343,10 @@ const renderLayout = (activePage) => {
                                     </div>
                                 </div>
                             </a>
+                            `}
                         </div>
                         <div class="px-3 py-1.5 border-t border-gray-50 text-center">
-                            <a href="javascript:void(0)" onclick="openModal('All Live Notifications', '<div class=space-y-2><div class=\\\'p-2 bg-red-50 rounded border border-red-100 text-xs text-red-800\\\'><b>Biometric Geo-alert</b>: Sara Ahmed checked in 45m away from site.</div><div class=\\\'p-2 bg-orange-50 rounded border border-orange-100 text-xs text-orange-800\\\'><b>Advance Queue</b>: Fahad Hussain requested Rs. 15,000 for emergency.</div><div class=\\\'p-2 bg-purple-50 rounded border border-purple-100 text-xs text-purple-800\\\'><b>Leave Approval</b>: Zainab Ali submitted 10 days annual leave.</div></div>', null)" class="text-[9px] font-bold text-[#242b5f] hover:underline uppercase tracking-wider">View All Alerts</a>
+                            ${isSales ? `<a href="${p}sales/index.html" class="text-[9px] font-bold text-[#242b5f] hover:underline uppercase tracking-wider">Open Sales Alerts</a>` : `<a href="javascript:void(0)" onclick="openModal('All Live Notifications', '<div class=space-y-2><div class=\\\'p-2 bg-red-50 rounded border border-red-100 text-xs text-red-800\\\'><b>Biometric Geo-alert</b>: Sara Ahmed checked in 45m away from site.</div><div class=\\\'p-2 bg-orange-50 rounded border border-orange-100 text-xs text-orange-800\\\'><b>Advance Queue</b>: Fahad Hussain requested Rs. 15,000 for emergency.</div><div class=\\\'p-2 bg-purple-50 rounded border border-purple-100 text-xs text-purple-800\\\'><b>Leave Approval</b>: Zainab Ali submitted 10 days annual leave.</div></div>', null)" class="text-[9px] font-bold text-[#242b5f] hover:underline uppercase tracking-wider">View All Alerts</a>`}
                         </div>
                     </div>
                 </div>
@@ -345,7 +361,7 @@ const renderLayout = (activePage) => {
                         </div>
                         <div class="hidden sm:block text-left">
                             <p class="text-[11px] font-bold text-gray-700 leading-tight">${currentDept.name}</p>
-                            <p class="text-[8.5px] text-gray-400">Admin Desk</p>
+                            <p class="text-[8.5px] text-gray-400">${isSales ? 'Sales Desk' : 'Admin Desk'}</p>
                         </div>
                         <i class="fas fa-chevron-down text-gray-400 text-[8px]"></i>
                     </button>
@@ -493,7 +509,9 @@ const renderLayout = (activePage) => {
             'payroll-table-body',
             'offboarding-table-body',
             'assets-table-body',
-            'reports-table-body'
+            'reports-table-body',
+            'sales-inquiry-body',
+            'sales-rate-body'
         ];
         const activeTbody = tbodies.find(id => document.getElementById(id));
         if (activeTbody) {
