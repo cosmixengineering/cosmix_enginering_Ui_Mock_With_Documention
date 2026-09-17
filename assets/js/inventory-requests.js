@@ -166,7 +166,7 @@
 
         const auditRows = r.lines.map(l => {
             const i = S.item(l.item);
-            return '<tr><td>' + h(i.name) + '</td><td class="num">' + n(i.stock) + '</td><td class="num">' + n(S.reserved(i.id)) + '</td><td class="num">' + n(l.allocated) + '</td><td class="num">' + n(i.held) + '</td></tr>';
+            return '<tr><td>' + h(i.name) + '</td><td>' + n(i.stock) + '</td><td>' + n(S.reserved(i.id)) + '</td><td>' + n(l.allocated) + '</td><td>' + n(i.held) + '</td></tr>';
         });
 
         const siteTotals = {};
@@ -179,7 +179,7 @@
 
         const siteDeliveryRows = Object.keys(siteTotals).map(itemId => {
             const i = S.item(itemId);
-            return '<tr><td><strong>' + h(i.name) + '</strong><span class="sub">' + h(i.materialCode || i.id) + '</span></td><td>' + h(i.category) + '</td><td>' + h(i.unit) + '</td><td class="num">' + n(siteTotals[itemId]) + '</td></tr>';
+            return '<tr><td><strong>' + h(i.name) + '</strong><span class="sub">' + h(i.materialCode || i.id) + '</span></td><td>' + h(i.category) + '</td><td>' + h(i.unit) + '</td><td>' + n(siteTotals[itemId]) + '</td></tr>';
         });
 
         const supervisorRequests = S.data.requests.filter(req => req.supervisor === r.supervisor);
