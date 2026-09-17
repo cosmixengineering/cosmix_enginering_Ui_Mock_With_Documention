@@ -1,0 +1,17 @@
+actions['stock-edit'] = id => {
+        const i = id ? S.item(id) : { name: '', category: 'HVAC', vendorId: '', unit: 'Pieces', bin: '', min: 0, price: '', stock: 0 };
+        const categories = [...new Set(['HVAC', 'Civil & Construction', 'Electrical', 'Plumbing', 'Tools', 'Safety', 'Consumables', i.category])];
+        const units = [...new Set([i.unit, 'Pieces', 'Units', 'Sets', 'Pairs', 'Dozens', 'Packs', 'Boxes', 'Cartons', 'Bags', 'Rolls', 'Coils', 'Bundles', 'Sheets', 'Lengths', 'Millimetres', 'Centimetres', 'Metres', 'Feet', 'Inches', 'Grams', 'Kilograms', 'Tons', 'Millilitres', 'Litres', 'Gallons', 'Cylinders', 'Drums', 'Square Feet', 'Square Metres', 'Cubic Feet', 'Cubic Metres'].filter(Boolean))];
+        const vendors = [{ value: '', label: 'Select preferred vendor' }, ...S.data.vendors.filter(v => v.status === 'Active').map(v => ({ value: v.id, label: v.name + ' · ' + v.category }))];
+        dialog(id ? 'Edit master item · ' + (i.materialCode || i.id) : 'Add New Master Item',
+            `<div class="form-grid">${field('Material code / SKU *', 'materialCode', i.materialCode || i.id || '', 'text', 'required maxlength="60" placeholder="e.g. CMX-HVAC-001"')}${select('Category *', 'category', categories, i.category, 'required')}
+            <div class="wide">${field('Item name *', 'name', i.name, 'text', 'required')}</div>
+            <div class="wide">${area('Description / specifications', 'description', i.description || '')}</div>
+            ${select('Preferred vendor *', 'vendorId', vendors, i.vendorId || '', 'required')}
+            ${select('Unit of measure *', 'unit', units, i.unit, 'required')}
+            ${field('Purchase price per piece / unit (Rs.) *', 'price', i.price, 'number', 'required min="0" step="0.01" placeholder="0.00"')}
+            ${field('Minimum stock level', 'min', i.min, 'number', 'required min="0" step="0.01"')}${field('Location / bin *', 'bin', i.bin, 'text', 'required')}
+            ${!id ? field('Opening stock', 'stock', 0, 'number', 'required min="0" step="0.01"') : ''}</div>
+            <div class="stock-variation-toggle"><label class="stock-switch"><input type="checkbox" role="switch" id="stock-variations-toggle" name="hasVariations" ${i.hasVariations ? 'checked' : ''}><span class="stock-switch-track" aria-hidden="true"></span><span>Material Sizes</span></label><strong id="stock-variation-state">${i.hasVariations ? 'ON' : 'OFF'}</strong></div>
+            <section id="stock-variation-section" ${i.hasVariations ? '' : 'hidden'}><div class="row" style="margin:8px 0"><small>Each size has its own material code and per-unit price.</small>${btn('+ Add variation', 'stock-variation-add')}</div><div class="table-wrap"><table><tbody>${(i.variations || []).map(variationRow).join('')}</tbody></table></div></section>`,
+            id ? 'Save changes' : 'Save & Add Item', form => S.saveItem({ id, materialCode: val(form, 'materialCode'), name: val(form, 'name'), description: val(form, 'description'), category: val(fo
