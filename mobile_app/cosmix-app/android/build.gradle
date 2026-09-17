@@ -18,9 +18,11 @@ buildscript {
     }
 }
 
-allprojects {
-    layout.buildDirectory = file("C:/tmp/b/${project.name}")
-    afterEvaluate { project ->
+allprojects { project ->
+    if (project.name == "react-native-vector-icons") {
+        layout.buildDirectory = file("C:/tmp/b/rnvi")
+    }
+    afterEvaluate {
         if (project.hasProperty("android")) {
             project.android {
                 defaultConfig {
