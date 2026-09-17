@@ -60,7 +60,9 @@
                 '<div id="req-purchase-items" data-request="' + h(r.id) + '">' + lineTable(r) + '</div>' +
                 '<div class="pad"><div class="grid two"><div><h3>Available stock</h3><div class="actions">' + I.btn('Dispatch with office rider', 'req-dispatch', r.id, 'primary', !canDispatch) + '</div>' + (!canDispatch ? '<small>No available stock for this request.</small>' : '') + '</div><div><h3>Purchase selected items</h3><div class="actions">' + I.btn('Send to Administrator', 'req-pr-admin', r.id, 'primary', !eligible.length) + I.btn('Send to Director', 'req-pr-director', r.id, '', !eligible.length) + '</div><small>Choose one approver. Only selected quantities will be sent.</small></div></div><p id="req-selection-error" role="alert" style="color:#a22e35" hidden></p></div>') +
             (links.length ? I.panel('Purchase & delivery progress', '<div class="pad actions">' + links.join('') + '</div>') : '') +
-            '<details class="panel"><summary class="pad" style="cursor:pointer;font-weight:600">Stock details & request history</summary><div class="pad"><p class="meta">Stock is checked and reserved automatically when preparing dispatch or sending a purchase request.</p>' + I.table(['Item', 'On hand', 'All reservations', 'This request', 'Held'], auditRows) + '<br><ol class="timeline">' + r.timeline.slice().reverse().map(e => '<li>' + h(e.text) + '<small>' + h(e.time) + '</small></li>').join('') + '</ol></div></details>';
+            
+    I.panel('Request Actions', '<div class="pad" style="display:flex; justify-content:space-between; align-items:center;"><div><strong>View detailed history</strong><br><small>See all stock reservations and the full timeline of this request.</small></div>' + I.link('View Request History & Stock', 'request-history.html?id=' + r.id, 'primary') + '</div>');
+
     };
 
     I.actions['req-allocate'] = id => {
@@ -156,4 +158,21 @@
         const error = document.getElementById('req-selection-error');
         if (error) error.hidden = true;
     });
+
+    I.pages['request-history'] = () => {
+        const id = I.query('id');
+        const r = S.data.requests.find(x => x.id === id);
+        if (!r) return I.notice('Request not found.');
+
+        const auditRows = r.lines.map(l => {
+            const i = S.item(l.item);
+            return '<tr><td>' + h(i.name) + '</td><td class="num">' + n(i.stock) + '</td><td class="num">' + n(S.reserved(i.id)) + '</td><td class="num">' + n(l.allocated) + '</td><td class="num">' + n(i.held) + '</td></tr>';
+        });
+
+        return I.panel('Request Information', '<div class="pad grid four"><div><small>Request ID</small><br><strong>' + h(r.id) + '</strong></div><div><small>Site / Project</small><br><strong>' + h(r.site) + '</strong></div><div><small>Supervisor</small><br><strong>' + h(r.supervisor) + '</strong></div><div><small>Status</small><br>' + I.badge(S.requestStatus(r)) + '</div></div>') + 
+            I.panel('Stock Reservation Details', '<div class="pad"><p class="meta">Stock is checked and reserved automatically when preparing dispatch or sending a purchase request.</p>' + I.table(['Item', 'On hand', 'All reservations', 'This request', 'Held'], auditRows) + '</div>') + 
+            I.panel('Full Request Timeline', '<div class="pad"><ol class="timeline">' + r.timeline.slice().reverse().map(e => '<li>' + h(e.text) + '<small>' + h(e.time) + '</small></li>').join('') + '</ol></div>') + 
+            '<div style="margin-top:16px;">' + I.link('← Back to Request Detail', 'request-detail.html?id=' + r.id) + '</div>';
+    };
+
 })(window);

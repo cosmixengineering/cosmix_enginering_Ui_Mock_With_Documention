@@ -19,6 +19,7 @@ buildscript {
 }
 
 allprojects {
+    layout.buildDirectory = file("C:/tmp/b/${project.name}")
     afterEvaluate { project ->
         if (project.hasProperty("android")) {
             project.android {
