@@ -367,6 +367,8 @@ The PDF Editor upload control opens the browser file picker from its visible but
 
 The page preview uses a high-density backing canvas at a minimum 2x render scale and keeps selection/edit coordinates tied to the visible page dimensions. This improves screen sharpness without changing the source PDF or shifting exported replacement positions.
 
+Clicking a detected text item also carries its PDF font name, family, weight/italic style and decimal point size into the replacement form. Text and background colours are sampled from the rendered source pixels. Typing or changing a format control updates an in-place draft preview; Apply commits it to the replacement list. Export renders a 4x transparent text layer with the detected browser font and embeds it at the original PDF coordinates, with a matching standard PDF font fallback when canvas font rendering is unavailable.
+
 The HTML mock records selected upload metadata and a known supplied-workbook mapping; it does not retain or parse arbitrary workbook bytes. This limitation is stated in the UI. Actions do not call AUX, Inventory, Procurement, Accounts, email or WhatsApp services.
 
 Validation completed:

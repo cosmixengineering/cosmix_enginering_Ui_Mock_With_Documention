@@ -28,7 +28,8 @@ test('PDF editor core paints replacements into a new readable PDF', async () => 
     const output = await context.CosmixPdfEditorCore.createEditedPdfBytes(sourceBytes, [{
         page: 1,
         rect: { x: .1, y: .1, width: .5, height: .05 },
-        text: 'Replacement text', fontSize: 12, align: 'left', textColor: '#111827', backgroundColor: '#ffffff', cover: true
+        text: 'Replacement text', fontFamily: 'Courier New', fontWeight: 700, fontStyle: 'normal', fontSize: 12,
+        align: 'left', textColor: '#24558a', backgroundColor: '#f8fafc', cover: true
     }]);
     const reopened = await context.PDFLib.PDFDocument.load(output);
     assert.equal(reopened.getPageCount(), 1);
@@ -46,6 +47,20 @@ test('bundled PDF viewer parses a real local PDF with its matching worker', asyn
     await document.destroy();
 });
 
+test('PDF viewer exposes source font family and decimal size for clicked text', async () => {
+    const sourcePath = path.join(process.env.USERPROFILE || '', 'Downloads', 'Cosmix ERP - Quotation Builder.pdf');
+    if (!fs.existsSync(sourcePath)) return;
+    const document = await pdfjs.getDocument({ data: new Uint8Array(fs.readFileSync(sourcePath)), isEvalSupported: false, useWorkerFetch: false }).promise;
+    const page = await document.getPage(1);
+    const text = await page.getTextContent();
+    await page.getOperatorList();
+    const duct = text.items.find(item => item.str === 'Duct');
+    assert.ok(duct);
+    assert.match(page.commonObjs.get(duct.fontName).name, /Inter/i);
+    assert.ok(Math.abs(duct.height - 7.605) < 0.01);
+    await document.destroy();
+});
+
 test('PDF editor page includes upload, selection, replacement and export controls', () => {
     const html = fs.readFileSync(path.join(root, 'sales', 'pdf-editor.html'), 'utf8');
     const ui = fs.readFileSync(path.join(root, 'assets', 'js', 'pdf-editor.js'), 'utf8');
@@ -60,6 +75,14 @@ test('PDF editor page includes upload, selection, replacement and export control
     assert.ok(ui.includes('transform: [state.outputScale'));
     assert.ok(ui.includes('HD ${state.outputScale'));
     assert.equal(ui.includes('rect.x / canvas.width'), false);
+    assert.ok(ui.includes('id="pdf-font-family"'));
+    assert.ok(ui.includes('id="pdf-font-style"'));
+    assert.ok(ui.includes('sampledColors(context, row)'));
+    assert.ok(ui.includes('page.commonObjs.get(item.fontName)'));
+    assert.ok(ui.includes('window.pdfEditorLivePreview'));
+    assert.ok(ui.includes('state.preview'));
+    assert.ok(coreSource.includes('renderTextPng'));
+    assert.ok(coreSource.includes('fontWeight'));
     assert.ok(ui.includes('Replacement text'));
     assert.ok(ui.includes('convertToPdfPoint'));
     assert.ok(ui.includes('Export edited PDF'));
