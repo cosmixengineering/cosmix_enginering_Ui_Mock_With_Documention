@@ -391,7 +391,7 @@ The Dashboard, Inquiries & Tenders, and BOQ & Costing screens were simplified fo
 
 - The large yellow `HTML MOCKUP` banner is replaced by a quiet `Local mock data` status and reset control.
 - Each page now has one compact title/action row followed by a single four-value summary strip.
-- Dashboard prioritizes the work queue, recent activity, pipeline and active records instead of five separate presentation cards.
+- Dashboard prioritizes the work queue, recent activity, sales progress and active records instead of five separate presentation cards.
 - Inquiries keeps stage tabs, search and priority filtering inside the register so staff can filter and act in one place.
 - BOQ keeps all commercial tabs, price calculations, FX snapshot, stock reference, cost components, substitutions and management approval, with the financial summary compressed into one row.
 - Primary actions use the shared navy treatment; secondary actions, table density and responsive behavior remain consistent with HR/Accounts sizing.
@@ -401,3 +401,8 @@ Validation: JavaScript syntax check and all 12 Sales store/render tests pass. Br
 ## Rate Book wording correction (2026-09-18)
 
 Sales catalogue, BOQ pricing, workflow, settings, import sample and documentation now use the neutral label `Rate Book`. Existing browser-local records carrying the earlier label are migrated in place without resetting saved Sales data. JavaScript syntax checks and all 13 Sales store/render tests pass.
+
+
+## Sales terminology correction (2026-09-18)
+
+The Dashboard stage summary uses `Sales Progress` and `In progress` so staff see direct operational wording. The earlier generic terminology was removed from the Sales module without changing its records or stage logic.

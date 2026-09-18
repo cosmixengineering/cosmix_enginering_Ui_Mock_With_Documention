@@ -152,13 +152,13 @@
 .sales-summary-item.warning { box-shadow: inset 0 2px 0 #f59e0b; }
 .sales-summary-item.positive { box-shadow: inset 0 2px 0 #10b981; }
 .sales-summary-item.danger { box-shadow: inset 0 2px 0 #ef4444; }
-.sales-pipeline { display: grid; grid-template-columns: repeat(8, minmax(88px, 1fr)); overflow-x: auto; }
-.sales-pipeline-stage { min-width: 88px; padding: 10px 11px; border-right: 1px solid #e7ecf2; background: #fff; }
-.sales-pipeline-stage:last-child { border-right: 0; }
-.sales-pipeline-stage:hover { background: #f8fafc; }
-.sales-pipeline-stage span { display: block; color: #64748b; font-size: 8.5px; font-weight: 650; white-space: nowrap; }
-.sales-pipeline-stage strong { display: block; margin-top: 3px; color: #242b5f; font-family: 'JetBrains Mono', monospace; font-size: 14px; }
-.sales-pipeline-stage.is-alert { box-shadow: inset 0 -2px 0 #ef4444; }
+.sales-progress { display: grid; grid-template-columns: repeat(8, minmax(88px, 1fr)); overflow-x: auto; }
+.sales-progress-stage { min-width: 88px; padding: 10px 11px; border-right: 1px solid #e7ecf2; background: #fff; }
+.sales-progress-stage:last-child { border-right: 0; }
+.sales-progress-stage:hover { background: #f8fafc; }
+.sales-progress-stage span { display: block; color: #64748b; font-size: 8.5px; font-weight: 650; white-space: nowrap; }
+.sales-progress-stage strong { display: block; margin-top: 3px; color: #242b5f; font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+.sales-progress-stage.is-alert { box-shadow: inset 0 -2px 0 #ef4444; }
 .sales-activity-list { padding: 4px 12px; }
 .sales-activity-item { display: flex; gap: 9px; padding: 8px 0; border-bottom: 1px solid #eef2f6; }
 .sales-activity-item:last-child { border-bottom: 0; }

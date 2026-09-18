@@ -49,7 +49,7 @@
                     {label:'Submitted quotations',value:st.quotations.filter(x=>/Submitted|Follow-up|Revalidation/.test(x.status)).length,meta:'Client follow-up'},
                     {label:'Submitted value',value:money(submitted),meta:'Current quotations',tone:'positive'}
                 ])}
-                ${panel('Pipeline', '', `<div class="sales-pipeline">${stages.map(([name,count],index)=>`<a href="inquiries.html" class="sales-pipeline-stage ${index===7?'is-alert':''}"><span>${name}</span><strong>${count}</strong></a>`).join('')}</div>`, '<a href="inquiries.html" class="sales-btn">View all records</a>')}
+                ${panel('Sales Progress', '', `<div class="sales-progress">${stages.map(([name,count],index)=>`<a href="inquiries.html" class="sales-progress-stage ${index===7?'is-alert':''}"><span>${name}</span><strong>${count}</strong></a>`).join('')}</div>`, '<a href="inquiries.html" class="sales-btn">View all records</a>')}
                 <div class="grid gap-3 xl:grid-cols-[1.55fr_.85fr]">
                     ${panel('Work queue', 'Items requiring a decision or follow-up', `<div class="sales-table-wrap"><table class="sales-table"><thead><tr><th>Action</th><th>Record</th><th>What is needed</th><th>Status</th><th></th></tr></thead><tbody>${attention.map(x=>`<tr><td class="font-semibold text-slate-800">${x[0]}</td><td class="font-mono text-[9.5px] text-[#242b5f]">${x[1]}</td><td class="text-slate-500">${x[2]}</td><td>${badge(x[3])}</td><td class="text-right"><a href="${x[4]}" class="sales-btn">Open</a></td></tr>`).join('')}</tbody></table></div>`)}
                     ${panel('Recent activity', '', `<div class="sales-activity-list">${st.activities.slice(0,5).map(a=>`<div class="sales-activity-item"><span class="sales-activity-icon"><i class="fas ${a.icon}"></i></span><div><p>${a.text}</p><time>${a.time}</time></div></div>`).join('')}</div>`)}
@@ -66,7 +66,7 @@
             ${demoStrip()}
             ${workspaceHeader('Inquiries & tenders', 'Register new opportunities, assign ownership and track the next action.', `<button onclick="salesOpenNewInquiry()" class="sales-btn sales-btn-primary"><i class="fas fa-plus"></i> New inquiry</button><button onclick="salesExportDemo('Inquiry Register')" class="sales-btn"><i class="fas fa-file-export"></i> Export</button>`)}
             ${summaryBar([
-                {label:'Open records',value:rows.filter(x=>!/Won|Lost/.test(x.stage)).length,meta:'Active pipeline'},
+                {label:'Open records',value:rows.filter(x=>!/Won|Lost/.test(x.stage)).length,meta:'In progress'},
                 {label:'Due soon',value:dueSoon,meta:'Submission or follow-up',tone:'warning'},
                 {label:'Tender records',value:rows.filter(x=>x.type==='Tender').length,meta:'Formal submissions'},
                 {label:'Quoted value',value:money(26881500),meta:'Submitted snapshots',tone:'positive'}
