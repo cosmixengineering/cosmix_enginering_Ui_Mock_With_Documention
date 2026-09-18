@@ -162,9 +162,14 @@ test('all Sales screens render their main content without runtime errors', () =>
     const dashboard = captured.find(x => x.title === 'Sales Operations Dashboard');
     const inquiries = captured.find(x => x.title === 'Inquiries & Tenders');
     const costing = captured.find(x => x.title === 'BOQ & Flexible Costing');
+    const manual = captured.find(x => x.title === 'Manual Quotation Sheet');
     assert.ok(dashboard.html.includes('Sales overview'));
     assert.ok(dashboard.html.includes('Work queue'));
     assert.ok(inquiries.html.includes('sales-register-toolbar'));
     assert.ok(costing.html.includes('sales-cost-nav'));
+    assert.ok(manual.html.includes('<th colspan="8">Equipment</th>'));
+    assert.ok(manual.html.includes('<th colspan="4">Remote / Controller</th>'));
+    assert.ok(manual.html.includes('<th rowspan="2">Line Total</th>'));
+    assert.ok(pagesSource.includes("cellStyles:true"));
     assert.equal([dashboard, inquiries, costing].some(x => x.html.includes('HTML MOCKUP')), false);
 });

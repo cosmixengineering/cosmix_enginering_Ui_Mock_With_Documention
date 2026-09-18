@@ -1,6 +1,8 @@
 # Local analysis and one-off workspace helpers
 /tmp/
 /temp_scratch.txt
+/.tmp/
+/outputs/
 /check_*.js
 /read_*.js
 /update_*.js

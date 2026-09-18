@@ -371,6 +371,18 @@ This remains an HTML mockup with browser-local demonstration persistence. Excel 
 
 The worksheet stores draft metadata and lines separately from approved/submitted quotations. It calculates subtotal, freight, tax/duty, discount and grand total, downloads a real `.xlsx` workbook when SheetJS is available (with an Excel-compatible CSV fallback), and prints a clean A4 landscape quotation while hiding application controls.
 
+## Manual quotation spreadsheet correction (2026-09-18)
+
+The earlier Excel export was a raw 21-value row with minimal widths and only two title merges, which opened like an unformatted data dump. The corrected browser worksheet and `.xlsx` export share this structure:
+
+- Equipment: serial number, category, model, description, quantity, unit, unit price and base total.
+- Remote / Controller: model, quantity, unit price and total.
+- Cassette Grille: model, quantity, unit price and total.
+- Y-Joint: model, quantity, unit price and total.
+- Final line total: formula-driven sum of the four component totals.
+
+The workbook uses grouped column bands, a dark column-header row, fixed readable widths, wrapped descriptions, dates and numeric formats, cached formulas, quotation metadata, a separate totals block, notes and compact margins. The browser worksheet exposes the same columns inside a bounded horizontal/vertical scroll area. Excel styling is generated with the browser-compatible `xlsx-js-style` build; CSV remains a warning fallback only when the library cannot load.
+
 ## Sales operational UI update (2026-09-18)
 
 The Dashboard, Inquiries & Tenders, and BOQ & Costing screens were simplified for the staff walkthrough without changing the confirmed workflow:

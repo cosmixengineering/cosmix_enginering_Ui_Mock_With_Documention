@@ -209,19 +209,60 @@
 .sales-sheet-table td { border-right: 1px solid #edf1f5; }
 .sales-sheet-table th:last-child, .sales-sheet-table td:last-child { border-right: 0; }
 .manual-quote-print { background: #fff; }
+.manual-sheet-caption {
+    display: flex;
+    min-height: 30px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 12px;
+    border-bottom: 1px solid #dfe5ec;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 8.5px;
+}
+.manual-sheet-caption span { display: inline-flex; align-items: center; gap: 6px; }
+.manual-sheet-caption span:first-child { color: #242b5f; font-weight: 700; }
 .manual-sheet-scroll {
-    min-height: 460px;
-    max-height: 610px;
-    overflow-x: auto;
-    overflow-y: scroll;
+    height: clamp(310px, calc(100vh - 610px), 470px);
+    min-height: 310px;
+    max-height: 470px;
+    overflow: auto;
     scrollbar-gutter: stable;
     background: #fff;
 }
-.manual-sheet-scroll .sales-sheet-table { min-width: 1720px; }
-.manual-sheet-scroll thead { position: sticky; top: 0; z-index: 5; }
-.manual-sheet-scroll th { white-space: nowrap; background: #f4f7fb; }
-.manual-sheet-scroll th small { color: #94a3b8; font-size: 7.5px; font-weight: 600; text-transform: none; letter-spacing: 0; }
-.manual-sheet-scroll td { min-height: 66px; vertical-align: middle; }
+.manual-sheet-scroll .sales-sheet-table { min-width: 2250px; table-layout: fixed; }
+.manual-sheet-scroll th { position: sticky; z-index: 5; white-space: nowrap; }
+.manual-sheet-scroll thead tr:first-child th { top: 0; }
+.manual-sheet-scroll thead tr:nth-child(2) th { top: 27px; }
+.manual-group-head th {
+    height: 27px;
+    border-right: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    background: #e8ecf7 !important;
+    color: #242b5f !important;
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: .025em;
+    text-align: center;
+}
+.manual-quotation-grid thead tr:nth-child(2) th,
+.manual-quotation-grid thead .manual-group-head th[rowspan] {
+    height: 34px;
+    border-right: 1px solid rgba(255,255,255,.25);
+    background: #242b5f !important;
+    color: #fff !important;
+    font-size: 8px;
+    font-weight: 750;
+    letter-spacing: .035em;
+    text-align: center;
+    text-transform: uppercase;
+}
+.manual-quotation-grid thead .manual-group-head th[rowspan] { top: 0; height: 61px; vertical-align: middle; }
+.manual-sheet-scroll td { height: 54px; vertical-align: middle; }
+.manual-description-cell { color: #64748b; font-size: 8.5px; line-height: 1.35; white-space: normal; }
+.manual-component-model strong { display: block; color: #242b5f; font-family: 'JetBrains Mono', monospace; font-size: 8.5px; }
+.manual-component-model small { display: block; margin-top: 3px; color: #94a3b8; font-size: 7.5px; }
 .sales-accessory-cell { min-width: 210px; }
 .sales-accessory-cell strong { display: block; color: #242b5f; font-family: 'JetBrains Mono', monospace; font-size: 9px; }
 .sales-accessory-cell small { display: block; margin: 2px 0 5px; color: #94a3b8; font-size: 8px; }
@@ -283,6 +324,9 @@
     #manual-quote-print .sales-table-wrap,
     #manual-quote-print .manual-sheet-scroll { min-height: 0 !important; max-height: none !important; overflow: visible !important; }
     #manual-quote-print .sales-sheet-table { min-width: 0 !important; width: 100% !important; }
+    #manual-quote-print .manual-quotation-grid { table-layout: fixed !important; font-size: 5.5px !important; }
+    #manual-quote-print .manual-quotation-grid th,
+    #manual-quote-print .manual-quotation-grid td { padding: 3px !important; }
     #manual-quote-print .sales-table { font-size: 8px !important; }
     #manual-quote-print tr { break-inside: avoid; }
     .sales-panel { border-color: #94a3b8; break-inside: avoid; }
