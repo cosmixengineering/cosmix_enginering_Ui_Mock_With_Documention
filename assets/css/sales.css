@@ -263,6 +263,7 @@
 .manual-description-cell { color: #64748b; font-size: 8.5px; line-height: 1.35; white-space: normal; }
 .manual-component-model strong { display: block; color: #242b5f; font-family: 'JetBrains Mono', monospace; font-size: 8.5px; }
 .manual-component-model small { display: block; margin-top: 3px; color: #94a3b8; font-size: 7.5px; }
+.manual-empty-component { display: inline-flex; border-radius: 4px; background: #f1f5f9; padding: 3px 6px; color: #64748b; font-size: 7.5px; font-weight: 650; white-space: nowrap; }
 .sales-accessory-cell { min-width: 210px; }
 .sales-accessory-cell strong { display: block; color: #242b5f; font-family: 'JetBrains Mono', monospace; font-size: 9px; }
 .sales-accessory-cell small { display: block; margin: 2px 0 5px; color: #94a3b8; font-size: 8px; }

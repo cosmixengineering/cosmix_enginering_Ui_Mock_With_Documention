@@ -383,6 +383,8 @@ The earlier Excel export was a raw 21-value row with minimal widths and only two
 
 The workbook uses grouped column bands, a dark column-header row, fixed readable widths, wrapped descriptions, dates and numeric formats, cached formulas, quotation metadata, a separate totals block, notes and compact margins. The browser worksheet exposes the same columns inside a bounded horizontal/vertical scroll area. Excel styling is generated with the browser-compatible `xlsx-js-style` build; CSV remains a warning fallback only when the library cannot load.
 
+Empty linked-component cells are explicit: Grille shows `Not applicable` when the chosen equipment has no cassette grille mapping, Controller shows `Not linked` when no controller mapping exists, and Y-Joint shows `Not selected` until Sales chooses the engineering-approved joint and quantity. These labels explain the state without inventing a component or price.
+
 ## Sales operational UI update (2026-09-18)
 
 The Dashboard, Inquiries & Tenders, and BOQ & Costing screens were simplified for the staff walkthrough without changing the confirmed workflow:

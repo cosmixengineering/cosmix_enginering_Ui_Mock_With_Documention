@@ -145,6 +145,7 @@ test('all Sales screens render their main content without runtime errors', () =>
     vm.createContext(context);
     vm.runInContext(source, context, { filename: 'sales-store.js' });
     vm.runInContext(pagesSource, context, { filename: 'sales-pages.js' });
+    window.CosmixSales.addManualQuoteItem('ARVWM-H022/NR1DJA', 1, { includeLinked: true });
     for (const page of ['dashboard', 'inquiries', 'selection', 'selection-detail', 'costing', 'catalog', 'manual-quotation', 'rates', 'quotations', 'quotation-detail', 'settings', 'workflow']) {
         window.location.search = page === 'quotation-detail' ? '?id=QTN-2609-019&rev=R1' : page === 'selection-detail' ? '?id=SEL-2609-014-R1' : '';
         window.renderSalesPage(page);
@@ -170,6 +171,8 @@ test('all Sales screens render their main content without runtime errors', () =>
     assert.ok(manual.html.includes('<th colspan="8">Equipment</th>'));
     assert.ok(manual.html.includes('<th colspan="4">Remote / Controller</th>'));
     assert.ok(manual.html.includes('<th rowspan="2">Line Total</th>'));
+    assert.ok(manual.html.includes('Not applicable'));
+    assert.ok(manual.html.includes('Not selected'));
     assert.ok(pagesSource.includes("cellStyles:true"));
     assert.equal([dashboard, inquiries, costing].some(x => x.html.includes('HTML MOCKUP')), false);
 });
