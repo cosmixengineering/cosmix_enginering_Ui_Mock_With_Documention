@@ -108,24 +108,24 @@ const renderLayout = (activePage) => {
         <div>
             <div class="flex items-center justify-between px-2 mb-2">
                 <p id="menu-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider transition-opacity duration-300">Sales & Estimation</p>
-                <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 transition-opacity duration-300">SALES</span>
+                <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-slate-100 text-[#242b5f] border border-slate-200 transition-opacity duration-300">SALES</span>
             </div>
             <nav class="space-y-1">
                 ${createNavLink(p + 'sales/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
-                ${createNavLink(p + 'sales/inquiries.html', 'Inquiries & Tenders', 'fas fa-inbox', activePage === 'inquiries', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: '6' })}
-                ${createNavLink(p + 'sales/selection.html', 'Technical Selection', 'fas fa-snowflake', activePage === 'selection' || activePage === 'selection-detail' || activePage === 'selection-pricing', { bg: 'bg-cyan-50 border border-cyan-200', text: 'text-cyan-700', label: 'AUX' })}
-                ${createNavLink(p + 'sales/costing.html', 'BOQ & Costing', 'fas fa-calculator', activePage === 'costing', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '3' })}
-                ${createNavLink(p + 'sales/catalog.html', 'Product Catalogue', 'fas fa-database', activePage === 'catalog', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Data' })}
-                ${createNavLink(p + 'sales/quotation-builder.html', 'Quotation Builder', 'fas fa-table-cells', activePage === 'quotation-builder' || activePage === 'manual-quotation', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Excel' })}
+                ${createNavLink(p + 'sales/inquiries.html', 'Inquiries & Tenders', 'fas fa-inbox', activePage === 'inquiries', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '6' })}
+                ${createNavLink(p + 'sales/selection.html', 'Technical Selection', 'fas fa-snowflake', activePage === 'selection' || activePage === 'selection-detail' || activePage === 'selection-pricing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'AUX' })}
+                ${createNavLink(p + 'sales/costing.html', 'BOQ & Costing', 'fas fa-calculator', activePage === 'costing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '3' })}
+                ${createNavLink(p + 'sales/catalog.html', 'Product Catalogue', 'fas fa-database', activePage === 'catalog', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Data' })}
+                ${createNavLink(p + 'sales/quotation-builder.html', 'Quotation Builder', 'fas fa-table-cells', activePage === 'quotation-builder' || activePage === 'manual-quotation', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Excel' })}
                 ${createNavLink(p + 'sales/rates.html', 'Vendor Rate Enquiries', 'fas fa-tags', activePage === 'rates', { bg: 'bg-rose-50 border border-rose-200', text: 'text-rose-700', label: '2 Due' })}
-                ${createNavLink(p + 'sales/quotations.html', 'Quotations & Follow-up', 'fas fa-file-signature', activePage === 'quotations' || activePage === 'quotation-detail', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: '4' })}
+                ${createNavLink(p + 'sales/quotations.html', 'Quotations & Follow-up', 'fas fa-file-signature', activePage === 'quotations' || activePage === 'quotation-detail', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '4' })}
                 ${createNavLink(p + 'sales/settings.html', 'Rate Book & Setup', 'fas fa-sliders', activePage === 'settings')}
-                ${createNavLink(p + 'sales/workflow.html', 'Sales Workflow', 'fas fa-diagram-project', activePage === 'workflow', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-[#242b5f]', label: 'Map' })}
+                ${createNavLink(p + 'sales/workflow.html', 'Sales Workflow', 'fas fa-diagram-project', activePage === 'workflow', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Map' })}
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
-                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stock' })}
-                    ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
-                    ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Accounts' })}
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-500', label: 'Stock' })}
+                    ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-500', label: 'Sales' })}
+                    ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-500', label: 'Accounts' })}
                 </div>
             </nav>
         </div>
@@ -872,8 +872,9 @@ const createNavLink = (href, text, icon, isActive, badge = null) => {
         ? 'text-white'
         : 'text-slate-400 group-hover:text-[#242b5f]';
 
+    const badgeStyle = isActive ? 'bg-white/15 text-white border border-white/25' : `${badge?.bg || ''} ${badge?.text || ''}`;
     const badgeHTML = badge ? `
-        <span class="menu-text ml-auto ${badge.bg} ${badge.text} text-[9px] font-bold px-1.5 py-0.5 rounded-full transition-opacity duration-300 shrink-0">
+        <span class="menu-text ml-auto ${badgeStyle} text-[9px] font-bold px-1.5 py-0.5 rounded-full transition-opacity duration-300 shrink-0">
             ${badge.label}
         </span>
     ` : '';
