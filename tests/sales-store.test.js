@@ -292,9 +292,12 @@ test('all Sales screens render their main content without runtime errors', () =>
     assert.ok(dashboard.html.includes('Work queue'));
     assert.ok(inquiries.html.includes('sales-register-toolbar'));
     assert.ok(costing.html.includes('sales-cost-nav'));
-    assert.ok(approvals.html.includes('Management comment'));
-    assert.ok(approvals.html.includes('Approved final'));
-    assert.ok(approvals.html.includes('Acknowledge before applying'));
+    assert.ok(approvals.html.includes("salesReviewApproval('APR-2609-024')"));
+    assert.ok(pagesSource.includes('Approved final'));
+    assert.ok(pagesSource.includes('Boss / management response'));
+    assert.ok(pagesSource.includes('Required Sales action'));
+    assert.ok(pagesSource.includes('Decision trail'));
+    assert.ok(pagesSource.includes('Acknowledge before applying'));
     assert.ok(builder.html.includes('<th colspan="8">Equipment</th>'));
     assert.ok(builder.html.includes('<th colspan="4">Remote / Controller</th>'));
     assert.ok(builder.html.includes('<th rowspan="2">Line Total</th>'));
@@ -320,4 +323,41 @@ test('all Sales screens render their main content without runtime errors', () =>
     assert.ok(pagesSource.includes('-Equipment-Quotation.xlsx'));
     assert.equal(pagesSource.includes('-Manual-Quotation.xlsx'), false);
     assert.equal([dashboard, inquiries, costing].some(x => x.html.includes('HTML MOCKUP')), false);
+});
+
+test('management Review opens a complete read-only decision popup', () => {
+    const storage = new Map();
+    const window = {
+        localStorage: {
+            getItem: key => storage.get(key) ?? null,
+            setItem: (key, value) => storage.set(key, value)
+        },
+        location: { search: '' }
+    };
+    let modal = null;
+    let modalWidth = '';
+    const context = {
+        window, console, Date, JSON, Math, Number, String, URLSearchParams, decodeURIComponent, encodeURIComponent,
+        openModal(title, body, onConfirm) { modal = { title, body, onConfirm }; },
+        setModalWidth(width) { modalWidth = width; },
+        showToast() {}
+    };
+    vm.createContext(context);
+    vm.runInContext(source, context, { filename: 'sales-store.js' });
+    vm.runInContext(pagesSource, context, { filename: 'sales-pages.js' });
+
+    window.salesReviewApproval('APR-2609-024');
+
+    assert.equal(modal.title, 'Management decision · APR-2609-024');
+    assert.equal(modalWidth, 'max-w-4xl');
+    assert.ok(modal.body.includes('Final selling price, discount and dispatch clearance'));
+    assert.ok(modal.body.includes('Issue the final quotation at Rs. 26,950,000'));
+    assert.ok(modal.body.includes('Rs. 26,950,000'));
+    assert.ok(modal.body.includes('15 days'));
+    assert.ok(modal.body.includes('Acknowledge decision'));
+    assert.ok(modal.body.includes('Open source record'));
+
+    window.salesReviewApproval('APR-2609-023');
+    assert.ok(modal.body.includes('Management response pending'));
+    assert.equal(modal.body.includes('Approved final'), false);
 });

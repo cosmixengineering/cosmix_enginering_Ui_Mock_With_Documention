@@ -794,6 +794,9 @@ const renderLayout = (activePage) => {
         const modal = document.getElementById('global-modal');
         const content = document.getElementById('global-modal-content');
         const footer = document.getElementById('modal-footer');
+
+        content.classList.remove('max-w-2xl', 'max-w-3xl', 'max-w-4xl', 'max-w-5xl');
+        content.classList.add('max-w-lg');
         
         if (footer) {
             if (onConfirm) {
@@ -813,6 +816,13 @@ const renderLayout = (activePage) => {
         content.classList.add('scale-100');
         
         window.currentModalConfirm = onConfirm;
+    };
+
+    window.setModalWidth = (width = 'max-w-lg') => {
+        const content = document.getElementById('global-modal-content');
+        if (!content) return;
+        content.classList.remove('max-w-lg', 'max-w-2xl', 'max-w-3xl', 'max-w-4xl', 'max-w-5xl');
+        content.classList.add(width);
     };
 
     window.closeModal = () => {
