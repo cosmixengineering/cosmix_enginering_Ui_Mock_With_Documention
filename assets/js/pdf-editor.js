@@ -12,7 +12,7 @@
     function shell() {
         return `<div class="sales-page pdf-editor-page space-y-3">
             <section class="sales-workspace-head"><div><h1>PDF Editor</h1><p>PDF upload karein, existing text select karein ya area draw karein, aur replacement ko usi position par export karein.</p></div><div class="flex flex-wrap gap-2"><a href="tender-documents.html" class="sales-btn"><i class="fas fa-layer-group"></i> Tender Documents</a><button onclick="pdfEditorReset()" class="sales-btn"><i class="fas fa-rotate-left"></i> New PDF</button><button id="pdf-export-btn" onclick="pdfEditorExport()" class="sales-btn sales-btn-primary" disabled><i class="fas fa-download"></i> Export edited PDF</button></div></section>
-            <div id="pdf-editor-empty" class="sales-panel"><label class="pdf-editor-drop"><i class="fas fa-file-arrow-up"></i><strong>Upload a PDF to edit</strong><span>Text-based aur scanned dono PDFs supported hain. File isi browser mein process hogi.</span><button type="button" class="sales-btn sales-btn-primary">Choose PDF</button><input type="file" accept="application/pdf,.pdf" onchange="pdfEditorLoad(this.files[0])"></label></div>
+            <div id="pdf-editor-empty" class="sales-panel"><div id="pdf-editor-drop" class="pdf-editor-drop" role="button" tabindex="0" aria-label="Choose or drop a PDF"><i class="fas fa-file-arrow-up"></i><strong>Upload a PDF to edit</strong><span>Text-based aur scanned dono PDFs supported hain. File isi browser mein process hogi.</span><div class="flex flex-wrap items-center justify-center gap-2"><button type="button" onclick="pdfEditorChoose(event)" class="sales-btn sales-btn-primary"><i class="fas fa-folder-open"></i> Choose PDF</button><span class="pdf-editor-drop-copy">or drop PDF here</span></div><input id="pdf-file-input" type="file" accept="application/pdf,.pdf" onchange="pdfEditorLoad(this.files && this.files[0])"></div></div>
             <div id="pdf-editor-workspace" class="hidden grid items-start gap-3 xl:grid-cols-[210px_minmax(560px,1fr)_290px]">
                 <aside class="sales-panel pdf-editor-sidebar"><div class="sales-panel-head"><div><p class="sales-label">Document</p><h3 id="pdf-file-name">PDF</h3></div></div><div class="p-3"><div class="pdf-source-meta"><span>Pages</span><strong id="pdf-page-count">0</strong></div><div class="pdf-source-meta"><span>Detected text</span><strong id="pdf-text-count">0 items</strong></div><div id="pdf-page-list" class="pdf-page-list"></div></div><div class="border-t border-slate-100 p-3 text-[8.5px] leading-relaxed text-slate-500">Source PDF read-only rahegi. Export ek nayi edited copy banata hai.</div></aside>
                 <main class="sales-panel min-w-0 overflow-hidden"><div class="pdf-editor-toolbar no-print"><div class="flex items-center gap-1"><button onclick="pdfEditorPage(-1)" class="sales-icon-btn" title="Previous page"><i class="fas fa-chevron-left"></i></button><span class="pdf-page-indicator">Page <strong id="pdf-current-page">1</strong> / <span id="pdf-total-pages">1</span></span><button onclick="pdfEditorPage(1)" class="sales-icon-btn" title="Next page"><i class="fas fa-chevron-right"></i></button></div><div class="flex items-center gap-1"><button onclick="pdfEditorZoom(-.15)" class="sales-icon-btn" title="Zoom out"><i class="fas fa-minus"></i></button><span id="pdf-zoom-label" class="pdf-page-indicator">115%</span><button onclick="pdfEditorZoom(.15)" class="sales-icon-btn" title="Zoom in"><i class="fas fa-plus"></i></button></div><div class="pdf-editor-hint"><i class="fas fa-arrow-pointer"></i> Text par click karein ya mouse se rectangle draw karein</div></div><div id="pdf-view-scroll" class="pdf-view-scroll"><div id="pdf-stage" class="pdf-stage"><canvas id="pdf-canvas"></canvas><div id="pdf-text-layer" class="pdf-text-layer"></div><div id="pdf-edit-layer" class="pdf-edit-layer"></div><div id="pdf-selection-box" class="pdf-selection-box hidden"></div></div></div><div id="pdf-render-status" class="pdf-render-status">PDF upload karein</div></main>
@@ -28,8 +28,50 @@
     function init() {
         renderLayout('pdf-editor');
         setPageContent('PDF Editor', shell());
+        if (!window.pdfjsLib || !window.PDFLib || !window.CosmixPdfEditorCore) {
+            const drop = byId('pdf-editor-drop');
+            if (drop) drop.innerHTML = '<i class="fas fa-triangle-exclamation text-rose-600"></i><strong>PDF tools could not start</strong><span>Required local PDF libraries are missing. Reload this folder copy and try again.</span>';
+            showToast('PDF tools load nahi huay. Page reload karein.', 'error');
+            return;
+        }
         window.pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('../assets/vendor/pdf-tools/pdf.worker.min.js', window.location.href).href;
+        bindUpload();
         bindStage();
+    }
+
+    function bindUpload() {
+        const drop = byId('pdf-editor-drop');
+        if (!drop) return;
+        const stop = event => { event.preventDefault(); event.stopPropagation(); };
+        ['dragenter', 'dragover'].forEach(name => drop.addEventListener(name, event => { stop(event); drop.classList.add('is-dragging'); }));
+        ['dragleave', 'dragend'].forEach(name => drop.addEventListener(name, event => { stop(event); drop.classList.remove('is-dragging'); }));
+        drop.addEventListener('drop', event => {
+            stop(event); drop.classList.remove('is-dragging');
+            const file = Array.from(event.dataTransfer?.files || []).find(row => row.type === 'application/pdf' || /\.pdf$/i.test(row.name));
+            if (!file) { showToast('Drop ki hui files mein PDF nahi mili', 'warning'); return; }
+            load(file);
+        });
+        drop.addEventListener('keydown', event => {
+            if (event.target === drop && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); chooseFile(); }
+        });
+    }
+
+    function chooseFile(event) {
+        event?.preventDefault(); event?.stopPropagation();
+        const input = byId('pdf-file-input');
+        if (!input) { showToast('PDF file picker available nahi hai', 'error'); return; }
+        input.value = '';
+        input.click();
+    }
+
+    function readFile(file) {
+        if (typeof file.arrayBuffer === 'function') return file.arrayBuffer();
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error || new Error('PDF file read failed'));
+            reader.readAsArrayBuffer(file);
+        });
     }
 
     function setBusy(message) {
@@ -44,7 +86,7 @@
         state.file = file;
         setBusy('Opening PDF...');
         try {
-            const buffer = await file.arrayBuffer();
+            const buffer = await readFile(file);
             state.sourceBytes = new Uint8Array(buffer.slice(0));
             const task = window.pdfjsLib.getDocument({ data: new Uint8Array(buffer.slice(0)), isEvalSupported: false, useWorkerFetch: false });
             state.pdf = await task.promise;
@@ -60,7 +102,8 @@
             showToast(`${file.name} opened - ${state.pages} pages`, 'success');
         } catch (error) {
             console.error(error);
-            showToast('PDF open nahi hui. Password protection ya damaged file check karein.', 'error');
+            const reason = /password/i.test(String(error?.message || '')) ? 'PDF password-protected hai.' : 'PDF open nahi hui. File damaged ho sakti hai.';
+            showToast(reason, 'error');
             resetRuntime();
         }
     }
@@ -234,6 +277,7 @@
     }
 
     window.pdfEditorLoad = file => load(file);
+    window.pdfEditorChoose = event => chooseFile(event);
     window.pdfEditorReset = () => { resetRuntime(); showToast('PDF Editor cleared', 'success'); };
     window.pdfEditorSelectText = index => selectText(index);
     window.pdfEditorSelectEdit = id => selectEdit(id);

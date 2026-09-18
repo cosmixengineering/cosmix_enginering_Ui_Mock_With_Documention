@@ -363,6 +363,8 @@ Implemented controls include new inquiry, AUX file-metadata selection, full repo
 
 The Management Decisions register uses a read-only review popup. It presents the submitted Sales request beside the Administrator/Director response, including management comment, discount/increase, approved final, validity and decision authority. A separate action block tells Sales whether to wait, acknowledge and apply the final instruction, create a controlled revision, or take no further action because the decision is already applied. The popup retains submitted, decided, acknowledged and applied timestamps and never allows Sales to edit management values.
 
+The PDF Editor upload control opens the browser file picker from its visible button and also accepts a dropped PDF. Its matching bundled PDF.js worker is loaded locally before the viewer library so the direct-file Chrome mock can parse and render PDFs without depending on a remote worker. The source file and edited bytes stay in browser memory.
+
 The HTML mock records selected upload metadata and a known supplied-workbook mapping; it does not retain or parse arbitrary workbook bytes. This limitation is stated in the UI. Actions do not call AUX, Inventory, Procurement, Accounts, email or WhatsApp services.
 
 Validation completed:
