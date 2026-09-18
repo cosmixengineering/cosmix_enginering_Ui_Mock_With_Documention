@@ -30,6 +30,26 @@ test('seed includes the confirmed sales workflow records', () => {
     assert.equal(cassette45.baseUnitRate + cassette45.accessoryUnitRate, cassette45.pkrRate);
     assert.equal(cassette71.baseUnitRate + cassette71.accessoryUnitRate, cassette71.pkrRate);
     assert.equal(store.state.substitutions.every(x => x.status === 'Boss Approved'), true);
+    assert.equal(store.state.costing.lines[0].source, 'Rate Book');
+    assert.equal(JSON.stringify(store.state).includes('CEO Rate Book'), false);
+});
+
+test('legacy CEO rate-book labels migrate without resetting saved sales data', () => {
+    const storage = new Map();
+    const initial = createStore(storage);
+    initial.addInquiry({ client: 'Saved Client', project: 'Saved Project' });
+    const saved = JSON.parse(storage.get('cosmix_sales_mock_v2'));
+    saved.costing.lines[0].source = 'CEO Rate Book';
+    saved.rateBook.edition = 'CEO Printed Rate Book · demonstration register';
+    saved.catalogImports[0].file = 'CEO_Rate_Book_Reference.xlsx';
+    storage.set('cosmix_sales_mock_v2', JSON.stringify(saved));
+
+    const migrated = createStore(storage);
+    assert.equal(migrated.state.inquiries[0].client, 'Saved Client');
+    assert.equal(migrated.state.costing.lines[0].source, 'Rate Book');
+    assert.equal(migrated.state.rateBook.edition, 'Rate Book · demonstration register');
+    assert.equal(migrated.state.catalogImports[0].file, 'Rate_Book_Reference.xlsx');
+    assert.equal(storage.get('cosmix_sales_mock_v2').includes('CEO Rate Book'), false);
 });
 
 test('cost component mutation does not rewrite a submitted quotation snapshot', () => {

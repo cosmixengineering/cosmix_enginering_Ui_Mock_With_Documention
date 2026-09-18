@@ -61,7 +61,7 @@ Reports and documents update (2026-09-17): the client requested one compact Inve
 ## Sales discovery (confirmed 2026-09-17)
 
 - AUX produces the supplied Excel workbook as its selection/report export. The complete exported workbook is the known integration format; the exact AUX product/version and any API are still unconfirmed.
-- Staff manually enter commercial prices after selection. Their reference material includes a printed CEO-provided rate book for units, wires and other items. Some rates may be entered in USD and converted to PKR; the approved exchange-rate source and landed-cost formula remain open.
+- Staff manually enter commercial prices after selection. Their reference material includes a printed rate book for units, wires and other items. Some rates may be entered in USD and converted to PKR; the approved exchange-rate source and landed-cost formula remain open.
 - Boss/management decides profit, final discount and commercial approval. The system may calculate resulting profit/margin and variance, but must not invent or automatically choose the discount.
 - Boss/management also decides and approves model consolidation or substitution after AUX selection.
 - Freight, tax, duty, installation, overhead and profit do not follow one universal formula; their procedure can differ by item, category, supplier, project or deal. Sales costing therefore requires configurable cost components with manual override reasons and approval, not a single hard-coded percentage chain.

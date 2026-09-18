@@ -26,33 +26,33 @@
         costing: {
             inquiry: 'INQ-2609-014', revision: 'BOQ-2609-014-R1', status: 'Boss Approval Pending', fxRate: 279.50,
             lines: [
-                { id: 1, section: 'Outdoor Unit', model: 'ARV-H160/NR1A', description: 'MINI 50/60Hz · 4.6 TR', qty: 2, unit: 'pc', currency: 'PKR', sourceRate: 726000, pkrRate: 726000, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 2, section: 'Outdoor Unit', model: 'ARV-H180/SR1DCS7A', description: 'MINI 50/60Hz · 5.1 TR', qty: 3, unit: 'pc', currency: 'PKR', sourceRate: 897600, pkrRate: 897600, stock: 1, reserved: 0, source: 'CEO Rate Book' },
-                { id: 3, section: 'Outdoor Unit', model: 'ARV-H224/SR1DCMA', description: 'Modular Mini VRF · 6.4 TR', qty: 4, unit: 'pc', currency: 'PKR', sourceRate: 1221000, pkrRate: 1221000, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 4, section: 'Outdoor Unit', model: 'ARV-H252/SR1DCMA', description: 'Modular Mini VRF · 7.2 TR', qty: 4, unit: 'pc', currency: 'PKR', sourceRate: 1267200, pkrRate: 1267200, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 5, section: 'Indoor Unit', model: 'ARVCA-H45/NR3DQB', description: 'Q-series DC cassette · 1.3 TR', qty: 2, unit: 'pc', currency: 'PKR', baseUnitRate: 174900, accessory: 'Cassette grille', accessoryUnitRate: 33000, sourceRate: 207900, pkrRate: 207900, stock: 4, reserved: 1, source: 'CEO Rate Book' },
-                { id: 6, section: 'Indoor Unit', model: 'ARVCA-H71/NR3DQB', description: 'Q-series DC cassette · 2.0 TR', qty: 2, unit: 'pc', currency: 'PKR', baseUnitRate: 190740, accessory: 'Cassette grille', accessoryUnitRate: 33000, sourceRate: 223740, pkrRate: 223740, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 7, section: 'Indoor Unit', model: 'ARVMD-H71/4R1M', description: 'Medium ESP Duct · 2.0 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 181500, pkrRate: 181500, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 8, section: 'Indoor Unit', model: 'ARVMD-H80/4R1M', description: 'Medium ESP Duct · 2.3 TR', qty: 5, unit: 'pc', currency: 'PKR', sourceRate: 188100, pkrRate: 188100, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 9, section: 'Indoor Unit', model: 'ARVMD-H90/4R1M', description: 'Medium ESP Duct · 2.6 TR', qty: 2, unit: 'pc', currency: 'PKR', sourceRate: 197340, pkrRate: 197340, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 10, section: 'Indoor Unit', model: 'ARVMD-H100/4R1M', description: 'Medium ESP Duct · 2.8 TR', qty: 6, unit: 'pc', currency: 'PKR', sourceRate: 207900, pkrRate: 207900, stock: 2, reserved: 0, source: 'CEO Rate Book' },
-                { id: 11, section: 'Indoor Unit', model: 'ARVMD-H112/4R1M', description: 'Medium ESP Duct · 3.2 TR', qty: 4, unit: 'pc', currency: 'PKR', sourceRate: 231000, pkrRate: 231000, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 12, section: 'Indoor Unit', model: 'ARVMD-H125/4R1M', description: 'Medium ESP Duct · 3.6 TR', qty: 2, unit: 'pc', currency: 'PKR', sourceRate: 237600, pkrRate: 237600, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 13, section: 'Indoor Unit', model: 'ARVMD-H140/4R1M', description: 'Medium ESP Duct · 4.0 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 245520, pkrRate: 245520, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 14, section: 'Indoor Unit', model: 'ARVMD-H150/NR1DM', description: 'Medium ESP Duct · 4.3 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 279840, pkrRate: 279840, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 15, section: 'Indoor Unit', model: 'ARVMD-H160/NR1DM', description: 'Medium ESP Duct · 4.6 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 298980, pkrRate: 298980, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 16, section: 'Indoor Unit', model: 'ARVWM-H080/NR1DCA', description: 'DC wall mounted · 2.3 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 181500, pkrRate: 181500, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 17, section: 'Indoor Unit', model: 'ARVWM-H100/NR1DCA', description: 'DC wall mounted · 2.8 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 195360, pkrRate: 195360, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 18, section: 'Indoor Unit', model: 'ARVWM-H022/NR1DJA', description: 'Common-DC wall mounted · 0.6 TR', qty: 4, unit: 'pc', currency: 'PKR', sourceRate: 112200, pkrRate: 112200, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 19, section: 'Indoor Unit', model: 'ARVWM-H028/NR1DJA', description: 'Common-DC wall mounted · 0.8 TR', qty: 3, unit: 'pc', currency: 'PKR', sourceRate: 115500, pkrRate: 115500, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 20, section: 'Indoor Unit', model: 'ARVWM-H036/NR1DJA', description: 'Common-DC wall mounted · 1.0 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 118800, pkrRate: 118800, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 21, section: 'Indoor Unit', model: 'ARVWM-H045/NR1DJA', description: 'Common-DC wall mounted · 1.3 TR', qty: 2, unit: 'pc', currency: 'PKR', sourceRate: 132000, pkrRate: 132000, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 22, section: 'Indoor Unit', model: 'ARVWM-H056/NR1DJA', description: 'Common-DC wall mounted · 1.6 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 135300, pkrRate: 135300, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 23, section: 'Indoor Unit', model: 'ARVWM-H071/NR1DJA', description: 'Common-DC wall mounted · 2.0 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 145200, pkrRate: 145200, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 24, section: 'Branch Joint', model: 'AFG-00B', description: 'Branch joint', qty: 8, unit: 'pc', currency: 'PKR', sourceRate: 9900, pkrRate: 9900, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 25, section: 'Branch Joint', model: 'AFG-12B', description: 'Branch joint', qty: 20, unit: 'pc', currency: 'PKR', sourceRate: 13200, pkrRate: 13200, stock: 0, reserved: 0, source: 'CEO Rate Book' },
-                { id: 26, section: 'Controller', model: 'XK-05A', description: 'Wired controller', qty: 23, unit: 'pc', currency: 'PKR', sourceRate: 23100, pkrRate: 23100, stock: 12, reserved: 2, source: 'CEO Rate Book' },
-                { id: 27, section: 'Controller', model: 'YK-H', description: 'Remote controller', qty: 18, unit: 'pc', currency: 'PKR', sourceRate: 6600, pkrRate: 6600, stock: 30, reserved: 4, source: 'CEO Rate Book' },
+                { id: 1, section: 'Outdoor Unit', model: 'ARV-H160/NR1A', description: 'MINI 50/60Hz · 4.6 TR', qty: 2, unit: 'pc', currency: 'PKR', sourceRate: 726000, pkrRate: 726000, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 2, section: 'Outdoor Unit', model: 'ARV-H180/SR1DCS7A', description: 'MINI 50/60Hz · 5.1 TR', qty: 3, unit: 'pc', currency: 'PKR', sourceRate: 897600, pkrRate: 897600, stock: 1, reserved: 0, source: 'Rate Book' },
+                { id: 3, section: 'Outdoor Unit', model: 'ARV-H224/SR1DCMA', description: 'Modular Mini VRF · 6.4 TR', qty: 4, unit: 'pc', currency: 'PKR', sourceRate: 1221000, pkrRate: 1221000, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 4, section: 'Outdoor Unit', model: 'ARV-H252/SR1DCMA', description: 'Modular Mini VRF · 7.2 TR', qty: 4, unit: 'pc', currency: 'PKR', sourceRate: 1267200, pkrRate: 1267200, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 5, section: 'Indoor Unit', model: 'ARVCA-H45/NR3DQB', description: 'Q-series DC cassette · 1.3 TR', qty: 2, unit: 'pc', currency: 'PKR', baseUnitRate: 174900, accessory: 'Cassette grille', accessoryUnitRate: 33000, sourceRate: 207900, pkrRate: 207900, stock: 4, reserved: 1, source: 'Rate Book' },
+                { id: 6, section: 'Indoor Unit', model: 'ARVCA-H71/NR3DQB', description: 'Q-series DC cassette · 2.0 TR', qty: 2, unit: 'pc', currency: 'PKR', baseUnitRate: 190740, accessory: 'Cassette grille', accessoryUnitRate: 33000, sourceRate: 223740, pkrRate: 223740, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 7, section: 'Indoor Unit', model: 'ARVMD-H71/4R1M', description: 'Medium ESP Duct · 2.0 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 181500, pkrRate: 181500, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 8, section: 'Indoor Unit', model: 'ARVMD-H80/4R1M', description: 'Medium ESP Duct · 2.3 TR', qty: 5, unit: 'pc', currency: 'PKR', sourceRate: 188100, pkrRate: 188100, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 9, section: 'Indoor Unit', model: 'ARVMD-H90/4R1M', description: 'Medium ESP Duct · 2.6 TR', qty: 2, unit: 'pc', currency: 'PKR', sourceRate: 197340, pkrRate: 197340, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 10, section: 'Indoor Unit', model: 'ARVMD-H100/4R1M', description: 'Medium ESP Duct · 2.8 TR', qty: 6, unit: 'pc', currency: 'PKR', sourceRate: 207900, pkrRate: 207900, stock: 2, reserved: 0, source: 'Rate Book' },
+                { id: 11, section: 'Indoor Unit', model: 'ARVMD-H112/4R1M', description: 'Medium ESP Duct · 3.2 TR', qty: 4, unit: 'pc', currency: 'PKR', sourceRate: 231000, pkrRate: 231000, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 12, section: 'Indoor Unit', model: 'ARVMD-H125/4R1M', description: 'Medium ESP Duct · 3.6 TR', qty: 2, unit: 'pc', currency: 'PKR', sourceRate: 237600, pkrRate: 237600, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 13, section: 'Indoor Unit', model: 'ARVMD-H140/4R1M', description: 'Medium ESP Duct · 4.0 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 245520, pkrRate: 245520, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 14, section: 'Indoor Unit', model: 'ARVMD-H150/NR1DM', description: 'Medium ESP Duct · 4.3 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 279840, pkrRate: 279840, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 15, section: 'Indoor Unit', model: 'ARVMD-H160/NR1DM', description: 'Medium ESP Duct · 4.6 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 298980, pkrRate: 298980, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 16, section: 'Indoor Unit', model: 'ARVWM-H080/NR1DCA', description: 'DC wall mounted · 2.3 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 181500, pkrRate: 181500, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 17, section: 'Indoor Unit', model: 'ARVWM-H100/NR1DCA', description: 'DC wall mounted · 2.8 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 195360, pkrRate: 195360, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 18, section: 'Indoor Unit', model: 'ARVWM-H022/NR1DJA', description: 'Common-DC wall mounted · 0.6 TR', qty: 4, unit: 'pc', currency: 'PKR', sourceRate: 112200, pkrRate: 112200, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 19, section: 'Indoor Unit', model: 'ARVWM-H028/NR1DJA', description: 'Common-DC wall mounted · 0.8 TR', qty: 3, unit: 'pc', currency: 'PKR', sourceRate: 115500, pkrRate: 115500, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 20, section: 'Indoor Unit', model: 'ARVWM-H036/NR1DJA', description: 'Common-DC wall mounted · 1.0 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 118800, pkrRate: 118800, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 21, section: 'Indoor Unit', model: 'ARVWM-H045/NR1DJA', description: 'Common-DC wall mounted · 1.3 TR', qty: 2, unit: 'pc', currency: 'PKR', sourceRate: 132000, pkrRate: 132000, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 22, section: 'Indoor Unit', model: 'ARVWM-H056/NR1DJA', description: 'Common-DC wall mounted · 1.6 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 135300, pkrRate: 135300, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 23, section: 'Indoor Unit', model: 'ARVWM-H071/NR1DJA', description: 'Common-DC wall mounted · 2.0 TR', qty: 1, unit: 'pc', currency: 'PKR', sourceRate: 145200, pkrRate: 145200, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 24, section: 'Branch Joint', model: 'AFG-00B', description: 'Branch joint', qty: 8, unit: 'pc', currency: 'PKR', sourceRate: 9900, pkrRate: 9900, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 25, section: 'Branch Joint', model: 'AFG-12B', description: 'Branch joint', qty: 20, unit: 'pc', currency: 'PKR', sourceRate: 13200, pkrRate: 13200, stock: 0, reserved: 0, source: 'Rate Book' },
+                { id: 26, section: 'Controller', model: 'XK-05A', description: 'Wired controller', qty: 23, unit: 'pc', currency: 'PKR', sourceRate: 23100, pkrRate: 23100, stock: 12, reserved: 2, source: 'Rate Book' },
+                { id: 27, section: 'Controller', model: 'YK-H', description: 'Remote controller', qty: 18, unit: 'pc', currency: 'PKR', sourceRate: 6600, pkrRate: 6600, stock: 30, reserved: 4, source: 'Rate Book' },
                 { id: 28, section: 'Accessory', model: 'MB13-I / MB10', description: 'Air-flow panels · commercial decision pending', qty: 4, unit: 'pc', currency: 'PKR', sourceRate: 0, pkrRate: 0, stock: 0, reserved: 0, source: 'Rate required' }
             ],
             sourceTotal: 22777260,
@@ -66,7 +66,7 @@
             approvedSnapshots: []
         },
         rateBook: {
-            edition: 'CEO Printed Rate Book · demonstration register',
+            edition: 'Rate Book · demonstration register',
             status: 'Reference control proposed for review',
             prices: [
                 { code: 'RB-AUX-001', model: 'ARV-H160/NR1A', category: 'Outdoor Unit', currency: 'PKR', amount: 726000, pkrAmount: 726000, source: 'Printed rate book', effective: '2026-09-01', review: 'Current demo' },
@@ -86,7 +86,7 @@
         },
         productCatalog: [],
         catalogImports: [
-            { id: 'IMP-2609-001', file: 'CEO_Rate_Book_Reference.xlsx', importedAt: '2026-09-17T08:30:00.000Z', importedBy: 'Sales Engineer', rows: 28, added: 28, updated: 0, status: 'Imported sample' }
+            { id: 'IMP-2609-001', file: 'Rate_Book_Reference.xlsx', importedAt: '2026-09-17T08:30:00.000Z', importedBy: 'Sales Engineer', rows: 28, added: 28, updated: 0, status: 'Imported sample' }
         ],
         manualQuotation: {
             layoutVersion: 3, id: 'MQ-2609-001', status: 'Draft', client: 'Walk-in / Direct Client', project: 'Manual HVAC Quotation', attention: '',
@@ -118,6 +118,19 @@
 
     let storageAvailable = true;
 
+    function normalizeRateBookLabels(data) {
+        const replaceLabel = value => typeof value === 'string'
+            ? value
+                .replace(/CEO Printed Rate Book/gi, 'Rate Book')
+                .replace(/CEO[_ -]Rate[_ -]Book/gi, match => match.includes('_') ? 'Rate_Book' : 'Rate Book')
+            : value;
+        data.costing?.lines?.forEach(line => { line.source = replaceLabel(line.source); });
+        data.productCatalog?.forEach(item => { item.source = replaceLabel(item.source); });
+        data.catalogImports?.forEach(item => { item.file = replaceLabel(item.file); });
+        if (data.rateBook) data.rateBook.edition = replaceLabel(data.rateBook.edition);
+        return data;
+    }
+
     function load() {
         try {
             const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -127,11 +140,13 @@
                     if (!parsed.manualQuotation || !Array.isArray(parsed.manualQuotation.lines) || parsed.manualQuotation.layoutVersion !== 3) parsed.manualQuotation = clone(demoState.manualQuotation);
                     if (!Array.isArray(parsed.productCatalog)) parsed.productCatalog = [];
                     if (!Array.isArray(parsed.catalogImports)) parsed.catalogImports = clone(demoState.catalogImports);
+                    normalizeRateBookLabels(parsed);
+                    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed)); } catch (_) { storageAvailable = false; }
                     return parsed;
                 }
             }
         } catch (_) { storageAvailable = false; }
-        return clone(demoState);
+        return normalizeRateBookLabels(clone(demoState));
     }
 
     let state = load();

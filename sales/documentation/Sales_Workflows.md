@@ -17,7 +17,7 @@ Evidence reviewed:
 
 1. The complete supplied Excel workbook is exported from the AUX selection software. Its `SELECTION` sheet is the known export/report format. The exact product name/version, API availability and alternative stable exports are not yet confirmed.
 2. Staff add commercial prices themselves after the selection export.
-3. Staff have a CEO-provided printed price/rate book covering units, wires and other items.
+3. Staff have a printed rate book covering units, wires and other items.
 4. Some prices may be entered in USD and converted to PKR. The exact exchange-rate source, effective-date rule and extra landed-cost formula are still open.
 5. Boss/management decides model consolidation/substitution, calculates the intended profit and discount, and gives commercial approval.
 6. For other or market-sourced products, staff seek the best available vendor price and enter it. No mandatory number of vendor quotations is confirmed.
@@ -321,7 +321,7 @@ The Sales folder now contains compact direct-file HTML screens matching the shar
 - `sales/rates.html` — pre-sale vendor rate enquiries
 - `sales/quotations.html` — quotation revisions, dispatch, acceptance and revalidation
 - `sales/quotation-detail.html` — full quotation document, commercial control, revision history, dispatch and acceptance evidence
-- `sales/settings.html` — CEO rate-book references, USD/PKR snapshots and commercial clause templates
+- `sales/settings.html` — rate book references, USD/PKR snapshots and commercial clause templates
 - `sales/workflow.html` — end-to-end workflow map and department boundaries
 
 `assets/js/sales-store.js` provides versioned local demonstration state with guarded browser storage and Sales-only reset. `assets/js/sales-pages.js` renders the screens and working mock actions. `assets/css/sales.css` keeps cards, tables, forms and badges compact. `assets/js/shared.js` now recognizes Sales as a full department with Sales navigation, quick links, notifications and workflow shortcut.
@@ -397,3 +397,7 @@ The Dashboard, Inquiries & Tenders, and BOQ & Costing screens were simplified fo
 - Primary actions use the shared navy treatment; secondary actions, table density and responsive behavior remain consistent with HR/Accounts sizing.
 
 Validation: JavaScript syntax check and all 12 Sales store/render tests pass. Browser automation could not open the local `file://` preview because that surface blocks local-file navigation, so direct-file behavior remains covered by the existing render/runtime tests and the user can review the visual result in Chrome.
+
+## Rate Book wording correction (2026-09-18)
+
+Sales catalogue, BOQ pricing, workflow, settings, import sample and documentation now use the neutral label `Rate Book`. Existing browser-local records carrying the earlier label are migrated in place without resetting saved Sales data. JavaScript syntax checks and all 13 Sales store/render tests pass.
