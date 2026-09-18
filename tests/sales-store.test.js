@@ -31,6 +31,8 @@ test('seed includes the confirmed sales workflow records', () => {
     assert.equal(cassette71.baseUnitRate + cassette71.accessoryUnitRate, cassette71.pkrRate);
     assert.equal(store.state.substitutions.every(x => x.status === 'Boss Approved'), true);
     assert.equal(store.state.costing.lines[0].source, 'Rate Book');
+    assert.equal(store.state.manualQuotation.project, 'HVAC Equipment Quotation');
+    assert.equal(store.state.costing.components.some(x => x.mode === 'Manual'), false);
     assert.equal(JSON.stringify(store.state).includes('CEO Rate Book'), false);
 });
 
@@ -42,6 +44,8 @@ test('legacy CEO rate-book labels migrate without resetting saved sales data', (
     saved.costing.lines[0].source = 'CEO Rate Book';
     saved.rateBook.edition = 'CEO Printed Rate Book · demonstration register';
     saved.catalogImports[0].file = 'CEO_Rate_Book_Reference.xlsx';
+    saved.manualQuotation.project = 'Manual HVAC Quotation';
+    saved.costing.components[0].mode = 'Manual';
     storage.set('cosmix_sales_mock_v2', JSON.stringify(saved));
 
     const migrated = createStore(storage);
@@ -49,6 +53,8 @@ test('legacy CEO rate-book labels migrate without resetting saved sales data', (
     assert.equal(migrated.state.costing.lines[0].source, 'Rate Book');
     assert.equal(migrated.state.rateBook.edition, 'Rate Book · demonstration register');
     assert.equal(migrated.state.catalogImports[0].file, 'Rate_Book_Reference.xlsx');
+    assert.equal(migrated.state.manualQuotation.project, 'HVAC Equipment Quotation');
+    assert.equal(migrated.state.costing.components[0].mode, 'Entered amount');
     assert.equal(storage.get('cosmix_sales_mock_v2').includes('CEO Rate Book'), false);
 });
 
@@ -185,14 +191,14 @@ test('all Sales screens render their main content without runtime errors', () =>
     vm.runInContext(source, context, { filename: 'sales-store.js' });
     vm.runInContext(pagesSource, context, { filename: 'sales-pages.js' });
     window.CosmixSales.addManualQuoteItem('ARVWM-H022/NR1DJA', 1, { includeLinked: true });
-    for (const page of ['dashboard', 'inquiries', 'selection', 'selection-detail', 'selection-pricing', 'costing', 'catalog', 'manual-quotation', 'rates', 'quotations', 'quotation-detail', 'settings', 'workflow']) {
+    for (const page of ['dashboard', 'inquiries', 'selection', 'selection-detail', 'selection-pricing', 'costing', 'catalog', 'quotation-builder', 'rates', 'quotations', 'quotation-detail', 'settings', 'workflow']) {
         window.location.search = page === 'quotation-detail' ? '?id=QTN-2609-019&rev=R1' : page === 'selection-detail' ? '?id=SEL-2609-014-R1' : '';
         window.renderSalesPage(page);
     }
     assert.equal(captured.length, 13);
     for (const result of captured) {
         assert.ok(result.title.length > 5);
-        if (!['Manual Quotation Sheet','Product Catalogue & Import'].includes(result.title)) assert.ok(result.html.includes('Local mock data'));
+        if (!['Quotation Builder','Product Catalogue & Import'].includes(result.title)) assert.ok(result.html.includes('Local mock data'));
         assert.ok(result.html.length > 1000);
     }
     const detail = captured.find(x => x.title === 'AUX Selection Detail');
@@ -205,21 +211,25 @@ test('all Sales screens render their main content without runtime errors', () =>
     const dashboard = captured.find(x => x.title === 'Sales Operations Dashboard');
     const inquiries = captured.find(x => x.title === 'Inquiries & Tenders');
     const costing = captured.find(x => x.title === 'BOQ & Flexible Costing');
-    const manual = captured.find(x => x.title === 'Manual Quotation Sheet');
+    const builder = captured.find(x => x.title === 'Quotation Builder');
     const selectionPricing = captured.find(x => x.title === 'Selection Pricing Sheet');
     assert.ok(dashboard.html.includes('Sales overview'));
     assert.ok(dashboard.html.includes('Work queue'));
     assert.ok(inquiries.html.includes('sales-register-toolbar'));
     assert.ok(costing.html.includes('sales-cost-nav'));
-    assert.ok(manual.html.includes('<th colspan="8">Equipment</th>'));
-    assert.ok(manual.html.includes('<th colspan="4">Remote / Controller</th>'));
-    assert.ok(manual.html.includes('<th rowspan="2">Line Total</th>'));
-    assert.ok(manual.html.includes('Not applicable'));
-    assert.ok(manual.html.includes('Not selected'));
+    assert.ok(builder.html.includes('<th colspan="8">Equipment</th>'));
+    assert.ok(builder.html.includes('<th colspan="4">Remote / Controller</th>'));
+    assert.ok(builder.html.includes('<th rowspan="2">Line Total</th>'));
+    assert.ok(builder.html.includes('Not applicable'));
+    assert.ok(builder.html.includes('Not selected'));
+    assert.ok(builder.html.includes('Equipment Quotation Worksheet'));
+    assert.equal(builder.html.includes('Manual Equipment Quotation'), false);
     assert.ok(selectionPricing.html.includes('Fill Rates'));
     assert.ok(selectionPricing.html.includes('Fill Rates (4)'));
     assert.ok(selectionPricing.html.includes('Download Excel'));
     assert.ok(selectionPricing.html.includes('Download Document'));
     assert.ok(pagesSource.includes("cellStyles:true"));
+    assert.ok(pagesSource.includes('-Equipment-Quotation.xlsx'));
+    assert.equal(pagesSource.includes('-Manual-Quotation.xlsx'), false);
     assert.equal([dashboard, inquiries, costing].some(x => x.html.includes('HTML MOCKUP')), false);
 });

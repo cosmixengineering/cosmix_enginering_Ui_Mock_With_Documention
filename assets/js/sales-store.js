@@ -58,10 +58,10 @@
             sourceTotal: 22777260,
             components: [
                 { id: 'CMP-001', name: 'Freight / Logistics', mode: 'Fixed', value: 180000, base: 'Whole quotation', amount: 180000, status: 'Entered', note: 'Demonstration amount; procedure varies by deal' },
-                { id: 'CMP-002', name: 'Installation Labour', mode: 'Manual', value: 1150000, base: 'Project scope', amount: 1150000, status: 'Entered', note: 'Demonstration amount' },
+                { id: 'CMP-002', name: 'Installation Labour', mode: 'Entered amount', value: 1150000, base: 'Project scope', amount: 1150000, status: 'Entered', note: 'Demonstration amount' },
                 { id: 'CMP-003', name: 'Overhead', mode: 'Percent', value: 2.5, base: 'Reference cost', amount: 569432, status: 'Entered', note: 'Example only; not confirmed company rule' },
                 { id: 'CMP-004', name: 'Profit / Markup', mode: 'Percent', value: 12, base: 'Approved internal cost', amount: 2961203, status: 'Boss Review', note: 'Boss decides final value' },
-                { id: 'CMP-005', name: 'Boss Discount', mode: 'Manual', value: 350000, base: 'Gross selling price', amount: -350000, status: 'Boss Review', note: 'Boss-entered discount' }
+                { id: 'CMP-005', name: 'Boss Discount', mode: 'Entered amount', value: 350000, base: 'Gross selling price', amount: -350000, status: 'Boss Review', note: 'Boss-entered discount' }
             ],
             approvedSnapshots: []
         },
@@ -89,7 +89,7 @@
             { id: 'IMP-2609-001', file: 'Rate_Book_Reference.xlsx', importedAt: '2026-09-17T08:30:00.000Z', importedBy: 'Sales Engineer', rows: 28, added: 28, updated: 0, status: 'Imported sample' }
         ],
         manualQuotation: {
-            layoutVersion: 3, id: 'MQ-2609-001', status: 'Draft', client: 'Walk-in / Direct Client', project: 'Manual HVAC Quotation', attention: '',
+            layoutVersion: 3, id: 'MQ-2609-001', status: 'Draft', client: 'Walk-in / Direct Client', project: 'HVAC Equipment Quotation', attention: '',
             date: '2026-09-17', validUntil: '2026-10-02', currency: 'PKR', notes: 'Prices and linked accessories require commercial review before issue.',
             discount: 0, freight: 0, tax: 0, lines: [], updatedAt: '2026-09-17T00:00:00.000Z'
         },
@@ -119,7 +119,7 @@
 
     let storageAvailable = true;
 
-    function normalizeRateBookLabels(data) {
+    function normalizePersistedLabels(data) {
         const replaceLabel = value => typeof value === 'string'
             ? value
                 .replace(/CEO Printed Rate Book/gi, 'Rate Book')
@@ -129,6 +129,12 @@
         data.productCatalog?.forEach(item => { item.source = replaceLabel(item.source); });
         data.catalogImports?.forEach(item => { item.file = replaceLabel(item.file); });
         if (data.rateBook) data.rateBook.edition = replaceLabel(data.rateBook.edition);
+        if (data.manualQuotation?.project === 'Manual HVAC Quotation') data.manualQuotation.project = 'HVAC Equipment Quotation';
+        data.costing?.components?.forEach(item => { if (item.mode === 'Manual') item.mode = 'Entered amount'; });
+        data.productCatalog?.forEach(item => {
+            if (item.source === 'Manual entry') item.source = 'Direct entry';
+            if (item.origin === 'Manual entry') item.origin = 'Direct entry';
+        });
         return data;
     }
 
@@ -142,13 +148,13 @@
                     if (!Object.prototype.hasOwnProperty.call(parsed, 'selectionPricing')) parsed.selectionPricing = null;
                     if (!Array.isArray(parsed.productCatalog)) parsed.productCatalog = [];
                     if (!Array.isArray(parsed.catalogImports)) parsed.catalogImports = clone(demoState.catalogImports);
-                    normalizeRateBookLabels(parsed);
+                    normalizePersistedLabels(parsed);
                     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed)); } catch (_) { storageAvailable = false; }
                     return parsed;
                 }
             }
         } catch (_) { storageAvailable = false; }
-        return normalizeRateBookLabels(clone(demoState));
+        return normalizePersistedLabels(clone(demoState));
     }
 
     let state = load();
@@ -376,7 +382,7 @@
         };
     }
 
-    function upsertCatalogItems(items, fileName = 'Manual entry') {
+    function upsertCatalogItems(items, fileName = 'Direct entry') {
         let added = 0, updated = 0, skipped = 0;
         const referenceModels = new Set(baseManualCatalog().map(x => String(x.model).toUpperCase()));
         (items || []).forEach(raw => {
@@ -386,7 +392,7 @@
             if (i >= 0) { item.id = state.productCatalog[i].id; state.productCatalog[i] = item; updated++; }
             else { state.productCatalog.push(item); if (referenceModels.has(item.model.toUpperCase())) updated++; else added++; }
         });
-        if (fileName !== 'Manual entry') state.catalogImports.unshift({ id: `IMP-${Date.now()}`, file: fileName, importedAt: new Date().toISOString(), importedBy: 'Sales Engineer', rows: (items || []).length, added, updated, skipped, status: 'Imported' });
+        if (fileName !== 'Direct entry') state.catalogImports.unshift({ id: `IMP-${Date.now()}`, file: fileName, importedAt: new Date().toISOString(), importedBy: 'Sales Engineer', rows: (items || []).length, added, updated, skipped, status: 'Imported' });
         save(); return { added, updated, skipped, total: (items || []).length };
     }
 

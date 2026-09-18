@@ -289,7 +289,7 @@ Fan, ventilation, wire and other equipment categories remain open. Staff must co
 3. Technical Selection Imports
 4. BOQ & Costing
 5. Product Catalogue & Data Import
-6. Manual Quotation Sheet
+6. Quotation Builder
 7. Vendor Rate Enquiries
 8. Quotations & Follow-ups
 
@@ -317,7 +317,7 @@ The Sales folder now contains compact direct-file HTML screens matching the shar
 - `sales/selection-detail.html` — structured AUX report detail with project data, design parameters, equipment list and all system sections
 - `sales/costing.html` — BOQ, flexible cost components, substitutions and Boss approval
 - `sales/catalog.html` — searchable Sales product catalogue, Excel/CSV data import, manual product entry, linked controller/grille mapping and active/inactive control
-- `sales/manual-quotation.html` — Excel-style manual quotation preparation with category/model search, price snapshots, linked accessories, quantity editing, Excel export and print layout
+- `sales/quotation-builder.html` — Excel-style quotation preparation with category/model search, price snapshots, linked accessories, quantity editing, Excel export and print layout
 - `sales/rates.html` — pre-sale vendor rate enquiries
 - `sales/quotations.html` — quotation revisions, dispatch, acceptance and revalidation
 - `sales/quotation-detail.html` — full quotation document, commercial control, revision history, dispatch and acceptance evidence
@@ -347,7 +347,7 @@ Confirmed pricing clarification (2026-09-17): the Rs. 33,000 entries beside the 
 
 Further production design will need generic workbook parsing/storage, role-based internal-cost visibility, inquiry/BOQ/vendor detail records for every project, client contact and attachment evidence, full activity audit events, SKU mapping to Inventory, and responsive/accessibility hardening. These are not implied as completed backend behavior by this HTML mockup.
 
-## Manual quotation builder update (2026-09-17)
+## Quotation Builder update (2026-09-17)
 
 Sales staff can prepare a local draft from the rate-book catalogue without repeatedly reading the printed book. Category and model/description search returns the current stored price snapshot. Adding a model copies its description, unit and price into an editable worksheet line, so later master-price changes do not silently rewrite the draft.
 
@@ -365,13 +365,13 @@ The manual page intentionally omits the generic mockup banner and introductory c
 
 ## Product catalogue and import update (2026-09-17)
 
-Sales has a dedicated catalogue page for the data used by Manual Quotation search. It lists reference and user-maintained products with code/SKU, category, brand, model, specification, unit, PKR unit price, rate source, effective date, status and optional controller/grille model-price mappings. Staff can add or edit one product, activate/deactivate it, search/filter the complete register, download a CSV template, or upload `.xlsx`, `.xls` and `.csv` data. Duplicate model numbers update the existing user-maintained record. Active additions become available in Manual Quotation immediately through the same local browser store.
+Sales has a dedicated catalogue page for the data used by Quotation Builder search. It lists reference and user-maintained products with code/SKU, category, brand, model, specification, unit, PKR unit price, rate source, effective date, status and optional controller/grille model-price mappings. Staff can add or edit one product, activate/deactivate it, search/filter the complete register, download a CSV template, or upload `.xlsx`, `.xls` and `.csv` data. Duplicate model numbers update the existing user-maintained record. Active additions become available in Quotation Builder immediately through the same local browser store.
 
 This remains an HTML mockup with browser-local demonstration persistence. Excel parsing uses the SheetJS browser library already used for quotation export; if it is unavailable, staff can use the CSV template/import path.
 
 The worksheet stores draft metadata and lines separately from approved/submitted quotations. It calculates subtotal, freight, tax/duty, discount and grand total, downloads a real `.xlsx` workbook when SheetJS is available (with an Excel-compatible CSV fallback), and prints a clean A4 landscape quotation while hiding application controls.
 
-## Manual quotation spreadsheet correction (2026-09-18)
+## Quotation Builder spreadsheet correction (2026-09-18)
 
 The earlier Excel export was a raw 21-value row with minimal widths and only two title merges, which opened like an unformatted data dump. The corrected browser worksheet and `.xlsx` export share this structure:
 
@@ -413,6 +413,10 @@ The Selection Detail summary now reports `80 in Costing` as the workbook formula
 
 ## AUX Selection Pricing Sheet (2026-09-18)
 
-The Equipment Quotation List now opens `sales/selection-pricing.html` instead of copying rows into the unrelated general Manual Quotation draft. The new sheet retains all 32 AUX equipment/accessory rows and their 127-piece total. Exact active Product Catalogue matches fill automatically using the catalogue's commercial unit price. An unmatched AUX model stays visible with `Rate required`; Sales can choose an available same-category rate model in the Fill Rates dialog or enter a manual price. The selected rate model is recorded separately, so the original AUX model remains traceable.
+The Equipment Quotation List now opens `sales/selection-pricing.html` instead of copying rows into the unrelated general Quotation Builder draft. The new sheet retains all 32 AUX equipment/accessory rows and their 127-piece total. Exact active Product Catalogue matches fill automatically using the catalogue's commercial unit price. An unmatched AUX model stays visible with `Rate required`; Sales can choose an available same-category rate model in the Fill Rates dialog or enter a unit price directly. The selected rate model is recorded separately, so the original AUX model remains traceable.
 
 This mapping prevents silent substitution. Known management-approved replacements are presented first as recommendations, while staff must still choose them. Cassette unit prices use their base equipment rate because the AUX list contains its grille/panel rows separately; this avoids adding the Rs. 33,000 grille twice. The sheet saves locally, calculates line and equipment totals, and provides styled Excel, Word-compatible document and print/PDF outputs. It remains an HTML demonstration and does not post to Accounts, Inventory or Procurement.
+
+## Quotation naming correction (2026-09-18)
+
+The Sales worksheet is named **Quotation Builder** in navigation and **Equipment Quotation Worksheet** in the page and export. New Excel/CSV files use `Equipment-Quotation` in their filename and the default project is `HVAC Equipment Quotation`. Existing browser-local drafts carrying the previous label are migrated without clearing quotation lines. The former HTML path remains only as a redirect so saved bookmarks continue to open the renamed page.
