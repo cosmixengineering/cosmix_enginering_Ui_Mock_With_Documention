@@ -370,3 +370,16 @@ Sales has a dedicated catalogue page for the data used by Manual Quotation searc
 This remains an HTML mockup with browser-local demonstration persistence. Excel parsing uses the SheetJS browser library already used for quotation export; if it is unavailable, staff can use the CSV template/import path.
 
 The worksheet stores draft metadata and lines separately from approved/submitted quotations. It calculates subtotal, freight, tax/duty, discount and grand total, downloads a real `.xlsx` workbook when SheetJS is available (with an Excel-compatible CSV fallback), and prints a clean A4 landscape quotation while hiding application controls.
+
+## Sales operational UI update (2026-09-18)
+
+The Dashboard, Inquiries & Tenders, and BOQ & Costing screens were simplified for the staff walkthrough without changing the confirmed workflow:
+
+- The large yellow `HTML MOCKUP` banner is replaced by a quiet `Local mock data` status and reset control.
+- Each page now has one compact title/action row followed by a single four-value summary strip.
+- Dashboard prioritizes the work queue, recent activity, pipeline and active records instead of five separate presentation cards.
+- Inquiries keeps stage tabs, search and priority filtering inside the register so staff can filter and act in one place.
+- BOQ keeps all commercial tabs, price calculations, FX snapshot, stock reference, cost components, substitutions and management approval, with the financial summary compressed into one row.
+- Primary actions use the shared navy treatment; secondary actions, table density and responsive behavior remain consistent with HR/Accounts sizing.
+
+Validation: JavaScript syntax check and all 12 Sales store/render tests pass. Browser automation could not open the local `file://` preview because that surface blocks local-file navigation, so direct-file behavior remains covered by the existing render/runtime tests and the user can review the visual result in Chrome.

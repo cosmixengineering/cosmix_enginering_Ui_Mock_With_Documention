@@ -152,11 +152,19 @@ test('all Sales screens render their main content without runtime errors', () =>
     assert.equal(captured.length, 12);
     for (const result of captured) {
         assert.ok(result.title.length > 5);
-        if (!['Manual Quotation Sheet','Product Catalogue & Import'].includes(result.title)) assert.ok(result.html.includes('HTML MOCKUP'));
+        if (!['Manual Quotation Sheet','Product Catalogue & Import'].includes(result.title)) assert.ok(result.html.includes('Local mock data'));
         assert.ok(result.html.length > 1000);
     }
     const detail = captured.find(x => x.title === 'AUX Selection Detail');
     assert.ok(detail.html.includes('INDUS MOTOR, ADMIN BUILDING'));
     assert.ok(detail.html.includes('GF-CU-01'));
     assert.equal((detail.html.match(/class="aux-system-card"/g) || []).length, 13);
+    const dashboard = captured.find(x => x.title === 'Sales Operations Dashboard');
+    const inquiries = captured.find(x => x.title === 'Inquiries & Tenders');
+    const costing = captured.find(x => x.title === 'BOQ & Flexible Costing');
+    assert.ok(dashboard.html.includes('Sales overview'));
+    assert.ok(dashboard.html.includes('Work queue'));
+    assert.ok(inquiries.html.includes('sales-register-toolbar'));
+    assert.ok(costing.html.includes('sales-cost-nav'));
+    assert.equal([dashboard, inquiries, costing].some(x => x.html.includes('HTML MOCKUP')), false);
 });
