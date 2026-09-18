@@ -1,6 +1,6 @@
 (function () {
     const state = {
-        file: null, sourceBytes: null, pdf: null, viewport: null, page: 1, pages: 0, zoom: 1.15,
+        file: null, sourceBytes: null, pdf: null, viewport: null, displayWidth: 0, displayHeight: 0, outputScale: 2, page: 1, pages: 0, zoom: 1.15,
         textItems: [], selection: null, edits: [], selectedEditId: null, output: null,
         dragging: false, dragStart: null, renderId: 0
     };
@@ -15,7 +15,7 @@
             <div id="pdf-editor-empty" class="sales-panel"><div id="pdf-editor-drop" class="pdf-editor-drop" role="button" tabindex="0" aria-label="Choose or drop a PDF"><i class="fas fa-file-arrow-up"></i><strong>Upload a PDF to edit</strong><span>Text-based aur scanned dono PDFs supported hain. File isi browser mein process hogi.</span><div class="flex flex-wrap items-center justify-center gap-2"><button type="button" onclick="pdfEditorChoose(event)" class="sales-btn sales-btn-primary"><i class="fas fa-folder-open"></i> Choose PDF</button><span class="pdf-editor-drop-copy">or drop PDF here</span></div><input id="pdf-file-input" type="file" accept="application/pdf,.pdf" onchange="pdfEditorLoad(this.files && this.files[0])"></div></div>
             <div id="pdf-editor-workspace" class="hidden grid items-start gap-3 xl:grid-cols-[210px_minmax(560px,1fr)_290px]">
                 <aside class="sales-panel pdf-editor-sidebar"><div class="sales-panel-head"><div><p class="sales-label">Document</p><h3 id="pdf-file-name">PDF</h3></div></div><div class="p-3"><div class="pdf-source-meta"><span>Pages</span><strong id="pdf-page-count">0</strong></div><div class="pdf-source-meta"><span>Detected text</span><strong id="pdf-text-count">0 items</strong></div><div id="pdf-page-list" class="pdf-page-list"></div></div><div class="border-t border-slate-100 p-3 text-[8.5px] leading-relaxed text-slate-500">Source PDF read-only rahegi. Export ek nayi edited copy banata hai.</div></aside>
-                <main class="sales-panel min-w-0 overflow-hidden"><div class="pdf-editor-toolbar no-print"><div class="flex items-center gap-1"><button onclick="pdfEditorPage(-1)" class="sales-icon-btn" title="Previous page"><i class="fas fa-chevron-left"></i></button><span class="pdf-page-indicator">Page <strong id="pdf-current-page">1</strong> / <span id="pdf-total-pages">1</span></span><button onclick="pdfEditorPage(1)" class="sales-icon-btn" title="Next page"><i class="fas fa-chevron-right"></i></button></div><div class="flex items-center gap-1"><button onclick="pdfEditorZoom(-.15)" class="sales-icon-btn" title="Zoom out"><i class="fas fa-minus"></i></button><span id="pdf-zoom-label" class="pdf-page-indicator">115%</span><button onclick="pdfEditorZoom(.15)" class="sales-icon-btn" title="Zoom in"><i class="fas fa-plus"></i></button></div><div class="pdf-editor-hint"><i class="fas fa-arrow-pointer"></i> Text par click karein ya mouse se rectangle draw karein</div></div><div id="pdf-view-scroll" class="pdf-view-scroll"><div id="pdf-stage" class="pdf-stage"><canvas id="pdf-canvas"></canvas><div id="pdf-text-layer" class="pdf-text-layer"></div><div id="pdf-edit-layer" class="pdf-edit-layer"></div><div id="pdf-selection-box" class="pdf-selection-box hidden"></div></div></div><div id="pdf-render-status" class="pdf-render-status">PDF upload karein</div></main>
+                <main class="sales-panel min-w-0 overflow-hidden"><div class="pdf-editor-toolbar no-print"><div class="flex items-center gap-1"><button onclick="pdfEditorPage(-1)" class="sales-icon-btn" title="Previous page"><i class="fas fa-chevron-left"></i></button><span class="pdf-page-indicator">Page <strong id="pdf-current-page">1</strong> / <span id="pdf-total-pages">1</span></span><button onclick="pdfEditorPage(1)" class="sales-icon-btn" title="Next page"><i class="fas fa-chevron-right"></i></button></div><div class="flex items-center gap-1"><button onclick="pdfEditorZoom(-.15)" class="sales-icon-btn" title="Zoom out"><i class="fas fa-minus"></i></button><span id="pdf-zoom-label" class="pdf-page-indicator">115%</span><button onclick="pdfEditorZoom(.15)" class="sales-icon-btn" title="Zoom in"><i class="fas fa-plus"></i></button><span id="pdf-quality-label" class="sales-badge bg-slate-50 text-slate-600 border-slate-200">HD 2x</span></div><div class="pdf-editor-hint"><i class="fas fa-arrow-pointer"></i> Text par click karein ya mouse se rectangle draw karein</div></div><div id="pdf-view-scroll" class="pdf-view-scroll"><div id="pdf-stage" class="pdf-stage"><canvas id="pdf-canvas"></canvas><div id="pdf-text-layer" class="pdf-text-layer"></div><div id="pdf-edit-layer" class="pdf-edit-layer"></div><div id="pdf-selection-box" class="pdf-selection-box hidden"></div></div></div><div id="pdf-render-status" class="pdf-render-status">PDF upload karein</div></main>
                 <aside class="space-y-3"><section class="sales-panel"><div class="sales-panel-head"><div><p class="sales-label">Replacement</p><h3>Selected text area</h3></div><span id="pdf-selection-status" class="sales-badge bg-slate-50 text-slate-500 border-slate-200">None</span></div><div class="space-y-3 p-3"><div class="sales-field"><label>Detected / original text</label><textarea id="pdf-original-text" class="sales-textarea" rows="2" readonly placeholder="Area select karein"></textarea></div><div class="sales-field"><label>Replacement text *</label><textarea id="pdf-replacement-text" class="sales-textarea" rows="3" placeholder="Naya text yahan likhein"></textarea></div><div class="grid grid-cols-2 gap-2"><div class="sales-field"><label>Font size</label><input id="pdf-font-size" type="number" min="5" max="72" value="11" class="sales-input"></div><div class="sales-field"><label>Alignment</label><select id="pdf-text-align" class="sales-select"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></div><div class="sales-field"><label>Text colour</label><input id="pdf-text-color" type="color" value="#111827" class="pdf-color-input"></div><div class="sales-field"><label>Area background</label><input id="pdf-background-color" type="color" value="#ffffff" class="pdf-color-input"></div></div><label class="flex items-center gap-2 text-[9px] text-slate-600"><input id="pdf-cover-old" type="checkbox" checked> Old text/background cover karein</label><div class="grid grid-cols-2 gap-2"><button onclick="pdfEditorApply()" class="sales-btn sales-btn-primary justify-center"><i class="fas fa-check"></i> Apply text</button><button onclick="pdfEditorDeleteSelected()" class="sales-btn justify-center"><i class="fas fa-trash"></i> Remove edit</button></div></div></section>
                     <section class="sales-panel"><div class="sales-panel-head"><div><p class="sales-label">Changes</p><h3>Replacement list</h3></div><span id="pdf-edit-count" class="sales-badge bg-slate-50 text-slate-600 border-slate-200">0</span></div><div id="pdf-edit-list" class="pdf-edit-list"><div class="pdf-empty-list">No replacements added</div></div><div class="border-t border-slate-100 p-3"><button onclick="pdfEditorUndo()" class="sales-btn w-full justify-center"><i class="fas fa-rotate-left"></i> Undo last change</button></div></section>
                     <div class="sales-note border-l-amber-500"><p class="font-bold">How replacement works</p><p class="mt-1 text-[8.5px] leading-relaxed text-slate-500">Editor original text ko Word ki tarah rewrite nahi karta. Selected area cover hota hai aur naya text same coordinates par paint hota hai. Scanned page par area manually draw karein. Signed PDF edit karne se digital signature valid nahi rahegi.</p></div>
@@ -115,13 +115,17 @@
         const page = await state.pdf.getPage(state.page);
         const viewport = page.getViewport({ scale: state.zoom });
         state.viewport = viewport;
+        state.displayWidth = viewport.width;
+        state.displayHeight = viewport.height;
+        state.outputScale = Math.min(2.5, Math.max(2, Number(window.devicePixelRatio || 1)));
         if (request !== state.renderId) return;
         const canvas = byId('pdf-canvas'), stage = byId('pdf-stage'), context = canvas.getContext('2d', { alpha: false });
-        canvas.width = Math.ceil(viewport.width); canvas.height = Math.ceil(viewport.height);
+        canvas.width = Math.ceil(viewport.width * state.outputScale); canvas.height = Math.ceil(viewport.height * state.outputScale);
         canvas.style.width = `${viewport.width}px`; canvas.style.height = `${viewport.height}px`;
         stage.style.width = `${viewport.width}px`; stage.style.height = `${viewport.height}px`;
+        context.imageSmoothingEnabled = true; context.imageSmoothingQuality = 'high';
         context.fillStyle = '#fff'; context.fillRect(0, 0, canvas.width, canvas.height);
-        await page.render({ canvasContext: context, viewport, background: 'rgb(255,255,255)' }).promise;
+        await page.render({ canvasContext: context, viewport, transform: [state.outputScale, 0, 0, state.outputScale, 0, 0], background: 'rgb(255,255,255)' }).promise;
         const text = await page.getTextContent();
         state.textItems = text.items.filter(item => String(item.str || '').trim()).map((item, index) => {
             const transform = window.pdfjsLib.Util.transform(viewport.transform, item.transform);
@@ -131,6 +135,7 @@
         renderTextLayer(); renderEditLayer(); clearSelection(false); renderPageList();
         byId('pdf-current-page').textContent = state.page;
         byId('pdf-zoom-label').textContent = `${Math.round(state.zoom * 100)}%`;
+        byId('pdf-quality-label').textContent = `HD ${state.outputScale % 1 ? state.outputScale.toFixed(1) : state.outputScale}x`;
         byId('pdf-text-count').textContent = `${state.textItems.length} items`;
         setBusy(state.textItems.length ? `${state.textItems.length} text items detected - click text or draw an area` : 'No selectable text detected - draw an area manually');
         page.cleanup();
@@ -142,7 +147,7 @@
     }
 
     function renderEditLayer() {
-        const layer = byId('pdf-edit-layer'), width = byId('pdf-canvas').width, height = byId('pdf-canvas').height;
+        const layer = byId('pdf-edit-layer'), width = state.displayWidth, height = state.displayHeight;
         layer.innerHTML = state.edits.filter(edit => edit.page === state.page).map(edit => {
             const r = edit.rect, x = r.x * width, y = r.y * height, w = r.width * width, h = r.height * height;
             const selected = state.selectedEditId === edit.id ? ' selected' : '';
@@ -164,8 +169,8 @@
     }
 
     function selectRect(rect, original = '', editId = null) {
-        const canvas = byId('pdf-canvas'), box = byId('pdf-selection-box');
-        state.selection = { x: rect.x / canvas.width, y: rect.y / canvas.height, width: rect.width / canvas.width, height: rect.height / canvas.height };
+        const box = byId('pdf-selection-box'), width = state.displayWidth, height = state.displayHeight;
+        state.selection = { x: rect.x / width, y: rect.y / height, width: rect.width / width, height: rect.height / height };
         state.selectedEditId = editId;
         box.classList.remove('hidden');
         Object.assign(box.style, { left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.width}px`, height: `${rect.height}px` });
@@ -185,8 +190,7 @@
     function selectEdit(id) {
         const edit = state.edits.find(row => row.id === id);
         if (!edit) return;
-        const canvas = byId('pdf-canvas');
-        selectRect({ x: edit.rect.x * canvas.width, y: edit.rect.y * canvas.height, width: edit.rect.width * canvas.width, height: edit.rect.height * canvas.height }, edit.original || '', edit.id);
+        selectRect({ x: edit.rect.x * state.displayWidth, y: edit.rect.y * state.displayHeight, width: edit.rect.width * state.displayWidth, height: edit.rect.height * state.displayHeight }, edit.original || '', edit.id);
         byId('pdf-replacement-text').value = edit.text;
         byId('pdf-font-size').value = edit.fontSize;
         byId('pdf-text-align').value = edit.align;
@@ -223,7 +227,7 @@
             backgroundColor: byId('pdf-background-color').value, cover: byId('pdf-cover-old').checked
         };
         if (state.viewport) {
-            const canvas = byId('pdf-canvas'), x1 = row.rect.x * canvas.width, y1 = row.rect.y * canvas.height, x2 = (row.rect.x + row.rect.width) * canvas.width, y2 = (row.rect.y + row.rect.height) * canvas.height;
+            const x1 = row.rect.x * state.displayWidth, y1 = row.rect.y * state.displayHeight, x2 = (row.rect.x + row.rect.width) * state.displayWidth, y2 = (row.rect.y + row.rect.height) * state.displayHeight;
             const first = state.viewport.convertToPdfPoint(x1, y1), second = state.viewport.convertToPdfPoint(x2, y2);
             row.pdfRect = { x: Math.min(first[0], second[0]), y: Math.min(first[1], second[1]), width: Math.abs(second[0] - first[0]), height: Math.abs(second[1] - first[1]) };
         }
@@ -271,7 +275,7 @@
     function resetRuntime() {
         if (state.pdf) state.pdf.destroy().catch(() => {});
         if (state.output?.url) URL.revokeObjectURL(state.output.url);
-        Object.assign(state, { file: null, sourceBytes: null, pdf: null, viewport: null, page: 1, pages: 0, zoom: 1.15, textItems: [], selection: null, edits: [], selectedEditId: null, output: null, dragging: false, dragStart: null });
+        Object.assign(state, { file: null, sourceBytes: null, pdf: null, viewport: null, displayWidth: 0, displayHeight: 0, outputScale: 2, page: 1, pages: 0, zoom: 1.15, textItems: [], selection: null, edits: [], selectedEditId: null, output: null, dragging: false, dragStart: null });
         byId('pdf-editor-empty')?.classList.remove('hidden'); byId('pdf-editor-workspace')?.classList.add('hidden'); byId('pdf-output-panel')?.classList.add('hidden');
         if (byId('pdf-export-btn')) byId('pdf-export-btn').disabled = true;
     }

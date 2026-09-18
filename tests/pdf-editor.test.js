@@ -56,6 +56,10 @@ test('PDF editor page includes upload, selection, replacement and export control
     assert.ok(ui.includes('onclick="pdfEditorChoose(event)"'));
     assert.ok(ui.includes("drop.addEventListener('drop'"));
     assert.ok(ui.includes("window.pdfEditorChoose"));
+    assert.ok(ui.includes('window.devicePixelRatio'));
+    assert.ok(ui.includes('transform: [state.outputScale'));
+    assert.ok(ui.includes('HD ${state.outputScale'));
+    assert.equal(ui.includes('rect.x / canvas.width'), false);
     assert.ok(ui.includes('Replacement text'));
     assert.ok(ui.includes('convertToPdfPoint'));
     assert.ok(ui.includes('Export edited PDF'));

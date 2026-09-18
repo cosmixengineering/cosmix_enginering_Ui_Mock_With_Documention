@@ -365,6 +365,8 @@ The Management Decisions register uses a read-only review popup. It presents the
 
 The PDF Editor upload control opens the browser file picker from its visible button and also accepts a dropped PDF. Its matching bundled PDF.js worker is loaded locally before the viewer library so the direct-file Chrome mock can parse and render PDFs without depending on a remote worker. The source file and edited bytes stay in browser memory.
 
+The page preview uses a high-density backing canvas at a minimum 2x render scale and keeps selection/edit coordinates tied to the visible page dimensions. This improves screen sharpness without changing the source PDF or shifting exported replacement positions.
+
 The HTML mock records selected upload metadata and a known supplied-workbook mapping; it does not retain or parse arbitrary workbook bytes. This limitation is stated in the UI. Actions do not call AUX, Inventory, Procurement, Accounts, email or WhatsApp services.
 
 Validation completed:
