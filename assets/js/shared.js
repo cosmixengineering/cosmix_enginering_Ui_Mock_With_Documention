@@ -113,7 +113,7 @@ const renderLayout = (activePage) => {
             <nav class="space-y-1">
                 ${createNavLink(p + 'sales/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
                 ${createNavLink(p + 'sales/inquiries.html', 'Inquiries & Tenders', 'fas fa-inbox', activePage === 'inquiries', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: '6' })}
-                ${createNavLink(p + 'sales/selection.html', 'Technical Selection', 'fas fa-snowflake', activePage === 'selection' || activePage === 'selection-detail', { bg: 'bg-cyan-50 border border-cyan-200', text: 'text-cyan-700', label: 'AUX' })}
+                ${createNavLink(p + 'sales/selection.html', 'Technical Selection', 'fas fa-snowflake', activePage === 'selection' || activePage === 'selection-detail' || activePage === 'selection-pricing', { bg: 'bg-cyan-50 border border-cyan-200', text: 'text-cyan-700', label: 'AUX' })}
                 ${createNavLink(p + 'sales/costing.html', 'BOQ & Costing', 'fas fa-calculator', activePage === 'costing', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '3' })}
                 ${createNavLink(p + 'sales/catalog.html', 'Product Catalogue', 'fas fa-database', activePage === 'catalog', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Data' })}
                 ${createNavLink(p + 'sales/manual-quotation.html', 'Manual Quotation Sheet', 'fas fa-table-cells', activePage === 'manual-quotation', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Excel' })}

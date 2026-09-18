@@ -136,6 +136,25 @@ test('catalogue imports become searchable quotation models with linked component
     assert.equal(store.state.catalogImports[0].file, 'Fans.xlsx');
 });
 
+test('AUX selection pricing auto-fills exact rates and supports a reviewed replacement rate', () => {
+    const store = createStore();
+    const sheet = store.prepareSelectionPricing('SEL-2609-014-R1', [
+        ['Outdoor Unit', 'ARV-H160/NR1A', 'MINI 50/60Hz', 2],
+        ['Indoor Unit', 'ARVCA-H45/NR1DYBA', 'Compact 4-way cassette', 1]
+    ]);
+    assert.equal(sheet.lines[0].unitPrice, 726000);
+    assert.equal(sheet.lines[0].status, 'Rate matched');
+    assert.equal(sheet.lines[1].unitPrice, 0);
+    assert.equal(store.selectionPricingTotals().unresolved, 1);
+    const candidates = store.selectionPricingCandidates(sheet.lines[1].id);
+    assert.equal(candidates[0].model, 'ARVCA-H45/NR3DQB');
+    assert.equal(candidates[0].recommended, true);
+    store.applySelectionPricingRate(sheet.lines[1].id, candidates[0].model);
+    assert.equal(sheet.lines[1].unitPrice, 174900);
+    assert.equal(sheet.lines[1].rateModel, 'ARVCA-H45/NR3DQB');
+    assert.equal(store.selectionPricingTotals().subtotal, 1626900);
+});
+
 test('reset restores seed after local mutations', () => {
     const store = createStore();
     store.addInquiry({ client: 'Temporary Client', project: 'Temporary Project' });
@@ -166,11 +185,11 @@ test('all Sales screens render their main content without runtime errors', () =>
     vm.runInContext(source, context, { filename: 'sales-store.js' });
     vm.runInContext(pagesSource, context, { filename: 'sales-pages.js' });
     window.CosmixSales.addManualQuoteItem('ARVWM-H022/NR1DJA', 1, { includeLinked: true });
-    for (const page of ['dashboard', 'inquiries', 'selection', 'selection-detail', 'costing', 'catalog', 'manual-quotation', 'rates', 'quotations', 'quotation-detail', 'settings', 'workflow']) {
+    for (const page of ['dashboard', 'inquiries', 'selection', 'selection-detail', 'selection-pricing', 'costing', 'catalog', 'manual-quotation', 'rates', 'quotations', 'quotation-detail', 'settings', 'workflow']) {
         window.location.search = page === 'quotation-detail' ? '?id=QTN-2609-019&rev=R1' : page === 'selection-detail' ? '?id=SEL-2609-014-R1' : '';
         window.renderSalesPage(page);
     }
-    assert.equal(captured.length, 12);
+    assert.equal(captured.length, 13);
     for (const result of captured) {
         assert.ok(result.title.length > 5);
         if (!['Manual Quotation Sheet','Product Catalogue & Import'].includes(result.title)) assert.ok(result.html.includes('Local mock data'));
@@ -181,11 +200,13 @@ test('all Sales screens render their main content without runtime errors', () =>
     assert.ok(detail.html.includes('GF-CU-01'));
     assert.ok(detail.html.includes('80 in Costing'));
     assert.ok(detail.html.includes('Selection: 0 · fixed AUX values'));
+    assert.ok(detail.html.includes('Prepare Pricing Sheet'));
     assert.equal((detail.html.match(/class="aux-system-card"/g) || []).length, 13);
     const dashboard = captured.find(x => x.title === 'Sales Operations Dashboard');
     const inquiries = captured.find(x => x.title === 'Inquiries & Tenders');
     const costing = captured.find(x => x.title === 'BOQ & Flexible Costing');
     const manual = captured.find(x => x.title === 'Manual Quotation Sheet');
+    const selectionPricing = captured.find(x => x.title === 'Selection Pricing Sheet');
     assert.ok(dashboard.html.includes('Sales overview'));
     assert.ok(dashboard.html.includes('Work queue'));
     assert.ok(inquiries.html.includes('sales-register-toolbar'));
@@ -195,6 +216,10 @@ test('all Sales screens render their main content without runtime errors', () =>
     assert.ok(manual.html.includes('<th rowspan="2">Line Total</th>'));
     assert.ok(manual.html.includes('Not applicable'));
     assert.ok(manual.html.includes('Not selected'));
+    assert.ok(selectionPricing.html.includes('Fill Rates'));
+    assert.ok(selectionPricing.html.includes('Fill Rates (4)'));
+    assert.ok(selectionPricing.html.includes('Download Excel'));
+    assert.ok(selectionPricing.html.includes('Download Document'));
     assert.ok(pagesSource.includes("cellStyles:true"));
     assert.equal([dashboard, inquiries, costing].some(x => x.html.includes('HTML MOCKUP')), false);
 });

@@ -410,3 +410,9 @@ The Dashboard stage summary uses `Sales Progress` and `In progress` so staff see
 ## AUX formula summary clarification (2026-09-18)
 
 The Selection Detail summary now reports `80 in Costing` as the workbook formula count and separately states `Selection: 0 · fixed AUX values`. This prevents the Selection sheet's zero formula cells from being mistaken for a formula-free workbook. The supplied workbook evidence remains unchanged: AUX exports fixed values in `SELECTION`, while `COSTING` contains 80 formula cells.
+
+## AUX Selection Pricing Sheet (2026-09-18)
+
+The Equipment Quotation List now opens `sales/selection-pricing.html` instead of copying rows into the unrelated general Manual Quotation draft. The new sheet retains all 32 AUX equipment/accessory rows and their 127-piece total. Exact active Product Catalogue matches fill automatically using the catalogue's commercial unit price. An unmatched AUX model stays visible with `Rate required`; Sales can choose an available same-category rate model in the Fill Rates dialog or enter a manual price. The selected rate model is recorded separately, so the original AUX model remains traceable.
+
+This mapping prevents silent substitution. Known management-approved replacements are presented first as recommendations, while staff must still choose them. Cassette unit prices use their base equipment rate because the AUX list contains its grille/panel rows separately; this avoids adding the Rs. 33,000 grille twice. The sheet saves locally, calculates line and equipment totals, and provides styled Excel, Word-compatible document and print/PDF outputs. It remains an HTML demonstration and does not post to Accounts, Inventory or Procurement.

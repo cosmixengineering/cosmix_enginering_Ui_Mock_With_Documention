@@ -306,6 +306,10 @@
 .aux-nav-link { display: flex; align-items: center; gap: 7px; border-radius: 6px; padding: 6px 8px; color: #64748b; font-size: 9.5px; font-weight: 700; }
 .aux-nav-link:hover { background: #f1f5f9; color: #242b5f; }
 .aux-nav-link.active { background: #eef2ff; color: #242b5f; }
+.selection-pricing-scroll { min-height: 430px; max-height: 610px; overflow: auto; scrollbar-gutter: stable; }
+.selection-pricing-grid { min-width: 1380px; }
+.selection-pricing-scroll thead { position: sticky; top: 0; z-index: 5; }
+.selection-pricing-grid td { vertical-align: middle; }
 @media (max-width: 900px) {
     .sales-step:not(:last-child)::after { display: none; }
     .sales-workspace-head, .sales-register-toolbar, .sales-cost-nav { align-items: flex-start; flex-direction: column; }
@@ -318,10 +322,13 @@
     @page { size: A4 landscape; margin: 10mm; }
     #sidebar, header, #global-flowchart-btn, .no-print { display: none !important; }
     #main-content { padding: 0 !important; overflow: visible !important; }
-    .sales-page > *:not(#manual-quote-print) { display: none !important; }
-    #manual-quote-print { display: block !important; width: 100% !important; border: 0 !important; box-shadow: none !important; }
+    .sales-page > *:not(#manual-quote-print):not(#selection-pricing-print) { display: none !important; }
+    #manual-quote-print,
+    #selection-pricing-print { display: block !important; width: 100% !important; border: 0 !important; box-shadow: none !important; }
     #manual-quote-print .sales-sheet-input,
-    #manual-quote-print .sales-textarea { border: 0 !important; padding: 0 !important; box-shadow: none !important; background: transparent !important; resize: none !important; }
+    #manual-quote-print .sales-textarea,
+    #selection-pricing-print .sales-sheet-input,
+    #selection-pricing-print .sales-textarea { border: 0 !important; padding: 0 !important; box-shadow: none !important; background: transparent !important; resize: none !important; }
     #manual-quote-print .sales-table-wrap,
     #manual-quote-print .manual-sheet-scroll { min-height: 0 !important; max-height: none !important; overflow: visible !important; }
     #manual-quote-print .sales-sheet-table { min-width: 0 !important; width: 100% !important; }
@@ -330,5 +337,10 @@
     #manual-quote-print .manual-quotation-grid td { padding: 3px !important; }
     #manual-quote-print .sales-table { font-size: 8px !important; }
     #manual-quote-print tr { break-inside: avoid; }
+    #selection-pricing-print .selection-pricing-scroll { min-height: 0 !important; max-height: none !important; overflow: visible !important; }
+    #selection-pricing-print .selection-pricing-grid { min-width: 0 !important; width: 100% !important; table-layout: fixed !important; font-size: 6.5px !important; }
+    #selection-pricing-print .selection-pricing-grid th,
+    #selection-pricing-print .selection-pricing-grid td { padding: 3px !important; }
+    #selection-pricing-print tr { break-inside: avoid; }
     .sales-panel { border-color: #94a3b8; break-inside: avoid; }
 }

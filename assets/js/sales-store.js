@@ -93,6 +93,7 @@
             date: '2026-09-17', validUntil: '2026-10-02', currency: 'PKR', notes: 'Prices and linked accessories require commercial review before issue.',
             discount: 0, freight: 0, tax: 0, lines: [], updatedAt: '2026-09-17T00:00:00.000Z'
         },
+        selectionPricing: null,
         rates: [
             { id: 'VRQ-2609-007', inquiry: 'INQ-2609-016', item: 'Refrigerant copper piping', spec: 'ASTM B280 · assorted sizes', qty: 850, unit: 'm', vendor: 'CoolTech Traders', requested: '2026-09-12', responded: '2026-09-15', currency: 'PKR', rate: 4850, tax: 'Exclusive', freight: 'Included', lead: '7 days', validUntil: '2026-09-22', status: 'Selected', evidence: 'Vendor quotation attached' },
             { id: 'VRQ-2609-008', inquiry: 'INQ-2609-016', item: 'Installation cable', spec: '4 core industrial cable', qty: 1200, unit: 'm', vendor: 'Pak Cable House', requested: '2026-09-13', responded: '2026-09-16', currency: 'PKR', rate: 620, tax: 'Exclusive', freight: 'Separate', lead: 'Available', validUntil: '2026-09-26', status: 'Response Received', evidence: 'WhatsApp rate evidence' },
@@ -138,6 +139,7 @@
                 const parsed = JSON.parse(raw);
                 if (parsed?.meta?.version === 2 && ['inquiries','selections','substitutions','rates','quotations','activities','acceptedBaselines'].every(k=>Array.isArray(parsed[k])) && Array.isArray(parsed.costing?.lines) && Array.isArray(parsed.costing?.components) && Array.isArray(parsed.costing?.approvedSnapshots) && Array.isArray(parsed.rateBook?.prices) && Array.isArray(parsed.rateBook?.fxSnapshots) && Array.isArray(parsed.rateBook?.clauses)) {
                     if (!parsed.manualQuotation || !Array.isArray(parsed.manualQuotation.lines) || parsed.manualQuotation.layoutVersion !== 3) parsed.manualQuotation = clone(demoState.manualQuotation);
+                    if (!Object.prototype.hasOwnProperty.call(parsed, 'selectionPricing')) parsed.selectionPricing = null;
                     if (!Array.isArray(parsed.productCatalog)) parsed.productCatalog = [];
                     if (!Array.isArray(parsed.catalogImports)) parsed.catalogImports = clone(demoState.catalogImports);
                     normalizeRateBookLabels(parsed);
@@ -504,11 +506,97 @@
         return { subtotal, discount: Number(q.discount || 0), freight: Number(q.freight || 0), tax: Number(q.tax || 0), grandTotal: subtotal - Number(q.discount || 0) + Number(q.freight || 0) + Number(q.tax || 0) };
     }
 
+    function pricingCategory(section) {
+        if (/controller/i.test(section)) return 'Controller';
+        if (/panel|grille/i.test(section)) return 'Grille / Panel';
+        return section;
+    }
+
+    function prepareSelectionPricing(selectionId, equipmentRows = [], options = {}) {
+        const selection = state.selections.find(x => x.id === selectionId);
+        if (!selection) return null;
+        if (!options.force && state.selectionPricing?.selectionId === selectionId && Array.isArray(state.selectionPricing.lines) && state.selectionPricing.lines.length) return state.selectionPricing;
+        const catalog = manualCatalog();
+        const rows = equipmentRows.map((raw, index) => {
+            const [section, model, description, quantity] = Array.isArray(raw)
+                ? raw
+                : [raw.section, raw.model, raw.description, raw.qty];
+            const match = catalog.find(x => String(x.model).toUpperCase() === String(model).toUpperCase());
+            return {
+                id: `SPL-${String(index + 1).padStart(3, '0')}`,
+                section, model, description, qty: Math.max(0, Number(quantity) || 0), unit: match?.unit || 'pc',
+                rateModel: match?.model || '', unitPrice: Number(match?.price || 0), rateSource: match?.source || '',
+                status: match && Number(match.price || 0) > 0 ? 'Rate matched' : 'Rate required', note: ''
+            };
+        });
+        state.selectionPricing = {
+            layoutVersion: 1, id: `SP-${selection.id.replace(/^SEL-/, '')}`, selectionId, inquiry: selection.inquiry,
+            client: selection.client, project: selection.project, sourceFile: selection.file, date: today, validUntil: '2026-10-02',
+            status: 'Draft', notes: 'AUX quantities retained. Rates require commercial review before quotation issue.', lines: rows,
+            updatedAt: new Date().toISOString()
+        };
+        save(); return state.selectionPricing;
+    }
+
+    function updateSelectionPricingLine(id, patch = {}) {
+        const sheet = state.selectionPricing;
+        const row = sheet?.lines?.find(x => x.id === id);
+        if (!row) return null;
+        ['qty', 'unitPrice'].forEach(field => {
+            if (patch[field] !== undefined) patch[field] = Math.max(0, Number(patch[field]) || 0);
+        });
+        Object.assign(row, patch);
+        row.status = Number(row.unitPrice || 0) > 0
+            ? (patch.status || (row.status === 'Rate required' ? 'Rate entered' : row.status) || 'Rate entered')
+            : 'Rate required';
+        sheet.updatedAt = new Date().toISOString(); save(); return row;
+    }
+
+    function applySelectionPricingRate(id, rateModel) {
+        const item = manualCatalog().find(x => String(x.model).toUpperCase() === String(rateModel).toUpperCase());
+        if (!item) return null;
+        return updateSelectionPricingLine(id, {
+            rateModel: item.model, unitPrice: Number(item.price || 0), rateSource: item.source || 'Rate Book', status: 'Selected reference'
+        });
+    }
+
+    function updateSelectionPricing(patch = {}) {
+        if (!state.selectionPricing) return null;
+        ['client', 'project', 'date', 'validUntil', 'status', 'notes'].forEach(key => {
+            if (patch[key] !== undefined) state.selectionPricing[key] = patch[key];
+        });
+        state.selectionPricing.updatedAt = new Date().toISOString(); save(); return state.selectionPricing;
+    }
+
+    function selectionPricingTotals() {
+        const lines = state.selectionPricing?.lines || [];
+        const subtotal = lines.reduce((sum, row) => sum + Number(row.qty || 0) * Number(row.unitPrice || 0), 0);
+        return {
+            rows: lines.length, quantity: lines.reduce((sum, row) => sum + Number(row.qty || 0), 0),
+            priced: lines.filter(row => Number(row.unitPrice || 0) > 0).length,
+            unresolved: lines.filter(row => Number(row.unitPrice || 0) <= 0).length, subtotal
+        };
+    }
+
+    function selectionPricingCandidates(lineId) {
+        const row = state.selectionPricing?.lines?.find(x => x.id === lineId);
+        if (!row) return [];
+        const category = pricingCategory(row.section);
+        const substitution = state.substitutions.find(x => x.from === row.model);
+        const rows = manualCatalog().filter(x => x.category === category && Number(x.price || 0) > 0);
+        return rows.sort((a, b) => {
+            if (a.model === substitution?.to) return -1;
+            if (b.model === substitution?.to) return 1;
+            return a.model.localeCompare(b.model);
+        }).map(x => ({ ...x, recommended: x.model === substitution?.to }));
+    }
+
     window.CosmixSales = {
         get state() { return state; },
         get storageAvailable() { return storageAvailable; },
         demoState: clone(demoState), money, save, reset, addInquiry, updateInquiry, addSelection, updateSelection, recordSelectionDecision, validateSelection,
         addComponent, updateCostLine, approveCosting, addRate, updateRate, selectRate, quoteRef, findQuote, updateQuote, createQuoteRevision, markQuoteSent, acceptQuote,
-        manualCatalog, upsertCatalogItems, setCatalogItemStatus, manualLinkedItems, addManualQuoteItem, updateManualQuoteLine, removeManualQuoteLine, updateManualQuotation, resetManualQuotation, manualQuoteLineTotal, manualQuoteTotals
+        manualCatalog, upsertCatalogItems, setCatalogItemStatus, manualLinkedItems, addManualQuoteItem, updateManualQuoteLine, removeManualQuoteLine, updateManualQuotation, resetManualQuotation, manualQuoteLineTotal, manualQuoteTotals,
+        prepareSelectionPricing, updateSelectionPricingLine, applySelectionPricingRate, updateSelectionPricing, selectionPricingTotals, selectionPricingCandidates
     };
 })();
