@@ -245,6 +245,12 @@ The direct-file demonstration performs real local browser processing for normal 
 
 For production, 250–300 MB inputs must be uploaded and processed by a server/background document worker with progress reporting, job recovery, resource limits, malware scanning, secure temporary storage and retention cleanup. The browser demonstration deliberately states this limit and does not promise reliable processing of files at that scale.
 
+## PDF text replacement workspace
+
+The Sales PDF Editor processes an uploaded PDF locally in the browser. PDF.js renders each page and exposes detected text areas. Staff can click a detected text area or draw a manual rectangle, which also supports scanned/image pages, then enter replacement text, font size, alignment, text colour and cover/background colour. The exported file is a new PDF created from the original pages with replacement rectangles painted at the mapped PDF coordinates. Page count and source evidence remain intact.
+
+This is visual same-position replacement, not unrestricted Word-style editing of internal PDF objects. It does not perform OCR, reconstruct an unavailable embedded font, preserve a digital signature after content changes, or persist the uploaded bytes after refresh. Edited output can be downloaded and then included in Tender Documents. Production should retain the original, edited revision, operator, timestamp and reason for change.
+
 ## Product and Inventory boundary
 
 Sales and Inventory should share the identity of physical items:
@@ -347,6 +353,7 @@ The Sales folder now contains compact direct-file HTML screens matching the shar
 - `sales/quotations.html` — quotation revisions, dispatch, acceptance and revalidation
 - `sales/quotation-detail.html` — full quotation document, commercial control, revision history, dispatch and acceptance evidence
 - `sales/tender-documents.html` — reusable tender template fields, controlled sections, PDF merge order, compression profile, package checks and output history
+- `sales/pdf-editor.html` — local PDF page preview, detected/manual text-area replacement, change list and edited PDF export
 - `sales/settings.html` — rate book references, USD/PKR snapshots and commercial clause templates
 - `sales/workflow.html` — end-to-end workflow map and department boundaries
 
@@ -359,7 +366,7 @@ The HTML mock records selected upload metadata and a known supplied-workbook map
 Validation completed:
 
 - JavaScript syntax checks pass for shared and Sales scripts.
-- Seventeen Sales tests pass, covering the 28-row workbook reconciliation, quotation snapshot isolation, append-only revision, issue-gated management approval, Sales receipt/application of a management decision, request de-duplication, tender fields/merge order/compression/package history, item-specific vendor selection, expired-quotation revalidation, reset, denied-storage fallback and runtime rendering of all fifteen Sales screens.
+- Nineteen Sales/PDF tests pass, covering the 28-row workbook reconciliation, quotation snapshot isolation, append-only revision, issue-gated management approval, Sales receipt/application of a management decision, request de-duplication, tender fields/merge order/compression/package history, PDF replacement export, editor controls, item-specific vendor selection, expired-quotation revalidation, reset, denied-storage fallback and runtime rendering of all fifteen store-driven Sales screens.
 - All local file references in the sixteen Sales HTML entry points resolve.
 - `git diff --check` reports no whitespace errors in the Sales changes.
 

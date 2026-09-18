@@ -122,6 +122,7 @@ const renderLayout = (activePage) => {
                 ${createNavLink(p + 'sales/rates.html', 'Vendor Rate Enquiries', 'fas fa-tags', activePage === 'rates', { bg: 'bg-rose-50 border border-rose-200', text: 'text-rose-700', label: '2 Due' })}
                 ${createNavLink(p + 'sales/quotations.html', 'Quotations & Follow-up', 'fas fa-file-signature', activePage === 'quotations' || activePage === 'quotation-detail', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '4' })}
                 ${createNavLink(p + 'sales/tender-documents.html', 'Tender Documents', 'fas fa-file-pdf', activePage === 'tender-documents', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'PDF' })}
+                ${createNavLink(p + 'sales/pdf-editor.html', 'PDF Editor', 'fas fa-pen-to-square', activePage === 'pdf-editor', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Edit' })}
                 ${createNavLink(p + 'sales/settings.html', 'Rate Book & Setup', 'fas fa-sliders', activePage === 'settings')}
                 ${createNavLink(p + 'sales/workflow.html', 'Sales Workflow', 'fas fa-diagram-project', activePage === 'workflow', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Map' })}
                 <div class="pt-2 mt-2 border-t border-slate-100">

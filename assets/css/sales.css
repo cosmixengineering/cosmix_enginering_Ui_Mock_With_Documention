@@ -334,6 +334,47 @@
 .selection-pricing-grid td { vertical-align: middle; }
 .tender-document-preview { background: #fff; }
 .tender-document-preview { page: tender-document; }
+.pdf-editor-drop { display: flex; min-height: 350px; cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border: 2px dashed #cbd5e1; border-radius: 10px; margin: 16px; background: #f8fafc; text-align: center; transition: .15s ease; }
+.pdf-editor-drop:hover { border-color: #242b5f; background: #f5f7ff; }
+.pdf-editor-drop > i { color: #242b5f; font-size: 38px; }
+.pdf-editor-drop > strong { color: #172033; font-size: 16px; }
+.pdf-editor-drop > span { max-width: 520px; color: #64748b; font-size: 9.5px; line-height: 1.55; }
+.pdf-editor-drop input { display: none; }
+.pdf-editor-sidebar { position: sticky; top: 0; max-height: calc(100vh - 118px); overflow: auto; }
+.pdf-source-meta { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eef2f6; padding: 7px 0; color: #64748b; font-size: 9px; }
+.pdf-source-meta strong { color: #242b5f; font-family: 'JetBrains Mono', monospace; }
+.pdf-page-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+.pdf-page-button { display: flex; min-height: 45px; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #dfe5ec; border-radius: 6px; background: #fff; color: #475569; }
+.pdf-page-button span { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800; }
+.pdf-page-button small { margin-top: 2px; color: #94a3b8; font-size: 7.5px; }
+.pdf-page-button:hover, .pdf-page-button.active { border-color: #242b5f; background: #eef2ff; color: #242b5f; }
+.pdf-editor-toolbar { display: flex; min-height: 46px; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #dfe5ec; background: #fff; padding: 7px 10px; }
+.pdf-page-indicator { min-width: 75px; color: #64748b; font-family: 'JetBrains Mono', monospace; font-size: 9px; text-align: center; }
+.pdf-editor-hint { color: #64748b; font-size: 8.5px; }
+.pdf-editor-hint i { margin-right: 4px; color: #242b5f; }
+.pdf-view-scroll { min-height: 620px; max-height: calc(100vh - 205px); overflow: auto; background: #e9edf3; padding: 22px; scrollbar-gutter: stable; }
+.pdf-stage { position: relative; margin: 0 auto; cursor: crosshair; background: #fff; box-shadow: 0 8px 24px rgba(15,23,42,.17); touch-action: none; user-select: none; }
+.pdf-stage canvas { display: block; }
+.pdf-text-layer, .pdf-edit-layer { position: absolute; inset: 0; pointer-events: none; }
+.pdf-detected-text { position: absolute; pointer-events: auto; border: 1px solid transparent; background: transparent; padding: 0; }
+.pdf-detected-text:hover { border-color: #3b82f6; background: rgba(59,130,246,.12); }
+.pdf-edit-preview { position: absolute; z-index: 3; overflow: hidden; pointer-events: auto; border: 1px dashed #10b981; padding: 2px; font-family: Arial, sans-serif; line-height: 1.18; white-space: pre-wrap; }
+.pdf-edit-preview.selected { outline: 2px solid #2563eb; outline-offset: 1px; }
+.pdf-selection-box { position: absolute; z-index: 5; pointer-events: none; border: 2px solid #2563eb; background: rgba(37,99,235,.08); }
+.pdf-render-status { border-top: 1px solid #dfe5ec; background: #fff; padding: 7px 10px; color: #64748b; font-size: 8.5px; }
+.pdf-color-input { width: 100%; height: 33px; cursor: pointer; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; padding: 3px; }
+.pdf-edit-list { max-height: 260px; overflow: auto; }
+.pdf-empty-list { padding: 20px 12px; color: #94a3b8; font-size: 9px; text-align: center; }
+.pdf-edit-list-row { display: grid; width: 100%; grid-template-columns: 26px minmax(0,1fr) 12px; align-items: center; gap: 7px; border-bottom: 1px solid #eef2f6; padding: 8px 10px; text-align: left; }
+.pdf-edit-list-row > span { display: flex; height: 22px; width: 22px; align-items: center; justify-content: center; border-radius: 50%; background: #f1f5f9; color: #64748b; font-family: 'JetBrains Mono', monospace; font-size: 8px; }
+.pdf-edit-list-row strong, .pdf-edit-list-row small { display: block; }
+.pdf-edit-list-row strong { color: #334155; font-size: 8.5px; }
+.pdf-edit-list-row small { overflow: hidden; margin-top: 2px; color: #64748b; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.pdf-edit-list-row > i { color: #cbd5e1; font-size: 8px; }
+.pdf-edit-list-row:hover, .pdf-edit-list-row.active { background: #f5f7ff; }
+.pdf-output-stat { border: 1px solid #dfe5ec; border-radius: 7px; padding: 9px; }
+.pdf-output-stat span { display: block; color: #94a3b8; font-size: 8px; font-weight: 750; letter-spacing: .05em; text-transform: uppercase; }
+.pdf-output-stat strong { display: block; margin-top: 4px; color: #242b5f; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
 @media (max-width: 900px) {
     .sales-step:not(:last-child)::after { display: none; }
     .sales-workspace-head, .sales-register-toolbar, .sales-cost-nav { align-items: flex-start; flex-direction: column; }
