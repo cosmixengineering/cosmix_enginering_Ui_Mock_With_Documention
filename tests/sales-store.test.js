@@ -32,6 +32,8 @@ test('seed includes the confirmed sales workflow records', () => {
     assert.equal(store.state.substitutions.every(x => x.status === 'Management Approved'), true);
     assert.equal(store.state.approvalInbox.length, 4);
     assert.equal(store.state.approvalInbox.filter(x => x.unread).length, 2);
+    assert.equal(store.state.tenderDocuments.templates.length, 3);
+    assert.equal(store.state.tenderDocuments.workspace.documents.length, 6);
     assert.equal(store.state.costing.lines[0].source, 'Rate Book');
     assert.equal(store.state.manualQuotation.project, 'HVAC Equipment Quotation');
     assert.equal(store.state.costing.components.some(x => x.mode === 'Manual'), false);
@@ -123,6 +125,31 @@ test('approval request submission is deduplicated while awaiting management', ()
     assert.equal(first.existing, false);
     assert.equal(second.existing, true);
     assert.equal(store.state.approvalInbox.length, before + 1);
+});
+
+test('tender package keeps editable values, merge order, compression and build history', () => {
+    const store = createStore();
+    const before = store.tenderPackageTotals();
+    assert.equal(before.documents, 6);
+    assert.equal(before.sourceSizeMB, 270.2);
+    assert.equal(store.updateTenderField('attention', 'Procurement Committee').value, 'Procurement Committee');
+    store.updateTenderField('client', 'New Tender Client');
+    assert.equal(store.state.tenderDocuments.workspace.client, 'New Tender Client');
+    assert.equal(store.selectTenderTemplate('TPL-TND-002').revision, 'R2');
+    assert.equal(store.state.tenderDocuments.workspace.sections.find(x => x.mode === 'Locked template').source, 'Template R2');
+    const added = store.addTenderDocuments([{ name: 'Addendum-01.pdf', type: 'application/pdf', size: 2 * 1048576 }]);
+    assert.equal(added.length, 1);
+    assert.equal(store.state.tenderDocuments.workspace.documents.at(-1).name, 'Addendum-01.pdf');
+    assert.equal(store.moveTenderDocument(added[0].id, -1), true);
+    assert.equal(store.removeTenderDocument('DOC-001'), false);
+    store.updateTenderCompression({ profile: 'Maximum', preserveOriginal: true });
+    const compressed = store.tenderPackageTotals();
+    assert.ok(compressed.outputSizeMB < before.outputSizeMB);
+    const built = store.buildTenderPackage();
+    assert.equal(built.ok, true);
+    assert.equal(built.row.documents, 7);
+    assert.equal(built.row.originalPreserved, true);
+    assert.equal(store.state.tenderDocuments.workspace.status, 'Package prepared');
 });
 
 test('rate selection is isolated to one item and specification group', () => {
@@ -225,11 +252,11 @@ test('all Sales screens render their main content without runtime errors', () =>
     vm.runInContext(source, context, { filename: 'sales-store.js' });
     vm.runInContext(pagesSource, context, { filename: 'sales-pages.js' });
     window.CosmixSales.addManualQuoteItem('ARVWM-H022/NR1DJA', 1, { includeLinked: true });
-    for (const page of ['dashboard', 'inquiries', 'selection', 'selection-detail', 'selection-pricing', 'costing', 'approvals', 'catalog', 'quotation-builder', 'rates', 'quotations', 'quotation-detail', 'settings', 'workflow']) {
+    for (const page of ['dashboard', 'inquiries', 'selection', 'selection-detail', 'selection-pricing', 'costing', 'approvals', 'catalog', 'quotation-builder', 'rates', 'quotations', 'quotation-detail', 'tender-documents', 'settings', 'workflow']) {
         window.location.search = page === 'quotation-detail' ? '?id=QTN-2609-019&rev=R1' : page === 'selection-detail' ? '?id=SEL-2609-014-R1' : '';
         window.renderSalesPage(page);
     }
-    assert.equal(captured.length, 14);
+    assert.equal(captured.length, 15);
     for (const result of captured) {
         assert.ok(result.title.length > 5);
         if (!['Quotation Builder','Product Catalogue & Import'].includes(result.title)) assert.ok(result.html.includes('Local mock data'));
@@ -248,6 +275,7 @@ test('all Sales screens render their main content without runtime errors', () =>
     const approvals = captured.find(x => x.title === 'Management Decisions');
     const builder = captured.find(x => x.title === 'Quotation Builder');
     const selectionPricing = captured.find(x => x.title === 'Selection Pricing Sheet');
+    const tenderDocuments = captured.find(x => x.title === 'Tender Documents');
     assert.ok(dashboard.html.includes('Sales overview'));
     assert.ok(dashboard.html.includes('Work queue'));
     assert.ok(inquiries.html.includes('sales-register-toolbar'));
@@ -266,6 +294,10 @@ test('all Sales screens render their main content without runtime errors', () =>
     assert.ok(selectionPricing.html.includes('Fill Rates (4)'));
     assert.ok(selectionPricing.html.includes('Download Excel'));
     assert.ok(selectionPricing.html.includes('Download Document'));
+    assert.ok(tenderDocuments.html.includes('PDF merge order'));
+    assert.ok(tenderDocuments.html.includes('Compression & output'));
+    assert.ok(tenderDocuments.html.includes('Original PDFs'));
+    assert.ok(tenderDocuments.html.includes('Large-file worker required in production'));
     assert.ok(pagesSource.includes("cellStyles:true"));
     assert.ok(pagesSource.includes('-Equipment-Quotation.xlsx'));
     assert.equal(pagesSource.includes('-Manual-Quotation.xlsx'), false);

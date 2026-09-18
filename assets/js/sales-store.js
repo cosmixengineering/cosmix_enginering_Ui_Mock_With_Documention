@@ -125,6 +125,50 @@
                 unread: false, acknowledgedAt: '2026-09-17T10:05:00.000Z', appliedAt: '2026-09-17T10:06:00.000Z', appliedRef: 'SUB-2609-003'
             }
         ],
+        tenderDocuments: {
+            templates: [
+                { id: 'TPL-TND-001', name: 'Standard HVAC Tender', revision: 'R4', pages: 18, editableFields: 9, status: 'Active' },
+                { id: 'TPL-TND-002', name: 'Government Tender Submission', revision: 'R2', pages: 24, editableFields: 12, status: 'Active' },
+                { id: 'TPL-TND-003', name: 'Private Commercial Proposal', revision: 'R3', pages: 14, editableFields: 8, status: 'Active' }
+            ],
+            workspace: {
+                id: 'TDP-2609-014', inquiry: 'INQ-2609-014', templateId: 'TPL-TND-001', status: 'Draft package',
+                client: 'Indus Motor Company', project: 'Admin Building HVAC', updatedAt: '2026-09-18T11:20:00.000Z',
+                fields: [
+                    { id: 'client', label: 'Client / organization', value: 'Indus Motor Company', required: true },
+                    { id: 'project', label: 'Project / site', value: 'Admin Building HVAC', required: true },
+                    { id: 'tenderNo', label: 'Tender reference', value: 'IMC/ADMIN/HVAC/2026-09', required: true },
+                    { id: 'submissionDate', label: 'Submission date', value: '2026-09-24', type: 'date', required: true },
+                    { id: 'validityDays', label: 'Offer validity (days)', value: '15', type: 'number', required: true },
+                    { id: 'attention', label: 'Attention', value: 'Tender Committee', required: true },
+                    { id: 'delivery', label: 'Delivery period', value: '12–14 weeks after confirmed order', required: true },
+                    { id: 'payment', label: 'Payment terms', value: 'As agreed in approved commercial quotation', required: true },
+                    { id: 'bidSecurity', label: 'Bid security', value: 'As stated in tender instructions', required: false },
+                    { id: 'contact', label: 'Sales contact', value: 'Sales Desk · Cosmix Engineering', required: true },
+                    { id: 'coverNote', label: 'Cover note', value: 'We submit our HVAC technical and commercial proposal for the above project.', multiline: true, required: false }
+                ],
+                sections: [
+                    { id: 'SEC-01', name: 'Company introduction', pages: '1–2', mode: 'Locked template', source: 'Template R4' },
+                    { id: 'SEC-02', name: 'Tender particulars & cover letter', pages: '3–4', mode: 'Editable fields', source: 'Tender workspace' },
+                    { id: 'SEC-03', name: 'Scope of supply', pages: '5–6', mode: 'Locked template', source: 'Template R4' },
+                    { id: 'SEC-04', name: 'Commercial quotation', pages: '7–9', mode: 'Linked record', source: 'QTN-2609-019/R1' },
+                    { id: 'SEC-05', name: 'Terms, validity & delivery', pages: '10–11', mode: 'Editable fields', source: 'Tender workspace' },
+                    { id: 'SEC-06', name: 'Technical compliance & annexures', pages: '12–18', mode: 'Locked template', source: 'Template R4' }
+                ],
+                documents: [
+                    { id: 'DOC-001', name: 'Generated Tender Cover.pdf', kind: 'Generated tender', sizeMB: 0.8, source: 'Template R4', locked: true, status: 'Ready' },
+                    { id: 'DOC-002', name: 'QTN-2609-019-R1.pdf', kind: 'Commercial quotation', sizeMB: 1.5, source: 'Approved quotation', locked: true, status: 'Ready' },
+                    { id: 'DOC-003', name: 'Client Tender Instructions.pdf', kind: 'Client document', sizeMB: 12.6, source: 'Uploaded', locked: false, status: 'Ready' },
+                    { id: 'DOC-004', name: 'AUX Technical Datasheets.pdf', kind: 'Technical annexure', sizeMB: 84.3, source: 'Uploaded', locked: false, status: 'Ready' },
+                    { id: 'DOC-005', name: 'HVAC Drawings and Schematics.pdf', kind: 'Drawings', sizeMB: 126.8, source: 'Uploaded', locked: false, status: 'Ready' },
+                    { id: 'DOC-006', name: 'Company Profile and Certificates.pdf', kind: 'Company annexure', sizeMB: 44.2, source: 'Uploaded', locked: false, status: 'Ready' }
+                ],
+                compression: { profile: 'Balanced', imageDpi: 150, imageQuality: 78, preserveOriginal: true, removeMetadata: true },
+                builds: [
+                    { id: 'PKG-2609-013-R1', file: 'IMC-Admin-HVAC-Tender-R1.pdf', createdAt: '2026-09-17T16:40:00.000Z', createdBy: 'Sales Desk', sourceSizeMB: 270.2, outputSizeMB: 96.4, profile: 'Balanced', documents: 6, status: 'Package record' }
+                ]
+            }
+        },
         rates: [
             { id: 'VRQ-2609-007', inquiry: 'INQ-2609-016', item: 'Refrigerant copper piping', spec: 'ASTM B280 · assorted sizes', qty: 850, unit: 'm', vendor: 'CoolTech Traders', requested: '2026-09-12', responded: '2026-09-15', currency: 'PKR', rate: 4850, tax: 'Exclusive', freight: 'Included', lead: '7 days', validUntil: '2026-09-22', status: 'Selected', evidence: 'Vendor quotation attached' },
             { id: 'VRQ-2609-008', inquiry: 'INQ-2609-016', item: 'Installation cable', spec: '4 core industrial cable', qty: 1200, unit: 'm', vendor: 'Pak Cable House', requested: '2026-09-13', responded: '2026-09-16', currency: 'PKR', rate: 620, tax: 'Exclusive', freight: 'Separate', lead: 'Available', validUntil: '2026-09-26', status: 'Response Received', evidence: 'WhatsApp rate evidence' },
@@ -187,6 +231,12 @@
                     if (!Array.isArray(parsed.productCatalog)) parsed.productCatalog = [];
                     if (!Array.isArray(parsed.catalogImports)) parsed.catalogImports = clone(demoState.catalogImports);
                     if (!Array.isArray(parsed.approvalInbox)) parsed.approvalInbox = clone(demoState.approvalInbox);
+                    if (!parsed.tenderDocuments?.workspace || !Array.isArray(parsed.tenderDocuments.templates)) parsed.tenderDocuments = clone(demoState.tenderDocuments);
+                    else {
+                        const fields = parsed.tenderDocuments.workspace.fields || (parsed.tenderDocuments.workspace.fields = []);
+                        const missingIdentityFields = demoState.tenderDocuments.workspace.fields.slice(0, 2).filter(seed => !fields.some(x => x.id === seed.id));
+                        parsed.tenderDocuments.workspace.fields = missingIdentityFields.concat(fields);
+                    }
                     normalizePersistedLabels(parsed);
                     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed)); } catch (_) { storageAvailable = false; }
                     return parsed;
@@ -359,6 +409,112 @@
         row.appliedRef = quote ? `${quote.id}/${quote.rev}` : row.sourceRef;
         row.status = 'Applied';
         save(); return { ok: true, row, quote };
+    }
+
+    function tenderPackageTotals() {
+        const workspace = state.tenderDocuments?.workspace;
+        const sourceSizeMB = (workspace?.documents || []).reduce((sum, row) => sum + Number(row.sizeMB || 0), 0);
+        const ratios = { Light: 0.72, Balanced: 0.36, Maximum: 0.23 };
+        const compression = workspace?.compression || {};
+        const baseRatio = ratios[compression.profile] || ratios.Balanced;
+        const dpiFactor = Math.sqrt(Math.max(72, Number(compression.imageDpi || 150)) / 150);
+        const qualityFactor = Math.max(40, Number(compression.imageQuality || 78)) / 78;
+        const ratio = Math.min(0.95, Math.max(0.12, baseRatio * dpiFactor * qualityFactor));
+        const outputSizeMB = Math.max(0.1, Math.round(sourceSizeMB * ratio * 10) / 10);
+        return { documents: workspace?.documents?.length || 0, sourceSizeMB: Math.round(sourceSizeMB * 10) / 10, outputSizeMB, savedPercent: sourceSizeMB ? Math.round((1 - outputSizeMB / sourceSizeMB) * 100) : 0 };
+    }
+
+    function updateTenderField(id, value) {
+        const workspace = state.tenderDocuments?.workspace;
+        const field = workspace?.fields?.find(x => x.id === id);
+        if (!field) return null;
+        field.value = String(value ?? '');
+        if (id === 'client' || id === 'project') workspace[id] = field.value;
+        workspace.updatedAt = new Date().toISOString();
+        save(); return field;
+    }
+
+    function selectTenderTemplate(templateId) {
+        const template = state.tenderDocuments?.templates?.find(x => x.id === templateId);
+        if (!template) return null;
+        state.tenderDocuments.workspace.templateId = template.id;
+        state.tenderDocuments.workspace.sections.forEach(section => { if (section.mode === 'Locked template') section.source = `Template ${template.revision}`; });
+        const generated = state.tenderDocuments.workspace.documents.find(x => x.kind === 'Generated tender');
+        if (generated) generated.source = `Template ${template.revision}`;
+        state.tenderDocuments.workspace.status = 'Draft package';
+        state.tenderDocuments.workspace.updatedAt = new Date().toISOString();
+        save(); return template;
+    }
+
+    function addTenderDocuments(files) {
+        const workspace = state.tenderDocuments?.workspace;
+        if (!workspace) return [];
+        const added = Array.from(files || []).map(file => {
+            const sequence = workspace.documents.reduce((max, row) => Math.max(max, Number(String(row.id).replace(/\D/g, '')) || 0), 0) + 1;
+            const row = { id: `DOC-${String(sequence).padStart(3, '0')}`, name: file.name || `Attachment-${sequence}.pdf`, kind: 'Tender attachment', sizeMB: Math.round((Number(file.size || 0) / 1048576) * 10) / 10, source: 'Uploaded this session', locked: false, status: 'Ready' };
+            workspace.documents.push(row);
+            return row;
+        });
+        if (added.length) { workspace.status = 'Draft package'; workspace.updatedAt = new Date().toISOString(); save(); }
+        return added;
+    }
+
+    function moveTenderDocument(id, direction) {
+        const rows = state.tenderDocuments?.workspace?.documents || [];
+        const index = rows.findIndex(x => x.id === id);
+        const target = index + Number(direction || 0);
+        if (index < 0 || target < 0 || target >= rows.length) return false;
+        [rows[index], rows[target]] = [rows[target], rows[index]];
+        state.tenderDocuments.workspace.status = 'Draft package';
+        save(); return true;
+    }
+
+    function removeTenderDocument(id) {
+        const workspace = state.tenderDocuments?.workspace;
+        const index = workspace?.documents?.findIndex(x => x.id === id) ?? -1;
+        if (index < 0 || workspace.documents[index].locked) return false;
+        workspace.documents.splice(index, 1);
+        workspace.status = 'Draft package';
+        save(); return true;
+    }
+
+    function updateTenderCompression(patch = {}) {
+        const compression = state.tenderDocuments?.workspace?.compression;
+        if (!compression) return null;
+        if (patch.profile) {
+            const presets = { Light: { imageDpi: 200, imageQuality: 88 }, Balanced: { imageDpi: 150, imageQuality: 78 }, Maximum: { imageDpi: 96, imageQuality: 60 } };
+            Object.assign(compression, presets[patch.profile] || presets.Balanced, { profile: patch.profile });
+        } else Object.assign(compression, patch);
+        state.tenderDocuments.workspace.status = 'Draft package';
+        state.tenderDocuments.workspace.updatedAt = new Date().toISOString();
+        save(); return compression;
+    }
+
+    function buildTenderPackage() {
+        const workspace = state.tenderDocuments?.workspace;
+        if (!workspace) return { ok: false, reason: 'Tender workspace nahi mila.' };
+        const missing = workspace.fields.find(x => x.required && !String(x.value || '').trim());
+        if (missing) return { ok: false, reason: `${missing.label} required hai.` };
+        if (!workspace.documents.length) return { ok: false, reason: 'Merge package mein kam az kam ek document required hai.' };
+        const totals = tenderPackageTotals();
+        const sequence = (workspace.builds?.length || 0) + 13;
+        const tenderRef = workspace.fields.find(x => x.id === 'tenderNo')?.value || workspace.id;
+        const safeRef = String(tenderRef).replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        const row = {
+            id: `PKG-2609-${String(sequence).padStart(3, '0')}-R1`, file: `${safeRef || workspace.id}-Tender-Package.pdf`,
+            createdAt: new Date().toISOString(), createdBy: 'Sales Desk', sourceSizeMB: totals.sourceSizeMB, outputSizeMB: totals.outputSizeMB,
+            profile: workspace.compression.profile, documents: totals.documents, status: 'Package specification ready', originalPreserved: workspace.compression.preserveOriginal
+        };
+        workspace.builds = workspace.builds || [];
+        workspace.builds.unshift(row);
+        workspace.status = 'Package prepared';
+        workspace.updatedAt = row.createdAt;
+        save(); return { ok: true, row };
+    }
+
+    function resetTenderWorkspace() {
+        state.tenderDocuments.workspace = clone(demoState.tenderDocuments.workspace);
+        save(); return state.tenderDocuments.workspace;
     }
 
     function addRate(data) {
@@ -695,6 +851,7 @@
         demoState: clone(demoState), money, save, reset, addInquiry, updateInquiry, addSelection, updateSelection, recordSelectionDecision, validateSelection,
         addComponent, updateCostLine, approveCosting, submitApprovalRequest, acknowledgeApproval, applyApprovalDecision, addRate, updateRate, selectRate, quoteRef, findQuote, updateQuote, createQuoteRevision, markQuoteSent, acceptQuote,
         manualCatalog, upsertCatalogItems, setCatalogItemStatus, manualLinkedItems, addManualQuoteItem, updateManualQuoteLine, removeManualQuoteLine, updateManualQuotation, resetManualQuotation, manualQuoteLineTotal, manualQuoteTotals,
-        prepareSelectionPricing, updateSelectionPricingLine, applySelectionPricingRate, updateSelectionPricing, selectionPricingTotals, selectionPricingCandidates
+        prepareSelectionPricing, updateSelectionPricingLine, applySelectionPricingRate, updateSelectionPricing, selectionPricingTotals, selectionPricingCandidates,
+        tenderPackageTotals, updateTenderField, selectTenderTemplate, addTenderDocuments, moveTenderDocument, removeTenderDocument, updateTenderCompression, buildTenderPackage, resetTenderWorkspace
     };
 })();

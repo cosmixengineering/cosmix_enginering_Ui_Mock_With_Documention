@@ -205,6 +205,8 @@
 .sales-sheet-input:focus { border-color: #242b5f; box-shadow: 0 0 0 2px rgba(36,43,95,.08); }
 .sales-icon-btn { display: inline-flex; height: 26px; width: 26px; align-items: center; justify-content: center; border: 1px solid #e2e8f0; border-radius: 5px; color: #94a3b8; }
 .sales-icon-btn:hover { border-color: #fecaca; background: #fff1f2; color: #e11d48; }
+.sales-icon-btn:disabled { cursor: not-allowed; opacity: .35; }
+.sales-icon-btn:disabled:hover { border-color: #e2e8f0; background: transparent; color: #94a3b8; }
 .sales-sheet-table th { border-right: 1px solid #e2e8f0; }
 .sales-sheet-table td { border-right: 1px solid #edf1f5; }
 .sales-sheet-table th:last-child, .sales-sheet-table td:last-child { border-right: 0; }
@@ -330,6 +332,8 @@
 .selection-pricing-grid { min-width: 1380px; }
 .selection-pricing-scroll thead { position: sticky; top: 0; z-index: 5; }
 .selection-pricing-grid td { vertical-align: middle; }
+.tender-document-preview { background: #fff; }
+.tender-document-preview { page: tender-document; }
 @media (max-width: 900px) {
     .sales-step:not(:last-child)::after { display: none; }
     .sales-workspace-head, .sales-register-toolbar, .sales-cost-nav { align-items: flex-start; flex-direction: column; }
@@ -340,11 +344,16 @@
 }
 @media print {
     @page { size: A4 landscape; margin: 10mm; }
+    @page tender-document { size: A4 portrait; margin: 14mm; }
     #sidebar, header, #global-flowchart-btn, .no-print { display: none !important; }
     #main-content { padding: 0 !important; overflow: visible !important; }
-    .sales-page > *:not(#manual-quote-print):not(#selection-pricing-print) { display: none !important; }
+    .sales-page > *:not(#manual-quote-print):not(#selection-pricing-print):not(#tender-print):not(:has(#tender-print)) { display: none !important; }
+    .sales-page > *:has(#tender-print) { display: block !important; }
+    .sales-page > *:has(#tender-print) main > *:not(#tender-print),
+    .sales-page > *:has(#tender-print) aside { display: none !important; }
     #manual-quote-print,
-    #selection-pricing-print { display: block !important; width: 100% !important; border: 0 !important; box-shadow: none !important; }
+    #selection-pricing-print,
+    #tender-print { display: block !important; width: 100% !important; border: 0 !important; box-shadow: none !important; }
     #manual-quote-print .sales-sheet-input,
     #manual-quote-print .sales-textarea,
     #selection-pricing-print .sales-sheet-input,

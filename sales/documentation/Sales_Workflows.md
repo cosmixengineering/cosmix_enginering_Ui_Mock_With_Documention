@@ -233,6 +233,16 @@ If a tender is accepted after validity or after material rate/FX changes:
 
 No draft or submitted quotation should change because a master rate later changes.
 
+## Tender template, merge and compression workspace
+
+Sales prepares tenders from controlled templates because most wording and document sections repeat. A tender workspace stores the selected template revision and exposes only designated fields such as tender reference, submission date, validity, attention, delivery, payment, bid security, contact and cover note. Locked template wording is visible as controlled content; approved quotations remain linked records instead of copied editable text.
+
+The final tender package has an explicit top-to-bottom PDF merge order. Generated tender pages, the approved commercial quotation, client instructions, technical data sheets, drawings, company profile, certificates and later addenda can be included. Required generated/quotation files cannot be silently removed. Uploaded source files remain preserved even when a compressed output version is prepared.
+
+Compression supports `Light`, `Balanced` and `Maximum` profiles plus image resolution, image quality and optional metadata cleanup. The system must show original size, estimated/final output size, reduction, processing status and package history. Compression must not change page order or overwrite source evidence. Digitally signed PDFs require signature-validity review after merge or compression.
+
+For production, 250–300 MB inputs must be uploaded and processed by a server/background document worker with progress reporting, job recovery, resource limits, malware scanning, secure temporary storage and retention cleanup. The current direct-file HTML mock records file metadata and a complete processing specification; it does not claim to merge or recompress large binary PDFs. The generated tender section can still use the browser Print / Save as PDF flow for staff review.
+
 ## Product and Inventory boundary
 
 Sales and Inventory should share the identity of physical items:
@@ -334,20 +344,21 @@ The Sales folder now contains compact direct-file HTML screens matching the shar
 - `sales/rates.html` — pre-sale vendor rate enquiries
 - `sales/quotations.html` — quotation revisions, dispatch, acceptance and revalidation
 - `sales/quotation-detail.html` — full quotation document, commercial control, revision history, dispatch and acceptance evidence
+- `sales/tender-documents.html` — reusable tender template fields, controlled sections, PDF merge order, compression profile, package checks and output history
 - `sales/settings.html` — rate book references, USD/PKR snapshots and commercial clause templates
 - `sales/workflow.html` — end-to-end workflow map and department boundaries
 
 `assets/js/sales-store.js` provides versioned local demonstration state with guarded browser storage and Sales-only reset. `assets/js/sales-pages.js` renders the screens and working mock actions. `assets/css/sales.css` keeps cards, tables, forms and badges compact. `assets/js/shared.js` now recognizes Sales as a full department with Sales navigation, quick links, notifications and workflow shortcut.
 
-Implemented controls include new inquiry, AUX file-metadata selection, full report review, issue-gated technical validation, persisted accessory decision, editable per-line currency/rate/source, all 28 workbook costing rows, flexible fixed/percentage/manual cost components, a Sales request/receipt boundary for management decisions, item/specification-scoped vendor selection, quotation dispatch log, append-only quotation revision, immutable accepted-baseline snapshot and late-tender commercial revalidation. The Indus Motor reference opens as a dedicated structured detail page showing Project Information, Air-conditioning Design Parameters, the 127-piece Equipment Quotation list, and all 13 `GF-CU` / `1F-CU` system sections with system information and indoor-unit tables.
+Implemented controls include new inquiry, AUX file-metadata selection, full report review, issue-gated technical validation, persisted accessory decision, editable per-line currency/rate/source, all 28 workbook costing rows, flexible fixed/percentage/manual cost components, a Sales request/receipt boundary for management decisions, item/specification-scoped vendor selection, quotation dispatch log, append-only quotation revision, immutable accepted-baseline snapshot, late-tender commercial revalidation and a controlled tender template/merge/compression workspace. The Indus Motor reference opens as a dedicated structured detail page showing Project Information, Air-conditioning Design Parameters, the 127-piece Equipment Quotation list, and all 13 `GF-CU` / `1F-CU` system sections with system information and indoor-unit tables.
 
 The HTML mock records selected upload metadata and a known supplied-workbook mapping; it does not retain or parse arbitrary workbook bytes. This limitation is stated in the UI. Actions do not call AUX, Inventory, Procurement, Accounts, email or WhatsApp services.
 
 Validation completed:
 
 - JavaScript syntax checks pass for shared and Sales scripts.
-- Sixteen Sales tests pass, covering the 28-row workbook reconciliation, quotation snapshot isolation, append-only revision, issue-gated management approval, Sales receipt/application of a management decision, request de-duplication, item-specific vendor selection, expired-quotation revalidation, reset, denied-storage fallback and runtime rendering of all fourteen Sales screens.
-- All local file references in the fifteen Sales HTML entry points resolve.
+- Seventeen Sales tests pass, covering the 28-row workbook reconciliation, quotation snapshot isolation, append-only revision, issue-gated management approval, Sales receipt/application of a management decision, request de-duplication, tender fields/merge order/compression/package history, item-specific vendor selection, expired-quotation revalidation, reset, denied-storage fallback and runtime rendering of all fifteen Sales screens.
+- All local file references in the sixteen Sales HTML entry points resolve.
 - `git diff --check` reports no whitespace errors in the Sales changes.
 
 ## Deep audit outcome (2026-09-17)
