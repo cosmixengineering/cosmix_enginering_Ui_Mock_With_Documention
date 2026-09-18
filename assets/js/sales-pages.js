@@ -365,9 +365,10 @@
         while(rows.length<notesRow+3)rows.push(blank());
         const ws=XLSX.utils.aoa_to_sheet(rows,{cellDates:true});
         ws['!merges']=['A1:U1','A2:P2','Q2:U2','A4:C4','D4:F4','G4:I4','J4:P4','Q4:R4','S4:U4','A5:C5','D5:F5','G5:I5','J5:P5','Q5:R5','S5:U5','A7:H7','I7:L7','M7:P7','Q7:T7',`Q${totalStart}:T${totalStart}`,`Q${totalStart+1}:T${totalStart+1}`,`Q${totalStart+2}:T${totalStart+2}`,`Q${totalStart+3}:T${totalStart+3}`,`Q${totalStart+4}:T${totalStart+4}`,`A${notesRow}:U${notesRow}`,`A${notesRow+1}:U${notesRow+3}`].map(XLSX.utils.decode_range);
-        const thin={style:'thin',color:{rgb:'D7DEE8'}},whiteThin={style:'thin',color:{rgb:'FFFFFF'}},font={name:'Arial',sz:10,color:{rgb:'172033'}},navy='242B5F';
+        const thin={style:'thin',color:{rgb:'D7DEE8'}},whiteThin={style:'thin',color:{rgb:'FFFFFF'}},groupDivider={style:'medium',color:{rgb:'64748B'}},totalDivider={style:'medium',color:{rgb:'242B5F'}},font={name:'Arial',sz:10,color:{rgb:'172033'}},navy='242B5F';
         const ensure=addr=>ws[addr]||(ws[addr]={t:'s',v:''});
         const styleRange=(range,style)=>{const decoded=XLSX.utils.decode_range(range);for(let r=decoded.s.r;r<=decoded.e.r;r++)for(let c=decoded.s.c;c<=decoded.e.c;c++){const addr=XLSX.utils.encode_cell({r,c});ensure(addr).s=style;}};
+        const setBorderEdge=(addr,edge,value)=>{const cell=ensure(addr),style=cell.s||{};cell.s={...style,border:{...(style.border||{}),[edge]:value}};};
         styleRange(`A1:U${notesRow+3}`,{fill:{fgColor:{rgb:'FFFFFF'}},font,alignment:{vertical:'center'}});
         styleRange('A1:U1',{fill:{fgColor:{rgb:'FFFFFF'}},font:{name:'Arial',sz:18,bold:true,color:{rgb:navy}},alignment:{vertical:'center'},border:{bottom:{style:'thick',color:{rgb:navy}}}});
         styleRange('A2:P2',{fill:{fgColor:{rgb:'FFFFFF'}},font:{name:'Arial',sz:11,bold:true,color:{rgb:'475569'}},alignment:{vertical:'center'}});
@@ -385,6 +386,12 @@
             ['A','E','F','J','N','R'].forEach(col=>{ensure(`${col}${row}`).s={...ensure(`${col}${row}`).s,alignment:{horizontal:'center',vertical:'top'}};});
             numberColumns.forEach(col=>{ensure(`${col}${row}`).z='#,##0';ensure(`${col}${row}`).s={...ensure(`${col}${row}`).s,alignment:{horizontal:'right',vertical:'top'}};});
         });
+        for(let row=7;row<=dataLastRow;row++){
+            [['H','I',groupDivider],['L','M',groupDivider],['P','Q',groupDivider],['T','U',totalDivider]].forEach(([leftCol,rightCol,border])=>{
+                setBorderEdge(`${leftCol}${row}`,'right',border);
+                setBorderEdge(`${rightCol}${row}`,'left',border);
+            });
+        }
         const subtotalFormula=exportRows.length?`SUM(U9:U${8+exportRows.length})`:'0';
         ws[`U${totalStart}`]={t:'n',f:subtotalFormula,v:t.subtotal};
         ws[`U${totalStart+4}`]={t:'n',f:`U${totalStart}+U${totalStart+1}+U${totalStart+2}-U${totalStart+3}`,v:t.grandTotal};

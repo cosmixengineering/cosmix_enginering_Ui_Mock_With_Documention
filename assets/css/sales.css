@@ -259,6 +259,26 @@
     text-transform: uppercase;
 }
 .manual-quotation-grid thead .manual-group-head th[rowspan] { top: 0; height: 61px; vertical-align: middle; }
+.manual-quotation-grid .manual-group-head th:nth-child(n+2),
+.manual-quotation-grid thead tr:nth-child(2) th:nth-child(9),
+.manual-quotation-grid thead tr:nth-child(2) th:nth-child(13),
+.manual-quotation-grid thead tr:nth-child(2) th:nth-child(17),
+.manual-quotation-grid tbody td:nth-child(9),
+.manual-quotation-grid tbody td:nth-child(13),
+.manual-quotation-grid tbody td:nth-child(17) {
+    border-left: 3px solid #64748b;
+}
+.manual-quotation-grid .manual-group-head th:nth-child(5),
+.manual-quotation-grid thead tr:nth-child(2) th:nth-child(21),
+.manual-quotation-grid tbody td:nth-child(21) {
+    border-left: 3px solid #242b5f;
+}
+.manual-quotation-grid .manual-group-head th:nth-child(2),
+.manual-quotation-grid .manual-group-head th:nth-child(3),
+.manual-quotation-grid .manual-group-head th:nth-child(4) {
+    box-shadow: inset 3px 0 0 #64748b;
+}
+.manual-quotation-grid .manual-group-head th:nth-child(5) { box-shadow: inset 3px 0 0 #242b5f; }
 .manual-sheet-scroll td { height: 54px; vertical-align: middle; }
 .manual-description-cell { color: #64748b; font-size: 8.5px; line-height: 1.35; white-space: normal; }
 .manual-component-model strong { display: block; color: #242b5f; font-family: 'JetBrains Mono', monospace; font-size: 8.5px; }

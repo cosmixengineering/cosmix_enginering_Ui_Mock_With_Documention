@@ -420,3 +420,7 @@ This mapping prevents silent substitution. Known management-approved replacement
 ## Quotation naming correction (2026-09-18)
 
 The Sales worksheet is named **Quotation Builder** in navigation and **Equipment Quotation Worksheet** in the page and export. New Excel/CSV files use `Equipment-Quotation` in their filename and the default project is `HVAC Equipment Quotation`. Existing browser-local drafts carrying the previous label are migrated without clearing quotation lines. The former HTML path remains only as a redirect so saved bookmarks continue to open the renamed page.
+
+## Quotation group separators (2026-09-18)
+
+The Quotation Builder browser grid and Excel export use medium-weight vertical separators between Equipment, Remote/Controller, Cassette Grille, Y-Joint and Line Total. These boundaries continue through the grouped heading row, detailed column headings and all equipment rows. The Line Total boundary uses the primary navy colour; other commercial groups use slate.
