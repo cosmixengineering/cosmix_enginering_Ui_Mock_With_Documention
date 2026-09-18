@@ -406,3 +406,7 @@ Sales catalogue, BOQ pricing, workflow, settings, import sample and documentatio
 ## Sales terminology correction (2026-09-18)
 
 The Dashboard stage summary uses `Sales Progress` and `In progress` so staff see direct operational wording. The earlier generic terminology was removed from the Sales module without changing its records or stage logic.
+
+## AUX formula summary clarification (2026-09-18)
+
+The Selection Detail summary now reports `80 in Costing` as the workbook formula count and separately states `Selection: 0 · fixed AUX values`. This prevents the Selection sheet's zero formula cells from being mistaken for a formula-free workbook. The supplied workbook evidence remains unchanged: AUX exports fixed values in `SELECTION`, while `COSTING` contains 80 formula cells.

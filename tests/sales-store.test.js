@@ -179,6 +179,8 @@ test('all Sales screens render their main content without runtime errors', () =>
     const detail = captured.find(x => x.title === 'AUX Selection Detail');
     assert.ok(detail.html.includes('INDUS MOTOR, ADMIN BUILDING'));
     assert.ok(detail.html.includes('GF-CU-01'));
+    assert.ok(detail.html.includes('80 in Costing'));
+    assert.ok(detail.html.includes('Selection: 0 · fixed AUX values'));
     assert.equal((detail.html.match(/class="aux-system-card"/g) || []).length, 13);
     const dashboard = captured.find(x => x.title === 'Sales Operations Dashboard');
     const inquiries = captured.find(x => x.title === 'Inquiries & Tenders');
