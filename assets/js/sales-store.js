@@ -158,10 +158,10 @@
                 documents: [
                     { id: 'DOC-001', name: 'Generated Tender Cover.pdf', kind: 'Generated tender', sizeMB: 0.8, source: 'Template R4', locked: true, status: 'Ready' },
                     { id: 'DOC-002', name: 'QTN-2609-019-R1.pdf', kind: 'Commercial quotation', sizeMB: 1.5, source: 'Approved quotation', locked: true, status: 'Ready' },
-                    { id: 'DOC-003', name: 'Client Tender Instructions.pdf', kind: 'Client document', sizeMB: 12.6, source: 'Uploaded', locked: false, status: 'Ready' },
-                    { id: 'DOC-004', name: 'AUX Technical Datasheets.pdf', kind: 'Technical annexure', sizeMB: 84.3, source: 'Uploaded', locked: false, status: 'Ready' },
-                    { id: 'DOC-005', name: 'HVAC Drawings and Schematics.pdf', kind: 'Drawings', sizeMB: 126.8, source: 'Uploaded', locked: false, status: 'Ready' },
-                    { id: 'DOC-006', name: 'Company Profile and Certificates.pdf', kind: 'Company annexure', sizeMB: 44.2, source: 'Uploaded', locked: false, status: 'Ready' }
+                    { id: 'DOC-003', name: 'Client Tender Instructions.pdf', kind: 'Client document', sizeMB: 12.6, source: 'Demonstration record', locked: false, status: 'Demo placeholder' },
+                    { id: 'DOC-004', name: 'AUX Technical Datasheets.pdf', kind: 'Technical annexure', sizeMB: 84.3, source: 'Demonstration record', locked: false, status: 'Demo placeholder' },
+                    { id: 'DOC-005', name: 'HVAC Drawings and Schematics.pdf', kind: 'Drawings', sizeMB: 126.8, source: 'Demonstration record', locked: false, status: 'Demo placeholder' },
+                    { id: 'DOC-006', name: 'Company Profile and Certificates.pdf', kind: 'Company annexure', sizeMB: 44.2, source: 'Demonstration record', locked: false, status: 'Demo placeholder' }
                 ],
                 compression: { profile: 'Balanced', imageDpi: 150, imageQuality: 78, preserveOriginal: true, removeMetadata: true },
                 builds: [
@@ -451,7 +451,7 @@
         if (!workspace) return [];
         const added = Array.from(files || []).map(file => {
             const sequence = workspace.documents.reduce((max, row) => Math.max(max, Number(String(row.id).replace(/\D/g, '')) || 0), 0) + 1;
-            const row = { id: `DOC-${String(sequence).padStart(3, '0')}`, name: file.name || `Attachment-${sequence}.pdf`, kind: 'Tender attachment', sizeMB: Math.round((Number(file.size || 0) / 1048576) * 10) / 10, source: 'Uploaded this session', locked: false, status: 'Ready' };
+            const row = { id: `DOC-${String(sequence).padStart(3, '0')}`, name: file.name || `Attachment-${sequence}.pdf`, kind: 'Tender attachment', sizeMB: Math.round((Number(file.size || 0) / 1048576) * 10) / 10, source: 'Browser file', locked: false, status: 'Loaded' };
             workspace.documents.push(row);
             return row;
         });
@@ -490,7 +490,7 @@
         save(); return compression;
     }
 
-    function buildTenderPackage() {
+    function buildTenderPackage(result = {}) {
         const workspace = state.tenderDocuments?.workspace;
         if (!workspace) return { ok: false, reason: 'Tender workspace nahi mila.' };
         const missing = workspace.fields.find(x => x.required && !String(x.value || '').trim());
@@ -502,8 +502,8 @@
         const safeRef = String(tenderRef).replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
         const row = {
             id: `PKG-2609-${String(sequence).padStart(3, '0')}-R1`, file: `${safeRef || workspace.id}-Tender-Package.pdf`,
-            createdAt: new Date().toISOString(), createdBy: 'Sales Desk', sourceSizeMB: totals.sourceSizeMB, outputSizeMB: totals.outputSizeMB,
-            profile: workspace.compression.profile, documents: totals.documents, status: 'Package specification ready', originalPreserved: workspace.compression.preserveOriginal
+            createdAt: new Date().toISOString(), createdBy: 'Sales Desk', sourceSizeMB: Number(result.sourceSizeMB ?? totals.sourceSizeMB), outputSizeMB: Number(result.outputSizeMB ?? totals.outputSizeMB),
+            profile: workspace.compression.profile, documents: totals.documents, pages: Number(result.pages || 0), status: result.status || 'Package specification ready', originalPreserved: workspace.compression.preserveOriginal
         };
         workspace.builds = workspace.builds || [];
         workspace.builds.unshift(row);

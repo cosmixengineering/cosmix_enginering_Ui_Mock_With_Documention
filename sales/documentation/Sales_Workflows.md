@@ -241,7 +241,9 @@ The final tender package has an explicit top-to-bottom PDF merge order. Generate
 
 Compression supports `Light`, `Balanced` and `Maximum` profiles plus image resolution, image quality and optional metadata cleanup. The system must show original size, estimated/final output size, reduction, processing status and package history. Compression must not change page order or overwrite source evidence. Digitally signed PDFs require signature-validity review after merge or compression.
 
-For production, 250–300 MB inputs must be uploaded and processed by a server/background document worker with progress reporting, job recovery, resource limits, malware scanning, secure temporary storage and retention cleanup. The current direct-file HTML mock records file metadata and a complete processing specification; it does not claim to merge or recompress large binary PDFs. The generated tender section can still use the browser Print / Save as PDF flow for staff review.
+The direct-file demonstration performs real local browser processing for normal review files. It generates tender pages from the editable fields, merges selected PDFs in the displayed order, applies object optimization for `Light`, raster image recompression for `Balanced`/`Maximum`, reports page progress and creates a downloadable final PDF. The original File objects are read-only and remain untouched. Seeded demonstration attachment records become clearly labelled placeholder pages until staff select their real PDFs. Selected File objects and the generated download Blob exist only in browser memory, so the package must be rebuilt after a page refresh. Balanced/Maximum preserves visible page order and appearance but does not preserve selectable text or digital signatures.
+
+For production, 250–300 MB inputs must be uploaded and processed by a server/background document worker with progress reporting, job recovery, resource limits, malware scanning, secure temporary storage and retention cleanup. The browser demonstration deliberately states this limit and does not promise reliable processing of files at that scale.
 
 ## Product and Inventory boundary
 

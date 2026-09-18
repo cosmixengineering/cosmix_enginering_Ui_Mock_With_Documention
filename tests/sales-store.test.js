@@ -150,6 +150,18 @@ test('tender package keeps editable values, merge order, compression and build h
     assert.equal(built.row.documents, 7);
     assert.equal(built.row.originalPreserved, true);
     assert.equal(store.state.tenderDocuments.workspace.status, 'Package prepared');
+
+    const actual = store.buildTenderPackage({
+        sourceSizeMB: 2.4,
+        outputSizeMB: 1.1,
+        pages: 8,
+        status: 'Ready to download'
+    });
+    assert.equal(actual.ok, true);
+    assert.equal(actual.row.sourceSizeMB, 2.4);
+    assert.equal(actual.row.outputSizeMB, 1.1);
+    assert.equal(actual.row.pages, 8);
+    assert.equal(actual.row.status, 'Ready to download');
 });
 
 test('rate selection is isolated to one item and specification group', () => {
@@ -297,7 +309,13 @@ test('all Sales screens render their main content without runtime errors', () =>
     assert.ok(tenderDocuments.html.includes('PDF merge order'));
     assert.ok(tenderDocuments.html.includes('Compression & output'));
     assert.ok(tenderDocuments.html.includes('Original PDFs'));
-    assert.ok(tenderDocuments.html.includes('Large-file worker required in production'));
+    assert.ok(tenderDocuments.html.includes('Working locally in this browser'));
+    assert.ok(tenderDocuments.html.includes('Generate merged PDF'));
+    assert.ok(pagesSource.includes('PDFDocument.load'));
+    assert.ok(pagesSource.includes('copyPages'));
+    assert.ok(pagesSource.includes('pdfjsLib.getDocument'));
+    assert.ok(pagesSource.includes('embedJpg'));
+    assert.ok(pagesSource.includes('URL.createObjectURL'));
     assert.ok(pagesSource.includes("cellStyles:true"));
     assert.ok(pagesSource.includes('-Equipment-Quotation.xlsx'));
     assert.equal(pagesSource.includes('-Manual-Quotation.xlsx'), false);
