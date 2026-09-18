@@ -29,7 +29,9 @@ test('seed includes the confirmed sales workflow records', () => {
     const cassette71 = store.state.costing.lines.find(x => x.model === 'ARVCA-H71/NR3DQB');
     assert.equal(cassette45.baseUnitRate + cassette45.accessoryUnitRate, cassette45.pkrRate);
     assert.equal(cassette71.baseUnitRate + cassette71.accessoryUnitRate, cassette71.pkrRate);
-    assert.equal(store.state.substitutions.every(x => x.status === 'Boss Approved'), true);
+    assert.equal(store.state.substitutions.every(x => x.status === 'Management Approved'), true);
+    assert.equal(store.state.approvalInbox.length, 4);
+    assert.equal(store.state.approvalInbox.filter(x => x.unread).length, 2);
     assert.equal(store.state.costing.lines[0].source, 'Rate Book');
     assert.equal(store.state.manualQuotation.project, 'HVAC Equipment Quotation');
     assert.equal(store.state.costing.components.some(x => x.mode === 'Manual'), false);
@@ -46,6 +48,9 @@ test('legacy CEO rate-book labels migrate without resetting saved sales data', (
     saved.catalogImports[0].file = 'CEO_Rate_Book_Reference.xlsx';
     saved.manualQuotation.project = 'Manual HVAC Quotation';
     saved.costing.components[0].mode = 'Manual';
+    saved.substitutions[0].status = 'Boss Approved';
+    saved.costing.status = 'Boss Approval Pending';
+    delete saved.approvalInbox;
     storage.set('cosmix_sales_mock_v2', JSON.stringify(saved));
 
     const migrated = createStore(storage);
@@ -55,6 +60,9 @@ test('legacy CEO rate-book labels migrate without resetting saved sales data', (
     assert.equal(migrated.state.catalogImports[0].file, 'Rate_Book_Reference.xlsx');
     assert.equal(migrated.state.manualQuotation.project, 'HVAC Equipment Quotation');
     assert.equal(migrated.state.costing.components[0].mode, 'Entered amount');
+    assert.equal(migrated.state.substitutions[0].status, 'Management Approved');
+    assert.equal(migrated.state.costing.status, 'Management Review Pending');
+    assert.equal(migrated.state.approvalInbox.length, 4);
     assert.equal(storage.get('cosmix_sales_mock_v2').includes('CEO Rate Book'), false);
 });
 
@@ -78,7 +86,7 @@ test('late quotation revision keeps the record and creates a controlled draft re
     assert.deepEqual(JSON.parse(JSON.stringify(store.findQuote('QTN-2604-006::R1'))), original);
 });
 
-test('boss approval freezes the current costing status and review components', () => {
+test('received management approval freezes the current costing status and review components', () => {
     const store = createStore();
     const blocked = store.approveCosting();
     assert.equal(blocked.ok, false);
@@ -86,9 +94,35 @@ test('boss approval freezes the current costing status and review components', (
     const approved = store.approveCosting('Approved after accessory decision.');
     assert.equal(approved.ok, true);
     assert.equal(store.state.costing.status, 'Approved');
-    assert.equal(store.state.costing.components.filter(x => x.status === 'Boss Review').length, 0);
+    assert.equal(store.state.costing.components.filter(x => x.status === 'Management Review').length, 0);
     assert.equal(store.state.costing.approvedSnapshots.length, 1);
     assert.equal(store.addComponent({ name: 'Late change', amount: 1 }), null);
+});
+
+test('Sales can receive, acknowledge and apply a management quotation decision', () => {
+    const store = createStore();
+    const before = store.findQuote('QTN-2609-019::R1');
+    assert.equal(before.value, 27287895);
+    const acknowledged = store.acknowledgeApproval('APR-2609-024');
+    assert.equal(acknowledged.ok, true);
+    assert.equal(acknowledged.row.unread, false);
+    const applied = store.applyApprovalDecision('APR-2609-024');
+    assert.equal(applied.ok, true);
+    assert.equal(applied.quote.value, 26950000);
+    assert.equal(applied.quote.status, 'Approved');
+    assert.equal(applied.row.status, 'Applied');
+    assert.ok(applied.row.appliedAt);
+});
+
+test('approval request submission is deduplicated while awaiting management', () => {
+    const store = createStore();
+    const before = store.state.approvalInbox.length;
+    const first = store.submitApprovalRequest({ sourceRef: 'SEL-NEW-PANELS', type: 'Accessory Decision', client: 'Test Client' });
+    const second = store.submitApprovalRequest({ sourceRef: 'SEL-NEW-PANELS', type: 'Accessory Decision', client: 'Test Client' });
+    assert.equal(first.ok, true);
+    assert.equal(first.existing, false);
+    assert.equal(second.existing, true);
+    assert.equal(store.state.approvalInbox.length, before + 1);
 });
 
 test('rate selection is isolated to one item and specification group', () => {
@@ -191,11 +225,11 @@ test('all Sales screens render their main content without runtime errors', () =>
     vm.runInContext(source, context, { filename: 'sales-store.js' });
     vm.runInContext(pagesSource, context, { filename: 'sales-pages.js' });
     window.CosmixSales.addManualQuoteItem('ARVWM-H022/NR1DJA', 1, { includeLinked: true });
-    for (const page of ['dashboard', 'inquiries', 'selection', 'selection-detail', 'selection-pricing', 'costing', 'catalog', 'quotation-builder', 'rates', 'quotations', 'quotation-detail', 'settings', 'workflow']) {
+    for (const page of ['dashboard', 'inquiries', 'selection', 'selection-detail', 'selection-pricing', 'costing', 'approvals', 'catalog', 'quotation-builder', 'rates', 'quotations', 'quotation-detail', 'settings', 'workflow']) {
         window.location.search = page === 'quotation-detail' ? '?id=QTN-2609-019&rev=R1' : page === 'selection-detail' ? '?id=SEL-2609-014-R1' : '';
         window.renderSalesPage(page);
     }
-    assert.equal(captured.length, 13);
+    assert.equal(captured.length, 14);
     for (const result of captured) {
         assert.ok(result.title.length > 5);
         if (!['Quotation Builder','Product Catalogue & Import'].includes(result.title)) assert.ok(result.html.includes('Local mock data'));
@@ -211,12 +245,16 @@ test('all Sales screens render their main content without runtime errors', () =>
     const dashboard = captured.find(x => x.title === 'Sales Operations Dashboard');
     const inquiries = captured.find(x => x.title === 'Inquiries & Tenders');
     const costing = captured.find(x => x.title === 'BOQ & Flexible Costing');
+    const approvals = captured.find(x => x.title === 'Management Decisions');
     const builder = captured.find(x => x.title === 'Quotation Builder');
     const selectionPricing = captured.find(x => x.title === 'Selection Pricing Sheet');
     assert.ok(dashboard.html.includes('Sales overview'));
     assert.ok(dashboard.html.includes('Work queue'));
     assert.ok(inquiries.html.includes('sales-register-toolbar'));
     assert.ok(costing.html.includes('sales-cost-nav'));
+    assert.ok(approvals.html.includes('Management comment'));
+    assert.ok(approvals.html.includes('Approved final'));
+    assert.ok(approvals.html.includes('Acknowledge before applying'));
     assert.ok(builder.html.includes('<th colspan="8">Equipment</th>'));
     assert.ok(builder.html.includes('<th colspan="4">Remote / Controller</th>'));
     assert.ok(builder.html.includes('<th rowspan="2">Line Total</th>'));

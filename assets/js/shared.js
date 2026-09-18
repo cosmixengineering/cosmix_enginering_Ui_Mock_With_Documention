@@ -29,6 +29,7 @@ const renderLayout = (activePage) => {
     const isAccounts = (currentDeptId === 'accounts' || currentDeptId === 'finance');
     const isWarehouse = (currentDeptId === 'warehouse' || currentDeptId === 'inventory');
     const isSales = currentDeptId === 'sales';
+    const salesDecisionCount = isSales ? (window.CosmixSales?.state?.approvalInbox || []).filter(item => item.unread).length : 0;
     const currentDept = DEPARTMENTS.find(d => d.id === currentDeptId) || (isAccounts ? DEPARTMENTS[1] : DEPARTMENTS[0]);
 
     // Ensure Font Awesome is always loaded across all pages
@@ -115,6 +116,7 @@ const renderLayout = (activePage) => {
                 ${createNavLink(p + 'sales/inquiries.html', 'Inquiries & Tenders', 'fas fa-inbox', activePage === 'inquiries', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '6' })}
                 ${createNavLink(p + 'sales/selection.html', 'Technical Selection', 'fas fa-snowflake', activePage === 'selection' || activePage === 'selection-detail' || activePage === 'selection-pricing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'AUX' })}
                 ${createNavLink(p + 'sales/costing.html', 'BOQ & Costing', 'fas fa-calculator', activePage === 'costing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '3' })}
+                ${createNavLink(p + 'sales/approvals.html', 'Management Decisions', 'fas fa-stamp', activePage === 'approvals', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: salesDecisionCount ? `${salesDecisionCount} New` : 'Inbox' })}
                 ${createNavLink(p + 'sales/catalog.html', 'Product Catalogue', 'fas fa-database', activePage === 'catalog', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Data' })}
                 ${createNavLink(p + 'sales/quotation-builder.html', 'Quotation Builder', 'fas fa-table-cells', activePage === 'quotation-builder' || activePage === 'manual-quotation', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Excel' })}
                 ${createNavLink(p + 'sales/rates.html', 'Vendor Rate Enquiries', 'fas fa-tags', activePage === 'rates', { bg: 'bg-rose-50 border border-rose-200', text: 'text-rose-700', label: '2 Due' })}
@@ -309,7 +311,7 @@ const renderLayout = (activePage) => {
                                 <div class="flex items-start gap-2.5"><div class="w-6 h-6 rounded-full bg-red-50 text-red-500 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-triangle-exclamation text-[9px]"></i></div><div><p class="text-[11px] font-semibold text-gray-800">Commercial Revalidation</p><p class="text-[9.5px] text-gray-500">QTN-2604-006 was accepted after validity.</p><p class="text-[8.5px] text-gray-400">Action required</p></div></div>
                             </a>
                             <a href="${p}sales/costing.html" class="block px-3 py-2 hover:bg-gray-50 border-b border-gray-50 transition">
-                                <div class="flex items-start gap-2.5"><div class="w-6 h-6 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-user-check text-[9px]"></i></div><div><p class="text-[11px] font-semibold text-gray-800">Boss Approval Pending</p><p class="text-[9.5px] text-gray-500">BOQ-2609-014-R1 awaits commercial approval.</p><p class="text-[8.5px] text-gray-400">Today</p></div></div>
+                                <div class="flex items-start gap-2.5"><div class="w-6 h-6 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-user-check text-[9px]"></i></div><div><p class="text-[11px] font-semibold text-gray-800">Management Review Pending</p><p class="text-[9.5px] text-gray-500">BOQ-2609-014-R1 is awaiting an Administrator/Director decision.</p><p class="text-[8.5px] text-gray-400">Today</p></div></div>
                             </a>
                             <a href="${p}sales/rates.html" class="block px-3 py-2 hover:bg-gray-50 transition">
                                 <div class="flex items-start gap-2.5"><div class="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-tags text-[9px]"></i></div><div><p class="text-[11px] font-semibold text-gray-800">Vendor Rate Due</p><p class="text-[9.5px] text-gray-500">Air-flow panel response is outstanding.</p><p class="text-[8.5px] text-gray-400">2 days waiting</p></div></div>

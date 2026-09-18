@@ -19,12 +19,12 @@
             { id: 'SEL-2609-015-R2', inquiry: 'INQ-2609-015', client: 'Grand Monarch Residency', project: 'Apartment VRF Packages', file: 'Grand_Monarch_AUX_Selection_R2.xlsx', imported: '2026-09-14', importedBy: 'Zeeshan', systems: 7, pieces: 68, images: 21, issues: 0, affectedQuantity: 0, status: 'Validated', boq: 'BOQ created', decisions: [], validation: { by: 'Sales Engineer', at: '2026-09-14T11:00:00.000Z', note: 'Technical selection reviewed.' } }
         ],
         substitutions: [
-            { id: 'SUB-2609-001', from: 'ARVCA-H45/NR1DYBA', fromQty: 1, to: 'ARVCA-H45/NR3DQB', toQty: 1, reason: 'Commercial model consolidation', status: 'Boss Approved' },
-            { id: 'SUB-2609-002', from: 'ARVMD-H112/NR1DM', fromQty: 1, to: 'ARVMD-H112/4R1M', toQty: 1, reason: 'Commercial model consolidation', status: 'Boss Approved' },
-            { id: 'SUB-2609-003', from: 'ARVWM-H015/NR1DJA', fromQty: 2, to: 'ARVWM-H022/NR1DJA', toQty: 2, reason: 'Combined with H022 line', status: 'Boss Approved' }
+            { id: 'SUB-2609-001', from: 'ARVCA-H45/NR1DYBA', fromQty: 1, to: 'ARVCA-H45/NR3DQB', toQty: 1, reason: 'Commercial model consolidation', status: 'Management Approved' },
+            { id: 'SUB-2609-002', from: 'ARVMD-H112/NR1DM', fromQty: 1, to: 'ARVMD-H112/4R1M', toQty: 1, reason: 'Commercial model consolidation', status: 'Management Approved' },
+            { id: 'SUB-2609-003', from: 'ARVWM-H015/NR1DJA', fromQty: 2, to: 'ARVWM-H022/NR1DJA', toQty: 2, reason: 'Combined with H022 line', status: 'Management Approved' }
         ],
         costing: {
-            inquiry: 'INQ-2609-014', revision: 'BOQ-2609-014-R1', status: 'Boss Approval Pending', fxRate: 279.50,
+            inquiry: 'INQ-2609-014', revision: 'BOQ-2609-014-R1', status: 'Management Review Pending', fxRate: 279.50,
             lines: [
                 { id: 1, section: 'Outdoor Unit', model: 'ARV-H160/NR1A', description: 'MINI 50/60Hz · 4.6 TR', qty: 2, unit: 'pc', currency: 'PKR', sourceRate: 726000, pkrRate: 726000, stock: 0, reserved: 0, source: 'Rate Book' },
                 { id: 2, section: 'Outdoor Unit', model: 'ARV-H180/SR1DCS7A', description: 'MINI 50/60Hz · 5.1 TR', qty: 3, unit: 'pc', currency: 'PKR', sourceRate: 897600, pkrRate: 897600, stock: 1, reserved: 0, source: 'Rate Book' },
@@ -60,8 +60,8 @@
                 { id: 'CMP-001', name: 'Freight / Logistics', mode: 'Fixed', value: 180000, base: 'Whole quotation', amount: 180000, status: 'Entered', note: 'Demonstration amount; procedure varies by deal' },
                 { id: 'CMP-002', name: 'Installation Labour', mode: 'Entered amount', value: 1150000, base: 'Project scope', amount: 1150000, status: 'Entered', note: 'Demonstration amount' },
                 { id: 'CMP-003', name: 'Overhead', mode: 'Percent', value: 2.5, base: 'Reference cost', amount: 569432, status: 'Entered', note: 'Example only; not confirmed company rule' },
-                { id: 'CMP-004', name: 'Profit / Markup', mode: 'Percent', value: 12, base: 'Approved internal cost', amount: 2961203, status: 'Boss Review', note: 'Boss decides final value' },
-                { id: 'CMP-005', name: 'Boss Discount', mode: 'Entered amount', value: 350000, base: 'Gross selling price', amount: -350000, status: 'Boss Review', note: 'Boss-entered discount' }
+                { id: 'CMP-004', name: 'Profit / Markup', mode: 'Percent', value: 12, base: 'Approved internal cost', amount: 2961203, status: 'Management Review', note: 'Management decides final value' },
+                { id: 'CMP-005', name: 'Management Discount', mode: 'Entered amount', value: 350000, base: 'Gross selling price', amount: -350000, status: 'Management Review', note: 'Proposed discount awaiting management decision' }
             ],
             approvedSnapshots: []
         },
@@ -75,13 +75,13 @@
                 { code: 'RB-AUX-004', model: 'XK-05A', category: 'Controller', currency: 'PKR', amount: 23100, pkrAmount: 23100, source: 'Printed rate book', effective: '2026-09-01', review: 'Current demo' }
             ],
             fxSnapshots: [
-                { id: 'FX-2609-01', pair: 'USD → PKR', rate: 279.50, effective: '2026-09-17', enteredBy: 'Sales Desk', approvedBy: 'Boss', status: 'Approved demo snapshot' }
+                { id: 'FX-2609-01', pair: 'USD → PKR', rate: 279.50, effective: '2026-09-17', enteredBy: 'Sales Desk', approvedBy: 'Management', status: 'Approved demo snapshot' }
             ],
             clauses: [
                 { id: 'CL-01', title: 'Quotation validity', text: 'Validity must be entered per quotation and revalidated after expiry.', status: 'Controlled template' },
                 { id: 'CL-02', title: 'Tax / duty', text: 'Record inclusion or exclusion per deal; no universal formula is confirmed.', status: 'Needs deal input' },
                 { id: 'CL-03', title: 'Exchange variation', text: 'Foreign-currency exposure uses the approved quotation FX snapshot.', status: 'Controlled template' },
-                { id: 'CL-04', title: 'Delivery and payment', text: 'Enter client-specific delivery and payment terms before Boss approval.', status: 'Needs deal input' }
+                { id: 'CL-04', title: 'Delivery and payment', text: 'Enter client-specific delivery and payment terms before management approval.', status: 'Needs deal input' }
             ]
         },
         productCatalog: [],
@@ -94,6 +94,37 @@
             discount: 0, freight: 0, tax: 0, lines: [], updatedAt: '2026-09-17T00:00:00.000Z'
         },
         selectionPricing: null,
+        approvalInbox: [
+            {
+                id: 'APR-2609-024', type: 'Final Quotation', sourceRef: 'QTN-2609-019/R1', quoteRef: 'QTN-2609-019::R1', client: 'Indus Motor Company', project: 'Admin Building HVAC',
+                submittedBy: 'GM Sales', submittedAt: '2026-09-17T15:20:00.000Z', requested: 'Final selling price, discount and dispatch clearance', proposedValue: 27287895,
+                status: 'Decision Received', decision: 'Approved with revised final offer', decisionBy: 'Director', decisionAt: '2026-09-18T09:10:00.000Z',
+                adjustmentType: 'Discount', adjustmentAmount: 337895, approvedValue: 26950000, validityDays: 15,
+                comment: 'Issue the final quotation at Rs. 26,950,000. Keep validity at 15 days and do not dispatch before Sales acknowledgement.',
+                unread: true, acknowledgedAt: '', appliedAt: '', appliedRef: ''
+            },
+            {
+                id: 'APR-2609-023', type: 'Commercial BOQ', sourceRef: 'BOQ-2609-014-R1', quoteRef: 'QTN-2609-019::R1', client: 'Indus Motor Company', project: 'Admin Building HVAC',
+                submittedBy: 'Sales Engineer', submittedAt: '2026-09-18T08:40:00.000Z', requested: 'Profit, discount and final selling price', proposedValue: 27287895,
+                status: 'Awaiting Management', decision: '', decisionBy: 'Director / Administrator', decisionAt: '', adjustmentType: '', adjustmentAmount: 0, approvedValue: 0, validityDays: 0,
+                comment: 'Commercial review requested from management.', unread: false, acknowledgedAt: '', appliedAt: '', appliedRef: ''
+            },
+            {
+                id: 'APR-2609-022', type: 'Tender Revalidation', sourceRef: 'QTN-2604-006/R1', quoteRef: 'QTN-2604-006::R1', client: 'Corporate Office Group', project: 'Head Office VRF Tender',
+                submittedBy: 'GM Sales', submittedAt: '2026-09-17T13:15:00.000Z', requested: 'Five-month price variance and revised offer direction', proposedValue: 12840000,
+                status: 'Revision Required', decision: 'Increase quotation after market revalidation', decisionBy: 'Administrator', decisionAt: '2026-09-18T08:25:00.000Z',
+                adjustmentType: 'Increase', adjustmentAmount: 1330000, approvedValue: 14170000, validityDays: 10,
+                comment: 'Create a new controlled revision at Rs. 14,170,000. Keep the original submitted revision unchanged.',
+                unread: true, acknowledgedAt: '', appliedAt: '', appliedRef: ''
+            },
+            {
+                id: 'APR-2609-021', type: 'Model Substitution', sourceRef: 'SUB-2609-003', quoteRef: '', client: 'Indus Motor Company', project: 'Admin Building HVAC',
+                submittedBy: 'Application Team', submittedAt: '2026-09-17T08:55:00.000Z', requested: 'Approve H015 consolidation into H022 line', proposedValue: 0,
+                status: 'Applied', decision: 'Substitution approved', decisionBy: 'Director', decisionAt: '2026-09-17T09:40:00.000Z', adjustmentType: 'No price change', adjustmentAmount: 0, approvedValue: 0, validityDays: 0,
+                comment: 'Use ARVWM-H022/NR1DJA × 2 and retain the original AUX model in the audit trail.',
+                unread: false, acknowledgedAt: '2026-09-17T10:05:00.000Z', appliedAt: '2026-09-17T10:06:00.000Z', appliedRef: 'SUB-2609-003'
+            }
+        ],
         rates: [
             { id: 'VRQ-2609-007', inquiry: 'INQ-2609-016', item: 'Refrigerant copper piping', spec: 'ASTM B280 · assorted sizes', qty: 850, unit: 'm', vendor: 'CoolTech Traders', requested: '2026-09-12', responded: '2026-09-15', currency: 'PKR', rate: 4850, tax: 'Exclusive', freight: 'Included', lead: '7 days', validUntil: '2026-09-22', status: 'Selected', evidence: 'Vendor quotation attached' },
             { id: 'VRQ-2609-008', inquiry: 'INQ-2609-016', item: 'Installation cable', spec: '4 core industrial cable', qty: 1200, unit: 'm', vendor: 'Pak Cable House', requested: '2026-09-13', responded: '2026-09-16', currency: 'PKR', rate: 620, tax: 'Exclusive', freight: 'Separate', lead: 'Available', validUntil: '2026-09-26', status: 'Response Received', evidence: 'WhatsApp rate evidence' },
@@ -101,16 +132,16 @@
             { id: 'VRQ-2609-010', inquiry: 'TND-2604-006', item: 'VRF equipment package', spec: 'Tender revalidation', qty: 1, unit: 'lot', vendor: 'Authorized Distributor', requested: '2026-09-15', responded: '2026-09-17', currency: 'USD', rate: 42380, tax: 'Exclusive', freight: 'Separate', lead: '14–16 weeks', validUntil: '2026-09-24', status: 'Response Received', evidence: 'Revalidation evidence' }
         ],
         quotations: [
-            { id: 'QTN-2609-018', rev: 'R2', inquiry: 'INQ-2609-015', client: 'Grand Monarch Residency', project: 'Apartment VRF Packages', value: 14041500, submitted: '2026-09-15', validUntil: '2026-09-30', status: 'Follow-up', approver: 'Boss', lastFollowUp: '2026-09-17', nextAction: 'Client technical meeting', dispatch: 'Email + WhatsApp', acceptedBaseline: false },
-            { id: 'QTN-2609-019', rev: 'R1', inquiry: 'INQ-2609-014', client: 'Indus Motor Company', project: 'Admin Building HVAC', value: 27287895, submitted: '', validUntil: '', status: 'Approval Pending', approver: 'Boss', lastFollowUp: '', nextAction: 'Boss commercial approval', dispatch: 'Not sent', acceptedBaseline: false },
-            { id: 'QTN-2604-006', rev: 'R1', inquiry: 'TND-2604-006', client: 'Corporate Office Group', project: 'Head Office VRF Tender', value: 12840000, revalidatedValue: 14170000, submitted: '2026-04-18', validUntil: '2026-05-03', status: 'Commercial Revalidation Required', approver: 'Boss', lastFollowUp: '2026-09-17', nextAction: 'Review +Rs. 1,330,000 variance', dispatch: 'Tender portal', acceptedBaseline: false },
-            { id: 'QTN-2608-011', rev: 'R3', inquiry: 'INQ-2608-009', client: 'Lucky Cement', project: 'Plant Ventilation Upgrade', value: 9650000, submitted: '2026-08-20', validUntil: '2026-09-19', status: 'Accepted Within Validity', approver: 'Boss', lastFollowUp: '2026-09-16', nextAction: 'Prepare handoff pack', dispatch: 'Email', acceptedBaseline: true }
+            { id: 'QTN-2609-018', rev: 'R2', inquiry: 'INQ-2609-015', client: 'Grand Monarch Residency', project: 'Apartment VRF Packages', value: 14041500, submitted: '2026-09-15', validUntil: '2026-09-30', status: 'Follow-up', approver: 'Director / Administrator', lastFollowUp: '2026-09-17', nextAction: 'Client technical meeting', dispatch: 'Email + WhatsApp', acceptedBaseline: false },
+            { id: 'QTN-2609-019', rev: 'R1', inquiry: 'INQ-2609-014', client: 'Indus Motor Company', project: 'Admin Building HVAC', value: 27287895, submitted: '', validUntil: '', status: 'Approval Pending', approver: 'Director / Administrator', lastFollowUp: '', nextAction: 'Management commercial approval', dispatch: 'Not sent', acceptedBaseline: false },
+            { id: 'QTN-2604-006', rev: 'R1', inquiry: 'TND-2604-006', client: 'Corporate Office Group', project: 'Head Office VRF Tender', value: 12840000, revalidatedValue: 14170000, submitted: '2026-04-18', validUntil: '2026-05-03', status: 'Commercial Revalidation Required', approver: 'Director / Administrator', lastFollowUp: '2026-09-17', nextAction: 'Review +Rs. 1,330,000 variance', dispatch: 'Tender portal', acceptedBaseline: false },
+            { id: 'QTN-2608-011', rev: 'R3', inquiry: 'INQ-2608-009', client: 'Lucky Cement', project: 'Plant Ventilation Upgrade', value: 9650000, submitted: '2026-08-20', validUntil: '2026-09-19', status: 'Accepted Within Validity', approver: 'Director / Administrator', lastFollowUp: '2026-09-16', nextAction: 'Prepare handoff pack', dispatch: 'Email', acceptedBaseline: true }
         ],
         acceptedBaselines: [
             { id: 'ABL-2608-011-R3', quoteRef: 'QTN-2608-011::R3', acceptedAt: '2026-09-16T10:30:00.000Z', acceptedBy: 'Client representative', evidence: 'Client acceptance email · demonstration', value: 9650000, locked: true }
         ],
         activities: [
-            { time: '09:40', icon: 'fa-check-circle', color: 'emerald', text: 'Boss approved model consolidation SUB-2609-003.' },
+            { time: '09:40', icon: 'fa-check-circle', color: 'emerald', text: 'Management approved model consolidation SUB-2609-003.' },
             { time: '09:05', icon: 'fa-file-excel', color: 'cyan', text: 'AUX workbook SEL-2609-014-R1 uploaded for validation.' },
             { time: 'Yesterday', icon: 'fa-envelope', color: 'blue', text: 'QTN-2609-018/R2 sent by Email and WhatsApp.' },
             { time: 'Yesterday', icon: 'fa-triangle-exclamation', color: 'amber', text: 'Old tender QTN-2604-006 moved to commercial revalidation.' }
@@ -131,6 +162,13 @@
         if (data.rateBook) data.rateBook.edition = replaceLabel(data.rateBook.edition);
         if (data.manualQuotation?.project === 'Manual HVAC Quotation') data.manualQuotation.project = 'HVAC Equipment Quotation';
         data.costing?.components?.forEach(item => { if (item.mode === 'Manual') item.mode = 'Entered amount'; });
+        data.substitutions?.forEach(item => { if (item.status === 'Boss Approved') item.status = 'Management Approved'; });
+        if (data.costing?.status === 'Boss Approval Pending') data.costing.status = 'Management Review Pending';
+        data.costing?.components?.forEach(item => {
+            if (item.status === 'Boss Review') item.status = 'Management Review';
+            if (item.name === 'Boss Discount') item.name = 'Management Discount';
+            if (item.note === 'Boss decides final value') item.note = 'Management decides final value';
+        });
         data.productCatalog?.forEach(item => {
             if (item.source === 'Manual entry') item.source = 'Direct entry';
             if (item.origin === 'Manual entry') item.origin = 'Direct entry';
@@ -148,6 +186,7 @@
                     if (!Object.prototype.hasOwnProperty.call(parsed, 'selectionPricing')) parsed.selectionPricing = null;
                     if (!Array.isArray(parsed.productCatalog)) parsed.productCatalog = [];
                     if (!Array.isArray(parsed.catalogImports)) parsed.catalogImports = clone(demoState.catalogImports);
+                    if (!Array.isArray(parsed.approvalInbox)) parsed.approvalInbox = clone(demoState.approvalInbox);
                     normalizePersistedLabels(parsed);
                     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed)); } catch (_) { storageAvailable = false; }
                     return parsed;
@@ -214,7 +253,7 @@
         const row = state.selections.find(x => x.id === id);
         if (!row) return null;
         row.decisions = row.decisions || [];
-        row.decisions.push({ issue: 'Air-flow panels MB13-I × 1 and MB10 × 3', decision, reason, replacement: details.replacement || '', pkrRate: Number(details.pkrRate || 0), by: 'Boss', at: new Date().toISOString() });
+        row.decisions.push({ issue: 'Air-flow panels MB13-I × 1 and MB10 × 3', decision, reason, replacement: details.replacement || '', pkrRate: Number(details.pkrRate || 0), by: 'Management', at: new Date().toISOString() });
         const accessory = state.costing.lines.find(x => x.model === 'MB13-I / MB10');
         if (/Exclude/.test(decision)) {
             if (accessory) Object.assign(accessory, { excluded: true, source: 'Excluded by management decision' });
@@ -255,18 +294,71 @@
         const unresolved = state.costing.lines.find(x => !x.excluded && Number(x.pkrRate || 0) <= 0);
         if (unresolved) return { ok: false, reason: `${unresolved.model} ka commercial rate/decision pending hai.` };
         state.costing.status = 'Approved';
-        state.costing.components.forEach(x => { if (x.status === 'Boss Review') x.status = 'Boss Approved'; });
+        state.costing.components.forEach(x => { if (/Boss Review|Management Review/.test(x.status)) x.status = 'Management Approved'; });
         const quote = state.quotations.find(x => x.inquiry === state.costing.inquiry);
         if (quote) quote.status = 'Approved';
         state.costing.approvedSnapshots = state.costing.approvedSnapshots || [];
         state.costing.approvedSnapshots.unshift({
             id: `${state.costing.revision}-APP-${String(state.costing.approvedSnapshots.length + 1).padStart(2, '0')}`,
-            approvedAt: new Date().toISOString(), approvedBy: 'Boss', revision: state.costing.revision,
+            approvedAt: new Date().toISOString(), approvedBy: 'Management', revision: state.costing.revision,
             fxRate: state.costing.fxRate, sourceTotal: state.costing.sourceTotal,
             inquiry: state.costing.inquiry, comment: comment || 'Commercial snapshot reviewed and approved.',
             lines: clone(state.costing.lines), components: clone(state.costing.components), substitutions: clone(state.substitutions)
         });
         save(); return { ok: true, snapshot: state.costing.approvedSnapshots[0] };
+    }
+
+    function submitApprovalRequest(data = {}) {
+        state.approvalInbox = state.approvalInbox || [];
+        const sourceRef = String(data.sourceRef || '').trim();
+        if (!sourceRef) return { ok: false, reason: 'Source reference required hai.' };
+        const existing = state.approvalInbox.find(x => x.sourceRef === sourceRef && x.status === 'Awaiting Management');
+        if (existing) return { ok: true, existing: true, row: existing };
+        const sequence = state.approvalInbox.reduce((max, x) => Math.max(max, Number(String(x.id).replace(/\D/g, '')) || 0), 0) + 1;
+        const row = {
+            id: `APR-2609-${String(sequence).slice(-3).padStart(3, '0')}`, type: data.type || 'Commercial Review', sourceRef,
+            quoteRef: data.quoteRef || '', client: data.client || '', project: data.project || '', submittedBy: data.submittedBy || 'Sales Desk',
+            submittedAt: new Date().toISOString(), requested: data.requested || 'Management decision required', proposedValue: Number(data.proposedValue || 0),
+            status: 'Awaiting Management', decision: '', decisionBy: 'Director / Administrator', decisionAt: '', adjustmentType: '', adjustmentAmount: 0,
+            approvedValue: 0, validityDays: 0, comment: data.comment || 'Submitted for management review.', unread: false,
+            acknowledgedAt: '', appliedAt: '', appliedRef: ''
+        };
+        state.approvalInbox.unshift(row);
+        if (sourceRef === state.costing.revision) state.costing.status = 'Management Review Pending';
+        save(); return { ok: true, existing: false, row };
+    }
+
+    function acknowledgeApproval(id) {
+        const row = state.approvalInbox?.find(x => x.id === id);
+        if (!row || row.status === 'Awaiting Management') return { ok: false, reason: row ? 'Management decision abhi receive nahi hua.' : 'Decision record nahi mila.' };
+        row.unread = false;
+        row.acknowledgedAt = row.acknowledgedAt || new Date().toISOString();
+        save(); return { ok: true, row };
+    }
+
+    function applyApprovalDecision(id) {
+        const row = state.approvalInbox?.find(x => x.id === id);
+        if (!row) return { ok: false, reason: 'Decision record nahi mila.' };
+        if (row.status === 'Awaiting Management') return { ok: false, reason: 'Management decision abhi receive nahi hua.' };
+        if (row.appliedAt) return { ok: true, existing: true, row, quote: row.appliedRef ? findQuote(row.appliedRef.replace('/', '::')) : null };
+        if (!row.acknowledgedAt) return { ok: false, reason: 'Decision apply karne se pehle acknowledge karein.' };
+        let quote = row.quoteRef ? findQuote(row.quoteRef) : null;
+        if (row.status === 'Revision Required' && quote) {
+            quote = createQuoteRevision(row.quoteRef, { value: Number(row.approvedValue || quote.value), nextAction: 'Prepare revised quotation from management instruction' });
+        } else if (quote && Number(row.approvedValue || 0) > 0) {
+            Object.assign(quote, { value: Number(row.approvedValue), status: 'Approved', approver: row.decisionBy || 'Management', nextAction: 'Prepare approved quotation for dispatch' });
+        }
+        if (row.sourceRef === state.costing.revision && Number(row.approvedValue || 0) > 0) {
+            const discount = state.costing.components.find(x => /Discount/.test(x.name));
+            if (discount && row.adjustmentType === 'Discount') Object.assign(discount, { name: 'Management Discount', mode: 'Entered amount', value: Number(row.adjustmentAmount || 0), amount: -Math.abs(Number(row.adjustmentAmount || 0)), status: 'Management Approved', note: row.comment });
+            state.costing.status = 'Approved';
+        }
+        row.unread = false;
+        row.acknowledgedAt = row.acknowledgedAt || new Date().toISOString();
+        row.appliedAt = new Date().toISOString();
+        row.appliedRef = quote ? `${quote.id}/${quote.rev}` : row.sourceRef;
+        row.status = 'Applied';
+        save(); return { ok: true, row, quote };
     }
 
     function addRate(data) {
@@ -322,7 +414,7 @@
     function markQuoteSent(ref, details = {}) {
         const row = findQuote(ref);
         if (!row) return { ok: false, reason: 'Quotation revision not found.' };
-        if (!/Approved|Follow-up|Submitted/.test(row.status)) return { ok: false, reason: 'Boss approval ke baad hi quotation dispatch ho sakti hai.' };
+        if (!/Approved|Follow-up|Submitted/.test(row.status)) return { ok: false, reason: 'Management approval ke baad hi quotation dispatch ho sakti hai.' };
         row.dispatchLog = row.dispatchLog || [];
         row.dispatchLog.push({ at: details.at || new Date().toISOString(), channel: details.channel || 'Email + WhatsApp', recipient: details.recipient || 'Client contact', evidence: details.evidence || 'Dispatch logged in demonstration' });
         Object.assign(row, { status: 'Follow-up', submitted: row.submitted || today, validUntil: details.validUntil || row.validUntil || '2026-10-02', dispatch: details.channel || 'Email + WhatsApp', lastFollowUp: today, nextAction: 'Client follow-up' });
@@ -601,7 +693,7 @@
         get state() { return state; },
         get storageAvailable() { return storageAvailable; },
         demoState: clone(demoState), money, save, reset, addInquiry, updateInquiry, addSelection, updateSelection, recordSelectionDecision, validateSelection,
-        addComponent, updateCostLine, approveCosting, addRate, updateRate, selectRate, quoteRef, findQuote, updateQuote, createQuoteRevision, markQuoteSent, acceptQuote,
+        addComponent, updateCostLine, approveCosting, submitApprovalRequest, acknowledgeApproval, applyApprovalDecision, addRate, updateRate, selectRate, quoteRef, findQuote, updateQuote, createQuoteRevision, markQuoteSent, acceptQuote,
         manualCatalog, upsertCatalogItems, setCatalogItemStatus, manualLinkedItems, addManualQuoteItem, updateManualQuoteLine, removeManualQuoteLine, updateManualQuotation, resetManualQuotation, manualQuoteLineTotal, manualQuoteTotals,
         prepareSelectionPricing, updateSelectionPricingLine, applySelectionPricingRate, updateSelectionPricing, selectionPricingTotals, selectionPricingCandidates
     };

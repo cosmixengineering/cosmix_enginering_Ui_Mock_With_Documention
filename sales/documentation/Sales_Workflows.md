@@ -47,7 +47,7 @@ The technical and costing lists use an unrecorded consolidation/substitution ste
 - `ARVWM-H015/NR1DJA` quantity 2 is absent while `ARVWM-H022/NR1DJA` increases from 2 to 4.
 - Four air-flow panels are omitted from costing.
 
-These are deliberate commercial decisions controlled by Boss/management. The future system must record the original model, replacement/grouped model, quantity impact, reason, author and Boss approval.
+These are deliberate commercial decisions controlled by management. The future system must record the original model, replacement/grouped model, quantity impact, reason, author and Administrator/Director approval.
 
 ## Current flow reconstructed from evidence
 
@@ -159,6 +159,18 @@ The internal worksheet should separate:
 
 Only authorized users can see cost, profit and margin. Boss/management chooses the profit/discount. The system calculates consequences and records approval; it does not decide the discount.
 
+### Management decision boundary and Sales receipt
+
+Commercial decisions belong to a separate Administrator/Director approval panel. That future panel is responsible for recording:
+
+- the management comment and decision outcome
+- the approved discount
+- any required price increase or decrease
+- the final approved quotation amount
+- revised validity or resubmission instruction where applicable
+
+Sales sends a controlled request and receives the result in `sales/approvals.html`. Sales can read and acknowledge the instruction, open its source BOQ/quotation, and apply the approved result. Sales cannot create or edit the management decision. An `Awaiting Management` request remains read-only; a `Decision Received` record may update an unsubmitted quotation or create the required controlled revision; a `Revision Required` instruction must create a new revision and preserve the submitted snapshot. This page is the Sales receiving side only and does not represent the future Administrator/Director panel.
+
 ### Configurable cost components
 
 There must not be one hard-coded formula for every quotation. A quotation or individual BOQ line can add the cost components that apply to that deal:
@@ -174,7 +186,7 @@ There must not be one hard-coded formula for every quotation. A quotation or ind
 - discount
 - another authorized custom component
 
-Each component supports `fixed amount`, `percentage` or `manual calculated amount`, plus its calculation base, notes, evidence, author and approval status. Components may apply to one line, one section/category or the complete quotation. A reusable template can provide defaults, but an authorized user may change it with a reason. Boss approval freezes the selected components and calculated result for that revision.
+Each component supports `fixed amount`, `percentage` or `manual calculated amount`, plus its calculation base, notes, evidence, author and approval status. Components may apply to one line, one section/category or the complete quotation. A reusable template can provide defaults, but an authorized user may change it with a reason. Administrator/Director approval freezes the selected components and calculated result for that revision.
 
 The costing view should show three separate values:
 
@@ -315,7 +327,8 @@ The Sales folder now contains compact direct-file HTML screens matching the shar
 - `sales/inquiries.html` — inquiries and tenders register
 - `sales/selection.html` — AUX selection import/validation
 - `sales/selection-detail.html` — structured AUX report detail with project data, design parameters, equipment list and all system sections
-- `sales/costing.html` — BOQ, flexible cost components, substitutions and Boss approval
+- `sales/costing.html` — BOQ, flexible cost components, substitutions and submission for management review
+- `sales/approvals.html` — Sales receiving inbox for Administrator/Director decisions, comments, discount, price adjustment and final approved quotation amount
 - `sales/catalog.html` — searchable Sales product catalogue, Excel/CSV data import, manual product entry, linked controller/grille mapping and active/inactive control
 - `sales/quotation-builder.html` — Excel-style quotation preparation with category/model search, price snapshots, linked accessories, quantity editing, Excel export and print layout
 - `sales/rates.html` — pre-sale vendor rate enquiries
@@ -326,15 +339,15 @@ The Sales folder now contains compact direct-file HTML screens matching the shar
 
 `assets/js/sales-store.js` provides versioned local demonstration state with guarded browser storage and Sales-only reset. `assets/js/sales-pages.js` renders the screens and working mock actions. `assets/css/sales.css` keeps cards, tables, forms and badges compact. `assets/js/shared.js` now recognizes Sales as a full department with Sales navigation, quick links, notifications and workflow shortcut.
 
-Implemented controls include new inquiry, AUX file-metadata selection, full report review, issue-gated technical validation, persisted accessory decision, editable per-line currency/rate/source, all 28 workbook costing rows, flexible fixed/percentage/manual cost components, frozen management approval snapshot, item/specification-scoped vendor selection, quotation dispatch log, append-only quotation revision, immutable accepted-baseline snapshot and late-tender commercial revalidation. The Indus Motor reference opens as a dedicated structured detail page showing Project Information, Air-conditioning Design Parameters, the 127-piece Equipment Quotation list, and all 13 `GF-CU` / `1F-CU` system sections with system information and indoor-unit tables.
+Implemented controls include new inquiry, AUX file-metadata selection, full report review, issue-gated technical validation, persisted accessory decision, editable per-line currency/rate/source, all 28 workbook costing rows, flexible fixed/percentage/manual cost components, a Sales request/receipt boundary for management decisions, item/specification-scoped vendor selection, quotation dispatch log, append-only quotation revision, immutable accepted-baseline snapshot and late-tender commercial revalidation. The Indus Motor reference opens as a dedicated structured detail page showing Project Information, Air-conditioning Design Parameters, the 127-piece Equipment Quotation list, and all 13 `GF-CU` / `1F-CU` system sections with system information and indoor-unit tables.
 
 The HTML mock records selected upload metadata and a known supplied-workbook mapping; it does not retain or parse arbitrary workbook bytes. This limitation is stated in the UI. Actions do not call AUX, Inventory, Procurement, Accounts, email or WhatsApp services.
 
 Validation completed:
 
 - JavaScript syntax checks pass for shared and Sales scripts.
-- Nine Sales tests pass, covering the 28-row workbook reconciliation, quotation snapshot isolation, append-only revision, issue-gated management approval and freeze, item-specific vendor selection, expired-quotation revalidation, reset, denied-storage fallback and runtime rendering of all ten Sales screens.
-- All local file references in the ten Sales HTML entry points resolve.
+- Sixteen Sales tests pass, covering the 28-row workbook reconciliation, quotation snapshot isolation, append-only revision, issue-gated management approval, Sales receipt/application of a management decision, request de-duplication, item-specific vendor selection, expired-quotation revalidation, reset, denied-storage fallback and runtime rendering of all fourteen Sales screens.
+- All local file references in the fifteen Sales HTML entry points resolve.
 - `git diff --check` reports no whitespace errors in the Sales changes.
 
 ## Deep audit outcome (2026-09-17)
