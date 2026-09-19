@@ -393,32 +393,31 @@ const renderLayout = (activePage) => {
             ${headerHTML}
             <main id="main-content" class="flex-1 overflow-y-auto p-4 lg:p-5 opacity-0 transition-opacity duration-500"></main>
             <!-- Software Status / Action Footer -->
-            <div class="bg-[#242b5f] text-white text-[10px] font-semibold py-1.5 px-4 flex justify-between items-center z-40 border-t border-indigo-900 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+            <div class="bg-white text-gray-700 text-[10px] font-semibold py-1.5 px-4 flex justify-between items-center z-40 border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
                 <div class="flex gap-5">
-                    <button class="hover:text-amber-400 transition flex items-center gap-1.5" onclick="showToast('Data synchronized with central server', 'success')"><i class="fas fa-sync-alt text-blue-300"></i> Sync Data</button>
-                    <button class="hover:text-amber-400 transition flex items-center gap-1.5" onclick="openModal('System Diagnostics', '<div class=\'text-xs space-y-2\'><p><b>Database:</b> Connected (12ms ping)</p><p><b>Storage:</b> 45% used</p><p><b>Last Backup:</b> Today 02:00 AM</p></div>', null)"><i class="fas fa-check-circle text-emerald-400"></i> System Status</button>
-                    <button class="hover:text-amber-400 transition flex items-center gap-1.5" onclick="openModal('Open IT Ticket', '<p class=\'text-xs text-gray-600\'>Report bugs or request software features.</p><textarea class=\'w-full border border-gray-300 rounded mt-2 p-2 text-xs\' rows=3 placeholder=\'Describe your issue...\'></textarea>', null)"><i class="fas fa-headset text-orange-300"></i> Helpdesk</button>
+                    <button class="hover:text-blue-600 transition flex items-center gap-1.5" onclick="showToast('Data synchronized with central server', 'success')"><i class="fas fa-sync-alt text-[#242b5f]"></i> Sync Data</button>
+                    <button class="hover:text-emerald-600 transition flex items-center gap-1.5" onclick="openModal('System Diagnostics', '<div class=\'text-xs space-y-2\'><p><b>Database:</b> Connected (12ms ping)</p><p><b>Storage:</b> 45% used</p><p><b>Last Backup:</b> Today 02:00 AM</p></div>', null)"><i class="fas fa-check-circle text-emerald-500"></i> System Status</button>
+                    <button class="hover:text-orange-600 transition flex items-center gap-1.5" onclick="openModal('Open IT Ticket', '<p class=\'text-xs text-gray-600\'>Report bugs or request software features.</p><textarea class=\'w-full border border-gray-300 rounded mt-2 p-2 text-xs\' rows=3 placeholder=\'Describe your issue...\'></textarea>', null)"><i class="fas fa-headset text-orange-500"></i> Helpdesk</button>
                 </div>
-                <div class="flex gap-4 items-center">
-                    <span class="flex items-center gap-1.5 text-gray-300 tracking-wider mr-2"><i class="fas fa-desktop text-gray-400"></i> ERP v2.4</span>
+                <div class="flex gap-2 items-center">
                     ${currentDeptId === 'accounts' || currentDeptId === 'finance' ? `
-                        <button class="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Bank Stmt</button>
-                        <button class="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Ledger CSV</button>
-                        <button class="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Bank Stmt</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Ledger CSV</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
                     ` : currentDeptId === 'warehouse' || currentDeptId === 'inventory' ? `
-                        <button class="bg-amber-600 hover:bg-amber-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import GRN</button>
-                        <button class="bg-amber-600 hover:bg-amber-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Stock Excel</button>
-                        <button class="bg-amber-600 hover:bg-amber-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Stock</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import GRN</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Stock Excel</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Stock</button>
                     ` : currentDeptId === 'sales' ? `
-                        <button class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Pipeline PDF</button>
-                        <button class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Details</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Pipeline PDF</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Details</button>
                     ` : currentDeptId === 'hr' ? `
-                        <button class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Biometric</button>
-                        <button class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Register</button>
-                        <button class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Records</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Biometric</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Register</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Records</button>
                     ` : `
-                        <button class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Data</button>
-                        <button class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Quick Print</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Data</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Quick Print</button>
                     `}
                 </div>
             </div>
