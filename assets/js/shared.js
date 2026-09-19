@@ -391,7 +391,19 @@ const renderLayout = (activePage) => {
         ${sidebarHTML}
         <div class="flex-1 flex flex-col h-screen overflow-hidden bg-[#f8fafc]">
             ${headerHTML}
-            <main id="main-content" class="flex-1 overflow-y-auto p-4 lg:p-5 pb-20 opacity-0 transition-opacity duration-500"></main>
+            <main id="main-content" class="flex-1 overflow-y-auto p-4 lg:p-5 opacity-0 transition-opacity duration-500"></main>
+            <!-- Software Status / Action Footer -->
+            <div class="bg-[#242b5f] text-white text-[10px] font-semibold py-1.5 px-4 flex justify-between items-center z-40 border-t border-indigo-900 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+                <div class="flex gap-5">
+                    <button class="hover:text-amber-400 transition flex items-center gap-1.5" onclick="showToast('Data synchronized with central server', 'success')"><i class="fas fa-sync-alt text-blue-300"></i> Sync Data</button>
+                    <button class="hover:text-amber-400 transition flex items-center gap-1.5" onclick="openModal('System Diagnostics', '<div class=\'text-xs space-y-2\'><p><b>Database:</b> Connected (12ms ping)</p><p><b>Storage:</b> 45% used</p><p><b>Last Backup:</b> Today 02:00 AM</p></div>', null)"><i class="fas fa-check-circle text-emerald-400"></i> System Status</button>
+                    <button class="hover:text-amber-400 transition flex items-center gap-1.5" onclick="openModal('Open IT Ticket', '<p class=\'text-xs text-gray-600\'>Report bugs or request software features.</p><textarea class=\'w-full border border-gray-300 rounded mt-2 p-2 text-xs\' rows=3 placeholder=\'Describe your issue...\'></textarea>', null)"><i class="fas fa-headset text-orange-300"></i> Helpdesk</button>
+                </div>
+                <div class="flex gap-4 items-center">
+                    <span class="flex items-center gap-1.5 text-gray-300 tracking-wider"><i class="fas fa-desktop text-gray-400"></i> Cosmix Engineering ERP v2.4</span>
+                    <button class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Quick Print</button>
+                </div>
+            </div>
         </div>
     `;
 
