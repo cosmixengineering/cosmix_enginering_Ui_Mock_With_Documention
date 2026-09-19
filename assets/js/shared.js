@@ -20,7 +20,7 @@ const renderLayout = (activePage) => {
         { id: 'accounts', name: 'Accounts & Finance', badge: 'Accounts', icon: 'fas fa-file-invoice-dollar', color: 'text-purple-600', bg: 'bg-purple-50', url: p + 'accounts/index.html' },
         { id: 'sales', name: 'Sales & CRM', badge: 'Sales', icon: 'fas fa-chart-line', color: 'text-emerald-600', bg: 'bg-emerald-50', url: p + 'sales/index.html' },
         { id: 'finance', name: 'Finance & Accounts', badge: 'Finance', icon: 'fas fa-calculator', color: 'text-purple-600', bg: 'bg-purple-50', url: p + 'accounts/index.html' },
-        { id: 'warehouse', name: 'Warehouse & Stock', badge: 'Stores', icon: 'fas fa-boxes', color: 'text-amber-600', bg: 'bg-amber-50', url: p + 'warehouse/index.html' },
+        { id: 'warehouse', name: 'Warehouse Stores', badge: 'Stores', icon: 'fas fa-boxes', color: 'text-amber-600', bg: 'bg-amber-50', url: p + 'warehouse/index.html' },
         { id: 'admin', name: 'Admin & Fleet', badge: 'Admin', icon: 'fas fa-building', color: 'text-blue-600', bg: 'bg-blue-50', url: p + 'admin/index.html' },
         { id: 'administrator', name: 'System Administrator', badge: 'SuperAdmin', icon: 'fas fa-user-shield', color: 'text-red-600', bg: 'bg-red-50', url: p + 'administrator/index.html' },
         { id: 'engineering', name: 'MEP Operations', badge: 'Engr', icon: 'fas fa-hard-hat', color: 'text-orange-600', bg: 'bg-orange-50', url: p + 'engineering/index.html' },
@@ -82,7 +82,7 @@ const renderLayout = (activePage) => {
                     ${createNavLink(p + 'hr/index.html', 'HR Operations Portal', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
                     ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
                     ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Accounts' })}
-                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse Stores', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
             </nav>
         </div>` : isAccounts ? `
@@ -101,7 +101,7 @@ const renderLayout = (activePage) => {
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'hr/index.html', 'HR Operations Portal', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
-                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse Stores', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
             </nav>
         </div>
@@ -139,7 +139,7 @@ const renderLayout = (activePage) => {
                 </details>
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
-                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-500', label: 'Stock' })}
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse Stores', 'fas fa-boxes', false, { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-500', label: 'Stock' })}
                     ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-500', label: 'Accounts' })}
                 </div>
             </nav>
@@ -168,7 +168,7 @@ const renderLayout = (activePage) => {
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
                     ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Accounts' })}
-                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse Stores', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
             </nav>
         </div>
@@ -305,9 +305,26 @@ const renderLayout = (activePage) => {
                     `}
                 </div>
                 
-                <div class="h-4 border-l border-gray-200 mx-1 hidden xl:block"></div>
+                <div class="hidden md:flex items-center gap-4 mr-2">
+    <!-- Messages Icon -->
+    <div class="relative cursor-pointer text-gray-400 hover:text-[#242b5f] transition" title="Messages & Chat">
+        <i class="fas fa-envelope text-[13px]"></i>
+        <span class="absolute -top-1.5 -right-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-blue-500 text-[7px] font-bold text-white shadow-sm border border-white">2</span>
+    </div>
+    <!-- Tasks Icon -->
+    <div class="relative cursor-pointer text-gray-400 hover:text-[#242b5f] transition" title="Pending Approvals">
+        <i class="fas fa-tasks text-[13px]"></i>
+        <span class="absolute -top-1.5 -right-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-orange-500 text-[7px] font-bold text-white shadow-sm border border-white">5</span>
+    </div>
+    <!-- Settings Icon -->
+    <div class="relative cursor-pointer text-gray-400 hover:text-[#242b5f] transition" title="System Settings">
+        <i class="fas fa-cog text-[13px]"></i>
+    </div>
+</div>
 
-                <div class="relative dropdown">
+<div class="h-4 border-l border-gray-200 mx-1 hidden xl:block"></div>
+
+<div class="relative dropdown">
                     <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] relative p-1.5 rounded-md hover:bg-gray-50 transition focus:outline-none" onclick="toggleDropdown(this, event)" title="Notifications">
                         <i class="fas fa-bell text-[13px]"></i>
                         <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white shadow-sm border border-white">3</span>
@@ -441,7 +458,7 @@ const renderLayout = (activePage) => {
     // Global Floating Round Flowchart Button (Fixed bottom-right across all pages)
     if (!document.getElementById('global-flowchart-btn')) {
         document.body.insertAdjacentHTML('beforeend', `
-            <a href="${isSales ? p + 'sales/workflow.html' : p + 'hr/flowchart.html'}" id="global-flowchart-btn" title="${isSales ? 'Open Sales Workflow' : 'Open HR Process Flowchart'}" class="fixed bottom-6 right-6 z-[9990] w-14 h-14 rounded-full bg-gradient-to-tr from-[#242b5f] to-[#3b4594] text-white shadow-2xl hover:shadow-indigo-950/40 flex items-center justify-center text-xl border-2 border-white hover:scale-110 active:scale-95 transition-all duration-300 group cursor-pointer" aria-label="${isSales ? 'Sales Workflow' : 'HR Process Flowchart'}">
+            <a href="${isSales ? p + 'sales/workflow.html' : p + 'hr/flowchart.html'}" id="global-flowchart-btn" title="${isSales ? 'Open Sales Workflow' : 'Open HR Process Flowchart'}" class="fixed bottom-20 right-6 z-[9990] w-14 h-14 rounded-full bg-gradient-to-tr from-[#242b5f] to-[#3b4594] text-white shadow-2xl hover:shadow-indigo-950/40 flex items-center justify-center text-xl border-2 border-white hover:scale-110 active:scale-95 transition-all duration-300 group cursor-pointer" aria-label="${isSales ? 'Sales Workflow' : 'HR Process Flowchart'}">
                 <i class="fas fa-diagram-project transition-transform duration-300 group-hover:rotate-12"></i>
                 <span class="absolute right-16 px-5 py-2.5 bg-slate-900/95 text-white text-xs font-bold rounded-lg shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-x-2 group-hover:translate-x-0 border border-slate-700/50 flex items-center gap-2">
                     <i class="fas fa-sitemap text-indigo-400 text-xs"></i> ${isSales ? 'Sales Workflow' : 'HR Process Flowchart'}
