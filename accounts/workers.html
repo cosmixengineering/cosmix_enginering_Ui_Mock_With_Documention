@@ -65,7 +65,7 @@
                     </div>
 
                     <div class="bg-white p-3 rounded-xl border border-red-100 shadow-xs">
-                        <p class="text-[9px] text-red-700 font-bold uppercase tracking-wider">Off / Chutti (Rest / Leave)</p>
+                        <p class="text-[9px] text-red-700 font-bold uppercase tracking-wider">Off / Leave (Rest / Leave)</p>
                         <h4 class="text-lg font-extrabold text-red-600 mt-0.5">8 Workers</h4>
                         <p class="text-[9px] text-red-500 font-medium mt-1">4 Off-Duty, 3 Leaves, 1 Absent</p>
                     </div>
@@ -79,7 +79,7 @@
 
                 <!-- Filters & Working vs Off Status Toolbar -->
                 <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-100 flex flex-wrap items-center justify-between gap-3">
-                    <!-- Status Filter Tabs: On Working vs Off / Chutti -->
+                    <!-- Status Filter Tabs: On Working vs Off / Leave -->
                     <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
                         <button onclick="filterWorkersStatus('all', this)" class="worker-tab-btn px-3 py-1 text-xs font-bold rounded-lg bg-[#242b5f] text-white shadow-2xs transition">
                             All Workers (150)
@@ -88,7 +88,7 @@
                             <span class="w-2 h-2 rounded-full bg-green-500"></span> On Working (142)
                         </button>
                         <button onclick="filterWorkersStatus('off', this)" class="worker-tab-btn px-3 py-1 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-100 transition flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-red-500"></span> Off / Chutti (8)
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span> Off / Leave (8)
                         </button>
                     </div>
 
@@ -251,7 +251,7 @@
                 site: 'DHA City Sector 3, Karachi',
                 city: 'Karachi',
                 status: 'off',
-                statusLabel: 'Off / Chutti',
+                statusLabel: 'Off / Leave',
                 statusBadge: 'bg-amber-100 text-amber-800 border-amber-200',
                 statusDesc: 'Approved Casual Leave (Medical)',
                 basic: 48000,
@@ -270,7 +270,7 @@
                 site: 'Head Office PECHS, Karachi',
                 city: 'Karachi',
                 status: 'off',
-                statusLabel: 'Off / Chutti',
+                statusLabel: 'Off / Leave',
                 statusBadge: 'bg-blue-100 text-blue-800 border-blue-200',
                 statusDesc: 'Weekly Rest Day (Shift Rotation)',
                 basic: 52000,
