@@ -1,6 +1,6 @@
 # Cosmix Engineering Sales workflow discovery
 
-Last updated: 2026-09-17.
+Last updated: 2026-09-19.
 
 ## Scope and evidence status
 
@@ -25,6 +25,19 @@ Evidence reviewed:
 8. Sales is being designed now. A Procurement panel has not yet been designed.
 9. Freight, tax, duty, installation, overhead and profit can each follow a different procedure. There is no confirmed universal formula across all products and projects.
 10. After acceptance, commercial quantities and values can still move up or down. The exact Project, Procurement and Accounts procedures remain separate discovery work.
+
+## BOQ rate-filling clarification (2026-09-19)
+
+The staff meaning of BOQ is the client's or company's requirement sheet. It contains the required items, descriptions/specifications, quantities and units. Sales prepares the commercial response by filling a traceable unit rate against each requirement row; BOQ work does not begin as a profit dashboard.
+
+Each requirement rate can come from one of these practical sources:
+
+- the company's available Rate Book;
+- an existing written/reference rate, retained with its source reference;
+- a vendor phone response or written quotation, retained with vendor/contact, validity and evidence;
+- a staff-entered price or later market revalidation where the source is recorded.
+
+The primary BOQ screen therefore shows the received requirement rows, completion status, rate source, unit rate and line amount. Missing rates remain visibly pending and block management submission. Deal-specific additions, model changes and management review remain separate tabs after item rates are completed. Stock is reference information only and does not replace rate filling or reserve Inventory.
 
 ## Evidence from the AUX workbook
 

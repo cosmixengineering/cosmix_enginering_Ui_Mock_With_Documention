@@ -336,6 +336,9 @@
         if (state.costing.status === 'Approved') return null;
         const row = state.costing.lines.find(x => x.id === Number(id));
         if (row) Object.assign(row, patch);
+        state.costing.sourceTotal = state.costing.lines
+            .filter(x => !x.excluded)
+            .reduce((sum, line) => sum + (Number(line.qty || 0) * Number(line.pkrRate || 0)), 0);
         save(); return row;
     }
 

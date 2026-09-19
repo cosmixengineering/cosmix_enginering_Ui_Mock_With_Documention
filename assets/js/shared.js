@@ -115,7 +115,7 @@ const renderLayout = (activePage) => {
                 ${createNavLink(p + 'sales/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
                 ${createNavLink(p + 'sales/inquiries.html', 'Inquiries & Tenders', 'fas fa-inbox', activePage === 'inquiries', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '6' })}
                 ${createNavLink(p + 'sales/selection.html', 'Technical Selection', 'fas fa-snowflake', activePage === 'selection' || activePage === 'selection-detail' || activePage === 'selection-pricing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'AUX' })}
-                ${createNavLink(p + 'sales/costing.html', 'BOQ & Costing', 'fas fa-calculator', activePage === 'costing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '3' })}
+                ${createNavLink(p + 'sales/costing.html', 'BOQ Rate Filling', 'fas fa-calculator', activePage === 'costing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '3' })}
                 ${createNavLink(p + 'sales/approvals.html', 'Management Decisions', 'fas fa-stamp', activePage === 'approvals', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: salesDecisionCount ? `${salesDecisionCount} New` : 'Inbox' })}
                 ${createNavLink(p + 'sales/catalog.html', 'Product Catalogue', 'fas fa-database', activePage === 'catalog', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Data' })}
                 ${createNavLink(p + 'sales/quotation-builder.html', 'Quotation Builder', 'fas fa-table-cells', activePage === 'quotation-builder' || activePage === 'manual-quotation', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Excel' })}
@@ -282,7 +282,7 @@ const renderLayout = (activePage) => {
                     ` : isSales ? `
                         ${createTopBarLink(p + 'sales/inquiries.html', 'fas fa-inbox', activePage === 'inquiries', 'Inquiries & Tenders')}
                         ${createTopBarLink(p + 'sales/selection.html', 'fas fa-snowflake', activePage === 'selection', 'Technical Selection')}
-                        ${createTopBarLink(p + 'sales/costing.html', 'fas fa-calculator', activePage === 'costing', 'BOQ & Costing')}
+                        ${createTopBarLink(p + 'sales/costing.html', 'fas fa-calculator', activePage === 'costing', 'BOQ Rate Filling')}
                         ${createTopBarLink(p + 'sales/rates.html', 'fas fa-tags', activePage === 'rates', 'Vendor Rates')}
                         ${createTopBarLink(p + 'sales/quotations.html', 'fas fa-file-signature', activePage === 'quotations', 'Quotations')}
                     ` : `

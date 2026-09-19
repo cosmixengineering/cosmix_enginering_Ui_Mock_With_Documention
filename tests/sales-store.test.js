@@ -75,6 +75,23 @@ test('cost component mutation does not rewrite a submitted quotation snapshot', 
     assert.equal(store.state.quotations.find(x => x.id === 'QTN-2609-018').value, before);
 });
 
+test('BOQ rate entry updates the line source evidence and recalculates the sheet amount', () => {
+    const store = createStore();
+    const before = store.state.costing.sourceTotal;
+    const row = store.updateCostLine(28, {
+        source: 'Vendor call / quotation',
+        sourceRate: 15000,
+        pkrRate: 15000,
+        rateVendor: 'Market Vendor',
+        rateReference: 'Phone response',
+        rateValidUntil: '2026-09-30',
+        rateNote: 'Rate confirmed for four panels.'
+    });
+    assert.equal(row.source, 'Vendor call / quotation');
+    assert.equal(row.rateVendor, 'Market Vendor');
+    assert.equal(store.state.costing.sourceTotal, before + 60000);
+});
+
 test('late quotation revision keeps the record and creates a controlled draft revision', () => {
     const store = createStore();
     const original = JSON.parse(JSON.stringify(store.findQuote('QTN-2604-006::R1')));
@@ -292,6 +309,11 @@ test('all Sales screens render their main content without runtime errors', () =>
     assert.ok(dashboard.html.includes('Work queue'));
     assert.ok(inquiries.html.includes('sales-register-toolbar'));
     assert.ok(costing.html.includes('sales-cost-nav'));
+    assert.ok(costing.html.includes('BOQ rate filling'));
+    assert.ok(costing.html.includes('Client BOQ · Rate entry sheet'));
+    assert.ok(costing.html.includes('Requirement sheet received'));
+    assert.ok(costing.html.includes('Rate required 1'));
+    assert.ok(costing.html.includes('Vendor call / quotation'));
     assert.ok(approvals.html.includes("salesReviewApproval('APR-2609-024')"));
     assert.ok(pagesSource.includes('Approved final'));
     assert.ok(pagesSource.includes('Boss / management response'));
