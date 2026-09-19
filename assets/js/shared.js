@@ -17,9 +17,9 @@ const renderLayout = (activePage) => {
 
     const DEPARTMENTS = [
         { id: 'hr', name: 'Human Resources', badge: 'HR', icon: 'fas fa-users-cog', color: 'text-indigo-600', bg: 'bg-indigo-50', url: p + 'hr/index.html' },
-        { id: 'accounts', name: 'Accounts & Finance', badge: 'Accounts', icon: 'fas fa-file-invoice-dollar', color: 'text-purple-600', bg: 'bg-purple-50', url: p + 'accounts/index.html' },
+        { id: 'accounts', name: 'Accounts & Finance', badge: 'Accounts', icon: 'fas fa-file-invoice-dollar', color: 'text-blue-600', bg: 'bg-blue-50', url: p + 'accounts/index.html' },
         { id: 'sales', name: 'Sales & CRM', badge: 'Sales', icon: 'fas fa-chart-line', color: 'text-emerald-600', bg: 'bg-emerald-50', url: p + 'sales/index.html' },
-        { id: 'finance', name: 'Finance & Accounts', badge: 'Finance', icon: 'fas fa-calculator', color: 'text-purple-600', bg: 'bg-purple-50', url: p + 'accounts/index.html' },
+        { id: 'finance', name: 'Finance & Accounts', badge: 'Finance', icon: 'fas fa-calculator', color: 'text-blue-600', bg: 'bg-blue-50', url: p + 'accounts/index.html' },
         { id: 'warehouse', name: 'Warehouse Stores', badge: 'Stores', icon: 'fas fa-boxes', color: 'text-amber-600', bg: 'bg-amber-50', url: p + 'warehouse/index.html' },
         { id: 'admin', name: 'Admin & Fleet', badge: 'Admin', icon: 'fas fa-building', color: 'text-blue-600', bg: 'bg-blue-50', url: p + 'admin/index.html' },
         { id: 'administrator', name: 'System Administrator', badge: 'SuperAdmin', icon: 'fas fa-user-shield', color: 'text-red-600', bg: 'bg-red-50', url: p + 'administrator/index.html' },
@@ -81,7 +81,7 @@ const renderLayout = (activePage) => {
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'hr/index.html', 'HR Operations Portal', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
                     ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
-                    ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Accounts' })}
+                    ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Accounts' })}
                     ${createNavLink(p + 'warehouse/index.html', 'Warehouse Stores', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
             </nav>
@@ -89,11 +89,11 @@ const renderLayout = (activePage) => {
         <div>
             <div class="flex items-center justify-between px-2 mb-2">
                 <p id="menu-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider transition-opacity duration-300">Accounts & Finance</p>
-                <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-100 transition-opacity duration-300">ACCOUNTS</span>
+                <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100 transition-opacity duration-300">ACCOUNTS</span>
             </div>
             <nav class="space-y-1">
                 ${createNavLink(p + 'accounts/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
-                  ${createNavLink(p + 'accounts/invoices.html', 'Invoices', 'fas fa-file-invoice-dollar', activePage === 'invoices', { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Tax' })}
+                  ${createNavLink(p + 'accounts/invoices.html', 'Invoices', 'fas fa-file-invoice-dollar', activePage === 'invoices', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Tax' })}
                   ${createNavLink(p + 'accounts/purchases.html', 'Expenses', 'fas fa-shopping-cart', activePage === 'purchases', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '3 Slips' })}
                   ${createNavLink(p + 'accounts/payroll.html', 'Payroll', 'fas fa-money-check-alt', activePage === 'payroll', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Sep 26' })}
                   ${createNavLink(p + 'accounts/attendance.html', 'Payments / Receivables', 'fas fa-exchange-alt', activePage === 'attendance', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Audit' })}
@@ -167,7 +167,7 @@ const renderLayout = (activePage) => {
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
-                    ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Accounts' })}
+                    ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Accounts' })}
                     ${createNavLink(p + 'warehouse/index.html', 'Warehouse Stores', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
             </nav>
@@ -369,7 +369,7 @@ const renderLayout = (activePage) => {
                             </a>
                             <a href="${p}hr/leave-management.html" class="block px-3 py-2 hover:bg-gray-50 transition">
                                 <div class="flex items-start gap-2.5">
-                                    <div class="w-6 h-6 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-calendar-minus text-[9px]"></i></div>
+                                    <div class="w-6 h-6 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-calendar-minus text-[9px]"></i></div>
                                     <div>
                                         <p class="text-[11px] font-semibold text-gray-800">Long Leave Request</p>
                                         <p class="text-[9.5px] text-gray-500">Zainab Ali requested 10 days leave.</p>
@@ -380,7 +380,7 @@ const renderLayout = (activePage) => {
                             `}
                         </div>
                         <div class="px-5 py-2.5 border-t border-gray-50 text-center">
-                            ${isSales ? `<a href="${p}sales/index.html" class="text-[9px] font-bold text-[#242b5f] hover:underline uppercase tracking-wider">Open Sales Alerts</a>` : `<a href="javascript:void(0)" onclick="openModal('All Live Notifications', '<div class=space-y-2><div class=\\\'p-2 bg-red-50 rounded border border-red-100 text-xs text-red-800\\\'><b>Biometric Geo-alert</b>: Sara Ahmed checked in 45m away from site.</div><div class=\\\'p-2 bg-orange-50 rounded border border-orange-100 text-xs text-orange-800\\\'><b>Advance Queue</b>: Fahad Hussain requested Rs. 15,000 for emergency.</div><div class=\\\'p-2 bg-purple-50 rounded border border-purple-100 text-xs text-purple-800\\\'><b>Leave Approval</b>: Zainab Ali submitted 10 days annual leave.</div></div>', null)" class="text-[9px] font-bold text-[#242b5f] hover:underline uppercase tracking-wider">View All Alerts</a>`}
+                            ${isSales ? `<a href="${p}sales/index.html" class="text-[9px] font-bold text-[#242b5f] hover:underline uppercase tracking-wider">Open Sales Alerts</a>` : `<a href="javascript:void(0)" onclick="openModal('All Live Notifications', '<div class=space-y-2><div class=\\\'p-2 bg-red-50 rounded border border-red-100 text-xs text-red-800\\\'><b>Biometric Geo-alert</b>: Sara Ahmed checked in 45m away from site.</div><div class=\\\'p-2 bg-orange-50 rounded border border-orange-100 text-xs text-orange-800\\\'><b>Advance Queue</b>: Fahad Hussain requested Rs. 15,000 for emergency.</div><div class=\\\'p-2 bg-blue-50 rounded border border-blue-100 text-xs text-blue-800\\\'><b>Leave Approval</b>: Zainab Ali submitted 10 days annual leave.</div></div>', null)" class="text-[9px] font-bold text-[#242b5f] hover:underline uppercase tracking-wider">View All Alerts</a>`}
                         </div>
                     </div>
                 </div>
@@ -424,7 +424,7 @@ const renderLayout = (activePage) => {
                 <div class="flex gap-5">
                     <button class="hover:text-blue-600 transition flex items-center gap-1.5 font-semibold" onclick="location.reload()"><i class="fas fa-sync-alt text-blue-500"></i> Refresh View</button>
                       <button class="hover:text-emerald-600 transition flex items-center gap-1.5 font-semibold" onclick="if(!document.fullscreenElement){document.documentElement.requestFullscreen();}else{document.exitFullscreen();}"><i class="fas fa-expand text-emerald-500"></i> Fullscreen Mode</button>
-                      <button class="hover:text-purple-600 transition flex items-center gap-1.5 font-semibold" onclick="openModal('Keyboard Shortcuts', '<ul class=\'space-y-3 text-sm\'><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Ctrl + P</kbd> Print Current Page</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>F11</kbd> Toggle Fullscreen</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Esc</kbd> Close active popups</li></ul>', null)"><i class="fas fa-keyboard text-purple-500"></i> Shortcuts</button>
+                      <button class="hover:text-blue-600 transition flex items-center gap-1.5 font-semibold" onclick="openModal('Keyboard Shortcuts', '<ul class=\'space-y-3 text-sm\'><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Ctrl + P</kbd> Print Current Page</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>F11</kbd> Toggle Fullscreen</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Esc</kbd> Close active popups</li></ul>', null)"><i class="fas fa-keyboard text-blue-500"></i> Shortcuts</button>
                 </div>
                 </div>
         </div>
@@ -596,7 +596,7 @@ const renderLayout = (activePage) => {
                 outTime = '-';
             } else if (day === 21) {
                 status = 'LV';
-                color = 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100';
+                color = 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100';
                 time = 'Casual Leave';
                 outTime = '-';
             } else if (day === 25) {
@@ -630,7 +630,7 @@ const renderLayout = (activePage) => {
                         <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[9px] font-bold border border-green-200">22 Present</span>
                         <span class="bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-[9px] font-bold border border-orange-200">2 Lates</span>
                         <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded text-[9px] font-bold border border-red-200">1 Absent</span>
-                        <span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-[9px] font-bold border border-purple-200">1 Leave</span>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-[9px] font-bold border border-blue-200">1 Leave</span>
                     </div>
                 </div>
 
