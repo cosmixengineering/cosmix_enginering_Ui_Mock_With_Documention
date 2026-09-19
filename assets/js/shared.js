@@ -229,7 +229,7 @@ const renderLayout = (activePage) => {
                         <i class="fas fa-chevron-down text-[8px] text-gray-400 ml-0.5"></i>
                     </button>
                     <div class="dropdown-menu absolute left-0 top-8 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
-                        <div class="px-3 py-1 border-b border-gray-50 flex items-center justify-between">
+                        <div class="px-5 py-2 border-b border-gray-50 flex items-center justify-between">
                             <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Departments</span>
                             <span class="text-[8px] bg-blue-50 text-blue-700 px-1 rounded font-bold">${isAccounts ? 'Accounts Active' : isWarehouse ? 'Stores Active' : isSales ? 'Sales Active' : 'HR Active'}</span>
                         </div>
@@ -239,7 +239,7 @@ const renderLayout = (activePage) => {
                                 if (d.id === 'hr' || d.id === 'accounts' || d.id === 'finance' || d.id === 'warehouse' || d.id === 'sales') {
                                     const targetUrl = d.url;
                                     return `
-                                        <a href="${targetUrl}" class="flex items-center gap-2.5 px-3 py-1.5 text-xs ${isThisDeptActive ? 'bg-blue-50/70 text-[#242b5f] font-bold' : 'text-gray-700 hover:bg-gray-50'} transition">
+                                        <a href="${targetUrl}" class="flex items-center gap-2.5 px-5 py-2.5 text-xs ${isThisDeptActive ? 'bg-blue-50/70 text-[#242b5f] font-bold' : 'text-gray-700 hover:bg-gray-50'} transition">
                                             <span class="w-5 h-5 rounded flex items-center justify-center ${d.bg} ${d.color} text-[10px]"><i class="${d.icon}"></i></span>
                                             <span class="flex-1 truncate">${d.name}</span>
                                             ${isThisDeptActive ? '<i class="fas fa-check text-[9px] text-[#242b5f]"></i>' : '<span class="text-[8px] bg-emerald-50 text-emerald-700 px-1 py-0.2 rounded font-bold">Active</span>'}
@@ -247,7 +247,7 @@ const renderLayout = (activePage) => {
                                     `;
                                 } else {
                                     return `
-                                        <a href="javascript:void(0)" onclick="showToast('${d.name} panel will be activated soon', 'info')" class="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-400 hover:bg-gray-50 transition">
+                                        <a href="javascript:void(0)" onclick="showToast('${d.name} panel will be activated soon', 'info')" class="flex items-center gap-2.5 px-5 py-2.5 text-xs text-gray-400 hover:bg-gray-50 transition">
                                             <span class="w-5 h-5 rounded flex items-center justify-center bg-gray-100 text-gray-400 text-[10px]"><i class="${d.icon}"></i></span>
                                             <span class="flex-1 truncate">${d.name}</span>
                                             <span class="text-[8px] bg-amber-50 text-amber-700 px-1 py-0.2 rounded font-bold">Phase 2</span>
@@ -304,7 +304,7 @@ const renderLayout = (activePage) => {
                     </button>
                     <!-- Notifications Dropdown -->
                     <div class="dropdown-menu absolute right-0 top-9 w-72 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
-                        <div class="px-3 py-1.5 border-b border-gray-50 flex justify-between items-center">
+                        <div class="px-5 py-2.5 border-b border-gray-50 flex justify-between items-center">
                             <p class="text-[10px] font-bold text-gray-800 uppercase tracking-wider">Notifications</p>
                             <span class="text-[8.5px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full font-bold">3 New</span>
                         </div>
@@ -352,7 +352,7 @@ const renderLayout = (activePage) => {
                             </a>
                             `}
                         </div>
-                        <div class="px-3 py-1.5 border-t border-gray-50 text-center">
+                        <div class="px-5 py-2.5 border-t border-gray-50 text-center">
                             ${isSales ? `<a href="${p}sales/index.html" class="text-[9px] font-bold text-[#242b5f] hover:underline uppercase tracking-wider">Open Sales Alerts</a>` : `<a href="javascript:void(0)" onclick="openModal('All Live Notifications', '<div class=space-y-2><div class=\\\'p-2 bg-red-50 rounded border border-red-100 text-xs text-red-800\\\'><b>Biometric Geo-alert</b>: Sara Ahmed checked in 45m away from site.</div><div class=\\\'p-2 bg-orange-50 rounded border border-orange-100 text-xs text-orange-800\\\'><b>Advance Queue</b>: Fahad Hussain requested Rs. 15,000 for emergency.</div><div class=\\\'p-2 bg-purple-50 rounded border border-purple-100 text-xs text-purple-800\\\'><b>Leave Approval</b>: Zainab Ali submitted 10 days annual leave.</div></div>', null)" class="text-[9px] font-bold text-[#242b5f] hover:underline uppercase tracking-wider">View All Alerts</a>`}
                         </div>
                     </div>
@@ -373,14 +373,14 @@ const renderLayout = (activePage) => {
                         <i class="fas fa-chevron-down text-gray-400 text-[8px]"></i>
                     </button>
                     <div class="dropdown-menu absolute right-0 top-9 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
-                        <div class="px-3 py-1.5 border-b border-gray-50">
+                        <div class="px-5 py-2.5 border-b border-gray-50">
                             <p class="text-xs font-bold text-gray-800">${currentDept.name}</p>
                             <p class="text-[9px] text-gray-400">admin@cosmixengineering.com</p>
                         </div>
-                        <a href="${p}hr/employee-profile.html" class="block px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge text-[#242b5f] w-4"></i> View Profile</a>
-                        <button onclick="openModal('Cosmix ERP System Status', '<div class=space-y-2 text-xs><p class=font-bold text-gray-800>Cosmix Engineering ERP v2.4</p><p class=text-gray-600>Active Sites: 8 Industrial Sites Online<br>Database: SQLite Synced<br>Biometric Sync: Real-time Cloud API<br>Server Health: 99.98% SLA</p></div>', null)" class="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-server text-green-600 w-4"></i> System Status</button>
+                        <a href="${p}hr/employee-profile.html" class="block px-5 py-2.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge text-[#242b5f] w-4"></i> View Profile</a>
+                        <button onclick="openModal('Cosmix ERP System Status', '<div class=space-y-2 text-xs><p class=font-bold text-gray-800>Cosmix Engineering ERP v2.4</p><p class=text-gray-600>Active Sites: 8 Industrial Sites Online<br>Database: SQLite Synced<br>Biometric Sync: Real-time Cloud API<br>Server Health: 99.98% SLA</p></div>', null)" class="w-full text-left px-5 py-2.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-server text-green-600 w-4"></i> System Status</button>
                         <div class="h-px bg-gray-100 my-1"></div>
-                        <a href="${p}login.html" class="block px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 font-semibold"><i class="fas fa-sign-out-alt w-4"></i> Sign Out</a>
+                        <a href="${p}login.html" class="block px-5 py-2.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 font-semibold"><i class="fas fa-sign-out-alt w-4"></i> Sign Out</a>
                     </div>
                 </div>
             </div>
@@ -393,7 +393,7 @@ const renderLayout = (activePage) => {
             ${headerHTML}
             <main id="main-content" class="flex-1 overflow-y-auto p-4 lg:p-5 opacity-0 transition-opacity duration-500"></main>
             <!-- Software Status / Action Footer -->
-            <div class="bg-white text-gray-700 text-[10px] font-semibold py-1.5 px-4 flex justify-between items-center z-40 border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+            <div class="bg-white text-gray-700 text-xs font-semibold py-3 px-6 flex justify-between items-center z-40 border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
                 <div class="flex gap-5">
                     <button class="hover:text-blue-600 transition flex items-center gap-1.5" onclick="showToast('Data synchronized with central server', 'success')"><i class="fas fa-sync-alt text-[#242b5f]"></i> Sync Data</button>
                     <button class="hover:text-emerald-600 transition flex items-center gap-1.5" onclick="openModal('System Diagnostics', '<div class=\'text-xs space-y-2\'><p><b>Database:</b> Connected (12ms ping)</p><p><b>Storage:</b> 45% used</p><p><b>Last Backup:</b> Today 02:00 AM</p></div>', null)"><i class="fas fa-check-circle text-emerald-500"></i> System Status</button>
@@ -401,23 +401,23 @@ const renderLayout = (activePage) => {
                 </div>
                 <div class="flex gap-2 items-center">
                     ${currentDeptId === 'accounts' || currentDeptId === 'finance' ? `
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Bank Stmt</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Ledger CSV</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Bank Stmt</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Ledger CSV</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
                     ` : currentDeptId === 'warehouse' || currentDeptId === 'inventory' ? `
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import GRN</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Stock Excel</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Stock</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import GRN</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Stock Excel</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Stock</button>
                     ` : currentDeptId === 'sales' ? `
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Pipeline PDF</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Details</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Pipeline PDF</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Details</button>
                     ` : currentDeptId === 'hr' ? `
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Biometric</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Register</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Records</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Biometric</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Register</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Records</button>
                     ` : `
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Data</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Quick Print</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Data</button>
+                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Quick Print</button>
                     `}
                 </div>
             </div>
@@ -441,8 +441,8 @@ const renderLayout = (activePage) => {
                     </div>
                     <div id="modal-body" class="p-4 overflow-y-auto text-xs"></div>
                     <div class="px-4 py-2.5 border-t border-gray-100 flex justify-end gap-2 bg-gray-50/50 rounded-b-xl" id="modal-footer">
-                        <button onclick="closeModal()" class="px-3 py-1 text-xs font-bold text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50 transition">Cancel</button>
-                        <button onclick="submitModal()" class="px-3 py-1 text-xs font-bold text-white bg-[#242b5f] rounded hover:opacity-90 transition shadow-sm">Confirm</button>
+                        <button onclick="closeModal()" class="px-5 py-2 text-xs font-bold text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50 transition">Cancel</button>
+                        <button onclick="submitModal()" class="px-5 py-2 text-xs font-bold text-white bg-[#242b5f] rounded hover:opacity-90 transition shadow-sm">Confirm</button>
                     </div>
                 </div>
             </div>
@@ -454,7 +454,7 @@ const renderLayout = (activePage) => {
         document.body.insertAdjacentHTML('beforeend', `
             <a href="${isSales ? p + 'sales/workflow.html' : p + 'hr/flowchart.html'}" id="global-flowchart-btn" title="${isSales ? 'Open Sales Workflow' : 'Open HR Process Flowchart'}" class="fixed bottom-6 right-6 z-[9990] w-14 h-14 rounded-full bg-gradient-to-tr from-[#242b5f] to-[#3b4594] text-white shadow-2xl hover:shadow-indigo-950/40 flex items-center justify-center text-xl border-2 border-white hover:scale-110 active:scale-95 transition-all duration-300 group cursor-pointer" aria-label="${isSales ? 'Sales Workflow' : 'HR Process Flowchart'}">
                 <i class="fas fa-diagram-project transition-transform duration-300 group-hover:rotate-12"></i>
-                <span class="absolute right-16 px-3 py-1.5 bg-slate-900/95 text-white text-xs font-bold rounded-lg shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-x-2 group-hover:translate-x-0 border border-slate-700/50 flex items-center gap-2">
+                <span class="absolute right-16 px-5 py-2.5 bg-slate-900/95 text-white text-xs font-bold rounded-lg shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-x-2 group-hover:translate-x-0 border border-slate-700/50 flex items-center gap-2">
                     <i class="fas fa-sitemap text-indigo-400 text-xs"></i> ${isSales ? 'Sales Workflow' : 'HR Process Flowchart'}
                 </span>
                 <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
@@ -730,7 +730,7 @@ const renderLayout = (activePage) => {
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <!-- Earnings -->
                     <div class="border border-green-200 rounded-lg overflow-hidden">
-                        <div class="bg-green-50 px-3 py-1.5 border-b border-green-100 flex justify-between items-center">
+                        <div class="bg-green-50 px-5 py-2.5 border-b border-green-100 flex justify-between items-center">
                             <span class="text-[10px] font-bold text-green-800 uppercase tracking-wider"><i class="fas fa-plus-circle mr-1"></i> Earnings & Allowances</span>
                             <span class="text-[8.5px] text-green-700 font-semibold">PKR (Rs.)</span>
                         </div>
@@ -749,7 +749,7 @@ const renderLayout = (activePage) => {
 
                     <!-- Deductions -->
                     <div class="border border-red-200 rounded-lg overflow-hidden">
-                        <div class="bg-red-50 px-3 py-1.5 border-b border-red-100 flex justify-between items-center">
+                        <div class="bg-red-50 px-5 py-2.5 border-b border-red-100 flex justify-between items-center">
                             <span class="text-[10px] font-bold text-red-800 uppercase tracking-wider"><i class="fas fa-minus-circle mr-1"></i> Deductions & Recoveries</span>
                             <span class="text-[8.5px] text-red-700 font-semibold">PKR (Rs.)</span>
                         </div>
@@ -831,12 +831,12 @@ const renderLayout = (activePage) => {
         if (footer) {
             if (onConfirm) {
                 footer.innerHTML = `
-                    <button onclick="closeModal()" class="px-3 py-1.5 text-xs font-bold text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50 transition">Cancel</button>
-                    <button onclick="submitModal()" class="px-3 py-1.5 text-xs font-bold text-white bg-[#242b5f] rounded hover:opacity-90 transition shadow-sm">Confirm</button>
+                    <button onclick="closeModal()" class="px-5 py-2.5 text-xs font-bold text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50 transition">Cancel</button>
+                    <button onclick="submitModal()" class="px-5 py-2.5 text-xs font-bold text-white bg-[#242b5f] rounded hover:opacity-90 transition shadow-sm">Confirm</button>
                 `;
             } else {
                 footer.innerHTML = `
-                    <button onclick="closeModal()" class="px-4 py-1.5 text-xs font-bold text-white bg-[#242b5f] rounded hover:opacity-90 transition shadow-sm">Close</button>
+                    <button onclick="closeModal()" class="px-5 py-2 text-xs font-bold text-white bg-[#242b5f] rounded hover:opacity-90 transition shadow-sm">Close</button>
                 `;
             }
         }
