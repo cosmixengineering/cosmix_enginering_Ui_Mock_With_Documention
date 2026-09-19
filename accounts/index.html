@@ -33,32 +33,39 @@
                             </div>
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <h2 class="text-base font-bold text-gray-800 tracking-tight">Cosmix Engineering Accounts & Financial Operations</h2>
-                                    <span class="bg-emerald-50 text-emerald-700 text-[9px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-200 uppercase tracking-wider flex items-center gap-1">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> FY 2026-27 Active
-                                    </span>
+                                    <h2 class="text-base font-bold text-gray-800 tracking-tight">Accounts & Finance</h2>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 mt-0.5">Billing, Receivables, Expenses & Payroll</p>
                                 </div>
-                                <p class="text-[11px] text-gray-500 mt-0.5">Project Invoicing (IPCs), Corporate Tax, September 2026 Payroll Ledger & Biometric Attendance Financial Audit.</p>
+                            </div>
+                            
+                            <!-- Top Quick Action CTA Buttons -->
+                            <div class="flex flex-wrap items-center gap-2">
+                                <a href="invoices.html" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-md transition flex items-center gap-1.5">
+                                    <i class="fas fa-plus-circle text-xs"></i> Create Invoice / IPC
+                                </a>
+                                <a href="purchases.html" class="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 shadow-sm">
+                                    <i class="fas fa-shopping-cart text-gray-400"></i> Supply Expenses
+                                </a>
+                                <a href="payroll.html" class="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 shadow-sm">
+                                    <i class="fas fa-money-check-alt text-gray-400"></i> Disburse Payroll
+                                </a>
+                                <a href="attendance.html" class="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 shadow-sm">
+                                    <i class="fas fa-user-clock text-gray-400"></i> Audit Attendance
+                                </a>
                             </div>
                         </div>
-
-                        <!-- Top Quick Action CTA Buttons -->
-                        <div class="flex flex-wrap items-center gap-2">
-                            <a href="invoices.html" class="bg-[#242b5f] hover:bg-blue-900 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-md transition flex items-center gap-1.5">
-                                <i class="fas fa-plus-circle text-xs"></i> Create Invoice / IPC
-                            </a>
-                            <a href="purchases.html" class="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 shadow-sm">
-    <i class="fas fa-shopping-cart text-gray-400"></i> Supply Expenses
-</a>
-<a href="payroll.html" class="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 shadow-sm">
-    <i class="fas fa-money-check-alt text-gray-400"></i> Disburse Payroll
-</a>
-<a href="attendance.html" class="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 shadow-sm">
-    <i class="fas fa-user-clock text-gray-400"></i> Audit Attendance
-</a>
+                        
+                        <!-- Needs Attention Area -->
+                        <div class="mt-4 bg-orange-50/50 border border-orange-100 rounded-lg p-2.5 flex items-center gap-4 text-[10px] font-semibold text-orange-800">
+                            <span class="flex items-center gap-1.5"><i class="fas fa-exclamation-circle text-orange-500"></i> Needs Attention:</span>
+                            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> 3 Overdue Invoices</span>
+                            <span class="text-orange-200">|</span>
+                            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> 1 Payroll Approval Pending</span>
+                            <span class="text-orange-200">|</span>
+                            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> 2 Unreconciled Transactions</span>
                         </div>
                     </div>
-                </div>
 
                 <!-- 4 Top Executive KPI Stat Summary Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -269,77 +276,62 @@
                             <thead>
                                 <tr class="bg-gray-50/70 border-b border-gray-100 text-gray-500 font-bold">
                                     <th>Invoice #</th>
-                                    <th>Client / Enterprise</th>
-                                    <th>Project Site</th>
-                                    <th>Milestone / Scope</th>
-                                    <th>Tax Type</th>
-                                    <th class="text-right">Gross (PKR)</th>
-                                    <th class="text-right">Net Receivable</th>
-                                    <th class="text-center">Status</th>
-                                    <th class="text-right">Actions</th>
+<th>Client</th>
+<th>Project</th>
+<th class="text-right">Amount</th>
+<th class="text-center">Status</th>
+<th class="text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-xs">
-                                <!-- Row 1 -->
-                                <tr class="hover:bg-blue-50/30 transition">
-                                    <td class="font-mono font-bold text-[#242b5f]">INV-2026-089</td>
-                                    <td class="font-semibold text-gray-900">Lucky Landmark (Pvt) Ltd</td>
-                                    <td class="text-gray-600">Lucky One Mall, Karachi</td>
-                                    <td class="text-gray-500">HVAC Chiller Plant Commissioning (IPC-04)</td>
-                                    <td><span class="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded text-[9px] font-bold">13% SRB</span></td>
-                                    <td class="text-right font-semibold text-gray-800">Rs. 6,800,000</td>
-                                    <td class="text-right font-bold text-gray-900">Rs. 7,038,000</td>
-                                    <td class="text-center"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[9px] font-bold">Consultant Review</span></td>
-                                    <td class="text-right">
-                                        <button onclick="previewInvoiceModal('INV-2026-089', 'Lucky Landmark (Pvt) Ltd', 'Lucky One Mall, Karachi', 6800000, 7038000)" class="text-[#242b5f] hover:underline font-bold text-xs"><i class="fas fa-eye mr-0.5"></i> View</button>
-                                    </td>
-                                </tr>
+    <!-- Row 1 -->
+    <tr class="hover:bg-blue-50/50 transition">
+        <td class="font-mono font-bold text-gray-800 py-3">INV-2026-089</td>
+        <td class="font-semibold text-gray-900">Lucky Landmark (Pvt) Ltd</td>
+        <td class="text-gray-600">Lucky One Mall, Karachi</td>
+        <td class="text-right font-extrabold text-gray-900">Rs. 7,038,000</td>
+        <td class="text-center"><span class="bg-orange-50 text-orange-600 border border-orange-200 px-2.5 py-0.5 rounded-md text-[10px] font-bold">Pending</span></td>
+        <td class="text-right">
+            <button onclick="previewInvoiceModal('INV-2026-089', 'Lucky Landmark (Pvt) Ltd', 'Lucky One Mall, Karachi', 6800000, 7038000)" class="text-gray-500 hover:text-blue-600 transition font-bold text-xs"><i class="fas fa-eye"></i></button>
+        </td>
+    </tr>
 
-                                <!-- Row 2 -->
-                                <tr class="hover:bg-blue-50/30 transition">
-                                    <td class="font-mono font-bold text-[#242b5f]">INV-2026-088</td>
-                                    <td class="font-semibold text-gray-900">Packages Real Estate Ltd</td>
-                                    <td class="text-gray-600">Packages Mall, Lahore</td>
-                                    <td class="text-gray-500">Firefighting Piping & Sprinkler Layout (IPC-03)</td>
-                                    <td><span class="bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded text-[9px] font-bold">16% PRA</span></td>
-                                    <td class="text-right font-semibold text-gray-800">Rs. 4,250,000</td>
-                                    <td class="text-right font-bold text-gray-900">Rs. 4,505,000</td>
-                                    <td class="text-center"><span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-[9px] font-bold">Approved / Cheque Due</span></td>
-                                    <td class="text-right">
-                                        <button onclick="previewInvoiceModal('INV-2026-088', 'Packages Real Estate Ltd', 'Packages Mall, Lahore', 4250000, 4505000)" class="text-[#242b5f] hover:underline font-bold text-xs"><i class="fas fa-eye mr-0.5"></i> View</button>
-                                    </td>
-                                </tr>
+    <!-- Row 2 -->
+    <tr class="hover:bg-blue-50/50 transition">
+        <td class="font-mono font-bold text-gray-800 py-3">INV-2026-088</td>
+        <td class="font-semibold text-gray-900">Packages Real Estate Ltd</td>
+        <td class="text-gray-600">Packages Mall, Lahore</td>
+        <td class="text-right font-extrabold text-gray-900">Rs. 4,505,000</td>
+        <td class="text-center"><span class="bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 rounded-md text-[10px] font-bold">Approved</span></td>
+        <td class="text-right">
+            <button onclick="previewInvoiceModal('INV-2026-088', 'Packages Real Estate Ltd', 'Packages Mall, Lahore', 4250000, 4505000)" class="text-gray-500 hover:text-blue-600 transition font-bold text-xs"><i class="fas fa-eye"></i></button>
+        </td>
+    </tr>
 
-                                <!-- Row 3 -->
-                                <tr class="hover:bg-blue-50/30 transition">
-                                    <td class="font-mono font-bold text-[#242b5f]">INV-2026-087</td>
-                                    <td class="font-semibold text-gray-900">Engro Fertilizers Complex</td>
-                                    <td class="text-gray-600">Engro Complex, Daharki</td>
-                                    <td class="text-gray-500">Substation Electrical Cable Tray & Busway</td>
-                                    <td><span class="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-bold">17% FBR</span></td>
-                                    <td class="text-right font-semibold text-gray-800">Rs. 5,600,000</td>
-                                    <td class="text-right font-bold text-gray-900">Rs. 5,992,000</td>
-                                    <td class="text-center"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[9px] font-bold">Paid (Meezan Trf)</span></td>
-                                    <td class="text-right">
-                                        <button onclick="previewInvoiceModal('INV-2026-087', 'Engro Fertilizers Complex', 'Engro Complex, Daharki', 5600000, 5992000)" class="text-[#242b5f] hover:underline font-bold text-xs"><i class="fas fa-eye mr-0.5"></i> View</button>
-                                    </td>
-                                </tr>
+    <!-- Row 3 -->
+    <tr class="hover:bg-blue-50/50 transition">
+        <td class="font-mono font-bold text-gray-800 py-3">INV-2026-087</td>
+        <td class="font-semibold text-gray-900">Engro Fertilizers Complex</td>
+        <td class="text-gray-600">Engro Complex, Daharki</td>
+        <td class="text-right font-extrabold text-gray-900">Rs. 5,992,000</td>
+        <td class="text-center"><span class="bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 rounded-md text-[10px] font-bold">Paid</span></td>
+        <td class="text-right">
+            <button onclick="previewInvoiceModal('INV-2026-087', 'Engro Fertilizers Complex', 'Engro Complex, Daharki', 5600000, 5992000)" class="text-gray-500 hover:text-blue-600 transition font-bold text-xs"><i class="fas fa-eye"></i></button>
+        </td>
+    </tr>
 
-                                <!-- Row 4 -->
-                                <tr class="hover:bg-blue-50/30 transition">
-                                    <td class="font-mono font-bold text-[#242b5f]">INV-2026-086</td>
-                                    <td class="font-semibold text-gray-900">Lucky Cement Industrial Plant</td>
-                                    <td class="text-gray-600">Lucky Cement Plant, Pezu KPK</td>
-                                    <td class="text-gray-500">Kiln Air Quality Ductwork & Ventilation</td>
-                                    <td><span class="bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded text-[9px] font-bold">15% KPRA</span></td>
-                                    <td class="text-right font-semibold text-gray-800">Rs. 3,850,000</td>
-                                    <td class="text-right font-bold text-gray-900">Rs. 4,081,000</td>
-                                    <td class="text-center"><span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-[9px] font-bold">Submitted to Client</span></td>
-                                    <td class="text-right">
-                                        <button onclick="previewInvoiceModal('INV-2026-086', 'Lucky Cement Industrial Plant', 'Lucky Cement Plant, Pezu KPK', 3850000, 4081000)" class="text-[#242b5f] hover:underline font-bold text-xs"><i class="fas fa-eye mr-0.5"></i> View</button>
-                                    </td>
-                                </tr>
-                            </tbody>
+    <!-- Row 4 -->
+    <tr class="hover:bg-blue-50/50 transition">
+        <td class="font-mono font-bold text-gray-800 py-3">INV-2026-086</td>
+        <td class="font-semibold text-gray-900">Lucky Cement</td>
+        <td class="text-gray-600">Lucky Cement Plant, Pezu KPK</td>
+        <td class="text-right font-extrabold text-gray-900">Rs. 4,081,000</td>
+        <td class="text-center"><span class="bg-blue-50 text-blue-600 border border-blue-200 px-2.5 py-0.5 rounded-md text-[10px] font-bold">Submitted</span></td>
+        <td class="text-right">
+            <button onclick="previewInvoiceModal('INV-2026-086', 'Lucky Cement Industrial Plant', 'Lucky Cement Plant, Pezu KPK', 3850000, 4081000)" class="text-gray-500 hover:text-blue-600 transition font-bold text-xs"><i class="fas fa-eye"></i></button>
+        </td>
+    </tr>
+</tbody>
                         </table>
                     </div>
                 </div>

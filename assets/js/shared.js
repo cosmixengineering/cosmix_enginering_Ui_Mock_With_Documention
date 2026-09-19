@@ -93,11 +93,11 @@ const renderLayout = (activePage) => {
             </div>
             <nav class="space-y-1">
                 ${createNavLink(p + 'accounts/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
-                ${createNavLink(p + 'accounts/invoices.html', 'Invoices & Billing', 'fas fa-file-invoice-dollar', activePage === 'invoices', { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Tax' })}
-                ${createNavLink(p + 'accounts/purchases.html', 'Supply Expenses', 'fas fa-shopping-cart', activePage === 'purchases', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '3 Slips' })}
-                ${createNavLink(p + 'accounts/payroll.html', 'Payroll Ledger', 'fas fa-money-check-alt', activePage === 'payroll', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Sep 26' })}
-                ${createNavLink(p + 'accounts/attendance.html', 'Attendance & Roster', 'fas fa-user-clock', activePage === 'attendance', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Audit' })}
-                ${createNavLink(p + 'accounts/workers.html', 'Worker Profiles', 'fas fa-id-badge', activePage === 'workers' || activePage === 'employee')}
+                  ${createNavLink(p + 'accounts/invoices.html', 'Invoices', 'fas fa-file-invoice-dollar', activePage === 'invoices', { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Tax' })}
+                  ${createNavLink(p + 'accounts/purchases.html', 'Expenses', 'fas fa-shopping-cart', activePage === 'purchases', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '3 Slips' })}
+                  ${createNavLink(p + 'accounts/payroll.html', 'Payroll', 'fas fa-money-check-alt', activePage === 'payroll', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Sep 26' })}
+                  ${createNavLink(p + 'accounts/attendance.html', 'Payments / Receivables', 'fas fa-exchange-alt', activePage === 'attendance', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Audit' })}
+                  ${createNavLink(p + 'accounts/workers.html', 'Financial Records', 'fas fa-folder-open', activePage === 'workers' || activePage === 'employee')}
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'hr/index.html', 'HR Operations Portal', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
