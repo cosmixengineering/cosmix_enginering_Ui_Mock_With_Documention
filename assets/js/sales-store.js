@@ -7,12 +7,12 @@
     const demoState = {
         meta: { version: 2, updatedAt: today, demo: true },
         inquiries: [
-            { id: 'INQ-2609-014', client: 'Indus Motor Company', project: 'Admin Building HVAC', city: 'Karachi', source: 'Tender', type: 'VRF', owner: 'GM Sales', engineer: 'Application Team', due: '2026-09-24', stage: 'Commercial Review', priority: 'High', followUp: 'Costing review today', value: 22777260 },
+            { id: 'INQ-2609-014', client: 'Indus Motor Company', project: 'Admin Building HVAC', city: 'Karachi', source: 'Tender', type: 'VRF', owner: 'GM Sales', engineer: 'Sales Engineer', due: '2026-09-24', stage: 'Commercial Review', priority: 'High', followUp: 'Costing review today', value: 22777260 },
             { id: 'INQ-2609-015', client: 'Grand Monarch Residency', project: 'Apartment VRF Packages', city: 'Karachi', source: 'Referral', type: 'VRF', owner: 'GM Sales', engineer: 'Zeeshan', due: '2026-09-30', stage: 'Quotation Submitted', priority: 'High', followUp: 'Client call · 18 Sep', value: 14041500 },
-            { id: 'INQ-2609-016', client: 'Pak Pharma Ltd', project: 'Production Block Ventilation', city: 'Karachi', source: 'Website', type: 'Ventilation / Fans', owner: 'Sales Engineer', engineer: 'Application Team', due: '2026-09-27', stage: 'Rate Collection', priority: 'Medium', followUp: '2 vendor responses due', value: 0 },
-            { id: 'INQ-2609-017', client: 'DHA City', project: 'Community Centre MEP', city: 'Karachi', source: 'Direct', type: 'Mixed HVAC', owner: 'GM Sales', engineer: 'Application Team', due: '2026-10-05', stage: 'Awaiting Drawings', priority: 'Medium', followUp: 'Drawing reminder sent', value: 0 },
-            { id: 'TND-2604-006', client: 'Corporate Office Group', project: 'Head Office VRF Tender', city: 'Lahore', source: 'Tender', type: 'VRF', owner: 'GM Sales', engineer: 'Application Team', due: '2026-04-18', stage: 'Revalidation Required', priority: 'Critical', followUp: 'Accepted after 5 months', value: 12840000 },
-            { id: 'INQ-2609-018', client: 'Lucky Textile Mills', project: 'Warehouse Exhaust System', city: 'Nooriabad', source: 'Existing Client', type: 'Ventilation / Fans', owner: 'Sales Engineer', engineer: 'Application Team', due: '2026-10-02', stage: 'New', priority: 'Low', followUp: 'Qualification pending', value: 0 }
+            { id: 'INQ-2609-016', client: 'Pak Pharma Ltd', project: 'Production Block Ventilation', city: 'Karachi', source: 'Website', type: 'Ventilation / Fans', owner: 'Sales Engineer', engineer: 'Sales Engineer', due: '2026-09-27', stage: 'Rate Collection', priority: 'Medium', followUp: '2 vendor responses due', value: 0 },
+            { id: 'INQ-2609-017', client: 'DHA City', project: 'Community Centre MEP', city: 'Karachi', source: 'Direct', type: 'Mixed HVAC', owner: 'GM Sales', engineer: 'Sales Engineer', due: '2026-10-05', stage: 'Awaiting Drawings', priority: 'Medium', followUp: 'Drawing reminder sent', value: 0 },
+            { id: 'TND-2604-006', client: 'Corporate Office Group', project: 'Head Office VRF Tender', city: 'Lahore', source: 'Tender', type: 'VRF', owner: 'GM Sales', engineer: 'Sales Engineer', due: '2026-04-18', stage: 'Revalidation Required', priority: 'Critical', followUp: 'Accepted after 5 months', value: 12840000 },
+            { id: 'INQ-2609-018', client: 'Lucky Textile Mills', project: 'Warehouse Exhaust System', city: 'Nooriabad', source: 'Existing Client', type: 'Ventilation / Fans', owner: 'Sales Engineer', engineer: 'Sales Engineer', due: '2026-10-02', stage: 'New', priority: 'Low', followUp: 'Qualification pending', value: 0 }
         ],
         selections: [
             { id: 'SEL-2609-014-R1', inquiry: 'INQ-2609-014', client: 'Indus Motor Company', project: 'Admin Building HVAC', file: 'INDUS MOTOR, ADMIN BUILDING--- (1).xlsx', imported: '2026-09-17', importedBy: 'Sales Engineer', systems: 13, pieces: 127, images: 43, issues: 1, affectedQuantity: 4, status: 'Needs Validation', boq: 'Draft BOQ linked', decisions: [], validation: null },
@@ -119,7 +119,7 @@
             },
             {
                 id: 'APR-2609-021', type: 'Model Substitution', sourceRef: 'SUB-2609-003', quoteRef: '', client: 'Indus Motor Company', project: 'Admin Building HVAC',
-                submittedBy: 'Application Team', submittedAt: '2026-09-17T08:55:00.000Z', requested: 'Approve H015 consolidation into H022 line', proposedValue: 0,
+                submittedBy: 'Sales Engineer', submittedAt: '2026-09-17T08:55:00.000Z', requested: 'Approve H015 consolidation into H022 line', proposedValue: 0,
                 status: 'Applied', decision: 'Substitution approved', decisionBy: 'Director', decisionAt: '2026-09-17T09:40:00.000Z', adjustmentType: 'No price change', adjustmentAmount: 0, approvedValue: 0, validityDays: 0,
                 comment: 'Use ARVWM-H022/NR1DJA × 2 and retain the original AUX model in the audit trail.',
                 unread: false, acknowledgedAt: '2026-09-17T10:05:00.000Z', appliedAt: '2026-09-17T10:06:00.000Z', appliedRef: 'SUB-2609-003'
@@ -296,7 +296,7 @@
         const n = String(state.inquiries.length + 19).padStart(3, '0');
         state.inquiries.unshift({
             id: `INQ-2609-${n}`, client: data.client || 'New Client', project: data.project || 'New Project', city: data.city || 'Karachi',
-            source: data.source || 'Direct', type: data.type || 'Mixed HVAC', owner: data.owner || 'GM Sales', engineer: data.engineer || 'Application Team',
+            source: data.source || 'Direct', type: data.type || 'Mixed HVAC', owner: data.owner || 'GM Sales', engineer: data.engineer || 'Sales Engineer',
             due: data.due || '2026-09-30', stage: 'New', priority: data.priority || 'Medium', followUp: 'Qualification pending', value: 0
         });
         save();
