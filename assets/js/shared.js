@@ -154,7 +154,7 @@ const renderLayout = (activePage) => {
                 ${createNavLink(p + 'hr/index.html', 'Dashboard', 'fas fa-th-large', activePage === 'dashboard')}
                 ${createNavLink(p + 'hr/employee-master.html', 'Employee Master', 'fas fa-user-tie', activePage === 'employee')}
                 ${createNavLink(p + 'hr/sites.html', 'Working Sites', 'fas fa-map-marked-alt', activePage === 'sites')}
-                ${createNavLink(p + 'hr/attendance.html', 'Attendance & Roster', 'fas fa-user-clock', activePage === 'attendance', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Live' })}
+                ${createNavLink(p + 'hr/attendance.html', 'Attendance & List', 'fas fa-user-clock', activePage === 'attendance', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Live' })}
                 ${createNavLink(p + 'hr/shifts.html', 'Shift Management', 'fas fa-business-time', activePage === 'shifts', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-[#242b5f]', label: '4' })}
                 ${createNavLink(p + 'hr/advance-salary.html', 'Advance & Loans', 'fas fa-hand-holding-usd', activePage === 'advance')}
                 ${createNavLink(p + 'hr/leave-management.html', 'Leave Management', 'fas fa-calendar-minus', activePage === 'leave', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '3' })}
@@ -637,7 +637,7 @@ const renderLayout = (activePage) => {
                 <div>
                     <div class="flex justify-between items-center mb-1.5">
                         <p class="text-[11px] font-bold text-gray-700 flex items-center gap-1.5">
-                            <i class="fas fa-calendar-check text-[#242b5f]"></i> September 2026 Timecard Roster
+                            <i class="fas fa-calendar-check text-[#242b5f]"></i> September 2026 Timecard List
                         </p>
                         <div class="flex gap-2 text-[10px] font-bold">
                             <button onclick="exportToExcel('Timecard_${empName}_Sep_2026')" class="text-green-700 hover:text-green-800 hover:underline flex items-center gap-1">

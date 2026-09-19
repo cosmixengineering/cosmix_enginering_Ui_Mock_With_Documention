@@ -130,7 +130,7 @@
                                 Active Leave Applications & Absence Register
                             </h3>
                         </div>
-                        <span class="text-[10px] text-gray-400 font-medium">Automatic attendance roster integration</span>
+                        <span class="text-[10px] text-gray-400 font-medium">Automatic Attendance Register integration</span>
                     </div>
                     
                     <div class="overflow-x-auto min-h-[300px]">
@@ -506,7 +506,7 @@
 
                         <!-- Footer Actions -->
                         <div class="px-5 py-3 border-t border-gray-200 bg-white flex justify-between items-center">
-                            <span class="text-[9.5px] text-gray-400 font-bold uppercase"><i class="fas fa-lock mr-1"></i> Auto-synced with biometric roster</span>
+                            <span class="text-[9.5px] text-gray-400 font-bold uppercase"><i class="fas fa-lock mr-1"></i> Auto-synced with biometric list</span>
                             <div class="flex gap-2">
                                 <button onclick="closeApplyLeaveModal()" class="px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-md transition">Cancel</button>
                                 <button onclick="submitNewLeaveApplication()" class="bg-[#242b5f] text-white px-4 py-1.5 rounded-md text-xs font-bold shadow-sm hover:opacity-90 transition flex items-center gap-1.5">
@@ -672,7 +672,7 @@
 
         // Approve Directly
         window.approveLeaveDirectly = (appId, empName, elemId) => {
-            showToast(`Approved leave ${appId} for ${empName}! Roster updated.`, 'success');
+            showToast(`Approved leave ${appId} for ${empName}! List updated.`, 'success');
             const elem = document.getElementById(elemId);
             if (elem) {
                 elem.innerHTML = `

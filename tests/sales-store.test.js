@@ -323,7 +323,7 @@ test('all Sales screens render their main content without runtime errors', () =>
     assert.equal(captured.length, 16);
     for (const result of captured) {
         assert.ok(result.title.length > 5);
-        if (!['Quotation Builder','Product Catalogue & Import'].includes(result.title)) assert.ok(result.html.includes('Local mock data'));
+        if (!['Quotation Builder','Products & Prices'].includes(result.title)) assert.ok(result.html.includes('Local mock data'));
         assert.ok(result.html.length > 1000);
     }
     const detail = captured.find(x => x.title === 'AUX Selection Detail');
@@ -336,14 +336,15 @@ test('all Sales screens render their main content without runtime errors', () =>
     const dashboard = captured.find(x => x.title === 'Sales Operations Dashboard');
     const inquiries = captured.find(x => x.title === 'Inquiries & Tenders');
     const costing = captured.find(x => x.title === 'BOQ & Flexible Costing');
-    const approvals = captured.find(x => x.title === 'Management Decisions');
+    const approvals = captured.find(x => x.title === 'Approvals Received');
     const builder = captured.find(x => x.title === 'Quotation Builder');
     const selectionPricing = captured.find(x => x.title === 'Selection Pricing Sheet');
-    const vendorRates = captured.find(x => x.title === 'Vendor Rate Register');
-    const masterData = captured.find(x => x.title === 'Sales Master Setup');
-    const tenderDocuments = captured.find(x => x.title === 'Tender Documents');
-    assert.ok(dashboard.html.includes('Sales overview'));
-    assert.ok(dashboard.html.includes('Work queue'));
+    const vendorRates = captured.find(x => x.title === 'Vendor Prices');
+    const masterData = captured.find(x => x.title === 'Lists & Vendors');
+    const tenderDocuments = captured.find(x => x.title === 'Tender Files');
+    assert.ok(dashboard.html.includes('Sales work desk'));
+    assert.ok(dashboard.html.includes('Start here'));
+    assert.ok(dashboard.html.includes('What needs your attention'));
     assert.ok(inquiries.html.includes('sales-register-toolbar'));
     assert.ok(costing.html.includes('sales-cost-nav'));
     assert.ok(costing.html.includes('BOQ rate filling'));

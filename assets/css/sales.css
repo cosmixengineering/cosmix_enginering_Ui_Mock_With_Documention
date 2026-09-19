@@ -118,6 +118,36 @@
 .sales-demo-meta span i { color: #cbd5e1; font-size: 5px; }
 .sales-demo-meta button { color: #64748b; font-weight: 650; }
 .sales-demo-meta button:hover { color: #242b5f; text-decoration: underline; }
+.sales-nav-group { margin-top: 4px; }
+.sales-nav-group > summary {
+    display: flex;
+    min-height: 32px;
+    cursor: pointer;
+    list-style: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-radius: 7px;
+    padding: 7px 9px;
+    color: #64748b;
+    font-size: 10.5px;
+    font-weight: 700;
+}
+.sales-nav-group > summary::-webkit-details-marker { display: none; }
+.sales-nav-group > summary:hover { background: #f8fafc; color: #242b5f; }
+.sales-nav-group > summary span { display: inline-flex; align-items: center; gap: 9px; }
+.sales-nav-group > summary span i { width: 14px; text-align: center; color: #94a3b8; }
+.sales-nav-group > summary > i { font-size: 8px; transition: transform .15s ease; }
+.sales-nav-group[open] > summary > i { transform: rotate(180deg); }
+.sales-nav-group .pl-2 > a { padding-top: 6px; padding-bottom: 6px; }
+.sales-start-grid { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); overflow-x: auto; }
+.sales-start-step { position: relative; min-height: 105px; padding: 12px; border-right: 1px solid #e7ecf2; background: #fff; }
+.sales-start-step:last-child { border-right: 0; }
+.sales-start-step:hover { background: #f8fafc; }
+.sales-start-step-number { display: flex; width: 23px; height: 23px; align-items: center; justify-content: center; border-radius: 50%; background: #242b5f; color: #fff; font-size: 9px; font-weight: 800; }
+.sales-start-step strong { display: block; margin-top: 8px; color: #1e293b; font-size: 10.5px; }
+.sales-start-step small { display: block; margin-top: 3px; color: #64748b; font-size: 8.5px; line-height: 1.4; }
+.sales-start-step em { display: block; margin-top: 7px; color: #242b5f; font-size: 8.5px; font-style: normal; font-weight: 750; }
 .sales-workspace-head {
     display: flex;
     min-height: 58px;
