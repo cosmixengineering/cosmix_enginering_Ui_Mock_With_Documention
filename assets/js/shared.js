@@ -400,8 +400,26 @@ const renderLayout = (activePage) => {
                     <button class="hover:text-amber-400 transition flex items-center gap-1.5" onclick="openModal('Open IT Ticket', '<p class=\'text-xs text-gray-600\'>Report bugs or request software features.</p><textarea class=\'w-full border border-gray-300 rounded mt-2 p-2 text-xs\' rows=3 placeholder=\'Describe your issue...\'></textarea>', null)"><i class="fas fa-headset text-orange-300"></i> Helpdesk</button>
                 </div>
                 <div class="flex gap-4 items-center">
-                    <span class="flex items-center gap-1.5 text-gray-300 tracking-wider"><i class="fas fa-desktop text-gray-400"></i> Cosmix Engineering ERP v2.4</span>
-                    <button class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Quick Print</button>
+                    <span class="flex items-center gap-1.5 text-gray-300 tracking-wider mr-2"><i class="fas fa-desktop text-gray-400"></i> ERP v2.4</span>
+                    ${currentDeptId === 'accounts' || currentDeptId === 'finance' ? `
+                        <button class="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Bank Stmt</button>
+                        <button class="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Ledger CSV</button>
+                        <button class="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
+                    ` : currentDeptId === 'warehouse' || currentDeptId === 'inventory' ? `
+                        <button class="bg-amber-600 hover:bg-amber-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import GRN</button>
+                        <button class="bg-amber-600 hover:bg-amber-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Stock Excel</button>
+                        <button class="bg-amber-600 hover:bg-amber-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Stock</button>
+                    ` : currentDeptId === 'sales' ? `
+                        <button class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Pipeline PDF</button>
+                        <button class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Details</button>
+                    ` : currentDeptId === 'hr' ? `
+                        <button class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Biometric</button>
+                        <button class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Register</button>
+                        <button class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Records</button>
+                    ` : `
+                        <button class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Data</button>
+                        <button class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Quick Print</button>
+                    `}
                 </div>
             </div>
         </div>
