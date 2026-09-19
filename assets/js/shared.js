@@ -113,23 +113,33 @@ const renderLayout = (activePage) => {
             </div>
             <nav class="space-y-1">
                 ${createNavLink(p + 'sales/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
-                ${createNavLink(p + 'sales/inquiries.html', 'Inquiries & Tenders', 'fas fa-inbox', activePage === 'inquiries', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '6' })}
-                ${createNavLink(p + 'sales/selection.html', 'Technical Selection', 'fas fa-snowflake', activePage === 'selection' || activePage === 'selection-detail' || activePage === 'selection-pricing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'AUX' })}
-                ${createNavLink(p + 'sales/costing.html', 'BOQ Rate Filling', 'fas fa-calculator', activePage === 'costing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '3' })}
-                ${createNavLink(p + 'sales/approvals.html', 'Management Decisions', 'fas fa-stamp', activePage === 'approvals', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: salesDecisionCount ? `${salesDecisionCount} New` : 'Inbox' })}
-                ${createNavLink(p + 'sales/catalog.html', 'Product Catalogue', 'fas fa-database', activePage === 'catalog', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Data' })}
-                ${createNavLink(p + 'sales/quotation-builder.html', 'Quotation Builder', 'fas fa-table-cells', activePage === 'quotation-builder' || activePage === 'manual-quotation', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Excel' })}
-                ${createNavLink(p + 'sales/rates.html', 'Vendor Rate Register', 'fas fa-tags', activePage === 'rates', { bg: 'bg-rose-50 border border-rose-200', text: 'text-rose-700', label: '2 Due' })}
-                ${createNavLink(p + 'sales/master-data.html', 'Sales Master Setup', 'fas fa-list-check', activePage === 'master-data', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Setup' })}
-                ${createNavLink(p + 'sales/quotations.html', 'Quotations & Follow-up', 'fas fa-file-signature', activePage === 'quotations' || activePage === 'quotation-detail', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '4' })}
-                ${createNavLink(p + 'sales/tender-documents.html', 'Tender Documents', 'fas fa-file-pdf', activePage === 'tender-documents', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'PDF' })}
-                ${createNavLink(p + 'sales/pdf-editor.html', 'PDF Editor', 'fas fa-pen-to-square', activePage === 'pdf-editor', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Edit' })}
-                ${createNavLink(p + 'sales/settings.html', 'Rate Book & Setup', 'fas fa-sliders', activePage === 'settings')}
-                ${createNavLink(p + 'sales/workflow.html', 'Sales Workflow', 'fas fa-diagram-project', activePage === 'workflow', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'Map' })}
+                <p class="menu-text px-2 pt-2 text-[8px] font-bold uppercase tracking-wider text-slate-400">Daily work</p>
+                ${createNavLink(p + 'sales/inquiries.html', 'Inquiries', 'fas fa-inbox', activePage === 'inquiries', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '6' })}
+                ${createNavLink(p + 'sales/selection.html', 'AUX Selection', 'fas fa-snowflake', activePage === 'selection' || activePage === 'selection-detail' || activePage === 'selection-pricing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'AUX' })}
+                ${createNavLink(p + 'sales/costing.html', 'BOQ Pricing', 'fas fa-calculator', activePage === 'costing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '3' })}
+                ${createNavLink(p + 'sales/approvals.html', 'Approvals Received', 'fas fa-stamp', activePage === 'approvals', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: salesDecisionCount ? `${salesDecisionCount} New` : 'Inbox' })}
+                ${createNavLink(p + 'sales/quotations.html', 'Quotations', 'fas fa-file-signature', activePage === 'quotations' || activePage === 'quotation-detail', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '4' })}
+                <details class="sales-nav-group" ${['catalog','quotation-builder','manual-quotation','rates','tender-documents','pdf-editor'].includes(activePage) ? 'open' : ''}>
+                    <summary><span><i class="fas fa-toolbox"></i> More sales tools</span><i class="fas fa-chevron-down"></i></summary>
+                    <div class="mt-1 space-y-1 border-l border-slate-200 pl-2">
+                        ${createNavLink(p + 'sales/quotation-builder.html', 'Quotation Builder', 'fas fa-table-cells', activePage === 'quotation-builder' || activePage === 'manual-quotation')}
+                        ${createNavLink(p + 'sales/catalog.html', 'Products & Prices', 'fas fa-database', activePage === 'catalog')}
+                        ${createNavLink(p + 'sales/rates.html', 'Vendor Prices', 'fas fa-tags', activePage === 'rates', { bg: 'bg-rose-50 border border-rose-200', text: 'text-rose-700', label: '2 Due' })}
+                        ${createNavLink(p + 'sales/tender-documents.html', 'Tender Files', 'fas fa-file-pdf', activePage === 'tender-documents')}
+                        ${createNavLink(p + 'sales/pdf-editor.html', 'Edit PDF', 'fas fa-pen-to-square', activePage === 'pdf-editor')}
+                    </div>
+                </details>
+                <details class="sales-nav-group" ${['master-data','settings','workflow'].includes(activePage) ? 'open' : ''}>
+                    <summary><span><i class="fas fa-gear"></i> Setup & help</span><i class="fas fa-chevron-down"></i></summary>
+                    <div class="mt-1 space-y-1 border-l border-slate-200 pl-2">
+                        ${createNavLink(p + 'sales/master-data.html', 'Lists & Vendors', 'fas fa-list-check', activePage === 'master-data')}
+                        ${createNavLink(p + 'sales/settings.html', 'Rate Book', 'fas fa-book', activePage === 'settings')}
+                        ${createNavLink(p + 'sales/workflow.html', 'Process Guide', 'fas fa-route', activePage === 'workflow')}
+                    </div>
+                </details>
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
                     ${createNavLink(p + 'warehouse/index.html', 'Warehouse & Stock', 'fas fa-boxes', false, { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-500', label: 'Stock' })}
-                    ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-500', label: 'Sales' })}
                     ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-500', label: 'Accounts' })}
                 </div>
             </nav>
