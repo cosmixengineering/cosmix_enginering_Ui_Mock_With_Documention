@@ -1756,7 +1756,7 @@
                                 <table class="w-full text-xs text-left">
                                     <thead class="bg-gray-50 text-gray-600 font-bold border-b border-gray-200 text-[10px]">
                                         <tr>
-                                            <th class="p-2">Item Description</th>
+                                            <th class="p-2 w-6 text-center"><i class="fas fa-check-square text-gray-400"></i></th>\n                                            <th class="p-2">Item Description</th>
                                             <th class="p-2 text-center">Qty</th>
                                             <th class="p-2 text-right">Rate</th>
                                             <th class="p-2 text-right">Tax (18%)</th>
@@ -1766,6 +1766,9 @@
                                     <tbody class="divide-y divide-gray-100 text-xs">
                                         ${item.items.map(it => `
                                             <tr>
+                                                <td class="p-2 text-center align-middle">
+                                                    <input type="checkbox" class="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500 cursor-pointer" title="Confirm item matching with receipt">
+                                                </td>
                                                 <td class="p-2">
                                                     <div class="font-semibold text-gray-900">${it.name}</div>
                                                 </td>
