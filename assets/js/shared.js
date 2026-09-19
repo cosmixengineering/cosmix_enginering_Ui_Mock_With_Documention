@@ -95,7 +95,7 @@ const renderLayout = (activePage) => {
                 ${createNavLink(p + 'accounts/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
                 ${createNavLink(p + 'accounts/invoices.html', 'Invoices & Billing', 'fas fa-file-invoice-dollar', activePage === 'invoices', { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Tax' })}
                 ${createNavLink(p + 'accounts/purchases.html', 'Supply & Expenses', 'fas fa-shopping-cart', activePage === 'purchases', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '3 Slips' })}
-                ${createNavLink(p + 'accounts/payroll.html', 'Payroll Disbursement', 'fas fa-money-check-alt', activePage === 'payroll', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Sep 26' })}
+                ${createNavLink(p + 'accounts/payroll.html', 'Payroll Ledger', 'fas fa-money-check-alt', activePage === 'payroll', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Sep 26' })}
                 ${createNavLink(p + 'accounts/attendance.html', 'Attendance & Roster', 'fas fa-user-clock', activePage === 'attendance', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Audit' })}
                 ${createNavLink(p + 'accounts/workers.html', 'Worker Profiles', 'fas fa-id-badge', activePage === 'workers' || activePage === 'employee')}
                 <div class="pt-2 mt-2 border-t border-slate-100">
@@ -278,7 +278,7 @@ const renderLayout = (activePage) => {
                     ` : isAccounts ? `
                         ${createTopBarLink(p + 'accounts/invoices.html', 'fas fa-file-invoice-dollar', activePage === 'invoices', 'Invoices & Billing')}
                         ${createTopBarLink(p + 'accounts/purchases.html', 'fas fa-shopping-cart', activePage === 'purchases', 'Supply & Expenses')}
-                        ${createTopBarLink(p + 'accounts/payroll.html', 'fas fa-money-check-alt', activePage === 'payroll', 'Payroll Disbursement')}
+                        ${createTopBarLink(p + 'accounts/payroll.html', 'fas fa-money-check-alt', activePage === 'payroll', 'Payroll Ledger')}
                         ${createTopBarLink(p + 'accounts/attendance.html', 'fas fa-user-clock', activePage === 'attendance', 'Attendance Audit')}
                     ` : isSales ? `
                         ${createTopBarLink(p + 'sales/inquiries.html', 'fas fa-inbox', activePage === 'inquiries', 'Inquiries & Tenders')}
