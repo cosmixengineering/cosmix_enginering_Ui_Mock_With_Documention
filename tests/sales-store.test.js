@@ -37,6 +37,9 @@ test('seed includes the confirmed sales workflow records', () => {
     assert.equal(store.state.costing.lines[0].source, 'Rate Book');
     assert.equal(store.state.manualQuotation.project, 'HVAC Equipment Quotation');
     assert.equal(store.state.costing.components.some(x => x.mode === 'Manual'), false);
+    assert.equal(store.state.salesSetup.categories.length, 5);
+    assert.equal(store.state.salesSetup.units.length, 5);
+    assert.equal(store.state.salesSetup.vendors.length, 4);
     assert.equal(JSON.stringify(store.state).includes('CEO Rate Book'), false);
 });
 
@@ -53,6 +56,7 @@ test('legacy CEO rate-book labels migrate without resetting saved sales data', (
     saved.substitutions[0].status = 'Boss Approved';
     saved.costing.status = 'Boss Approval Pending';
     delete saved.approvalInbox;
+    delete saved.salesSetup;
     storage.set('cosmix_sales_mock_v2', JSON.stringify(saved));
 
     const migrated = createStore(storage);
@@ -65,6 +69,7 @@ test('legacy CEO rate-book labels migrate without resetting saved sales data', (
     assert.equal(migrated.state.substitutions[0].status, 'Management Approved');
     assert.equal(migrated.state.costing.status, 'Management Review Pending');
     assert.equal(migrated.state.approvalInbox.length, 4);
+    assert.equal(migrated.state.salesSetup.vendors.length, 4);
     assert.equal(storage.get('cosmix_sales_mock_v2').includes('CEO Rate Book'), false);
 });
 
@@ -189,6 +194,36 @@ test('rate selection is isolated to one item and specification group', () => {
     assert.equal(store.state.rates.find(x => x.id === 'VRQ-2609-008').status, 'Selected');
 });
 
+test('vendor market update keeps the old dated rate and creates a new revision', () => {
+    const store = createStore();
+    const before = store.state.rates.length;
+    const previous = store.state.rates.find(x => x.id === 'VRQ-2609-007');
+    const revised = store.reviseRate(previous.id, {
+        rate: 5100,
+        rateDate: '2026-09-19',
+        validUntil: '2026-10-03',
+        evidence: 'Updated vendor call'
+    });
+    assert.equal(store.state.rates.length, before + 1);
+    assert.equal(previous.status, 'Superseded');
+    assert.equal(revised.parentRateId, previous.id);
+    assert.equal(revised.revision, 2);
+    assert.equal(revised.rate, 5100);
+});
+
+test('Sales master setup adds reusable categories, units and vendors without duplicates', () => {
+    const store = createStore();
+    const category = store.upsertSalesSetup('categories', { name: 'Fire Fighting' });
+    const unit = store.upsertSalesSetup('units', { name: 'Running Foot', symbol: 'rft' });
+    const vendor = store.upsertSalesSetup('vendors', { name: 'New Vendor', city: 'Karachi', categories: ['Fire Fighting'] });
+    assert.equal(category.ok, true);
+    assert.match(category.row.id, /^CAT-\d{3}$/);
+    assert.equal(unit.row.symbol, 'rft');
+    assert.equal(vendor.row.categories[0], 'Fire Fighting');
+    assert.equal(store.upsertSalesSetup('categories', { name: 'fire fighting' }).ok, false);
+    assert.equal(store.toggleSalesSetup('vendors', vendor.row.id).status, 'Inactive');
+});
+
 test('expired quotation acceptance is routed to commercial revalidation', () => {
     const store = createStore();
     const result = store.acceptQuote('QTN-2609-018::R2', { acceptedDate: '2026-10-15' });
@@ -281,11 +316,11 @@ test('all Sales screens render their main content without runtime errors', () =>
     vm.runInContext(source, context, { filename: 'sales-store.js' });
     vm.runInContext(pagesSource, context, { filename: 'sales-pages.js' });
     window.CosmixSales.addManualQuoteItem('ARVWM-H022/NR1DJA', 1, { includeLinked: true });
-    for (const page of ['dashboard', 'inquiries', 'selection', 'selection-detail', 'selection-pricing', 'costing', 'approvals', 'catalog', 'quotation-builder', 'rates', 'quotations', 'quotation-detail', 'tender-documents', 'settings', 'workflow']) {
+    for (const page of ['dashboard', 'inquiries', 'selection', 'selection-detail', 'selection-pricing', 'costing', 'approvals', 'catalog', 'quotation-builder', 'rates', 'master-data', 'quotations', 'quotation-detail', 'tender-documents', 'settings', 'workflow']) {
         window.location.search = page === 'quotation-detail' ? '?id=QTN-2609-019&rev=R1' : page === 'selection-detail' ? '?id=SEL-2609-014-R1' : '';
         window.renderSalesPage(page);
     }
-    assert.equal(captured.length, 15);
+    assert.equal(captured.length, 16);
     for (const result of captured) {
         assert.ok(result.title.length > 5);
         if (!['Quotation Builder','Product Catalogue & Import'].includes(result.title)) assert.ok(result.html.includes('Local mock data'));
@@ -304,6 +339,8 @@ test('all Sales screens render their main content without runtime errors', () =>
     const approvals = captured.find(x => x.title === 'Management Decisions');
     const builder = captured.find(x => x.title === 'Quotation Builder');
     const selectionPricing = captured.find(x => x.title === 'Selection Pricing Sheet');
+    const vendorRates = captured.find(x => x.title === 'Vendor Rate Register');
+    const masterData = captured.find(x => x.title === 'Sales Master Setup');
     const tenderDocuments = captured.find(x => x.title === 'Tender Documents');
     assert.ok(dashboard.html.includes('Sales overview'));
     assert.ok(dashboard.html.includes('Work queue'));
@@ -331,6 +368,13 @@ test('all Sales screens render their main content without runtime errors', () =>
     assert.ok(selectionPricing.html.includes('Fill Rates (4)'));
     assert.ok(selectionPricing.html.includes('Download Excel'));
     assert.ok(selectionPricing.html.includes('Download Document'));
+    assert.ok(vendorRates.html.includes('Saved vendor rates'));
+    assert.ok(vendorRates.html.includes('Categories, units & vendors'));
+    assert.ok(pagesSource.includes('Apply a saved vendor rate'));
+    assert.ok(pagesSource.includes('salesApplySavedVendorRate'));
+    assert.ok(masterData.html.includes('Item categories'));
+    assert.ok(masterData.html.includes('Units of measure'));
+    assert.ok(masterData.html.includes('Sales vendor directory'));
     assert.ok(tenderDocuments.html.includes('PDF merge order'));
     assert.ok(tenderDocuments.html.includes('Compression & output'));
     assert.ok(tenderDocuments.html.includes('Original PDFs'));

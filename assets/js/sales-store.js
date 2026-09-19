@@ -175,6 +175,28 @@
             { id: 'VRQ-2609-009', inquiry: 'INQ-2609-014', item: 'Air-flow panel', spec: 'MB13-I / MB10', qty: 4, unit: 'pc', vendor: 'HVAC Link', requested: '2026-09-14', responded: '', currency: 'PKR', rate: 0, tax: 'Pending', freight: 'Pending', lead: 'Pending', validUntil: '', status: 'Sent', evidence: 'Awaiting response' },
             { id: 'VRQ-2609-010', inquiry: 'TND-2604-006', item: 'VRF equipment package', spec: 'Tender revalidation', qty: 1, unit: 'lot', vendor: 'Authorized Distributor', requested: '2026-09-15', responded: '2026-09-17', currency: 'USD', rate: 42380, tax: 'Exclusive', freight: 'Separate', lead: '14–16 weeks', validUntil: '2026-09-24', status: 'Response Received', evidence: 'Revalidation evidence' }
         ],
+        salesSetup: {
+            categories: [
+                { id: 'CAT-001', name: 'HVAC Equipment', status: 'Active' },
+                { id: 'CAT-002', name: 'Ventilation & Fans', status: 'Active' },
+                { id: 'CAT-003', name: 'Pipes & Fittings', status: 'Active' },
+                { id: 'CAT-004', name: 'Electrical Cable', status: 'Active' },
+                { id: 'CAT-005', name: 'Controls & Accessories', status: 'Active' }
+            ],
+            units: [
+                { id: 'UOM-001', name: 'Piece', symbol: 'pc', status: 'Active' },
+                { id: 'UOM-002', name: 'Metre', symbol: 'm', status: 'Active' },
+                { id: 'UOM-003', name: 'Kilogram', symbol: 'kg', status: 'Active' },
+                { id: 'UOM-004', name: 'Lot', symbol: 'lot', status: 'Active' },
+                { id: 'UOM-005', name: 'Set', symbol: 'set', status: 'Active' }
+            ],
+            vendors: [
+                { id: 'VEN-001', name: 'CoolTech Traders', contactPerson: 'Sales Desk', phone: '021-0000001', city: 'Karachi', categories: ['Pipes & Fittings'], status: 'Active' },
+                { id: 'VEN-002', name: 'Pak Cable House', contactPerson: 'Commercial Desk', phone: '021-0000002', city: 'Karachi', categories: ['Electrical Cable'], status: 'Active' },
+                { id: 'VEN-003', name: 'HVAC Link', contactPerson: 'Rate Desk', phone: '021-0000003', city: 'Karachi', categories: ['Controls & Accessories'], status: 'Active' },
+                { id: 'VEN-004', name: 'Authorized Distributor', contactPerson: 'Projects Desk', phone: '021-0000004', city: 'Karachi', categories: ['HVAC Equipment'], status: 'Active' }
+            ]
+        },
         quotations: [
             { id: 'QTN-2609-018', rev: 'R2', inquiry: 'INQ-2609-015', client: 'Grand Monarch Residency', project: 'Apartment VRF Packages', value: 14041500, submitted: '2026-09-15', validUntil: '2026-09-30', status: 'Follow-up', approver: 'Director / Administrator', lastFollowUp: '2026-09-17', nextAction: 'Client technical meeting', dispatch: 'Email + WhatsApp', acceptedBaseline: false },
             { id: 'QTN-2609-019', rev: 'R1', inquiry: 'INQ-2609-014', client: 'Indus Motor Company', project: 'Admin Building HVAC', value: 27287895, submitted: '', validUntil: '', status: 'Approval Pending', approver: 'Director / Administrator', lastFollowUp: '', nextAction: 'Management commercial approval', dispatch: 'Not sent', acceptedBaseline: false },
@@ -217,6 +239,12 @@
             if (item.source === 'Manual entry') item.source = 'Direct entry';
             if (item.origin === 'Manual entry') item.origin = 'Direct entry';
         });
+        data.rates?.forEach(item => {
+            if (!item.rateDate) item.rateDate = item.responded || item.requested || today;
+            if (!item.category) item.category = /cable/i.test(item.item) ? 'Electrical Cable' : /pipe|copper/i.test(item.item) ? 'Pipes & Fittings' : /panel|controller|accessor/i.test(item.item) ? 'Controls & Accessories' : /fan|ventilation/i.test(item.item) ? 'Ventilation & Fans' : 'HVAC Equipment';
+            if (!item.revision) item.revision = 1;
+            if (!Object.prototype.hasOwnProperty.call(item, 'parentRateId')) item.parentRateId = '';
+        });
         return data;
     }
 
@@ -231,6 +259,7 @@
                     if (!Array.isArray(parsed.productCatalog)) parsed.productCatalog = [];
                     if (!Array.isArray(parsed.catalogImports)) parsed.catalogImports = clone(demoState.catalogImports);
                     if (!Array.isArray(parsed.approvalInbox)) parsed.approvalInbox = clone(demoState.approvalInbox);
+                    if (!parsed.salesSetup || !Array.isArray(parsed.salesSetup.categories) || !Array.isArray(parsed.salesSetup.units) || !Array.isArray(parsed.salesSetup.vendors)) parsed.salesSetup = clone(demoState.salesSetup);
                     if (!parsed.tenderDocuments?.workspace || !Array.isArray(parsed.tenderDocuments.templates)) parsed.tenderDocuments = clone(demoState.tenderDocuments);
                     else {
                         const fields = parsed.tenderDocuments.workspace.fields || (parsed.tenderDocuments.workspace.fields = []);
@@ -521,14 +550,56 @@
     }
 
     function addRate(data) {
-        const n = String(state.rates.length + 11).padStart(3, '0');
-        const row = Object.assign({ id: `VRQ-2609-${n}`, requested: today, responded: '', currency: 'PKR', rate: 0, tax: 'Pending', freight: 'Pending', lead: 'Pending', validUntil: '', status: 'Sent', evidence: 'Awaiting response' }, data);
+        const next = state.rates.reduce((max, item) => Math.max(max, Number(String(item.id).match(/(\d+)$/)?.[1] || 0)), 10) + 1;
+        const row = Object.assign({ id: `VRQ-2609-${String(next).padStart(3, '0')}`, requested: today, responded: '', rateDate: today, currency: 'PKR', rate: 0, tax: 'Pending', freight: 'Pending', lead: 'Pending', validUntil: '', status: 'Sent', evidence: 'Awaiting response', revision: 1, parentRateId: '' }, data);
         state.rates.unshift(row); save(); return row;
     }
 
     function updateRate(id, patch) {
         const row = state.rates.find(x => x.id === id);
         if (row) Object.assign(row, patch);
+        save(); return row;
+    }
+
+    function reviseRate(id, data = {}) {
+        const source = state.rates.find(x => x.id === id);
+        if (!source) return null;
+        source.status = 'Superseded';
+        const copy = clone(source);
+        delete copy.id;
+        const row = addRate(Object.assign(copy, data, {
+            parentRateId: source.id, revision: Number(source.revision || 1) + 1,
+            requested: data.rateDate || today, responded: data.rateDate || today, rateDate: data.rateDate || today,
+            status: data.status || 'Saved Rate'
+        }));
+        return row;
+    }
+
+    function upsertSalesSetup(type, data = {}) {
+        const rows = state.salesSetup?.[type];
+        if (!Array.isArray(rows)) return { ok: false, reason: 'Setup list not found.' };
+        const payload = clone(data);
+        if (!payload.id) delete payload.id;
+        const name = String(data.name || '').trim();
+        if (!name) return { ok: false, reason: 'Name required hai.' };
+        const duplicate = rows.find(x => x.id !== data.id && String(x.name).trim().toLowerCase() === name.toLowerCase());
+        if (duplicate) return { ok: false, reason: 'Yeh name pehle se saved hai.' };
+        let row = rows.find(x => x.id === data.id);
+        if (row) Object.assign(row, payload, { name });
+        else {
+            const prefixes = { categories: 'CAT', units: 'UOM', vendors: 'VEN' };
+            const prefix = prefixes[type] || 'SET';
+            const next = rows.reduce((max, item) => Math.max(max, Number(String(item.id).match(/(\d+)$/)?.[1] || 0)), 0) + 1;
+            row = Object.assign({ id: `${prefix}-${String(next).padStart(3, '0')}`, status: 'Active' }, payload, { name });
+            rows.push(row);
+        }
+        save(); return { ok: true, row };
+    }
+
+    function toggleSalesSetup(type, id) {
+        const row = state.salesSetup?.[type]?.find(x => x.id === id);
+        if (!row) return null;
+        row.status = row.status === 'Inactive' ? 'Active' : 'Inactive';
         save(); return row;
     }
 
@@ -852,7 +923,7 @@
         get state() { return state; },
         get storageAvailable() { return storageAvailable; },
         demoState: clone(demoState), money, save, reset, addInquiry, updateInquiry, addSelection, updateSelection, recordSelectionDecision, validateSelection,
-        addComponent, updateCostLine, approveCosting, submitApprovalRequest, acknowledgeApproval, applyApprovalDecision, addRate, updateRate, selectRate, quoteRef, findQuote, updateQuote, createQuoteRevision, markQuoteSent, acceptQuote,
+        addComponent, updateCostLine, approveCosting, submitApprovalRequest, acknowledgeApproval, applyApprovalDecision, addRate, updateRate, reviseRate, selectRate, upsertSalesSetup, toggleSalesSetup, quoteRef, findQuote, updateQuote, createQuoteRevision, markQuoteSent, acceptQuote,
         manualCatalog, upsertCatalogItems, setCatalogItemStatus, manualLinkedItems, addManualQuoteItem, updateManualQuoteLine, removeManualQuoteLine, updateManualQuotation, resetManualQuotation, manualQuoteLineTotal, manualQuoteTotals,
         prepareSelectionPricing, updateSelectionPricingLine, applySelectionPricingRate, updateSelectionPricing, selectionPricingTotals, selectionPricingCandidates,
         tenderPackageTotals, updateTenderField, selectTenderTemplate, addTenderDocuments, moveTenderDocument, removeTenderDocument, updateTenderCompression, buildTenderPackage, resetTenderWorkspace

@@ -156,6 +156,16 @@ Each vendor response should retain:
 
 Sales can maintain this pre-sale rate evidence before a Procurement module exists. It is not a purchase order and does not receive stock.
 
+Vendor rate register clarification (2026-09-19): Sales saves reusable vendor/item rates with category, specification, unit, currency, rate date, validity, tax/freight treatment, availability/lead time and evidence. A rate remains available as a BOQ reference while current. When staff checks the market again, the updated value is saved as a new revision and the old dated rate is retained as superseded history rather than overwritten. Pending enquiries and expired rates remain visible for follow-up or revalidation.
+
+The separate Sales Master Setup maintains the controlled dropdown values used during rate entry:
+
+- item categories;
+- units of measure with name and symbol;
+- Sales vendor directory with contact, city and supplied categories.
+
+Records can be edited or disabled. Disabled master records remain visible on historical transactions but are omitted from new vendor-rate selection.
+
 ### Internal costing and commercial approval
 
 The internal worksheet should separate:
@@ -330,11 +340,12 @@ Fan, ventilation, wire and other equipment categories remain open. Staff must co
 1. Dashboard
 2. Inquiries & Tenders
 3. Technical Selection Imports
-4. BOQ & Costing
+4. BOQ Rate Filling
 5. Product Catalogue & Data Import
 6. Quotation Builder
-7. Vendor Rate Enquiries
-8. Quotations & Follow-ups
+7. Vendor Rate Register
+8. Sales Master Setup (categories, units and vendors)
+9. Quotations & Follow-ups
 
 Product/rate books, clients, vendor contacts, commercial clauses and approval rules belong in settings/master data rather than additional large operational pages.
 
