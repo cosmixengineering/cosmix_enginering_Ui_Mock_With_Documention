@@ -94,7 +94,7 @@ const renderLayout = (activePage) => {
             <nav class="space-y-1">
                 ${createNavLink(p + 'accounts/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
                 ${createNavLink(p + 'accounts/invoices.html', 'Invoices & Billing', 'fas fa-file-invoice-dollar', activePage === 'invoices', { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Tax' })}
-                ${createNavLink(p + 'accounts/purchases.html', 'Supply & Expenses', 'fas fa-shopping-cart', activePage === 'purchases', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '3 Slips' })}
+                ${createNavLink(p + 'accounts/purchases.html', 'Supply Expenses', 'fas fa-shopping-cart', activePage === 'purchases', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '3 Slips' })}
                 ${createNavLink(p + 'accounts/payroll.html', 'Payroll Ledger', 'fas fa-money-check-alt', activePage === 'payroll', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Sep 26' })}
                 ${createNavLink(p + 'accounts/attendance.html', 'Attendance & Roster', 'fas fa-user-clock', activePage === 'attendance', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Audit' })}
                 ${createNavLink(p + 'accounts/workers.html', 'Worker Profiles', 'fas fa-id-badge', activePage === 'workers' || activePage === 'employee')}
@@ -310,7 +310,7 @@ const renderLayout = (activePage) => {
                 <div class="relative dropdown">
                     <button class="dropdown-toggle text-gray-400 hover:text-[#242b5f] relative p-1.5 rounded-md hover:bg-gray-50 transition focus:outline-none" onclick="toggleDropdown(this, event)" title="Notifications">
                         <i class="fas fa-bell text-[13px]"></i>
-                        <span class="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full border border-white"></span>
+                        <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white shadow-sm border border-white">3</span>
                     </button>
                     <!-- Notifications Dropdown -->
                     <div class="dropdown-menu absolute right-0 top-9 w-72 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
@@ -409,28 +409,7 @@ const renderLayout = (activePage) => {
                       <button class="hover:text-emerald-600 transition flex items-center gap-1.5 font-semibold" onclick="if(!document.fullscreenElement){document.documentElement.requestFullscreen();}else{document.exitFullscreen();}"><i class="fas fa-expand text-emerald-500"></i> Fullscreen Mode</button>
                       <button class="hover:text-purple-600 transition flex items-center gap-1.5 font-semibold" onclick="openModal('Keyboard Shortcuts', '<ul class=\'space-y-3 text-sm\'><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Ctrl + P</kbd> Print Current Page</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>F11</kbd> Toggle Fullscreen</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Esc</kbd> Close active popups</li></ul>', null)"><i class="fas fa-keyboard text-purple-500"></i> Shortcuts</button>
                 </div>
-                <div class="flex gap-2 items-center">
-                    ${currentDeptId === 'accounts' || currentDeptId === 'finance' ? `
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Bank Stmt</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Ledger CSV</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
-                    ` : currentDeptId === 'warehouse' || currentDeptId === 'inventory' ? `
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import GRN</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Stock Excel</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Stock</button>
-                    ` : currentDeptId === 'sales' ? `
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Pipeline PDF</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Details</button>
-                    ` : currentDeptId === 'hr' ? `
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-import"></i> Import Biometric</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Register</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Print Records</button>
-                    ` : `
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-export"></i> Export Data</button>
-                        <button class="bg-gray-900 text-white hover:bg-black px-5 py-2 rounded transition flex items-center gap-1.5 shadow-sm" onclick="window.print()"><i class="fas fa-print"></i> Quick Print</button>
-                    `}
                 </div>
-            </div>
         </div>
     `;
 

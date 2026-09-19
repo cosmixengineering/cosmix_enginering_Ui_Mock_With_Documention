@@ -90,27 +90,27 @@
                             </div>
 
                             <div class="flex flex-wrap items-center gap-2">
-                                <div class="flex items-center rounded-md border border-gray-200 bg-gray-50 p-0.5 text-[10px] font-semibold">
-                                    <span class="flex items-center gap-1.5 rounded bg-white px-2.5 py-1.5 text-[#242b5f] shadow-sm">
-                                        <i class="fas fa-file-invoice"></i> Client Billing
-                                    </span>
-                                    <a href="purchases.html" class="flex items-center gap-1.5 rounded px-2.5 py-1.5 text-gray-500 hover:bg-white hover:text-gray-800">
-                                        <i class="fas fa-receipt"></i> Supply Expenses
-                                    </a>
-                                </div>
-                                <button onclick="exportToExcel('Cosmix_Full_Invoice_Register')" class="flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-gray-600 hover:bg-gray-50">
-                                    <i class="fas fa-file-export"></i> Export
-                                </button>
-                                <button onclick="showCreateInvoiceForm()" class="flex items-center gap-1.5 rounded-md bg-[#242b5f] px-3 py-1.5 text-[10px] font-semibold text-white hover:bg-[#303978]">
-                                    <i class="fas fa-plus"></i> New invoice / IPC
-                                </button>
-                            </div>
+    <div class="relative group">
+        <button class="flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold text-gray-600 hover:bg-gray-50 shadow-sm transition">
+            <i class="fas fa-file-export"></i> Export <i class="fas fa-chevron-down ml-1 text-gray-400"></i>
+        </button>
+        <div class="absolute right-0 top-full mt-1 w-36 bg-white shadow-lg border border-gray-100 rounded-md py-1 hidden group-hover:block z-50">
+            <a href="#" class="block px-4 py-2 text-[10px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#242b5f]">PDF Invoice</a>
+            <a href="#" class="block px-4 py-2 text-[10px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#242b5f]">Excel / CSV</a>
+            <a href="#" class="block px-4 py-2 text-[10px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#242b5f]">Ledger Extract</a>
+            <a href="#" class="block px-4 py-2 text-[10px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#242b5f]">Tax Report</a>
+        </div>
+    </div>
+    <button onclick="showCreateInvoiceForm()" class="flex items-center gap-1.5 rounded-md bg-[#242b5f] px-4 py-1.5 text-[11px] font-semibold text-white hover:bg-[#303978] shadow-sm transition">
+        <i class="fas fa-plus"></i> New invoice / IPC
+    </button>
+</div>
                         </div>
                     </section>
 
                     <!-- Financial summary -->
                     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                        <div class="finance-kpi">
+                        <div class="finance-kpi cursor-pointer hover:shadow-md hover:ring-1 hover:ring-indigo-300 transition-all" onclick="filterInvoicesTable()">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Total billed · YTD</p>
@@ -120,7 +120,7 @@
                             </div>
                             <p class="mt-2 border-t border-gray-100 pt-1.5 text-[9px] text-gray-500"><span id="stat-ipc-count">24</span> project billing records</p>
                         </div>
-                        <div class="finance-kpi">
+                        <div class="finance-kpi cursor-pointer hover:shadow-md hover:ring-1 hover:ring-indigo-300 transition-all" onclick="filterInvoicesTable()">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Realized / cleared</p>
@@ -130,7 +130,7 @@
                             </div>
                             <p class="mt-2 border-t border-gray-100 pt-1.5 text-[9px] text-gray-500">Received through company bank accounts</p>
                         </div>
-                        <div class="finance-kpi">
+                        <div class="finance-kpi cursor-pointer hover:shadow-md hover:ring-1 hover:ring-indigo-300 transition-all" onclick="filterInvoicesTable()">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Outstanding receivables</p>
@@ -140,7 +140,7 @@
                             </div>
                             <p class="mt-2 border-t border-gray-100 pt-1.5 text-[9px] text-gray-500">8 IPCs under consultant review</p>
                         </div>
-                        <div class="finance-kpi">
+                        <div class="finance-kpi cursor-pointer hover:shadow-md hover:ring-1 hover:ring-indigo-300 transition-all" onclick="filterInvoicesTable()">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="text-[9px] font-semibold uppercase tracking-wider text-gray-500">Retention held · 5%</p>
@@ -163,21 +163,35 @@
                         </div>
 
                         <!-- Search and Client Filter -->
-                        <div class="flex items-center gap-2">
-                            <div class="relative">
-                                <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
-                                <input id="invoice-search" type="text" oninput="filterInvoicesTable()" placeholder="Search invoice, client or site" class="bg-gray-50 border border-gray-200 text-[10px] rounded-md pl-7 pr-3 py-1.5 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#242b5f] w-56">
-                            </div>
-                            <select id="client-select-filter" onchange="filterInvoicesTable()" class="bg-gray-50 border border-gray-200 text-[10px] rounded-md px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#242b5f]">
-                                <option value="">All Clients</option>
-                                <option value="Lucky Landmark">Lucky Landmark (Pvt) Ltd</option>
-                                <option value="Packages Real Estate">Packages Real Estate Ltd</option>
-                                <option value="Engro Fertilizers">Engro Fertilizers Complex</option>
-                                <option value="Lucky Cement">Lucky Cement Industrial Plant</option>
-                                <option value="DHA City">DHA City Sector 3</option>
-                                <option value="Bahria Town">Bahria Town Civic Center</option>
-                            </select>
-                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+    <div class="relative">
+        <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+        <input id="invoice-search" type="text" oninput="filterInvoicesTable()" placeholder="Search invoice, client or site" class="bg-white border border-gray-200 text-[10px] rounded-md pl-7 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#242b5f] w-48 shadow-sm">
+    </div>
+    <select id="client-select-filter" onchange="filterInvoicesTable()" class="bg-white border border-gray-200 text-[10px] rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#242b5f] shadow-sm">
+        <option value="">Project / Client</option>
+        <option value="Lucky Landmark">Lucky Landmark (Pvt) Ltd</option>
+        <option value="Packages Real Estate">Packages Real Estate Ltd</option>
+        <option value="Engro Fertilizers">Engro Fertilizers Complex</option>
+        <option value="Lucky Cement">Lucky Cement</option>
+        <option value="DHA City">DHA City</option>
+        <option value="Bahria Town">Bahria Town</option>
+    </select>
+    <select class="bg-white border border-gray-200 text-[10px] rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#242b5f] shadow-sm">
+        <option value="">All Statuses</option>
+        <option value="Paid">Paid</option>
+        <option value="Pending">Pending</option>
+        <option value="Consultant">Consultant Review</option>
+    </select>
+    <select class="bg-white border border-gray-200 text-[10px] rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#242b5f] shadow-sm">
+        <option value="">Tax Authority</option>
+        <option value="SRB">SRB</option>
+        <option value="PRA">PRA</option>
+        <option value="KPRA">KPRA</option>
+        <option value="FBR">FBR</option>
+    </select>
+    <input type="month" class="bg-white border border-gray-200 text-[10px] rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#242b5f] shadow-sm">
+</div>
                     </section>
 
                     <!-- Master Invoices & IPCs Data Table -->
@@ -904,7 +918,7 @@
             }
 
             tbody.innerHTML = filtered.map(inv => `
-                <tr class="hover:bg-blue-50/30 transition group">
+                <tr class="hover:bg-blue-50/50 transition group cursor-pointer" onclick="viewInvoice('${inv.id}')">
                     <td class="font-mono font-bold text-[#242b5f] whitespace-nowrap">
                         <div class="flex items-center gap-1.5">
                             <i class="fas fa-file-invoice text-indigo-500 text-xs"></i>
