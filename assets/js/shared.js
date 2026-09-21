@@ -127,6 +127,7 @@ const renderLayout = (activePage) => {
                         ${createNavLink(p + 'sales/rates.html', 'Vendor Prices', 'fas fa-tags', activePage === 'rates', { bg: 'bg-rose-50 border border-rose-200', text: 'text-rose-700', label: '2 Due' })}
                         ${createNavLink(p + 'sales/tender-documents.html', 'Tender Files', 'fas fa-file-pdf', activePage === 'tender-documents')}
                         ${createNavLink(p + 'sales/pdf-editor.html', 'Edit PDF', 'fas fa-pen-to-square', activePage === 'pdf-editor')}
+                        ${createNavLink(p + 'sales/pdf-merge.html', 'Merge PDFs', 'fas fa-object-group', activePage === 'pdf-merge')}
                     </div>
                 </details>
                 <details class="sales-nav-group" ${['master-data','settings','workflow'].includes(activePage) ? 'open' : ''}>
