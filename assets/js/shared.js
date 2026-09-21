@@ -423,13 +423,17 @@ const renderLayout = (activePage) => {
             ${headerHTML}
             <main id="main-content" class="flex-1 overflow-y-auto p-4 lg:p-5 opacity-0 transition-opacity duration-500"></main>
             <!-- Software Status / Action Footer -->
-            <div class="bg-white text-gray-700 text-xs font-semibold py-3 px-6 flex justify-between items-center z-40 border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-                <div class="flex gap-5">
-                    <button class="hover:text-blue-600 transition flex items-center gap-1.5 font-semibold" onclick="location.reload()"><i class="fas fa-sync-alt text-blue-500"></i> Refresh View</button>
-                      <button class="hover:text-emerald-600 transition flex items-center gap-1.5 font-semibold" onclick="if(!document.fullscreenElement){document.documentElement.requestFullscreen();}else{document.exitFullscreen();}"><i class="fas fa-expand text-emerald-500"></i> Fullscreen Mode</button>
-                      <button class="hover:text-blue-600 transition flex items-center gap-1.5 font-semibold" onclick="openModal('Keyboard Shortcuts', '<ul class=\'space-y-3 text-sm\'><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Ctrl + P</kbd> Print Current Page</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>F11</kbd> Toggle Fullscreen</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Esc</kbd> Close active popups</li></ul>', null)"><i class="fas fa-keyboard text-blue-500"></i> Shortcuts</button>
+            <div class="bg-white text-gray-800 text-sm font-bold py-5 px-6 flex flex-wrap justify-between items-center z-40 border-t-2 border-gray-200 shadow-[0_-4px_15px_rgba(0,0,0,0.08)]">
+                <div class="flex gap-4 items-center flex-wrap">
+                    <button class="hover:text-blue-700 transition flex items-center gap-2 font-bold bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 shadow-sm" onclick="location.reload()"><i class="fas fa-sync-alt text-blue-600"></i> Refresh View</button>
+                    <button class="hover:text-emerald-700 transition flex items-center gap-2 font-bold bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 shadow-sm" onclick="if(!document.fullscreenElement){document.documentElement.requestFullscreen();}else{document.exitFullscreen();}"><i class="fas fa-expand text-emerald-600"></i> Fullscreen Mode</button>
+                    <button class="hover:text-amber-700 transition flex items-center gap-2 font-bold bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 shadow-sm" onclick="window.print()"><i class="fas fa-print text-amber-600"></i> Print Document</button>
                 </div>
+                <div class="flex gap-4 items-center flex-wrap mt-3 sm:mt-0">
+                    <button class="hover:text-indigo-700 transition flex items-center gap-2 font-bold bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 shadow-sm" onclick="openModal('Keyboard Shortcuts', '<ul class=\'space-y-3 text-sm\'><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Ctrl + P</kbd> Print Current Page</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>F11</kbd> Toggle Fullscreen</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Esc</kbd> Close active popups</li></ul>', null)"><i class="fas fa-keyboard text-indigo-600"></i> Shortcuts</button>
+                    <button class="hover:text-rose-700 transition flex items-center gap-2 font-bold bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 shadow-sm" onclick="openModal('IT Support', '<div class=\'p-3 text-sm text-gray-700\'>Please email support@cosmixengineering.com for IT assistance.</div>', null)"><i class="fas fa-headset text-rose-600"></i> IT Support</button>
                 </div>
+            </div>
         </div>
     `;
 
