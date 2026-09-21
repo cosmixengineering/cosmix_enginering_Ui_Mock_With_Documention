@@ -31,7 +31,7 @@
                         <div>
                             <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Active Salary Rules</p>
                             <h4 class="text-lg font-bold text-gray-800 mt-0.5" id="stat-active-rules">11 <span class="text-[10px] text-green-600 font-normal">Active</span></h4>
-                            <p class="text-[9px] text-green-600 font-semibold"><i class="fas fa-check-circle mr-0.5"></i> Auto-synced with Payroll</p>
+                            
                         </div>
                         <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
                             <i class="fas fa-sliders-h"></i>
@@ -108,19 +108,19 @@
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
                     <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                         <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
-                            <i class="fas fa-sliders-h text-[#242b5f]"></i> Master Salary Components, Deductions & Formula Matrix
+                            <i class="fas fa-sliders-h text-[#242b5f]"></i> Salary Components & Rules
                         </h3>
-                        <span class="text-[10px] text-gray-400 font-medium">Auto-applied in Payroll Engine calculations</span>
+                        
                     </div>
 
                     <div class="overflow-x-auto min-h-[350px]">
                         <table class="w-full text-left text-xs whitespace-nowrap">
                             <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
                                 <tr>
-                                    <th class="px-4 py-2.5 font-bold">Component / Rule Name</th>
+                                    <th class="px-4 py-2.5 font-bold">Component</th>
                                     <th class="px-4 py-2.5 font-bold">Category</th>
-                                    <th class="px-4 py-2.5 font-bold">Calculation Type</th>
-                                    <th class="px-4 py-2.5 font-bold">Rate / Formula Value</th>
+                                    <th class="px-4 py-2.5 font-bold">Type</th>
+                                    <th class="px-4 py-2.5 font-bold">Value / Rate</th>
                                     <th class="px-4 py-2.5 font-bold">Applicability</th>
                                     <th class="px-4 py-2.5 font-bold text-center">Auto-Apply</th>
                                     <th class="px-4 py-2.5 font-bold text-center">Status</th>
@@ -133,16 +133,14 @@
                                 <tr class="hover:bg-blue-50/20 transition group">
                                     <td class="px-4 py-2.5">
                                         <div class="font-bold text-gray-800">EOBI Employee Contribution</div>
-                                        <div class="text-[9px] text-gray-400">Employees' Old-Age Benefits Institution (Statutory)</div>
-                                    </td>
+                                        </td>
                                     <td class="px-4 py-2.5">
                                         <span class="bg-red-50 text-red-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-red-100">Statutory Deduction</span>
                                     </td>
                                     <td class="px-4 py-2.5 text-gray-600 font-medium">Fixed Monthly PKR</td>
                                     <td class="px-4 py-2.5">
-                                        <div class="font-bold text-red-600 font-mono text-[11px]">-Rs. 580 / worker</div>
-                                        <div class="text-[9px] text-gray-400">Employer contributes Rs. 1,600 (5%)</div>
-                                    </td>
+                                        <div class="font-bold text-red-600 font-mono text-[11px]">Rs. 580 (Fixed)</div>
+                                        </td>
                                     <td class="px-4 py-2.5 text-gray-700 font-medium">All 150 Workers</td>
                                     <td class="px-4 py-2.5 text-center">
                                         <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
@@ -159,16 +157,14 @@
                                 <tr class="hover:bg-blue-50/20 transition group">
                                     <td class="px-4 py-2.5">
                                         <div class="font-bold text-gray-800">FBR Income Tax (Section 149 WHT)</div>
-                                        <div class="text-[9px] text-gray-400">Salary Tax Withholding Slabs (FY 2026-27)</div>
-                                    </td>
+                                        </td>
                                     <td class="px-4 py-2.5">
                                         <span class="bg-red-50 text-red-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-red-100">Statutory Deduction</span>
                                     </td>
                                     <td class="px-4 py-2.5 text-gray-600 font-medium">Progressive Slabs</td>
                                     <td class="px-4 py-2.5">
-                                        <div class="font-bold text-red-600 font-mono text-[11px]">Slab 1 (0%), Slab 2 (5%), Slab 3 (10%)</div>
-                                        <div class="text-[9px] text-gray-400">Exempt up to Rs. 600,000 / year</div>
-                                    </td>
+                                        <div class="font-bold text-red-600 font-mono text-[11px]">As per FBR Slabs</div>
+                                        </td>
                                     <td class="px-4 py-2.5 text-gray-700 font-medium">Taxable Salaried Staff</td>
                                     <td class="px-4 py-2.5 text-center">
                                         <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
@@ -185,16 +181,14 @@
                                 <tr class="hover:bg-blue-50/20 transition group">
                                     <td class="px-4 py-2.5">
                                         <div class="font-bold text-gray-800">Late Attendance Deduction Policy</div>
-                                        <div class="text-[9px] text-gray-400">15 min grace window; penalty on repeated lates</div>
-                                    </td>
+                                        </td>
                                     <td class="px-4 py-2.5">
                                         <span class="bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-orange-100">Attendance Penalty</span>
                                     </td>
                                     <td class="px-4 py-2.5 text-gray-600 font-medium">Frequency Threshold</td>
                                     <td class="px-4 py-2.5">
-                                        <div class="font-bold text-orange-700 font-mono text-[11px]">3 Lates = 0.5 Day Cut | 5 Lates = 1 Day</div>
-                                        <div class="text-[9px] text-gray-400">Grace period: 08:00 AM - 08:15 AM</div>
-                                    </td>
+                                        <div class="font-bold text-orange-700 font-mono text-[11px]">0.5 Day per 3 Lates</div>
+                                        </td>
                                     <td class="px-4 py-2.5 text-gray-700 font-medium">All Field Techs & HQ</td>
                                     <td class="px-4 py-2.5 text-center">
                                         <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
@@ -211,16 +205,14 @@
                                 <tr class="hover:bg-blue-50/20 transition group">
                                     <td class="px-4 py-2.5">
                                         <div class="font-bold text-gray-800">Unapproved Absent Deduction</div>
-                                        <div class="text-[9px] text-gray-400">Absence without leave voucher approval</div>
-                                    </td>
+                                        </td>
                                     <td class="px-4 py-2.5">
                                         <span class="bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-orange-100">Attendance Penalty</span>
                                     </td>
                                     <td class="px-4 py-2.5 text-gray-600 font-medium">Day Salary Multiplier</td>
                                     <td class="px-4 py-2.5">
-                                        <div class="font-bold text-red-600 font-mono text-[11px]">-1.0 Day Gross Salary per day absent</div>
-                                        <div class="text-[9px] text-gray-400">Calculated as: (Gross Salary / 30)</div>
-                                    </td>
+                                        <div class="font-bold text-red-600 font-mono text-[11px]">1.0 Day per Absence</div>
+                                        </td>
                                     <td class="px-4 py-2.5 text-gray-700 font-medium">All Employees</td>
                                     <td class="px-4 py-2.5 text-center">
                                         <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
@@ -237,16 +229,14 @@
                                 <tr class="hover:bg-blue-50/20 transition group">
                                     <td class="px-4 py-2.5">
                                         <div class="font-bold text-gray-800">House Rent Allowance (HRA)</div>
-                                        <div class="text-[9px] text-gray-400">Standard monthly accommodation allowance</div>
-                                    </td>
+                                        </td>
                                     <td class="px-4 py-2.5">
                                         <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-100">Earning Allowance</span>
                                     </td>
                                     <td class="px-4 py-2.5 text-gray-600 font-medium">% of Basic Salary</td>
                                     <td class="px-4 py-2.5">
-                                        <div class="font-bold text-green-700 font-mono text-[11px]">+40% of Base Salary</div>
-                                        <div class="text-[9px] text-gray-400">E.g., Rs. 34,000 on Rs. 85,000 base</div>
-                                    </td>
+                                        <div class="font-bold text-green-700 font-mono text-[11px]">40% of Basic</div>
+                                        </td>
                                     <td class="px-4 py-2.5 text-gray-700 font-medium">Permanent & Site Staff</td>
                                     <td class="px-4 py-2.5 text-center">
                                         <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
@@ -263,16 +253,14 @@
                                 <tr class="hover:bg-blue-50/20 transition group">
                                     <td class="px-4 py-2.5">
                                         <div class="font-bold text-gray-800">Medical Allowance</div>
-                                        <div class="text-[9px] text-gray-400">Outpatient & general health allowance</div>
-                                    </td>
+                                        </td>
                                     <td class="px-4 py-2.5">
                                         <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-100">Earning Allowance</span>
                                     </td>
                                     <td class="px-4 py-2.5 text-gray-600 font-medium">% of Basic Salary</td>
                                     <td class="px-4 py-2.5">
-                                        <div class="font-bold text-green-700 font-mono text-[11px]">+10% of Base Salary</div>
-                                        <div class="text-[9px] text-gray-400">Tax exempt up to 10% under FBR law</div>
-                                    </td>
+                                        <div class="font-bold text-green-700 font-mono text-[11px]">10% of Basic</div>
+                                        </td>
                                     <td class="px-4 py-2.5 text-gray-700 font-medium">All Employees</td>
                                     <td class="px-4 py-2.5 text-center">
                                         <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
@@ -289,16 +277,14 @@
                                 <tr class="hover:bg-blue-50/20 transition group">
                                     <td class="px-4 py-2.5">
                                         <div class="font-bold text-gray-800">Overtime (OT) Pay Formula</div>
-                                        <div class="text-[9px] text-gray-400">Additional hours worked beyond scheduled 8-hour shift</div>
-                                    </td>
+                                        </td>
                                     <td class="px-4 py-2.5">
                                         <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-100">Earning Allowance</span>
                                     </td>
                                     <td class="px-4 py-2.5 text-gray-600 font-medium">Hourly Multiplier</td>
                                     <td class="px-4 py-2.5">
-                                        <div class="font-bold text-blue-700 font-mono text-[11px]">1.5x Normal Days | 2.0x Sundays/Holidays</div>
-                                        <div class="text-[9px] text-gray-400">Rate = (Base Salary / 208) * Multiplier</div>
-                                    </td>
+                                        <div class="font-bold text-blue-700 font-mono text-[11px]">1.5x / 2.0x Hourly</div>
+                                        </td>
                                     <td class="px-4 py-2.5 text-gray-700 font-medium">Field Technicians & Supervisors</td>
                                     <td class="px-4 py-2.5 text-center">
                                         <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
@@ -315,16 +301,14 @@
                                 <tr class="hover:bg-blue-50/20 transition group">
                                     <td class="px-4 py-2.5">
                                         <div class="font-bold text-gray-800">Remote Site & Hardship Allowance</div>
-                                        <div class="text-[9px] text-gray-400">Disbursed to engineers on industrial & outstation sites</div>
-                                    </td>
+                                        </td>
                                     <td class="px-4 py-2.5">
                                         <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-green-100">Earning Allowance</span>
                                     </td>
                                     <td class="px-4 py-2.5 text-gray-600 font-medium">Fixed Monthly PKR</td>
                                     <td class="px-4 py-2.5">
-                                        <div class="font-bold text-green-700 font-mono text-[11px]">+Rs. 5,000 - 15,000 / month</div>
-                                        <div class="text-[9px] text-gray-400">Depends on site tier & distance from HQ</div>
-                                    </td>
+                                        <div class="font-bold text-green-700 font-mono text-[11px]">Rs. 5,000 - 15,000</div>
+                                        </td>
                                     <td class="px-4 py-2.5 text-gray-700 font-medium">Deployed Field Engineers</td>
                                     <td class="px-4 py-2.5 text-center">
                                         <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
@@ -341,16 +325,14 @@
                                 <tr class="hover:bg-blue-50/20 transition group">
                                     <td class="px-4 py-2.5">
                                         <div class="font-bold text-gray-800">Advance Salary Borrowing Cap</div>
-                                        <div class="text-[9px] text-gray-400">Maximum loan permissible against monthly pay</div>
-                                    </td>
+                                        </td>
                                     <td class="px-4 py-2.5">
                                         <span class="bg-blue-50 text-[#242b5f] px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Loan Policy</span>
                                     </td>
                                     <td class="px-4 py-2.5 text-gray-600 font-medium">% Cap of Base Salary</td>
                                     <td class="px-4 py-2.5">
-                                        <div class="font-bold text-[#242b5f] font-mono text-[11px]">Max 50% of Base Salary (1-5 EMIs)</div>
-                                        <div class="text-[9px] text-gray-400">Special approval needed for > 50% cap</div>
-                                    </td>
+                                        <div class="font-bold text-[#242b5f] font-mono text-[11px]">Max 50% of Basic</div>
+                                        </td>
                                     <td class="px-4 py-2.5 text-gray-700 font-medium">Employees with > 6 months tenure</td>
                                     <td class="px-4 py-2.5 text-center">
                                         <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
@@ -507,16 +489,14 @@
             newRow.innerHTML = `
                 <td class="px-4 py-2.5">
                     <div class="font-bold text-gray-800">${name}</div>
-                    <div class="text-[9px] text-gray-400">Newly configured custom company rule</div>
-                </td>
+                    </td>
                 <td class="px-4 py-2.5">
                     <span class="${catBadgeClass} px-2 py-0.5 rounded text-[9.5px] font-bold border">${cat}</span>
                 </td>
                 <td class="px-4 py-2.5 text-gray-600 font-medium">${method}</td>
                 <td class="px-4 py-2.5">
                     <div class="font-bold text-[#242b5f] font-mono text-[11px]">${val}</div>
-                    <div class="text-[9px] text-gray-400">Configured by HR Admin</div>
-                </td>
+                    </td>
                 <td class="px-4 py-2.5 text-gray-700 font-medium">${app}</td>
                 <td class="px-4 py-2.5 text-center">
                     <span class="text-green-600 text-sm font-bold"><i class="fas fa-toggle-on text-base text-[#242b5f]"></i></span>
