@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Health & Life Insurance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; }
+        body { font-family: 'Inter', sans-serif; }
+        table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('insurance');
+
+        const pageHTML = `
+            <div class="space-y-4">
+                
+                <!-- Metric Header Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Insured Staff</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">145 <span class="text-[10px] text-green-600 font-normal">Active</span></h4>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-red-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-red-600 font-bold uppercase tracking-wider">Claims Processing</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">3 Pending</h4>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-file-medical"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Premium Paid YTD</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">Rs. 450K</h4>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-money-check-alt"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-green-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-green-700 font-bold uppercase tracking-wider">Corporate Plan</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">Jubilee Life</h4>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-700 flex items-center justify-center text-sm">
+                            <i class="fas fa-building"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar: Search, Category Filter, Export, + Add Rule -->
+                <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2 flex-1 max-w-md">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input type="text" oninput="filterTableRows(this, 'insurance-table-body')" placeholder="Search employee, policy number..." class="w-full text-xs border border-gray-200 rounded-md pl-7 pr-3 py-1 focus:outline-none focus:border-[#242b5f] bg-white">
+                        </div>
+                        <select onchange="filterTableCategory(this, 'insurance-table-body')" class="border border-gray-200 rounded-md px-2 py-1 text-[11px] font-medium text-gray-600 focus:outline-none focus:border-[#242b5f] bg-white whitespace-nowrap hidden sm:block">
+                            <option value="">All Plans</option>
+                            <option value="Health/Medical">Health/Medical</option>
+                            <option value="Life Insurance">Life Insurance</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button class="flex-1 sm:flex-none border border-green-600 text-green-700 hover:bg-green-50 hover:text-green-800 px-3 py-1 rounded-md text-[10.5px] font-bold transition flex items-center justify-center gap-1.5 bg-white"><i class="fas fa-file-excel text-green-600"></i> Excel</button>
+                        <button class="flex-1 sm:flex-none border border-red-600 text-red-700 hover:bg-red-50 hover:text-red-800 px-3 py-1 rounded-md text-[10.5px] font-bold transition flex items-center justify-center gap-1.5 bg-white"><i class="fas fa-file-pdf text-red-600"></i> PDF Roster</button>
+                        <div class="w-px h-5 bg-gray-200 hidden sm:block mx-1"></div>
+                        <button onclick="alert('Open Enrolment Form')" class="flex-1 sm:flex-none bg-[#242b5f] hover:bg-[#1a1f4b] text-white px-3 py-1 rounded-md text-[11px] font-bold transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap"><i class="fas fa-plus"></i> Enroll Employee</button>
+                    </div>
+                </div>
+
+                <!-- Insurance & Health Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-heartbeat text-[#242b5f]"></i> Employee Insurance & Health Plans
+                        </h3>
+                    </div>
+
+                    <div class="overflow-x-auto min-h-[350px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Employee</th>
+                                    <th class="px-4 py-2.5 font-bold">Plan Category</th>
+                                    <th class="px-4 py-2.5 font-bold">Policy Number</th>
+                                    <th class="px-4 py-2.5 font-bold">Dependents</th>
+                                    <th class="px-4 py-2.5 font-bold">Premium (Emp Share)</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="insurance-table-body" class="divide-y divide-gray-100 bg-white">
+                                <!-- Row 1 -->
+                                <tr class="hover:bg-blue-50/20 transition group" data-category="Health/Medical">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Farhan Malik</div>
+                                        <div class="text-[9px] text-gray-500">EMP-1048</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Health/Medical</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium font-mono">POL-JUB-09122</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Spouse + 2 Children</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-red-600 font-mono text-[11px]">Rs. 1,500/mo</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <div class="flex items-center justify-end gap-2 opacity-100">
+                                            <button title="View Policy" class="text-blue-500 hover:text-blue-700 text-sm px-1 transition"><i class="fas fa-file-contract"></i></button>
+                                            <button title="Submit Claim" class="text-amber-500 hover:text-amber-700 text-sm px-1 transition"><i class="fas fa-notes-medical"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 2 -->
+                                <tr class="hover:bg-blue-50/20 transition group" data-category="Life Insurance">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Babar Siddiqui</div>
+                                        <div class="text-[9px] text-gray-500">EMP-1049</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-purple-100">Life Insurance</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium font-mono">POL-STL-11400</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">None (Self)</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-red-600 font-mono text-[11px]">Rs. 500/mo</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <div class="flex items-center justify-end gap-2 opacity-100">
+                                            <button title="View Policy" class="text-blue-500 hover:text-blue-700 text-sm px-1 transition"><i class="fas fa-file-contract"></i></button>
+                                            <button title="Submit Claim" class="text-amber-500 hover:text-amber-700 text-sm px-1 transition"><i class="fas fa-notes-medical"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Row 3 -->
+                                <tr class="hover:bg-blue-50/20 transition group" data-category="Health/Medical">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Zainab Ali</div>
+                                        <div class="text-[9px] text-gray-500">EMP-1045</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Health/Medical</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-600 font-medium font-mono">POL-JUB-09255</td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">Spouse</td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-red-600 font-mono text-[11px]">Rs. 1,000/mo</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[10px] font-bold">Pending Approval</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <div class="flex items-center justify-end gap-2 opacity-100">
+                                            <button title="View Policy" class="text-blue-500 hover:text-blue-700 text-sm px-1 transition"><i class="fas fa-file-contract"></i></button>
+                                            <button title="Submit Claim" class="text-amber-500 hover:text-amber-700 text-sm px-1 transition"><i class="fas fa-notes-medical"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Wait for Layout to initialize then inject content
+        const observer = new MutationObserver((mutations) => {
+            const mainContent = document.getElementById('main-content');
+            if (mainContent) {
+                mainContent.innerHTML = pageHTML;
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // Simple filter functions
+        window.filterTableRows = function(input, tbodyId) {
+            const val = input.value.toLowerCase();
+            const rows = document.getElementById(tbodyId).getElementsByTagName('tr');
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(val) ? '' : 'none';
+            }
+        };
+
+        window.filterTableCategory = function(select, tbodyId) {
+            const val = select.value;
+            const rows = document.getElementById(tbodyId).getElementsByTagName('tr');
+            for (let row of rows) {
+                if (val === '') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = row.getAttribute('data-category') === val ? '' : 'none';
+                }
+            }
+        };
+
+    </script>
+</body>
+</html>

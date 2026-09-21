@@ -162,6 +162,7 @@ const renderLayout = (activePage) => {
                 ${createNavLink(p + 'hr/salary-rules.html', 'Deductions & Rules', 'fas fa-sliders-h', activePage === 'rules')}
                 ${createNavLink(p + 'hr/offboarding.html', 'Offboarding', 'fas fa-user-minus', activePage === 'offboarding')}
                 ${createNavLink(p + 'hr/assets.html', 'Assets & Custody', 'fas fa-tools', activePage === 'assets')}
+                ${createNavLink(p + 'hr/insurance.html', 'Health & Insurance', 'fas fa-heartbeat', activePage === 'insurance')}
                 ${createNavLink(p + 'hr/reports.html', 'Reports & Tax', 'fas fa-chart-bar', activePage === 'reports')}
                 ${createNavLink(p + 'hr/flowchart.html', 'HR Flowchart', 'fas fa-diagram-project', activePage === 'flowchart', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-[#242b5f]', label: 'Map' })}
                 <div class="pt-2 mt-2 border-t border-slate-100">
