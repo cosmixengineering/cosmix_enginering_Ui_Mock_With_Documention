@@ -120,7 +120,7 @@ const renderLayout = (activePage) => {
                 ${createNavLink(p + 'sales/approvals.html', 'Approvals Received', 'fas fa-stamp', activePage === 'approvals', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: salesDecisionCount ? `${salesDecisionCount} New` : 'Inbox' })}
                 ${createNavLink(p + 'sales/quotations.html', 'Quotations', 'fas fa-file-signature', activePage === 'quotations' || activePage === 'quotation-detail', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '4' })}
                 <details class="sales-nav-group" ${['catalog','quotation-builder','manual-quotation','rates','tender-documents','pdf-editor'].includes(activePage) ? 'open' : ''}>
-                    <summary><span><i class="fas fa-toolbox"></i> More sales tools</span><i class="fas fa-chevron-down"></i></summary>
+                    <summary><span><i class="fas fa-toolbox"></i> <span class="menu-text">More sales tools</span></span><i class="fas fa-chevron-down menu-text"></i></summary>
                     <div class="mt-1 space-y-1 border-l border-slate-200 pl-2">
                         ${createNavLink(p + 'sales/quotation-builder.html', 'Quotation Builder', 'fas fa-table-cells', activePage === 'quotation-builder' || activePage === 'manual-quotation')}
                         ${createNavLink(p + 'sales/catalog.html', 'Products & Prices', 'fas fa-database', activePage === 'catalog')}
@@ -131,7 +131,7 @@ const renderLayout = (activePage) => {
                     </div>
                 </details>
                 <details class="sales-nav-group" ${['master-data','settings','workflow'].includes(activePage) ? 'open' : ''}>
-                    <summary><span><i class="fas fa-gear"></i> Setup & help</span><i class="fas fa-chevron-down"></i></summary>
+                    <summary><span><i class="fas fa-gear"></i> <span class="menu-text">Setup & help</span></span><i class="fas fa-chevron-down menu-text"></i></summary>
                     <div class="mt-1 space-y-1 border-l border-slate-200 pl-2">
                         ${createNavLink(p + 'sales/master-data.html', 'Lists & Vendors', 'fas fa-list-check', activePage === 'master-data')}
                         ${createNavLink(p + 'sales/settings.html', 'Rate Book', 'fas fa-book', activePage === 'settings')}
