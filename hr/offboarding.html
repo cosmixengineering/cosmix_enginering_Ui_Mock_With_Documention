@@ -96,25 +96,25 @@
                     <div class="flex items-center gap-1">
                         <button onclick="switchOffboardingTab('pipeline')" id="tab-btn-pipeline" class="tab-btn active px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2">
                             <i class="fas fa-user-minus text-orange-500"></i>
-                            <span>1. Exit Pipeline & Clearances</span>
+                            <span>Exit Pipeline</span>
                             <span class="bg-orange-100 text-orange-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full" id="badge-pipeline-count">3</span>
                         </button>
                         
                         <button onclick="switchOffboardingTab('warnings')" id="tab-btn-warnings" class="tab-btn px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent">
                             <i class="fas fa-exclamation-triangle text-red-500"></i>
-                            <span>2. Disciplinary Warnings & Show-Cause</span>
+                            <span>Disciplinary Warnings</span>
                             <span class="bg-red-100 text-red-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">4</span>
                         </button>
 
                         <button onclick="switchOffboardingTab('settlements')" id="tab-btn-settlements" class="tab-btn px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent">
                             <i class="fas fa-calculator text-emerald-600"></i>
-                            <span>3. Full & Final (F&F) Settlements</span>
+                            <span>Final Settlements</span>
                             <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">14 Settled</span>
                         </button>
 
                         <button onclick="switchOffboardingTab('replacements')" id="tab-btn-replacements" class="tab-btn px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent">
                             <i class="fas fa-exchange-alt text-blue-600"></i>
-                            <span>4. Site Manpower Replacement</span>
+                            <span>Manpower Replacement</span>
                             <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">1 Open</span>
                         </button>
                     </div>
@@ -168,13 +168,13 @@
                                 </div>
                                 <div>
                                     <div class="flex items-center gap-2">
-                                        <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Incoming Resignations via Employee Mobile App</h4>
+                                        <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Pending Resignations</h4>
                                         <span id="badge-app-requests" class="bg-blue-100 text-blue-800 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full border border-blue-200 animate-pulse">2 Pending HR Review</span>
                                     </div>
-                                    <p class="text-[9.5px] text-gray-500">Submitted directly by field technicians & engineers from Cosmix Mobile Self-Service App</p>
+                                    
                                 </div>
                             </div>
-                            <span class="text-[10px] text-gray-400 font-medium"><i class="fas fa-check-circle text-emerald-500 mr-1"></i> Live Mobile Sync Active</span>
+                            
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="mobile-requests-container">
@@ -200,10 +200,10 @@
                                     </button>
                                     <div class="flex items-center gap-1.5">
                                         <button onclick="discussMobileResignation('EMP-1079', 'Babar Azam')" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-2 py-1 rounded text-[10px] font-semibold transition">
-                                            <i class="fas fa-comments text-blue-500 mr-1"></i> Retain Discussion
+                                            <i class="fas fa-comments text-blue-500 mr-1"></i> Hold
                                         </button>
                                         <button onclick="acceptMobileResignation('EMP-1079', 'Babar Azam')" class="bg-[#242b5f] hover:bg-[#1a2046] text-white px-2.5 py-1 rounded text-[10px] font-bold shadow-2xs transition flex items-center gap-1">
-                                            <i class="fas fa-paper-plane text-[9px]"></i> Forward to Boss
+                                            <i class="fas fa-paper-plane text-[9px]"></i> Forward
                                         </button>
                                     </div>
                                 </div>
@@ -231,10 +231,10 @@
                                     </button>
                                     <div class="flex items-center gap-1.5">
                                         <button onclick="discussMobileResignation('EMP-1078', 'Naveed Akhtar')" class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-2 py-1 rounded text-[10px] font-semibold transition">
-                                            <i class="fas fa-comments text-blue-500 mr-1"></i> Retain Discussion
+                                            <i class="fas fa-comments text-blue-500 mr-1"></i> Hold
                                         </button>
                                         <button onclick="acceptMobileResignation('EMP-1078', 'Naveed Akhtar')" class="bg-[#242b5f] hover:bg-[#1a2046] text-white px-2.5 py-1 rounded text-[10px] font-bold shadow-2xs transition flex items-center gap-1">
-                                            <i class="fas fa-paper-plane text-[9px]"></i> Forward to Boss
+                                            <i class="fas fa-paper-plane text-[9px]"></i> Forward
                                         </button>
                                     </div>
                                 </div>
@@ -1142,7 +1142,7 @@
             </div>
         `;
 
-        setPageContent('6. Offboarding, Clearances & Warnings', pageHTML);
+        setPageContent('Offboarding & Clearances', pageHTML);
 
         // ==============================================================
         // JAVASCRIPT WORKFLOW CONTROLLER
