@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Corporate Leases & Bank Finance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; }
+        body { font-family: 'Inter', sans-serif; }
+        table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+        .tab-btn.active {
+            color: #242b5f;
+            border-bottom: 2.5px solid #242b5f;
+            background-color: #ffffff;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        renderLayout('finance');
+
+        const pageHTML = `
+            <div class="space-y-4">
+                
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Active Bank Leases</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">14 <span class="text-[10px] text-gray-500 font-normal">Vehicles</span></h4>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#242b5f] flex items-center justify-center text-sm">
+                            <i class="fas fa-car-side"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Total Financed Value</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">Rs. 24.5M</h4>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-red-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-red-600 font-bold uppercase tracking-wider">Total Monthly EMI</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">Rs. 450,000</h4>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-green-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] text-green-700 font-bold uppercase tracking-wider">Assigned to Staff</p>
+                            <h4 class="text-lg font-bold text-gray-800 mt-0.5">12 <span class="text-[10px] text-green-600 font-normal">Employees</span></h4>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-700 flex items-center justify-center text-sm">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex border-b border-gray-200 bg-gray-50/50 pt-2 px-2 overflow-x-auto">
+                    <button onclick="switchTab('portfolio')" id="tab-btn-portfolio" class="tab-btn active px-4 py-2 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2">
+                        <i class="fas fa-landmark"></i> Bank Lease Portfolio
+                    </button>
+                    <button onclick="switchTab('assignments')" id="tab-btn-assignments" class="tab-btn px-4 py-2 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent">
+                        <i class="fas fa-users-cog"></i> Employee Assignments
+                    </button>
+                </div>
+
+                <!-- Action Toolbar -->
+                <div class="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2 flex-1 max-w-md">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input type="text" id="searchInput" oninput="filterTable()" placeholder="Search vehicle, bank, or employee..." class="w-full text-xs border border-gray-200 rounded-md pl-7 pr-3 py-1 focus:outline-none focus:border-[#242b5f] bg-white">
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button class="flex-1 sm:flex-none border border-green-600 text-green-700 hover:bg-green-50 hover:text-green-800 px-3 py-1 rounded-md text-[10.5px] font-bold transition flex items-center justify-center gap-1.5 bg-white"><i class="fas fa-file-excel text-green-600"></i> Excel</button>
+                        <button onclick="alert('Add New Item')" class="flex-1 sm:flex-none bg-[#242b5f] hover:bg-[#1a1f4b] text-white px-3 py-1 rounded-md text-[11px] font-bold transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap"><i class="fas fa-plus"></i> Add New Record</button>
+                    </div>
+                </div>
+
+                <!-- Tab Content 1: Portfolio -->
+                <div id="tab-portfolio" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="overflow-x-auto min-h-[350px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Asset Details</th>
+                                    <th class="px-4 py-2.5 font-bold">Financing Bank</th>
+                                    <th class="px-4 py-2.5 font-bold">Finance Term</th>
+                                    <th class="px-4 py-2.5 font-bold">Total Value</th>
+                                    <th class="px-4 py-2.5 font-bold">Monthly EMI</th>
+                                    <th class="px-4 py-2.5 font-bold text-center">Status</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white filter-body">
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Honda City 1.2L (2025)</div>
+                                        <div class="text-[9px] text-gray-500">Reg: KHI-7860</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Meezan Bank Ltd.</div>
+                                        <div class="text-[9px] text-gray-500">A/C: MZ-4491-CAR</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">48 Months <span class="text-gray-400 text-[10px]">(12 Paid)</span></td>
+                                    <td class="px-4 py-2.5 font-mono text-[11px] font-bold">Rs. 4,500,000</td>
+                                    <td class="px-4 py-2.5 text-red-600 font-mono text-[11px] font-bold">Rs. 85,000</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold">Active</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button class="text-blue-500 hover:text-blue-700 px-1"><i class="fas fa-eye"></i></button>
+                                        <button class="text-gray-500 hover:text-gray-700 px-1"><i class="fas fa-edit"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Honda CG-125 (2024)</div>
+                                        <div class="text-[9px] text-gray-500">Reg: LHR-9011</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Bank Alfalah</div>
+                                        <div class="text-[9px] text-gray-500">A/C: BA-102-BIKE</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">24 Months <span class="text-gray-400 text-[10px]">(24 Paid)</span></td>
+                                    <td class="px-4 py-2.5 font-mono text-[11px] font-bold">Rs. 250,000</td>
+                                    <td class="px-4 py-2.5 text-gray-400 font-mono text-[11px] font-bold line-through">Rs. 10,500</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px] font-bold border border-gray-200">Cleared</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button class="text-blue-500 hover:text-blue-700 px-1"><i class="fas fa-eye"></i></button>
+                                        <button class="text-gray-500 hover:text-gray-700 px-1"><i class="fas fa-edit"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab Content 2: Assignments -->
+                <div id="tab-assignments" class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hidden">
+                    <div class="overflow-x-auto min-h-[350px]">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[9px] uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-4 py-2.5 font-bold">Employee</th>
+                                    <th class="px-4 py-2.5 font-bold">Assigned Asset</th>
+                                    <th class="px-4 py-2.5 font-bold">Assignment Date</th>
+                                    <th class="px-4 py-2.5 font-bold">Company Policy</th>
+                                    <th class="px-4 py-2.5 font-bold">Salary Deduction</th>
+                                    <th class="px-4 py-2.5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white filter-body">
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Farhan Malik</div>
+                                        <div class="text-[9px] text-gray-500">EMP-1048 &bull; Snr Accountant</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Honda City 1.2L</div>
+                                        <div class="text-[9px] text-gray-500">Reg: KHI-7860</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">01-Jan-2026</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-blue-100">Executive Car Lease</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-700 font-mono text-[11px]">None (Fully Company Paid)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button class="text-blue-500 hover:text-blue-700 px-1"><i class="fas fa-exchange-alt"></i> Transfer</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/20 transition group">
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Ali Khan</div>
+                                        <div class="text-[9px] text-gray-500">EMP-1042 &bull; Site Engineer</div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-gray-800">Honda CG-125</div>
+                                        <div class="text-[9px] text-gray-500">Reg: LHR-9011</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-700 font-medium">15-Feb-2024</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-purple-100">Bike Ownership Scheme</span>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="font-bold text-red-600 font-mono text-[11px]">Rs. 5,250 (50% Share)</div>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <button class="text-blue-500 hover:text-blue-700 px-1"><i class="fas fa-exchange-alt"></i> Transfer</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const observer = new MutationObserver((mutations) => {
+            const mainContent = document.getElementById('main-content');
+            if (mainContent) {
+                mainContent.innerHTML = pageHTML;
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        window.switchTab = function(tabName) {
+            document.getElementById('tab-portfolio').classList.add('hidden');
+            document.getElementById('tab-assignments').classList.add('hidden');
+            document.getElementById('tab-btn-portfolio').className = 'tab-btn px-4 py-2 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent';
+            document.getElementById('tab-btn-assignments').className = 'tab-btn px-4 py-2 text-xs font-semibold text-gray-600 hover:text-[#242b5f] transition flex items-center gap-2 border-b-2 border-transparent';
+            
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            
+            const activeBtn = document.getElementById('tab-btn-' + tabName);
+            activeBtn.className = 'tab-btn active px-4 py-2 text-xs font-bold text-[#242b5f] transition flex items-center gap-2 border-b-[2.5px] border-[#242b5f] bg-white';
+        };
+
+        window.filterTable = function() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const activeTab = document.querySelector('#tab-portfolio.hidden') ? 'tab-assignments' : 'tab-portfolio';
+            const rows = document.getElementById(activeTab).querySelectorAll('tbody tr');
+            
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(input) ? '' : 'none';
+            }
+        };
+
+    </script>
+</body>
+</html>
