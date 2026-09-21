@@ -221,14 +221,7 @@
             </div>
         `;
 
-        const observer = new MutationObserver((mutations) => {
-            const mainContent = document.getElementById('main-content');
-            if (mainContent) {
-                mainContent.innerHTML = pageHTML;
-                observer.disconnect();
-            }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
+        setPageContent('Corporate Leases & Bank Finance', pageHTML);
 
         window.switchTab = function(tabName) {
             document.getElementById('tab-portfolio').classList.add('hidden');

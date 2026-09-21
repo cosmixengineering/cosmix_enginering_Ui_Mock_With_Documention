@@ -193,14 +193,7 @@
         `;
 
         // Wait for Layout to initialize then inject content
-        const observer = new MutationObserver((mutations) => {
-            const mainContent = document.getElementById('main-content');
-            if (mainContent) {
-                mainContent.innerHTML = pageHTML;
-                observer.disconnect();
-            }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
+        setPageContent('Health & Life Insurance', pageHTML);
 
         // Simple filter functions
         window.filterTableRows = function(input, tbodyId) {
