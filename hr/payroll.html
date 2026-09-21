@@ -19,64 +19,6 @@
         setPageContent('5. Payroll Engine', `
             <div class="space-y-4">
                 
-                <!-- 1. Interactive Payroll Explanation / Process Workflow Guide -->
-                <div class="bg-gradient-to-r from-[#242b5f] to-[#3a4484] text-white p-4 rounded-xl shadow-md border border-indigo-900/30">
-                    <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/10">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-lg text-amber-300">
-                                <i class="fas fa-calculator"></i>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <h2 class="text-sm font-bold tracking-tight">How Cosmix Payroll Engine Works (Site & Office Rules)</h2>
-                                    <span class="bg-amber-400/20 text-amber-200 text-[9px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/30 uppercase">Automated Cycle</span>
-                                </div>
-                                <p class="text-[11px] text-indigo-100/80 mt-0.5">Biometric sync, role-specific calculation (Office Salaried vs Site Hourly/OT), loan EMI deductions, and bank transfer advice.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="togglePayrollGuide()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5">
-                                <i class="fas fa-info-circle text-amber-300"></i> <span id="guide-toggle-text">Hide Formula Guide</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 4-Step Visual Calculation Steps -->
-                    <div id="payroll-flow-steps" class="grid grid-cols-1 md:grid-cols-4 gap-3 pt-3">
-                        <div class="bg-white/5 border border-white/10 rounded-lg p-2.5">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="w-5 h-5 rounded-full bg-amber-400 text-[#242b5f] font-bold text-[10px] flex items-center justify-center">1</span>
-                                <h4 class="text-xs font-bold text-white">Shift & Attendance</h4>
-                            </div>
-                            <p class="text-[10.5px] text-indigo-200/90 leading-relaxed">Pulls daily biometric punches against <strong>09:00-18:00 (Office)</strong> and <strong>08:00-17:00 (Site)</strong> shifts. Tallies present days, grace lates, and approved leaves.</p>
-                        </div>
-
-                        <div class="bg-white/5 border border-white/10 rounded-lg p-2.5">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="w-5 h-5 rounded-full bg-amber-400 text-[#242b5f] font-bold text-[10px] flex items-center justify-center">2</span>
-                                <h4 class="text-xs font-bold text-white">Workplace Formulas</h4>
-                            </div>
-                            <p class="text-[10.5px] text-indigo-200/90 leading-relaxed"><strong>Office Staff:</strong> Fixed monthly base + medical/fuel (no site OT).<br><strong>Site MEP Staff:</strong> Base + 1.5x OT + Rs. 500 night allowance.</p>
-                        </div>
-
-                        <div class="bg-white/5 border border-white/10 rounded-lg p-2.5">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="w-5 h-5 rounded-full bg-amber-400 text-[#242b5f] font-bold text-[10px] flex items-center justify-center">3</span>
-                                <h4 class="text-xs font-bold text-white">Deductions & Advances</h4>
-                            </div>
-                            <p class="text-[10.5px] text-indigo-200/90 leading-relaxed">Auto-deducts monthly EMI for approved <strong>Salary Advance / Emergency Loans</strong>, income tax brackets, and un-waived absent days.</p>
-                        </div>
-
-                        <div class="bg-white/5 border border-white/10 rounded-lg p-2.5">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="w-5 h-5 rounded-full bg-amber-400 text-[#242b5f] font-bold text-[10px] flex items-center justify-center">4</span>
-                                <h4 class="text-xs font-bold text-white">CEO Lock & Bank Batch</h4>
-                            </div>
-                            <p class="text-[10.5px] text-indigo-200/90 leading-relaxed">HR locks the cycle for CEO final sign-off. Exports bank advice files (HBL, Meezan, MCB) & sends WhatsApp/PDF payslips.</p>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- 2. Compact Financial Metric Bar -->
                 <div class="bg-white p-3.5 rounded-xl shadow-xs border border-gray-100 flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
