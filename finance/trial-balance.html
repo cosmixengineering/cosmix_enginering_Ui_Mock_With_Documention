@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trial Balance - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <script src="../assets/js/finance-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('trial-balance');
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-12">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-indigo-600 text-[11px]"><i class="fas fa-arrow-left mr-1"></i> Dashboard</a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">Financial Reporting</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-slate-800 mt-0.5">Automated Trial Balance</h1>
+                            <p class="text-[11px] text-slate-500">Real-time aggregation across all General Ledger accounts. Double-entry proof: $\\sum Dr = \\sum Cr$.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="window.print()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+                                <i class="fas fa-print"></i> Print Trial Balance
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Trial Balance Sheet Container -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+                        
+                        <!-- Header Strip -->
+                        <div class="p-4 border-b border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <h2 class="text-base font-bold text-slate-900">Cosmix Engineering (Pvt) Ltd</h2>
+                                <p class="text-[11px] text-slate-500">Trial Balance as of 26 September 2026 (FY 2026-2027)</p>
+                            </div>
+                            <div id="tb-status-badge" class="px-3 py-1 rounded-lg text-xs font-bold font-mono">
+                                <!-- Dynamic Status -->
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-[11px]">
+                                <thead class="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-2.5 px-4">Account Code</th>
+                                        <th class="py-2.5 px-4">Account Title</th>
+                                        <th class="py-2.5 px-4">Classification</th>
+                                        <th class="py-2.5 px-4 text-right">Debit Balance (PKR)</th>
+                                        <th class="py-2.5 px-4 text-right">Credit Balance (PKR)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tb-rows" class="divide-y divide-slate-100">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                                <tfoot class="bg-slate-100/80 font-bold text-xs border-t-2 border-slate-300 font-mono">
+                                    <tr>
+                                        <td colspan="3" class="py-3 px-4 font-sans text-slate-700 font-extrabold uppercase">Total General Ledger Balance:</td>
+                                        <td id="tb-total-debit" class="py-3 px-4 text-right text-emerald-800 text-sm">PKR 0</td>
+                                        <td id="tb-total-credit" class="py-3 px-4 text-right text-emerald-800 text-sm">PKR 0</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderTrialBalance();
+        });
+
+        function renderTrialBalance() {
+            const tb = CosmixFinance.getTrialBalance();
+
+            const statusBadge = document.getElementById('tb-status-badge');
+            if (statusBadge) {
+                if (tb.isBalanced) {
+                    statusBadge.className = 'px-3 py-1 rounded-lg text-xs font-bold font-mono bg-emerald-100 text-emerald-800 border border-emerald-300';
+                    statusBadge.innerHTML = '<i class="fas fa-check-circle mr-1"></i> PERFECT BALANCE (Dr = Cr)';
+                } else {
+                    statusBadge.className = 'px-3 py-1 rounded-lg text-xs font-bold font-mono bg-rose-100 text-rose-800 border border-rose-300';
+                    statusBadge.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i> VARIANCE: PKR ${tb.variancePkr.toLocaleString()}`;
+                }
+            }
+
+            const tbody = document.getElementById('tb-rows');
+            if (tbody) {
+                tbody.innerHTML = tb.rows.map(r => `
+                    <tr class="hover:bg-slate-50 transition-all">
+                        <td class="py-2 px-4 font-mono font-bold text-indigo-700">${r.code}</td>
+                        <td class="py-2 px-4 font-medium text-slate-800">${r.name}</td>
+                        <td class="py-2 px-4 text-slate-500 text-[10.5px]">${r.type}</td>
+                        <td class="py-2 px-4 text-right font-mono font-semibold ${r.debitPkr > 0 ? 'text-slate-800' : 'text-slate-300'}">
+                            ${r.debitPkr > 0 ? 'PKR ' + r.debitPkr.toLocaleString() : '-'}
+                        </td>
+                        <td class="py-2 px-4 text-right font-mono font-semibold ${r.creditPkr > 0 ? 'text-slate-800' : 'text-slate-300'}">
+                            ${r.creditPkr > 0 ? 'PKR ' + r.creditPkr.toLocaleString() : '-'}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            document.getElementById('tb-total-debit').innerText = 'PKR ' + tb.totalDebitPkr.toLocaleString();
+            document.getElementById('tb-total-credit').innerText = 'PKR ' + tb.totalCreditPkr.toLocaleString();
+        }
+    </script>
+</body>
+</html>

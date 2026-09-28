@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - 40 CEO Master Policy Slots & Governance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+            transition: all 0.2s ease;
+        }
+        .glass-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.06);
+        }
+        table th { padding: 0.55rem 0.85rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.55rem 0.85rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-slate-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <!-- Edit Policy Slot Modal -->
+    <div id="edit-slot-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-indigo-50 text-[#1e2552] flex items-center justify-center text-sm font-bold border border-indigo-100">
+                        <i class="fas fa-sliders text-indigo-600"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900" id="modal-slot-title">Edit CEO Policy Slot</h3>
+                        <p class="text-[10.5px] text-slate-400 font-mono" id="modal-slot-key"></p>
+                    </div>
+                </div>
+                <button onclick="closeEditModal()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3.5 text-xs">
+                <div id="modal-slot-desc" class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-600 text-[11px] leading-relaxed"></div>
+                
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1" id="modal-value-label">Configured Value</label>
+                    <div id="modal-input-container"></div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">Reason for Adjustment <span class="text-rose-500">* (Logged to Permanent Audit Trail)</span></label>
+                    <textarea id="modal-reason-input" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-[#1e2552] focus:border-[#1e2552] outline-none" placeholder="e.g. CEO policy revision, market raw material escalation, or field mileage update"></textarea>
+                </div>
+
+                <div class="p-2.5 bg-blue-50/60 border border-blue-100 rounded-xl text-[10.5px] text-blue-800 flex items-start gap-2">
+                    <i class="fas fa-info-circle text-blue-600 mt-0.5 shrink-0"></i>
+                    <span>Updating this parameter will immediately recalculate affected payroll lines, vehicle fleet maintenance claims, and fuel vouchers across the ERP in real-time.</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button onclick="closeEditModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition">Cancel</button>
+                <button onclick="saveSlotValue()" class="px-5 py-2 rounded-xl bg-[#1e2552] hover:bg-[#121736] text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                    <i class="fas fa-save text-amber-300"></i> Save & Recalculate
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/shared.js"></script>
+    <script src="../assets/js/administrator-store.js"></script>
+    <script src="../assets/js/admin-store.js"></script>
+    <script>
+        renderLayout('policy-slots');
+
+        let currentCategory = 'all';
+        let currentSearch = '';
+        let editingSlotId = null;
+
+        // Read query parameter if provided
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('cat')) {
+            currentCategory = urlParams.get('cat');
+        }
+
+        function renderPolicySlotsUI() {
+            const store = window.CosmixAdminStore;
+            const slots = store.getPolicySlots(currentCategory, currentSearch);
+            const allSlots = store.state.policySlots;
+
+            // Counts
+            const totalCount = allSlots.length;
+            const siteStaffCount = allSlots.filter(s => s.category === 'SiteStaff').length;
+            const costBuildCount = allSlots.filter(s => s.category === 'CostBuild').length;
+            const quoteTermsCount = allSlots.filter(s => s.category === 'QuoteTerms').length;
+            const importCount = allSlots.filter(s => s.category === 'Import').length;
+            const commercialCount = allSlots.filter(s => s.category === 'Commercial').length;
+            const deptCount = allSlots.filter(s => s.category === 'Department').length;
+            const lockedCount = allSlots.filter(s => s.isUserLocked === 1).length;
+
+            const categoryPills = [
+                { id: 'all', label: `All (${totalCount})`, count: totalCount },
+                { id: 'SiteStaff', label: `SiteStaff (${siteStaffCount})`, count: siteStaffCount },
+                { id: 'CostBuild', label: `CostBuild (${costBuildCount})`, count: costBuildCount },
+                { id: 'QuoteTerms', label: `QuoteTerms (${quoteTermsCount})`, count: quoteTermsCount },
+                { id: 'Import', label: `Import (${importCount})`, count: importCount },
+                { id: 'Commercial', label: `Commercial (${commercialCount})`, count: commercialCount },
+                { id: 'Department', label: `Department (${deptCount})`, count: deptCount }
+            ];
+
+            const pillsHTML = categoryPills.map(c => `
+                <button onclick="setCategoryFilter('${c.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${currentCategory.toLowerCase() === c.id.toLowerCase() ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">
+                    ${c.label}
+                </button>
+            `).join('');
+
+            const rowsHTML = slots.length ? slots.map((s, idx) => {
+                const isLocked = s.isUserLocked === 1;
+                const valueDisplay = s.decimalValue !== null 
+                    ? `<span class="font-mono font-bold text-slate-900">${s.decimalValue.toLocaleString()}</span> <span class="text-[10px] text-slate-500 font-semibold">${s.unit}</span>`
+                    : `<span class="text-slate-700 text-[11px] truncate max-w-[280px] inline-block font-sans" title="${s.stringValue}">${s.stringValue}</span>`;
+                
+                const catColor = s.category === 'SiteStaff' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                                 s.category === 'CostBuild' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                 s.category === 'QuoteTerms' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                                 s.category === 'Import' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-amber-50 text-amber-700 border-amber-200';
+
+                return `
+                    <tr class="hover:bg-slate-50/80 border-b border-slate-100 transition text-xs">
+                        <td class="text-center font-mono text-slate-400 text-[10.5px] font-bold">${idx + 1}</td>
+                        <td>
+                            <span class="px-2 py-0.5 rounded-md text-[9.5px] font-extrabold border ${catColor}">
+                                ${s.category}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="font-bold text-slate-900 text-xs">${s.displayName}</div>
+                            <div class="font-mono text-[9.5px] text-slate-400 mt-0.5">${s.key}</div>
+                            <div class="text-[10.5px] text-slate-500 mt-0.5 leading-snug">${s.description}</div>
+                        </td>
+                        <td class="bg-slate-50/40">
+                            ${valueDisplay}
+                        </td>
+                        <td class="text-center">
+                            <button onclick="toggleLock('${s.id}')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold border transition ${isLocked ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700'}" title="${isLocked ? 'Locked by CEO Governance' : 'Unlocked for Operational Update'}">
+                                <i class="fas ${isLocked ? 'fa-lock' : 'fa-lock-open'} mr-1"></i> ${isLocked ? 'Locked' : 'Unlocked'}
+                            </button>
+                        </td>
+                        <td class="text-[10px] text-slate-500">
+                            <div class="font-medium text-slate-700">${s.sourceNote || 'CEO Standard'}</div>
+                            <div class="text-[9px] text-slate-400 font-mono mt-0.5">${s.updatedAt || '2026-09-25'}</div>
+                        </td>
+                        <td class="text-right whitespace-nowrap">
+                            <button onclick="openEditModal('${s.id}')" class="px-3 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-[#1e2552] border border-indigo-200 text-[11px] font-bold transition flex items-center gap-1 ml-auto">
+                                <i class="fas fa-pen-to-square text-indigo-600"></i> Edit Slot
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('') : `
+                <tr>
+                    <td colspan="7" class="text-center py-10 text-slate-400 text-xs font-medium">
+                        <i class="fas fa-search text-2xl mb-2 block text-slate-300"></i> No policy slots match your search filter.
+                    </td>
+                </tr>
+            `;
+
+            // Live Simulator Values from Central Store
+            const fuelRate = store.getSlotValue('SiteStaff.Fuel.KmPerLiter', 28.0);
+            const tuningPkr = store.getSlotValue('SiteStaff.Tuning.AmountPkr', 1800.0);
+            const overhaulPkr = store.getSlotValue('SiteStaff.Overhaul.AmountPkr', 18000.0);
+            const lateThreshold = store.getSlotValue('SiteStaff.Late.CountForDayDeduction', 3.0);
+            const simPenaltyPkr = store.getSlotValue('SiteStaff.Sim.NonUseDeductionPkr', 1500.0);
+            const gamePenaltyPct = store.getSlotValue('SiteStaff.Kpi.GamesEvidencePercentPerDay', 1.0);
+
+            return `
+                <div class="space-y-4">
+                    
+                    <!-- Top Command Bar -->
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Enterprise Governance · Master Configuration</span>
+                                <span class="badge-pill bg-indigo-50 text-[#1e2552] border border-indigo-200">40 CEO Policy Slots Enforced</span>
+                            </div>
+                            <h2 class="text-base font-black text-slate-900 mt-0.5">CEO Master Policy Slots & Interactive Parameter Editor</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Central policy engine dictating fuel reimbursements (28 km/L), fleet tuning/overhaul (1,800/18,000 PKR), biometric attendance, and SIM governance.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="factoryReset()" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs">
+                                <i class="fas fa-rotate-left text-slate-400"></i> Restore Defaults
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4 Summary Stat Cards -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Policy Slots</span>
+                                <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-sliders"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-slate-900">${totalCount} Slots</div>
+                            <p class="text-[10px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 100% .NET 8 ERP Synced
+                            </p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Site Staff Rules</span>
+                                <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-users-gear"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-[#1e2552]">${siteStaffCount} Slots (#21-#40)</div>
+                            <p class="text-[10px] text-slate-500 mt-1">28 km/L · 1.8k/18k Milestones</p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CostBuild & Markups</span>
+                                <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-calculator"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-emerald-700">${costBuildCount} Formulas</div>
+                            <p class="text-[10px] text-slate-500 mt-1">GI Sheet · NBR Insulation · Labor</p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Governance Locks</span>
+                                <span class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-lock"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-rose-700">${lockedCount} Locked Slots</div>
+                            <p class="text-[10px] text-slate-500 mt-1">Protected by CEO Authorization</p>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Live Impact & Recalculation Simulator Panel -->
+                    <div class="glass-card p-4 space-y-3.5 border-l-4 border-l-[#1e2552]">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                            <div class="flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-blue-50 text-[#1e2552] flex items-center justify-center text-xs font-bold">
+                                    <i class="fas fa-bolt text-blue-600"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-xs font-bold text-slate-900">Interactive Policy Simulation & Live Cross-Module Recalculator</h3>
+                                    <p class="text-[10px] text-slate-500">Test live payroll salary deductions, vehicle fleet claims, and maintenance allowances when modifying slot parameters.</p>
+                                </div>
+                            </div>
+                            <span class="badge-pill bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <i class="fas fa-check-circle text-[9px]"></i> Live Reactive State
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs">
+                            
+                            <!-- Simulator 1: Fuel & Mileage -->
+                            <div class="p-3.5 bg-slate-50/80 border border-slate-200 rounded-xl space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-slate-900 flex items-center gap-1.5">
+                                        <i class="fas fa-gas-pump text-blue-600"></i> Fuel Claim Impact
+                                    </span>
+                                    <span class="font-mono text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+                                        Rate: ${fuelRate} km/L
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="text-[10.5px] font-semibold text-slate-600">Distance (km)</label>
+                                        <input type="number" id="sim-dist" value="140" oninput="runSimulatorCalculations()" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-mono font-bold outline-none bg-white focus:border-[#1e2552]">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10.5px] font-semibold text-slate-600">Fuel (PKR/L)</label>
+                                        <input type="number" id="sim-price" value="275.50" oninput="runSimulatorCalculations()" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-mono font-bold outline-none bg-white focus:border-[#1e2552]">
+                                    </div>
+                                </div>
+                                <div class="p-2.5 bg-white border border-slate-200 rounded-lg space-y-1 font-mono text-[11px]">
+                                    <div class="flex justify-between text-slate-600">
+                                        <span>Fuel Required:</span>
+                                        <span class="font-bold text-slate-800" id="sim-fuel-liters">-</span>
+                                    </div>
+                                    <div class="flex justify-between font-bold text-[#1e2552]">
+                                        <span>Reimbursable:</span>
+                                        <span class="text-emerald-700 font-black text-xs" id="sim-fuel-cost">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Simulator 2: Fleet Maintenance Milestones -->
+                            <div class="p-3.5 bg-slate-50/80 border border-slate-200 rounded-xl space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-slate-900 flex items-center gap-1.5">
+                                        <i class="fas fa-wrench text-amber-600"></i> Maintenance Claims
+                                    </span>
+                                    <span class="font-mono text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                        PKR ${tuningPkr.toLocaleString()} / 1k km
+                                    </span>
+                                </div>
+                                <div>
+                                    <label class="text-[10.5px] font-semibold text-slate-600">Vehicle Odometer Reading (km)</label>
+                                    <input type="number" id="sim-odo" value="7420" oninput="runSimulatorCalculations()" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-mono font-bold outline-none bg-white focus:border-[#1e2552]">
+                                </div>
+                                <div class="p-2.5 bg-white border border-slate-200 rounded-lg space-y-1 font-mono text-[11px]">
+                                    <div class="flex justify-between text-slate-600">
+                                        <span>Tuning Progress (1k):</span>
+                                        <span class="font-bold text-amber-700" id="sim-tuning-prog">-</span>
+                                    </div>
+                                    <div class="flex justify-between text-slate-600">
+                                        <span>Overhaul (8k km / 18k PKR):</span>
+                                        <span class="font-bold text-purple-700" id="sim-overhaul-prog">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Simulator 3: HR Attendance & Payroll -->
+                            <div class="p-3.5 bg-slate-50/80 border border-slate-200 rounded-xl space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-slate-900 flex items-center gap-1.5">
+                                        <i class="fas fa-user-clock text-rose-600"></i> Attendance & Penalties
+                                    </span>
+                                    <span class="font-mono text-[10px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                                        ${lateThreshold} Lates = 0.5 Day
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="text-[10.5px] font-semibold text-slate-600">Monthly Salary (PKR)</label>
+                                        <input type="number" id="sim-salary" value="55000" oninput="runSimulatorCalculations()" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-mono font-bold outline-none bg-white focus:border-[#1e2552]">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10.5px] font-semibold text-slate-600">Late Arrivals</label>
+                                        <input type="number" id="sim-lates" value="6" oninput="runSimulatorCalculations()" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-mono font-bold outline-none bg-white focus:border-[#1e2552]">
+                                    </div>
+                                </div>
+                                <div class="p-2.5 bg-white border border-slate-200 rounded-lg space-y-1 font-mono text-[11px]">
+                                    <div class="flex justify-between text-slate-600">
+                                        <span>Salary Deduction:</span>
+                                        <span class="font-bold text-rose-700" id="sim-deduct-amount">-</span>
+                                    </div>
+                                    <div class="flex justify-between font-bold text-[#1e2552]">
+                                        <span>Net Adjusted Pay:</span>
+                                        <span class="text-slate-900 font-black text-xs" id="sim-net-pay">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Category & Search Filters Strip -->
+                    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            ${pillsHTML}
+                        </div>
+                        <div class="relative w-full sm:w-72">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="search-input" value="${currentSearch}" oninput="handleSearch(this.value)" placeholder="Search key, title, category..." class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#1e2552] bg-slate-50/50 focus:bg-white transition shadow-2xs">
+                        </div>
+                    </div>
+
+                    <!-- 40 Policy Slots Master Data Table -->
+                    <div class="glass-card overflow-hidden">
+                        <div class="p-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                            <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                <i class="fas fa-table-list text-indigo-600"></i> Master Policy Slots Directory (${slots.length} of ${totalCount})
+                            </h3>
+                            <span class="text-[10.5px] font-mono text-slate-400">cosmixhub.db Parity</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold text-[10px] uppercase tracking-wider">
+                                    <tr>
+                                        <th class="w-10 text-center">#</th>
+                                        <th class="w-24">Category</th>
+                                        <th>Policy Slot & Operational Rule</th>
+                                        <th class="w-48">Configured Parameter</th>
+                                        <th class="w-24 text-center">Lock State</th>
+                                        <th class="w-36">Source & Updated</th>
+                                        <th class="w-24 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHTML}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function refreshUI() {
+            setPageContent('40 CEO Master Policy Slots', renderPolicySlotsUI());
+            runSimulatorCalculations();
+        }
+
+        function setCategoryFilter(cat) {
+            currentCategory = cat;
+            refreshUI();
+        }
+
+        function handleSearch(val) {
+            currentSearch = val;
+            refreshUI();
+        }
+
+        function toggleLock(id) {
+            window.CosmixAdminStore.toggleSlotLock(id);
+            showToast('CEO Policy lock status updated!', 'info');
+            refreshUI();
+        }
+
+        function openEditModal(id) {
+            editingSlotId = id;
+            const slot = window.CosmixAdminStore.state.policySlots.find(s => s.id === id);
+            if (!slot) return;
+
+            document.getElementById('modal-slot-title').innerText = `Edit: ${slot.displayName}`;
+            document.getElementById('modal-slot-key').innerText = `Key: ${slot.key} · Category: ${slot.category}`;
+            document.getElementById('modal-slot-desc').innerText = slot.description;
+            document.getElementById('modal-value-label').innerText = `Configured Value (${slot.unit})`;
+            document.getElementById('modal-reason-input').value = '';
+
+            const container = document.getElementById('modal-input-container');
+            if (slot.decimalValue !== null) {
+                container.innerHTML = `
+                    <div class="relative">
+                        <input type="number" step="any" id="modal-val-input" value="${slot.decimalValue}" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-mono font-bold focus:ring-1 focus:ring-[#1e2552] focus:border-[#1e2552] outline-none">
+                        <span class="absolute right-3 top-2 text-xs font-semibold text-slate-400 font-mono">${slot.unit}</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <textarea id="modal-val-input" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-[#1e2552] focus:border-[#1e2552] outline-none leading-relaxed">${slot.stringValue || ''}</textarea>
+                `;
+            }
+
+            document.getElementById('edit-slot-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-slot-modal').classList.add('hidden');
+            editingSlotId = null;
+        }
+
+        function saveSlotValue() {
+            if (!editingSlotId) return;
+            const input = document.getElementById('modal-val-input');
+            const reasonInput = document.getElementById('modal-reason-input');
+            
+            const newVal = input.value;
+            const reason = reasonInput.value.trim();
+
+            if (!reason) {
+                alert('Please provide a formal justification for this policy adjustment. It is permanently logged to the CEO Audit Trail.');
+                return;
+            }
+
+            const res = window.CosmixAdminStore.updatePolicySlot(editingSlotId, newVal, reason);
+            if (res.success) {
+                closeEditModal();
+                showToast('CEO Policy slot updated & ERP claims recalculated!', 'success');
+                refreshUI();
+            }
+        }
+
+        function factoryReset() {
+            if (confirm('Are you sure you want to restore all 40 CEO Policy Slots to Reference ERP factory defaults?')) {
+                window.CosmixAdminStore.resetToDefaults();
+                showToast('Factory default policy slots restored!', 'success');
+                refreshUI();
+            }
+        }
+
+        function runSimulatorCalculations() {
+            const store = window.CosmixAdminStore;
+            if (!store) return;
+
+            // Fuel Calc
+            const dist = parseFloat(document.getElementById('sim-dist')?.value) || 0;
+            const price = parseFloat(document.getElementById('sim-price')?.value) || 275.50;
+            const fuelCalc = store.calculateFuelClaim(dist, price);
+            const litersEl = document.getElementById('sim-fuel-liters');
+            const costEl = document.getElementById('sim-fuel-cost');
+            if (litersEl) litersEl.innerText = `${fuelCalc.liters.toFixed(2)} Liters`;
+            if (costEl) costEl.innerText = `PKR ${fuelCalc.totalPkr.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+
+            // Maintenance Calc
+            const odo = parseFloat(document.getElementById('sim-odo')?.value) || 0;
+            const maintCalc = store.calculateMaintenance(odo);
+            const tuningEl = document.getElementById('sim-tuning-prog');
+            const overhaulEl = document.getElementById('sim-overhaul-prog');
+            if (tuningEl) tuningEl.innerText = `${maintCalc.tuning.currentInCycleKm} / ${maintCalc.tuning.intervalKm} km (${maintCalc.tuning.progressPercent}%)`;
+            if (overhaulEl) overhaulEl.innerText = `${maintCalc.overhaul.currentInCycleKm} / ${maintCalc.overhaul.intervalKm} km (${maintCalc.overhaul.progressPercent}%)`;
+
+            // Attendance Calc
+            const salary = parseFloat(document.getElementById('sim-salary')?.value) || 55000;
+            const lates = parseFloat(document.getElementById('sim-lates')?.value) || 0;
+            const attCalc = store.calculateLatePayrollDeduction(salary, lates);
+            const deductEl = document.getElementById('sim-deduct-amount');
+            const netPayEl = document.getElementById('sim-net-pay');
+            if (deductEl) deductEl.innerText = `-PKR ${attCalc.amountDeducted.toLocaleString(undefined, { minimumFractionDigits: 2 })} (${attCalc.daysDeducted} Days)`;
+            if (netPayEl) netPayEl.innerText = `PKR ${attCalc.netSalaryAfterLate.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+        }
+
+        // Initialize UI
+        refreshUI();
+    </script>
+</body>
+</html>

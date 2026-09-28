@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering & MEP Operations - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <script src="../assets/js/engineering-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('dashboard');
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-12">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 font-bold border border-orange-200 text-[10px] tracking-wider uppercase">MEP & Production</span>
+                                <span class="text-slate-400 text-xs">•</span>
+                                <span class="text-xs text-slate-500 font-medium">Workshop Fabrication & Site Installation Pipeline</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-slate-800 mt-0.5">Engineering Operations Hub</h1>
+                            <p class="text-[11px] text-slate-500">8 SOP fabrication stages, Factory QC gate clearance, 4-Point HSE site jobs, and 3-Stage Delivery OTP.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="production.html" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-industry"></i> Production Orders
+                            </a>
+                            <a href="delivery-gate.html" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-truck-ramp-box"></i> Delivery Gate
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">Active Production</span>
+                                <div class="w-7 h-7 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-gears"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-slate-800 font-mono">3 Orders</span>
+                                <span class="text-[10px] text-orange-600 font-semibold">In Fabrication</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">Ductwork, AHU Casing & Headers</p>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">QC Inspection Pass</span>
+                                <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-clipboard-check"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-emerald-700 font-mono">2 Passed</span>
+                                <span class="text-[10px] text-emerald-600 font-semibold">1 Pending QC</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">Dimensional & Hydro Leak tested</p>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">Site Installation Jobs</span>
+                                <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-helmet-safety"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-slate-800 font-mono">2 Active Jobs</span>
+                                <span class="text-[10px] text-indigo-600 font-semibold">4-Pt HSE Active</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">Lucky Motor & Indus Hospital</p>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">Delivery Gate Clearance</span>
+                                <div class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-slate-800 font-mono">1 Cleared</span>
+                                <span class="text-[10px] text-amber-600 font-semibold">1 Awaiting OTP</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">Staff $\to$ Tax $\to$ Site OTP challenge</p>
+                        </div>
+                    </div>
+
+                    <!-- Main Operations Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        
+                        <!-- Workshop Production Orders Table (2 Cols) -->
+                        <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200/80 shadow-xs flex flex-col">
+                            <div class="p-3.5 border-b border-slate-100 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-industry text-orange-600"></i>
+                                    <h2 class="font-bold text-slate-800 text-sm">Workshop Production (Track 1)</h2>
+                                </div>
+                                <a href="production.html" class="text-[11px] font-semibold text-orange-600 hover:text-orange-700">View 8 SOP Stages &rarr;</a>
+                            </div>
+                            <div class="overflow-x-auto flex-1">
+                                <table class="w-full text-left text-[11px]">
+                                    <thead class="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-100">
+                                        <tr>
+                                            <th class="py-2.5 px-3">Order #</th>
+                                            <th class="py-2.5 px-3">Product Description</th>
+                                            <th class="py-2.5 px-3">Qty</th>
+                                            <th class="py-2.5 px-3">Bay & Lead</th>
+                                            <th class="py-2.5 px-3 text-center">SOP Stage</th>
+                                            <th class="py-2.5 px-3 text-center">QC</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="prd-dashboard-body" class="divide-y divide-slate-100">
+                                        <!-- Dynamically Populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 3-Stage Gate Clearance Box (1 Col) -->
+                        <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs flex flex-col">
+                            <div class="p-3.5 border-b border-slate-100 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-shield-halved text-purple-600"></i>
+                                    <h2 class="font-bold text-slate-800 text-sm">Dispatch Gate Status</h2>
+                                </div>
+                                <a href="delivery-gate.html" class="text-[11px] font-semibold text-purple-600 hover:text-purple-700">Enter OTP &rarr;</a>
+                            </div>
+                            <div class="p-3.5 space-y-3 flex-1 overflow-y-auto" id="gate-dashboard-container">
+                                <!-- Populated Dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SOP Track 1 Infographic Card -->
+                    <div class="bg-linear-to-r from-orange-950 to-slate-900 text-white p-4 rounded-xl shadow-xs">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="font-bold text-sm text-orange-300 flex items-center gap-2">
+                                    <i class="fas fa-route"></i> 8-Stage Factory Production Workflow
+                                </h3>
+                                <p class="text-slate-300 text-[11px] mt-1">
+                                    Planned &rarr; Material Issued &rarr; In Fabrication &rarr; Assembly &rarr; Factory QC Gate &rarr; Packing &rarr; Ready To Dispatch &rarr; Dispatched.
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <a href="factory-qc.html" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-[11px] transition-all">
+                                    <i class="fas fa-clipboard-check mr-1"></i> Factory QC Gate
+                                </a>
+                                <a href="jobs.html" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[11px] font-medium border border-white/20 transition-all">
+                                    <i class="fas fa-helmet-safety mr-1"></i> Site HSE Jobs
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderDashboard();
+        });
+
+        function renderDashboard() {
+            const orders = CosmixEngineering.getProductionOrders();
+            const gates = CosmixEngineering.getDeliveryGates();
+
+            const prdBody = document.getElementById('prd-dashboard-body');
+            if (prdBody) {
+                prdBody.innerHTML = orders.map(o => `
+                    <tr class="hover:bg-slate-50/80 transition-all">
+                        <td class="py-2.5 px-3 font-mono font-bold text-orange-700">
+                            <a href="production.html" class="hover:underline">${o.orderNo}</a>
+                        </td>
+                        <td class="py-2.5 px-3">
+                            <div class="font-semibold text-slate-800">${o.productName}</div>
+                            <div class="text-[9.5px] text-slate-400">${o.projectRef}</div>
+                        </td>
+                        <td class="py-2.5 px-3 font-mono font-semibold">${o.quantity} ${o.uom}</td>
+                        <td class="py-2.5 px-3">
+                            <div class="text-slate-700 font-medium">${o.lineLeader}</div>
+                            <div class="text-[9px] text-slate-400">${o.bay}</div>
+                        </td>
+                        <td class="py-2.5 px-3 text-center">
+                            <span class="px-2 py-0.5 rounded-md text-[9.5px] font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                                ${o.currentStage}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 text-center">
+                            <span class="px-2 py-0.5 rounded text-[9px] font-bold ${o.qcStatus === 'Passed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                ${o.qcStatus}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const gateBox = document.getElementById('gate-dashboard-container');
+            if (gateBox) {
+                gateBox.innerHTML = gates.map(g => {
+                    const isCleared = g.gateStatus === 'ClearedForDispatch';
+
+                    return `
+                        <div class="p-3 rounded-lg border ${isCleared ? 'bg-emerald-50/40 border-emerald-200' : 'bg-amber-50/40 border-amber-200'} text-[11px] space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="font-mono font-bold text-slate-800">${g.gatePassNo}</span>
+                                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold ${isCleared ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                    ${isCleared ? 'Cleared' : 'Pending OTP'}
+                                </span>
+                            </div>
+                            <div class="text-slate-600 font-medium">${g.destinationSite}</div>
+                            <div class="text-slate-400 text-[10px]">Vehicle: <strong class="text-slate-600 font-mono">${g.vehicleNo}</strong></div>
+                            
+                            <div class="pt-1 flex items-center justify-between text-[10px]">
+                                <span class="text-slate-500">Milestone: <strong class="text-emerald-700">${g.gate2CommercialTax.advancePercentage}% Adv</strong></span>
+                                ${!isCleared ? `
+                                    <a href="delivery-gate.html" class="px-2 py-0.5 bg-purple-600 hover:bg-purple-700 text-white rounded font-bold">
+                                        Verify OTP &rarr;
+                                    </a>
+                                ` : `
+                                    <span class="text-emerald-700 font-bold"><i class="fas fa-check-circle"></i> OTP Verified</span>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    </script>
+</body>
+</html>

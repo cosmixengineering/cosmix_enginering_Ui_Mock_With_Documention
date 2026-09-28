@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - HR Site Staff Master Operational Rules & Compliance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+            transition: all 0.2s ease;
+        }
+        .glass-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.06);
+        }
+        table th { padding: 0.55rem 0.85rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.55rem 0.85rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-slate-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <script src="../assets/js/shared.js"></script>
+    <script src="../assets/js/administrator-store.js"></script>
+    <script src="../assets/js/admin-store.js"></script>
+    <script>
+        renderLayout('site-staff-policy');
+
+        function renderSiteStaffPolicyUI() {
+            const adminStore = window.CosmixAdminStore;
+            const siteSlots = adminStore ? adminStore.state.policySlots.filter(s => s.category === 'SiteStaff') : [];
+
+            // Read live values directly from policy store
+            const fuelRate = adminStore ? adminStore.getSlotValue('SiteStaff.Fuel.KmPerLiter', 28.0) : 28.0;
+            const tuningPkr = adminStore ? adminStore.getSlotValue('SiteStaff.Tuning.AmountPkr', 1800.0) : 1800.0;
+            const tuningKm = adminStore ? adminStore.getSlotValue('SiteStaff.Tuning.KmInterval', 1000.0) : 1000.0;
+            const overhaulPkr = adminStore ? adminStore.getSlotValue('SiteStaff.Overhaul.AmountPkr', 18000.0) : 18000.0;
+            const overhaulKm = adminStore ? adminStore.getSlotValue('SiteStaff.Overhaul.KmInterval', 8000.0) : 8000.0;
+            const simPenaltyPkr = adminStore ? adminStore.getSlotValue('SiteStaff.Sim.NonUseDeductionPkr', 1500.0) : 1500.0;
+            const lateGrace = adminStore ? adminStore.getSlotValue('SiteStaff.Late.GraceMinutes', 15.0) : 15.0;
+            const lateThreshold = adminStore ? adminStore.getSlotValue('SiteStaff.Late.CountForDayDeduction', 3.0) : 3.0;
+            const gamePenalty = adminStore ? adminStore.getSlotValue('SiteStaff.Kpi.GamesEvidencePercentPerDay', 1.0) : 1.0;
+            const missedCallPenalty = adminStore ? adminStore.getSlotValue('SiteStaff.Kpi.MissedCallPercent', 1.0) : 1.0;
+            const lunchPkr = adminStore ? adminStore.getSlotValue('SiteStaff.Meal.LunchPkr', 500.0) : 500.0;
+            const outstationMealPkr = adminStore ? adminStore.getSlotValue('SiteStaff.Meal.OutstationDayPkr', 1000.0) : 1000.0;
+            const breakfastPkr = adminStore ? adminStore.getSlotValue('SiteStaff.Meal.BreakfastPkr', 300.0) : 300.0;
+            const dinnerHours = adminStore ? adminStore.getSlotValue('SiteStaff.Meal.DinnerContinuousHours', 12.0) : 12.0;
+            const annualLeaveDays = adminStore ? adminStore.getSlotValue('SiteStaff.Leave.AnnualDays', 18.0) : 18.0;
+
+            const rowsHTML = siteSlots.map((s, idx) => {
+                const valDisplay = s.decimalValue !== null 
+                    ? `<span class="font-mono font-bold text-slate-900">${s.decimalValue.toLocaleString()}</span> <span class="text-[10px] text-slate-500 font-semibold">${s.unit}</span>`
+                    : `<span class="text-slate-700 text-[11px] font-sans">${s.stringValue}</span>`;
+
+                return `
+                    <tr class="hover:bg-slate-50/80 border-b border-slate-100 transition text-xs">
+                        <td class="text-center font-mono text-slate-400 font-bold text-[10.5px]">#${21 + idx}</td>
+                        <td>
+                            <div class="font-bold text-slate-900 text-xs">${s.displayName}</div>
+                            <div class="font-mono text-[9.5px] text-slate-400 mt-0.5">${s.key}</div>
+                        </td>
+                        <td class="bg-slate-50/50 font-medium">
+                            ${valDisplay}
+                        </td>
+                        <td class="text-slate-600 leading-snug">
+                            ${s.description}
+                        </td>
+                        <td class="text-center">
+                            <span class="badge-pill bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <i class="fas fa-shield-check text-[9px]"></i> Enforced
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="space-y-4">
+                    
+                    <!-- Command Header -->
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">HR & Admin Governance · Field Operational Standards</span>
+                                <span class="badge-pill bg-blue-50 text-[#1e2552] border border-blue-200">PolicySlots #21–#40</span>
+                            </div>
+                            <h2 class="text-base font-black text-slate-900 mt-0.5">Site Staff Master Policy Rules & Compliance Framework</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Mandatory operational rules enforcing the 28 km/L fuel formula, 1.8k/18k maintenance milestones, biometric attendance grace, and SIM connectivity.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="../administrator/policy-slots.html?cat=SiteStaff" class="bg-[#1e2552] hover:bg-[#121736] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5 active:scale-95">
+                                <i class="fas fa-sliders text-amber-300"></i> Open Policy Slot Editor
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 5 Master Policy Pillars Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                        
+                        <!-- Pillar 1: Fuel -->
+                        <div class="glass-card p-4 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Site Travel Mileage</span>
+                                <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-gas-pump"></i></span>
+                            </div>
+                            <h3 class="text-xl font-black font-mono text-indigo-950">${fuelRate} km/L</h3>
+                            <p class="text-[10.5px] text-slate-500 leading-tight">Site-to-site travel only. Home↔Office strictly excluded.</p>
+                        </div>
+
+                        <!-- Pillar 2: Tuning -->
+                        <div class="glass-card p-4 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Outstation Tuning</span>
+                                <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-wrench"></i></span>
+                            </div>
+                            <h3 class="text-xl font-black font-mono text-amber-900">PKR ${tuningPkr.toLocaleString()}</h3>
+                            <p class="text-[10.5px] text-slate-500 leading-tight">Every ${tuningKm.toLocaleString()} outstation km milestone.</p>
+                        </div>
+
+                        <!-- Pillar 3: Overhaul -->
+                        <div class="glass-card p-4 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Engine Overhaul</span>
+                                <span class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-cogs"></i></span>
+                            </div>
+                            <h3 class="text-xl font-black font-mono text-purple-950">PKR ${overhaulPkr.toLocaleString()}</h3>
+                            <p class="text-[10.5px] text-slate-500 leading-tight">Every ${overhaulKm.toLocaleString()} km (Lump sum incl. tires).</p>
+                        </div>
+
+                        <!-- Pillar 4: SIM Policy -->
+                        <div class="glass-card p-4 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SIM Penalty</span>
+                                <span class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-sim-card"></i></span>
+                            </div>
+                            <h3 class="text-xl font-black font-mono text-rose-700">PKR ${simPenaltyPkr.toLocaleString()}</h3>
+                            <p class="text-[10.5px] text-slate-500 leading-tight">Deducted for unauthorized or inactive SIM use (>7d).</p>
+                        </div>
+
+                        <!-- Pillar 5: Attendance -->
+                        <div class="glass-card p-4 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Attendance & Lates</span>
+                                <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-user-clock"></i></span>
+                            </div>
+                            <h3 class="text-xl font-black font-mono text-slate-900">${lateGrace}m Grace</h3>
+                            <p class="text-[10.5px] text-slate-500 leading-tight">${lateThreshold} late arrivals = 0.5 day wage deduction.</p>
+                        </div>
+
+                    </div>
+
+                    <!-- 2 Columns: 20 Site Staff Slots Matrix & Live Simulator Suite -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        
+                        <!-- Left 2 Cols: Comprehensive Matrix -->
+                        <div class="lg:col-span-2 glass-card overflow-hidden">
+                            <div class="p-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                    <i class="fas fa-list-check text-indigo-600"></i> All 20 Site Staff Policy Slots (#21–#40 Matrix)
+                                </h3>
+                                <span class="text-[10px] font-mono text-slate-400">cosmixhub.db Enforced</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold text-[10px] uppercase tracking-wider">
+                                        <tr>
+                                            <th class="w-12 text-center">Slot #</th>
+                                            <th>Policy Identifier</th>
+                                            <th class="w-36">Enforced Parameter</th>
+                                            <th>Operational Policy Clause</th>
+                                            <th class="w-24 text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        ${rowsHTML}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Right 1 Col: Live Interactive Recalculator Suite -->
+                        <div class="space-y-4">
+                            
+                            <!-- Box 1: Live Fuel Claim Calculator -->
+                            <div class="glass-card p-4 space-y-3">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                        <i class="fas fa-calculator text-blue-600"></i> Live Fuel Claim Auditor
+                                    </h3>
+                                    <span class="badge-pill bg-blue-50 text-blue-700">${fuelRate} km/L Fixed</span>
+                                </div>
+
+                                <div class="space-y-2.5 text-xs">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Transit Distance (km)</label>
+                                        <input id="calc-km" type="number" value="120" oninput="runPolicyCalc()" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono font-bold outline-none focus:border-[#1e2552]">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Fuel Price (PKR/L)</label>
+                                        <input id="calc-price" type="number" value="275.50" oninput="runPolicyCalc()" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono font-bold outline-none focus:border-[#1e2552]">
+                                    </div>
+
+                                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 pt-2">
+                                        <div class="flex justify-between text-slate-600">
+                                            <span>Consumption (@ ${fuelRate} km/L):</span>
+                                            <span class="font-mono font-bold text-slate-900" id="res-liters">4.29 Liters</span>
+                                        </div>
+                                        <div class="flex justify-between text-slate-600">
+                                            <span>Net Reimbursable:</span>
+                                            <span class="font-mono font-black text-emerald-700 text-sm" id="res-amount">PKR 1,180.71</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Box 2: Attendance & KPI Fine Calculator -->
+                            <div class="glass-card p-4 space-y-3">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                        <i class="fas fa-gavel text-rose-600"></i> Attendance & KPI Fines
+                                    </h3>
+                                    <span class="badge-pill bg-rose-50 text-rose-700">1% / Violation</span>
+                                </div>
+
+                                <div class="space-y-2 text-xs">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Gaming / Social Media Violations</label>
+                                        <input id="calc-gaming" type="number" value="2" oninput="runPolicyCalc()" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl font-mono font-bold outline-none focus:border-[#1e2552]">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Missed Calls (>3h SLA)</label>
+                                        <input id="calc-missed" type="number" value="1" oninput="runPolicyCalc()" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl font-mono font-bold outline-none focus:border-[#1e2552]">
+                                    </div>
+
+                                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1 pt-2">
+                                        <div class="flex justify-between text-slate-600">
+                                            <span>KPI Score Deduction:</span>
+                                            <span class="font-mono font-bold text-rose-700" id="res-kpi-deduct">-3.0%</span>
+                                        </div>
+                                        <div class="flex justify-between text-slate-600">
+                                            <span>Net Performance KPI:</span>
+                                            <span class="font-mono font-black text-slate-900 text-xs" id="res-kpi-score">97.0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function refreshUI() {
+            setPageContent('HR Site Staff Master Policy Rules', renderSiteStaffPolicyUI());
+            runPolicyCalc();
+        }
+
+        window.runPolicyCalc = () => {
+            const adminStore = window.CosmixAdminStore;
+            const fuelRate = adminStore ? adminStore.getSlotValue('SiteStaff.Fuel.KmPerLiter', 28.0) : 28.0;
+
+            const km = parseFloat(document.getElementById('calc-km')?.value) || 0;
+            const price = parseFloat(document.getElementById('calc-price')?.value) || 275.50;
+
+            const liters = km / fuelRate;
+            const amount = liters * price;
+
+            const litersEl = document.getElementById('res-liters');
+            const amtEl = document.getElementById('res-amount');
+            if (litersEl) litersEl.innerText = `${liters.toFixed(2)} Liters`;
+            if (amtEl) amtEl.innerText = `PKR ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            // KPI calculation
+            const games = parseInt(document.getElementById('calc-gaming')?.value) || 0;
+            const missed = parseInt(document.getElementById('calc-missed')?.value) || 0;
+            const gameRate = adminStore ? adminStore.getSlotValue('SiteStaff.Kpi.GamesEvidencePercentPerDay', 1.0) : 1.0;
+            const callRate = adminStore ? adminStore.getSlotValue('SiteStaff.Kpi.MissedCallPercent', 1.0) : 1.0;
+
+            const totalDeduct = (games * gameRate) + (missed * callRate);
+            const netKpi = Math.max(0, 100 - totalDeduct);
+
+            const kpiDeductEl = document.getElementById('res-kpi-deduct');
+            const kpiScoreEl = document.getElementById('res-kpi-score');
+            if (kpiDeductEl) kpiDeductEl.innerText = `-${totalDeduct.toFixed(1)}%`;
+            if (kpiScoreEl) kpiScoreEl.innerText = `${netKpi.toFixed(1)}%`;
+        };
+
+        refreshUI();
+    </script>
+</body>
+</html>

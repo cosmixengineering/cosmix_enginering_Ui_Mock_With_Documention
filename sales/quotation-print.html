@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commercial Quotation & Letterhead - Cosmix Engineering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --navy-primary: #1e2552;
+            --navy-dark: #141938;
+            --navy-light: #2a336f;
+            --slate-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --border-dark: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .font-mono, .sales-money, .mono-val {
+            font-family: 'JetBrains Mono', monospace !important;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+        }
+
+        /* QuestPDF Document Layout Simulation */
+        .questpdf-sheet {
+            background: #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* QuestPDF Table Cell Precision */
+        .q-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8.5px;
+        }
+        .q-table th {
+            background-color: #1e2552;
+            color: #ffffff;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 5px 6px;
+            border: 1px solid #141938;
+            font-size: 7.5px;
+        }
+        .q-table td {
+            padding: 4.5px 6px;
+            border: 1px solid #e2e8f0;
+            vertical-align: middle;
+            color: #1e293b;
+        }
+        .q-table tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+        .q-table tfoot td {
+            background-color: #f1f5f9;
+            font-weight: 700;
+            border: 1px solid #cbd5e1;
+            padding: 5px 6px;
+        }
+
+        .section-header-bar {
+            background: linear-gradient(90deg, #1e2552 0%, #2a336f 100%);
+            color: #ffffff;
+            padding: 4px 10px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .badge-verified {
+            background-color: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            font-size: 7px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .payment-milestone-card {
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            border-radius: 6px;
+            padding: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .payment-milestone-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #1e2552;
+        }
+
+        .signature-box {
+            border: 1px dashed #cbd5e1;
+            background-color: #fafbfd;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .questpdf-sheet {
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 8mm 10mm;
+            }
+            .page-break-before {
+                page-break-before: always;
+                break-before: page;
+            }
+            .avoid-break {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-6 flex flex-col items-center">
+
+    <!-- Top Toolbar (Excluded from Print) -->
+    <header class="no-print w-full max-w-[210mm] mb-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+            <a href="quotations.html" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                <i class="fas fa-arrow-left"></i> Quotations
+            </a>
+            <a href="quotation-detail.html?id=QTN-2609-019&rev=R1" id="btn-back-detail" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                <i class="fas fa-file-lines"></i> Revision Detail
+            </a>
+            <span class="text-slate-300">|</span>
+            <label for="quote-select" class="text-xs text-slate-600 font-medium">Quotation:</label>
+            <select id="quote-select" onchange="switchQuotation(this.value)" class="border border-slate-300 rounded-md px-2.5 py-1 text-xs font-mono font-bold text-slate-800 outline-none bg-white focus:border-[#1e2552]">
+                <option value="QTN-2609-019::R1">QTN-2609-019/R1 (Indus Motor Company · Approved Baseline)</option>
+                <option value="QTN-2609-019::R0">QTN-2609-019/R0 (Indus Motor Company · Original Issue)</option>
+                <option value="QTN-2609-018::R2">QTN-2609-018/R2 (Grand Monarch Residency · Apartment VRF)</option>
+                <option value="QTN-2604-006::R1">QTN-2604-006/R1 (Corporate Office Group · Tender Revalidation)</option>
+                <option value="QTN-2608-011::R3">QTN-2608-011/R3 (Lucky Cement · Plant Ventilation Upgrade)</option>
+            </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button onclick="window.print()" class="px-4 py-1.5 bg-[#1e2552] hover:bg-[#141938] text-white rounded-lg text-xs font-bold shadow flex items-center gap-1.5 transition">
+                <i class="fas fa-print text-amber-300"></i> Print / Save as PDF
+            </button>
+        </div>
+    </header>
+
+    <!-- QuestPDF Engineered Letterhead Document -->
+    <main class="questpdf-sheet p-6 sm:p-8 space-y-4">
+
+        <!-- Header: Official Cosmix Engineering Letterhead -->
+        <header class="border-b-2 border-[#1e2552] pb-3">
+            <div class="flex justify-between items-start">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-14 h-14 rounded-xl bg-[#1e2552] text-white flex flex-col items-center justify-center font-black shadow-md shrink-0 border border-[#141938]">
+                        <span class="text-xl leading-none font-extrabold tracking-wider">CE</span>
+                        <span class="text-[7px] tracking-widest text-indigo-200 mt-0.5">EST. 2008</span>
+                    </div>
+                    <div>
+                        <h1 class="text-base font-extrabold text-[#1e2552] uppercase tracking-wide leading-tight">COSMIX ENGINEERING (PVT) LTD</h1>
+                        <p class="text-[9.5px] font-semibold text-slate-700">Turnkey MEP Contracting, HVAC, Cleanroom & Industrial Engineering Solutions</p>
+                        <p class="text-[8.5px] text-slate-500 font-mono mt-0.5">Plot 12-C, PECHS Block 6, Shahrah-e-Faisal, Karachi 75400 | Phone: +92 21 34567890 | Email: sales@cosmixengineering.com</p>
+                        <p class="text-[8.5px] text-slate-500 font-mono">NTN: <strong class="text-slate-800">7291048-2</strong> | STRN: <strong class="text-slate-800">17-00-7291-048-11</strong> | PEC License: <strong class="text-slate-800">PEC-MEP-04821 (C3)</strong></p>
+                    </div>
+                </div>
+
+                <div class="text-right">
+                    <div class="inline-block px-3 py-0.5 bg-[#1e2552] text-white text-[8px] font-bold rounded uppercase tracking-wider">
+                        Official Commercial Quotation
+                    </div>
+                    <div class="mt-1.5 font-mono text-sm font-black text-[#1e2552]" id="doc-quote-no">QTN-2609-019/R1</div>
+                    <div class="text-[8.5px] text-slate-500 font-medium">Issue Date: <strong class="font-mono text-slate-800" id="doc-quote-date">24 Sep 2026</strong></div>
+                    <div class="text-[8px] text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-block mt-1" id="doc-quote-validity">
+                        Validity: 15 Calendar Days
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Client Information & Quotation Metadata Matrix -->
+        <section class="grid grid-cols-12 gap-3 bg-[#f8fafc] p-3 rounded-lg border border-slate-200 text-[9px]">
+            <div class="col-span-7 space-y-0.5 border-r border-slate-200 pr-2">
+                <span class="text-[7.5px] font-bold uppercase tracking-wider text-slate-400 block">Customer Information & Project Details:</span>
+                <div class="text-xs font-bold text-slate-900" id="doc-client-name">Indus Motor Company (Pvt) Ltd</div>
+                <div class="text-slate-700 font-medium">Project: <strong class="text-[#1e2552]" id="doc-project-name">Admin Building HVAC System Installation</strong></div>
+                <div class="text-slate-500">Site Location: <span id="doc-site-address">Plot N.W.Z/1/P-1, Port Qasim Authority, Bin Qasim, Karachi</span></div>
+                <div class="text-slate-600">Attention: <strong class="text-slate-800" id="doc-attention">Procurement Committee / Head of Technical Services</strong></div>
+            </div>
+
+            <div class="col-span-5 space-y-1 pl-1">
+                <span class="text-[7.5px] font-bold uppercase tracking-wider text-slate-400 block">Commercial Control Particulars:</span>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Inquiry Ref:</span>
+                    <strong class="font-mono text-slate-800" id="doc-inquiry-ref">INQ-2609-014</strong>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Selection Schedule:</span>
+                    <strong class="font-mono text-slate-800" id="doc-selection-ref">SEL-2609-014-R1</strong>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Quotation Baseline:</span>
+                    <strong class="font-mono text-slate-800" id="doc-baseline-status">Approved Management Offer</strong>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Currency / Pricing Basis:</span>
+                    <strong class="font-mono text-[#1e2552]" id="doc-currency-basis">PKR (Pakistani Rupees)</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scope Overview -->
+        <section class="text-[8.5px] text-slate-600 leading-relaxed bg-white border-l-2 border-[#1e2552] pl-2 py-0.5">
+            <strong>Scope of Proposal:</strong> Supply, delivery, technical positioning, installation supervision, and commissioning of AUX Commercial Inverter VRF Outdoor Units, Indoor Cassette / Ducted / Wall-Mounted Units, Wired/Wireless Microprocessor Controllers, Refrigerant Y-Branch Joints, and Certified Copper Piping Schedule as detailed herein.
+        </section>
+
+        <!-- Section 1: Equipment Schedule Table (AUX VRF Units) -->
+        <section class="space-y-1.5">
+            <div class="section-header-bar">
+                <span><i class="fas fa-fan mr-1 text-amber-300"></i> 1. AUX VRF Equipment Schedule & Specifications</span>
+                <span class="font-mono text-[8px] text-indigo-200">AUX Commercial Air Conditioning</span>
+            </div>
+
+            <table class="q-table">
+                <thead>
+                    <tr>
+                        <th class="text-center w-6">#</th>
+                        <th class="w-16">Section</th>
+                        <th class="w-32">AUX Model Code</th>
+                        <th>Technical Specification & Nominal Capacity</th>
+                        <th class="w-24 text-center">Dimensions (W×D×H mm)</th>
+                        <th class="text-center w-8">Qty</th>
+                        <th class="text-center w-8">Unit</th>
+                        <th class="text-right w-20">Unit Rate (PKR)</th>
+                        <th class="text-right w-24">Line Total (PKR)</th>
+                    </tr>
+                </thead>
+                <tbody id="doc-equipment-tbody">
+                    <!-- Populated dynamically via JavaScript -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="7" class="text-right font-bold uppercase text-slate-700 text-[8px]">
+                            Equipment Schedule Subtotal (AUX VRF Units):
+                        </td>
+                        <td class="text-center font-mono font-bold text-slate-600" id="doc-eq-qty-total">0 Units</td>
+                        <td class="text-right font-mono font-bold text-[#1e2552] text-[9px]" id="doc-equipment-subtotal">PKR 0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </section>
+
+        <!-- Section 2: Linked Accessories, Controls & Piping Table -->
+        <section class="space-y-1.5 avoid-break">
+            <div class="section-header-bar">
+                <span><i class="fas fa-sliders mr-1 text-amber-300"></i> 2. Mandatory Linked Accessories, Controls & Piping Kit Schedule</span>
+                <span class="font-mono text-[8px] text-indigo-200">Standard Certified Accessories</span>
+            </div>
+
+            <table class="q-table">
+                <thead>
+                    <tr>
+                        <th class="text-center w-6">#</th>
+                        <th class="w-20">Category</th>
+                        <th class="w-28">Model / Item Code</th>
+                        <th>Specification & System Application</th>
+                        <th class="text-center w-8">Qty</th>
+                        <th class="text-center w-8">Unit</th>
+                        <th class="text-right w-20">Unit Rate (PKR)</th>
+                        <th class="text-right w-24">Line Total (PKR)</th>
+                    </tr>
+                </thead>
+                <tbody id="doc-accessories-tbody">
+                    <!-- Populated dynamically via JavaScript -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6" class="text-right font-bold uppercase text-slate-700 text-[8px]">
+                            Linked Accessories, Controls & Piping Subtotal:
+                        </td>
+                        <td class="text-center font-mono font-bold text-slate-600" id="doc-acc-qty-total">0 Items</td>
+                        <td class="text-right font-mono font-bold text-[#1e2552] text-[9px]" id="doc-accessories-subtotal">PKR 0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </section>
+
+        <!-- Section 3: Commercial Financial Summary Matrix -->
+        <section class="avoid-break grid grid-cols-12 gap-3 pt-1">
+            <!-- Left: Bank Remittance Details & Corporate Credentials -->
+            <div class="col-span-6 bg-[#f8fafc] p-2.5 rounded-lg border border-slate-200 text-[8px] space-y-1">
+                <div class="font-bold text-[#1e2552] uppercase tracking-wider text-[8.5px] border-b border-slate-200 pb-1 flex items-center justify-between">
+                    <span><i class="fas fa-building-columns mr-1 text-slate-500"></i> Official Bank Settlement Account</span>
+                    <span class="badge-verified">FBR Active Taxpayer</span>
+                </div>
+                <div class="grid grid-cols-2 gap-x-2 gap-y-0.5 pt-0.5">
+                    <div>Beneficiary: <strong>Cosmix Engineering (Pvt) Ltd</strong></div>
+                    <div>Bank: <strong>Meezan Bank Ltd</strong></div>
+                    <div>Account Number: <strong class="font-mono text-slate-900">0109-2841029301</strong></div>
+                    <div>Branch: <strong>PECHS Branch, Karachi</strong></div>
+                    <div class="col-span-2">IBAN: <strong class="font-mono text-slate-900 text-[8.5px]">PK42MEZN0001092841029301</strong></div>
+                </div>
+                <p class="text-slate-400 text-[7.5px] pt-0.5 border-t border-slate-200">Please reference quotation number on pay orders, swift messages and corporate cross cheques.</p>
+            </div>
+
+            <!-- Right: Commercial Pricing Math Breakdown -->
+            <div class="col-span-6 bg-[#f8fafc] p-2.5 rounded-lg border border-slate-200 text-[8.5px] space-y-1">
+                <div class="flex justify-between text-slate-600">
+                    <span>AUX VRF Equipment Schedule Subtotal:</span>
+                    <span class="font-mono font-bold text-slate-800" id="sum-eq-subtotal">PKR 0</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span>Linked Accessories, Controls & Piping Subtotal:</span>
+                    <span class="font-mono font-bold text-slate-800" id="sum-acc-subtotal">PKR 0</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span>Logistics, Site Delivery & Handling:</span>
+                    <span class="font-mono font-bold text-slate-800" id="sum-freight">PKR 180,000</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span>Installation Supervision, Testing & Commissioning:</span>
+                    <span class="font-mono font-bold text-slate-800" id="sum-installation">PKR 1,150,000</span>
+                </div>
+                <div class="flex justify-between text-slate-600 border-t border-slate-200 pt-0.5" id="row-discount">
+                    <span class="text-emerald-700 font-semibold">Commercial Management Discount:</span>
+                    <span class="font-mono font-bold text-emerald-700" id="sum-discount">- PKR 0</span>
+                </div>
+                <div class="flex justify-between items-center bg-[#1e2552] text-white p-2 rounded mt-1">
+                    <div>
+                        <span class="text-[8px] uppercase tracking-wider text-indigo-200 block">Total Final Quotation Offer (PKR):</span>
+                        <span class="text-[7.5px] text-slate-300 italic" id="sum-words">Twenty-Six Million Nine Hundred Fifty Thousand Only</span>
+                    </div>
+                    <span class="font-mono text-sm font-extrabold text-amber-300" id="sum-grand-total">PKR 0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Payment Terms Breakdown Matrix -->
+        <section class="avoid-break space-y-1.5 pt-1">
+            <div class="section-header-bar">
+                <span><i class="fas fa-credit-card mr-1 text-amber-300"></i> 3. Commercial Payment Schedule & Milestones</span>
+                <span class="font-mono text-[8px] text-indigo-200">100% Contract Value</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 text-[8.5px]">
+                <div class="payment-milestone-card space-y-1">
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-[#1e2552] uppercase tracking-wide text-[8px]">Milestone 1 · Advance</span>
+                        <span class="font-mono font-extrabold text-xs text-[#1e2552]">65%</span>
+                    </div>
+                    <div class="font-mono font-bold text-slate-900 text-[10px]" id="pay-milestone-1">PKR 0</div>
+                    <p class="text-slate-500 text-[7.5px] leading-tight">Payable upon formal Purchase Order acceptance and commercial contract agreement signing.</p>
+                </div>
+
+                <div class="payment-milestone-card space-y-1">
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-[#1e2552] uppercase tracking-wide text-[8px]">Milestone 2 · Dispatch</span>
+                        <span class="font-mono font-extrabold text-xs text-[#1e2552]">30%</span>
+                    </div>
+                    <div class="font-mono font-bold text-slate-900 text-[10px]" id="pay-milestone-2">PKR 0</div>
+                    <p class="text-slate-500 text-[7.5px] leading-tight">Payable upon material inspection readiness notice prior to dispatch to project site.</p>
+                </div>
+
+                <div class="payment-milestone-card space-y-1">
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-[#1e2552] uppercase tracking-wide text-[8px]">Milestone 3 · Handover</span>
+                        <span class="font-mono font-extrabold text-xs text-[#1e2552]">5%</span>
+                    </div>
+                    <div class="font-mono font-bold text-slate-900 text-[10px]" id="pay-milestone-3">PKR 0</div>
+                    <p class="text-slate-500 text-[7.5px] leading-tight">Payable upon successful system testing, commissioning, and final technical handover sign-off.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Standard Commercial Terms & Warranty Conditions -->
+        <section class="avoid-break space-y-1.5 pt-1">
+            <div class="section-header-bar">
+                <span><i class="fas fa-file-contract mr-1 text-amber-300"></i> 4. Standard Commercial Terms & Technical Warranty Conditions</span>
+                <span class="font-mono text-[8px] text-indigo-200">Legal & Operational Basis</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 bg-[#f8fafc] p-3 rounded-lg border border-slate-200 text-[8px] leading-relaxed text-slate-700">
+                <div class="space-y-1.5 border-r border-slate-200 pr-3">
+                    <div>
+                        <strong class="text-[#1e2552] block text-[8.5px]">4.1 Equipment Warranty & Service Coverage:</strong>
+                        <ul class="list-disc list-inside space-y-0.5 text-slate-600 mt-0.5">
+                            <li><strong>1 (One) Year Comprehensive Warranty</strong> covering all electrical components, PCB control boards, sensors, fan motors, and functional parts against manufacturing defects.</li>
+                            <li><strong>5 (Five) Years Manufacturer Warranty</strong> exclusively on AUX Inverter VRF Compressors.</li>
+                            <li>Warranty becomes effective from the date of official commissioning or 18 months from delivery date, whichever occurs earlier.</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <strong class="text-[#1e2552] block text-[8.5px]">4.2 Delivery Lead Time:</strong>
+                        <p class="text-slate-600">12 to 14 weeks from the date of confirmed Purchase Order issuance, receipt of contractual advance payment, and final approval of MEP layout drawings.</p>
+                    </div>
+
+                    <div>
+                        <strong class="text-[#1e2552] block text-[8.5px]">4.3 Currency & FX Benchmark:</strong>
+                        <p class="text-slate-600">Prices are based on USD/PKR benchmark exchange rate of Rs. 279.50. Foreign currency fluctuation exceeding ±2.0% at the time of import retirement shall be adjusted accordingly.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5 pl-1">
+                    <div>
+                        <strong class="text-[#1e2552] block text-[8.5px]">4.4 Statutory Taxes & Levies:</strong>
+                        <p class="text-slate-600">Prices are quoted exclusive of applicable provincial sales tax (SRB 13% / PRA 16%) and withholding tax, which shall be invoiced per statutory government regulations.</p>
+                    </div>
+
+                    <div>
+                        <strong class="text-[#1e2552] block text-[8.5px]">4.5 Site Preparedness & Scope Inclusions / Exclusions:</strong>
+                        <ul class="list-disc list-inside space-y-0.5 text-slate-600 mt-0.5">
+                            <li>Included: Equipment supply, factory warranties, standard branch kits, and testing supervision.</li>
+                            <li>Excluded: Civil foundation pads, main 3-phase electrical power cable up to outdoor isolators, drain piping, and ceiling cutting unless explicitly contracted.</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <strong class="text-[#1e2552] block text-[8.5px]">4.6 Validity of Quotation:</strong>
+                        <p class="text-slate-600">This quotation remains valid for 15 calendar days from the date of issuance. Commercial revalidation is required thereafter.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Authorized Signature Blocks -->
+        <section class="avoid-break space-y-1.5 pt-1">
+            <div class="section-header-bar">
+                <span><i class="fas fa-signature mr-1 text-amber-300"></i> 5. Authorization & Contractual Acceptance Signatures</span>
+                <span class="font-mono text-[8px] text-indigo-200">Tri-Party Authorization</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 text-[8px]">
+                <!-- Prepared By -->
+                <div class="signature-box space-y-2">
+                    <span class="text-[7.5px] font-bold uppercase tracking-wider text-slate-400 block">Prepared By</span>
+                    <div class="h-10 flex items-center justify-center">
+                        <span class="font-mono text-[9px] text-indigo-900 font-bold italic">Engr. M. Zeeshan</span>
+                    </div>
+                    <div class="border-t border-slate-300 pt-1">
+                        <p class="font-bold text-slate-800 text-[8.5px]">Sales Engineer</p>
+                        <p class="text-slate-500 text-[7.5px]">Cosmix Engineering (Pvt) Ltd</p>
+                        <p class="text-slate-400 font-mono text-[7px] mt-0.5">Date: 24 Sep 2026</p>
+                    </div>
+                </div>
+
+                <!-- Verified By -->
+                <div class="signature-box space-y-2">
+                    <span class="text-[7.5px] font-bold uppercase tracking-wider text-slate-400 block">Verified & Approved By</span>
+                    <div class="h-10 flex items-center justify-center">
+                        <span class="font-mono text-[9px] text-indigo-900 font-bold italic">Syed Tariq Ali</span>
+                    </div>
+                    <div class="border-t border-slate-300 pt-1">
+                        <p class="font-bold text-slate-800 text-[8.5px]">Commercial Director</p>
+                        <p class="text-slate-500 text-[7.5px]">Cosmix Engineering (Pvt) Ltd</p>
+                        <p class="text-slate-400 font-mono text-[7px] mt-0.5">Date: 24 Sep 2026</p>
+                    </div>
+                </div>
+
+                <!-- Client Acceptance -->
+                <div class="signature-box space-y-2 bg-slate-50/50">
+                    <span class="text-[7.5px] font-bold uppercase tracking-wider text-slate-400 block">Client Acceptance & Confirmation</span>
+                    <div class="h-10 flex items-center justify-center">
+                        <span class="text-[7px] text-slate-400 italic">Official Stamp & Signature</span>
+                    </div>
+                    <div class="border-t border-slate-300 pt-1">
+                        <p class="font-bold text-slate-800 text-[8.5px]">Authorized Representative</p>
+                        <p class="text-slate-500 text-[7.5px]" id="sig-client-name">Indus Motor Company (Pvt) Ltd</p>
+                        <p class="text-slate-400 font-mono text-[7px] mt-0.5">Date: ____________________</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer: Document Control & Verification Notice -->
+        <footer class="avoid-break border-t border-slate-200 pt-2 flex justify-between items-center text-[7.5px] text-slate-400 font-mono">
+            <div>
+                <i class="fas fa-shield-halved text-emerald-600 mr-1"></i> Cosmix ERP QuestPDF Document Engine · Ref: <span id="footer-doc-ref" class="text-slate-600 font-bold">QTN-2609-019/R1</span>
+            </div>
+            <div>
+                Security Verification Hash: <strong class="text-slate-700">CE-VRF-2026-9812</strong>
+            </div>
+            <div>
+                Page 1 of 1 · Confidential Commercial Proposal
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // Full Master Technical Dataset for AUX Commercial VRF Systems
+        const QUOTATION_DATASETS = {
+            'QTN-2609-019::R1': {
+                id: 'QTN-2609-019',
+                rev: 'R1',
+                inquiry: 'INQ-2609-014',
+                selection: 'SEL-2609-014-R1',
+                client: 'Indus Motor Company (Pvt) Ltd',
+                project: 'Admin Building HVAC System Installation',
+                site: 'Plot N.W.Z/1/P-1, Port Qasim Authority, Bin Qasim, Karachi',
+                attention: 'Procurement Committee / Head of Technical Services',
+                date: '24 Sep 2026',
+                validity: '15 Calendar Days (Valid until 09 Oct 2026)',
+                currency: 'PKR',
+                freight: 180000,
+                installation: 1150000,
+                discount: 337895,
+                approvedGrandTotal: 26950000,
+                equipmentLines: [
+                    { section: 'Outdoor Unit', model: 'ARV-H160/NR1A', desc: 'Mini VRF Outdoor Unit · 4.6 TR (16.0 kW / 54,600 Btu/h)', dim: '940×340×1250', qty: 2, unit: 'pc', rate: 726000 },
+                    { section: 'Outdoor Unit', model: 'ARV-H180/SR1DCS7A', desc: 'Mini VRF Outdoor Unit · 5.1 TR (18.0 kW / 61,400 Btu/h)', dim: '940×340×1430', qty: 3, unit: 'pc', rate: 897600 },
+                    { section: 'Outdoor Unit', model: 'ARV-H224/SR1DCMA', desc: 'Modular Mini VRF Outdoor Unit · 6.4 TR (22.4 kW / 76,400 Btu/h)', dim: '990×790×1615', qty: 4, unit: 'pc', rate: 1221000 },
+                    { section: 'Outdoor Unit', model: 'ARV-H252/SR1DCMA', desc: 'Modular Mini VRF Outdoor Unit · 7.2 TR (25.2 kW / 86,000 Btu/h)', dim: '990×790×1615', qty: 4, unit: 'pc', rate: 1267200 },
+                    { section: 'Indoor Unit', model: 'ARVCA-H45/NR3DQB', desc: 'Q-Series DC 4-Way Cassette · 1.3 TR (4.5 kW / 15,350 Btu/h)', dim: '840×840×248', qty: 2, unit: 'pc', rate: 174900 },
+                    { section: 'Indoor Unit', model: 'ARVCA-H71/NR3DQB', desc: 'Q-Series DC 4-Way Cassette · 2.0 TR (7.1 kW / 24,200 Btu/h)', dim: '840×840×248', qty: 2, unit: 'pc', rate: 190740 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H71/4R1M', desc: 'Medium ESP Concealed Duct Unit · 2.0 TR (7.1 kW / 24,200 Btu/h)', dim: '1140×700×268', qty: 1, unit: 'pc', rate: 181500 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H80/4R1M', desc: 'Medium ESP Concealed Duct Unit · 2.3 TR (8.0 kW / 27,300 Btu/h)', dim: '1140×700×268', qty: 5, unit: 'pc', rate: 188100 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H90/4R1M', desc: 'Medium ESP Concealed Duct Unit · 2.6 TR (9.0 kW / 30,700 Btu/h)', dim: '1140×700×268', qty: 2, unit: 'pc', rate: 197340 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H100/4R1M', desc: 'Medium ESP Concealed Duct Unit · 2.8 TR (10.0 kW / 34,100 Btu/h)', dim: '1140×700×268', qty: 6, unit: 'pc', rate: 207900 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H112/4R1M', desc: 'Medium ESP Concealed Duct Unit · 3.2 TR (11.2 kW / 38,200 Btu/h)', dim: '1340×700×268', qty: 4, unit: 'pc', rate: 231000 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H125/4R1M', desc: 'Medium ESP Concealed Duct Unit · 3.6 TR (12.5 kW / 42,600 Btu/h)', dim: '1340×700×268', qty: 2, unit: 'pc', rate: 237600 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H140/4R1M', desc: 'Medium ESP Concealed Duct Unit · 4.0 TR (14.0 kW / 47,800 Btu/h)', dim: '1340×700×268', qty: 1, unit: 'pc', rate: 245520 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H150/NR1DM', desc: 'Medium ESP Concealed Duct Unit · 4.3 TR (15.0 kW / 51,200 Btu/h)', dim: '1340×700×268', qty: 1, unit: 'pc', rate: 279840 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H160/NR1DM', desc: 'Medium ESP Concealed Duct Unit · 4.6 TR (16.0 kW / 54,600 Btu/h)', dim: '1340×700×268', qty: 1, unit: 'pc', rate: 298980 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H022/NR1DJA', desc: 'DC Wall Mounted Unit · 0.6 TR (2.2 kW / 7,500 Btu/h)', dim: '815×210×270', qty: 4, unit: 'pc', rate: 112200 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H028/NR1DJA', desc: 'DC Wall Mounted Unit · 0.8 TR (2.8 kW / 9,550 Btu/h)', dim: '815×210×270', qty: 3, unit: 'pc', rate: 115500 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H036/NR1DJA', desc: 'DC Wall Mounted Unit · 1.0 TR (3.6 kW / 12,300 Btu/h)', dim: '915×220×290', qty: 1, unit: 'pc', rate: 118800 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H045/NR1DJA', desc: 'DC Wall Mounted Unit · 1.3 TR (4.5 kW / 15,350 Btu/h)', dim: '1072×238×315', qty: 2, unit: 'pc', rate: 132000 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H056/NR1DJA', desc: 'DC Wall Mounted Unit · 1.6 TR (5.6 kW / 19,100 Btu/h)', dim: '1072×238×315', qty: 1, unit: 'pc', rate: 135300 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H071/NR1DJA', desc: 'DC Wall Mounted Unit · 2.0 TR (7.1 kW / 24,200 Btu/h)', dim: '1072×238×315', qty: 1, unit: 'pc', rate: 145200 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H080/NR1DCA', desc: 'DC Wall Mounted Unit · 2.3 TR (8.0 kW / 27,300 Btu/h)', dim: '1280×245×345', qty: 1, unit: 'pc', rate: 181500 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H100/NR1DCA', desc: 'DC Wall Mounted Unit · 2.8 TR (10.0 kW / 34,100 Btu/h)', dim: '1280×245×345', qty: 1, unit: 'pc', rate: 195360 }
+                ],
+                accessoriesLines: [
+                    { cat: 'Controller', code: 'YK-H', desc: 'Wireless Infrared Remote Controller with Backlit LCD Screen & Wall Cradle', qty: 18, unit: 'pc', rate: 6600 },
+                    { cat: 'Controller', code: 'XK-05A', desc: 'Touch-Key Wired Wall Controller with Weekly Schedule & Backlit Display', qty: 23, unit: 'pc', rate: 23100 },
+                    { cat: 'Cassette Grille', code: 'MB10 / MB13-I', desc: 'Air-Flow Decorative Grille Panel with 360° Circular Discharge for 4-Way Cassette', qty: 4, unit: 'pc', rate: 33000 },
+                    { cat: 'Branch Joint', code: 'AFG-00B', desc: 'AUX VRF Refrigerant Y-Branch Joint Kit (Liquid & Gas Pair)', qty: 8, unit: 'pc', rate: 9900 },
+                    { cat: 'Branch Joint', code: 'AFG-12B', desc: 'AUX VRF Refrigerant Y-Branch Joint Kit (Liquid & Gas Pair)', qty: 20, unit: 'pc', rate: 13200 },
+                    { cat: 'Copper Piping', code: 'ASTM-B280', desc: 'Refrigerant Copper Piping Bundle (Assorted Sizes ASTM B280 Seamless Deoxidized)', qty: 850, unit: 'm', rate: 4850 },
+                    { cat: 'Insulation', code: 'NBR-19MM', desc: 'Class 0 Closed-Cell Elastomeric Nitrile Rubber Thermal Insulation (19mm Wall)', qty: 850, unit: 'm', rate: 620 }
+                ]
+            },
+            'QTN-2609-019::R0': {
+                id: 'QTN-2609-019',
+                rev: 'R0',
+                inquiry: 'INQ-2609-014',
+                selection: 'SEL-2609-014-R1',
+                client: 'Indus Motor Company (Pvt) Ltd',
+                project: 'Admin Building HVAC System Installation',
+                site: 'Plot N.W.Z/1/P-1, Port Qasim Authority, Bin Qasim, Karachi',
+                attention: 'Procurement Committee / Head of Technical Services',
+                date: '17 Sep 2026',
+                validity: '15 Calendar Days (Valid until 02 Oct 2026)',
+                currency: 'PKR',
+                freight: 180000,
+                installation: 1150000,
+                discount: 0,
+                approvedGrandTotal: 27287895,
+                equipmentLines: [
+                    { section: 'Outdoor Unit', model: 'ARV-H160/NR1A', desc: 'Mini VRF Outdoor Unit · 4.6 TR (16.0 kW / 54,600 Btu/h)', dim: '940×340×1250', qty: 2, unit: 'pc', rate: 726000 },
+                    { section: 'Outdoor Unit', model: 'ARV-H180/SR1DCS7A', desc: 'Mini VRF Outdoor Unit · 5.1 TR (18.0 kW / 61,400 Btu/h)', dim: '940×340×1430', qty: 3, unit: 'pc', rate: 897600 },
+                    { section: 'Outdoor Unit', model: 'ARV-H224/SR1DCMA', desc: 'Modular Mini VRF Outdoor Unit · 6.4 TR (22.4 kW / 76,400 Btu/h)', dim: '990×790×1615', qty: 4, unit: 'pc', rate: 1221000 },
+                    { section: 'Outdoor Unit', model: 'ARV-H252/SR1DCMA', desc: 'Modular Mini VRF Outdoor Unit · 7.2 TR (25.2 kW / 86,000 Btu/h)', dim: '990×790×1615', qty: 4, unit: 'pc', rate: 1267200 },
+                    { section: 'Indoor Unit', model: 'ARVCA-H45/NR3DQB', desc: 'Q-Series DC 4-Way Cassette · 1.3 TR (4.5 kW / 15,350 Btu/h)', dim: '840×840×248', qty: 2, unit: 'pc', rate: 174900 },
+                    { section: 'Indoor Unit', model: 'ARVCA-H71/NR3DQB', desc: 'Q-Series DC 4-Way Cassette · 2.0 TR (7.1 kW / 24,200 Btu/h)', dim: '840×840×248', qty: 2, unit: 'pc', rate: 190740 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H71/4R1M', desc: 'Medium ESP Concealed Duct Unit · 2.0 TR (7.1 kW / 24,200 Btu/h)', dim: '1140×700×268', qty: 1, unit: 'pc', rate: 181500 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H80/4R1M', desc: 'Medium ESP Concealed Duct Unit · 2.3 TR (8.0 kW / 27,300 Btu/h)', dim: '1140×700×268', qty: 5, unit: 'pc', rate: 188100 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H90/4R1M', desc: 'Medium ESP Concealed Duct Unit · 2.6 TR (9.0 kW / 30,700 Btu/h)', dim: '1140×700×268', qty: 2, unit: 'pc', rate: 197340 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H100/4R1M', desc: 'Medium ESP Concealed Duct Unit · 2.8 TR (10.0 kW / 34,100 Btu/h)', dim: '1140×700×268', qty: 6, unit: 'pc', rate: 207900 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H112/4R1M', desc: 'Medium ESP Concealed Duct Unit · 3.2 TR (11.2 kW / 38,200 Btu/h)', dim: '1340×700×268', qty: 4, unit: 'pc', rate: 231000 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H125/4R1M', desc: 'Medium ESP Concealed Duct Unit · 3.6 TR (12.5 kW / 42,600 Btu/h)', dim: '1340×700×268', qty: 2, unit: 'pc', rate: 237600 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H140/4R1M', desc: 'Medium ESP Concealed Duct Unit · 4.0 TR (14.0 kW / 47,800 Btu/h)', dim: '1340×700×268', qty: 1, unit: 'pc', rate: 245520 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H150/NR1DM', desc: 'Medium ESP Concealed Duct Unit · 4.3 TR (15.0 kW / 51,200 Btu/h)', dim: '1340×700×268', qty: 1, unit: 'pc', rate: 279840 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H160/NR1DM', desc: 'Medium ESP Concealed Duct Unit · 4.6 TR (16.0 kW / 54,600 Btu/h)', dim: '1340×700×268', qty: 1, unit: 'pc', rate: 298980 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H022/NR1DJA', desc: 'DC Wall Mounted Unit · 0.6 TR (2.2 kW / 7,500 Btu/h)', dim: '815×210×270', qty: 4, unit: 'pc', rate: 112200 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H028/NR1DJA', desc: 'DC Wall Mounted Unit · 0.8 TR (2.8 kW / 9,550 Btu/h)', dim: '815×210×270', qty: 3, unit: 'pc', rate: 115500 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H036/NR1DJA', desc: 'DC Wall Mounted Unit · 1.0 TR (3.6 kW / 12,300 Btu/h)', dim: '915×220×290', qty: 1, unit: 'pc', rate: 118800 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H045/NR1DJA', desc: 'DC Wall Mounted Unit · 1.3 TR (4.5 kW / 15,350 Btu/h)', dim: '1072×238×315', qty: 2, unit: 'pc', rate: 132000 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H056/NR1DJA', desc: 'DC Wall Mounted Unit · 1.6 TR (5.6 kW / 19,100 Btu/h)', dim: '1072×238×315', qty: 1, unit: 'pc', rate: 135300 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H071/NR1DJA', desc: 'DC Wall Mounted Unit · 2.0 TR (7.1 kW / 24,200 Btu/h)', dim: '1072×238×315', qty: 1, unit: 'pc', rate: 145200 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H080/NR1DCA', desc: 'DC Wall Mounted Unit · 2.3 TR (8.0 kW / 27,300 Btu/h)', dim: '1280×245×345', qty: 1, unit: 'pc', rate: 181500 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H100/NR1DCA', desc: 'DC Wall Mounted Unit · 2.8 TR (10.0 kW / 34,100 Btu/h)', dim: '1280×245×345', qty: 1, unit: 'pc', rate: 195360 }
+                ],
+                accessoriesLines: [
+                    { cat: 'Controller', code: 'YK-H', desc: 'Wireless Infrared Remote Controller with Backlit LCD Screen & Wall Cradle', qty: 18, unit: 'pc', rate: 6600 },
+                    { cat: 'Controller', code: 'XK-05A', desc: 'Touch-Key Wired Wall Controller with Weekly Schedule & Backlit Display', qty: 23, unit: 'pc', rate: 23100 },
+                    { cat: 'Cassette Grille', code: 'MB10 / MB13-I', desc: 'Air-Flow Decorative Grille Panel with 360° Circular Discharge for 4-Way Cassette', qty: 4, unit: 'pc', rate: 33000 },
+                    { cat: 'Branch Joint', code: 'AFG-00B', desc: 'AUX VRF Refrigerant Y-Branch Joint Kit (Liquid & Gas Pair)', qty: 8, unit: 'pc', rate: 9900 },
+                    { cat: 'Branch Joint', code: 'AFG-12B', desc: 'AUX VRF Refrigerant Y-Branch Joint Kit (Liquid & Gas Pair)', qty: 20, unit: 'pc', rate: 13200 },
+                    { cat: 'Copper Piping', code: 'ASTM-B280', desc: 'Refrigerant Copper Piping Bundle (Assorted Sizes ASTM B280 Seamless Deoxidized)', qty: 850, unit: 'm', rate: 4850 },
+                    { cat: 'Insulation', code: 'NBR-19MM', desc: 'Class 0 Closed-Cell Elastomeric Nitrile Rubber Thermal Insulation (19mm Wall)', qty: 850, unit: 'm', rate: 620 }
+                ]
+            },
+            'QTN-2609-018::R2': {
+                id: 'QTN-2609-018',
+                rev: 'R2',
+                inquiry: 'INQ-2609-015',
+                selection: 'SEL-2609-015-R2',
+                client: 'Grand Monarch Residency (Pvt) Ltd',
+                project: 'Apartment VRF Air Conditioning Packages',
+                site: 'Block 2, Clifton, Karachi',
+                attention: 'Project Management & Commercial Director',
+                date: '15 Sep 2026',
+                validity: '15 Calendar Days (Valid until 30 Sep 2026)',
+                currency: 'PKR',
+                freight: 120000,
+                installation: 680000,
+                discount: 150000,
+                approvedGrandTotal: 14041500,
+                equipmentLines: [
+                    { section: 'Outdoor Unit', model: 'ARV-H160/NR1A', desc: 'Mini VRF Outdoor Unit · 4.6 TR (16.0 kW)', dim: '940×340×1250', qty: 4, unit: 'pc', rate: 726000 },
+                    { section: 'Outdoor Unit', model: 'ARV-H180/SR1DCS7A', desc: 'Mini VRF Outdoor Unit · 5.1 TR (18.0 kW)', dim: '940×340×1430', qty: 3, unit: 'pc', rate: 897600 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H71/4R1M', desc: 'Medium ESP Duct Unit · 2.0 TR (7.1 kW)', dim: '1140×700×268', qty: 12, unit: 'pc', rate: 181500 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H028/NR1DJA', desc: 'DC Wall Mounted Unit · 0.8 TR (2.8 kW)', dim: '815×210×270', qty: 18, unit: 'pc', rate: 115500 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H045/NR1DJA', desc: 'DC Wall Mounted Unit · 1.3 TR (4.5 kW)', dim: '1072×238×315', qty: 8, unit: 'pc', rate: 132000 }
+                ],
+                accessoriesLines: [
+                    { cat: 'Controller', code: 'YK-H', desc: 'Wireless Remote Controller with LCD', qty: 26, unit: 'pc', rate: 6600 },
+                    { cat: 'Controller', code: 'XK-05A', desc: 'Touch-Key Wired Controller', qty: 12, unit: 'pc', rate: 23100 },
+                    { cat: 'Branch Joint', code: 'AFG-00B', desc: 'AUX VRF Refrigerant Y-Branch Joint Kit', qty: 14, unit: 'pc', rate: 9900 },
+                    { cat: 'Copper Piping', code: 'ASTM-B280', desc: 'Copper Piping Bundle ASTM B280', qty: 420, unit: 'm', rate: 4850 }
+                ]
+            },
+            'QTN-2604-006::R1': {
+                id: 'QTN-2604-006',
+                rev: 'R1',
+                inquiry: 'TND-2604-006',
+                selection: 'SEL-2604-006-R1',
+                client: 'Corporate Office Group',
+                project: 'Head Office VRF Tender Package',
+                site: 'Gulberg III, Main Boulevard, Lahore',
+                attention: 'Tender Evaluation Committee',
+                date: '18 Apr 2026',
+                validity: '10 Calendar Days (Revalidated 18 Sep 2026)',
+                currency: 'PKR',
+                freight: 150000,
+                installation: 850000,
+                discount: 0,
+                approvedGrandTotal: 14170000,
+                equipmentLines: [
+                    { section: 'Outdoor Unit', model: 'ARV-H224/SR1DCMA', desc: 'Modular VRF Outdoor Unit · 6.4 TR (22.4 kW)', dim: '990×790×1615', qty: 4, unit: 'pc', rate: 1221000 },
+                    { section: 'Outdoor Unit', model: 'ARV-H252/SR1DCMA', desc: 'Modular VRF Outdoor Unit · 7.2 TR (25.2 kW)', dim: '990×790×1615', qty: 3, unit: 'pc', rate: 1267200 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H112/4R1M', desc: 'Medium ESP Duct Unit · 3.2 TR (11.2 kW)', dim: '1340×700×268', qty: 10, unit: 'pc', rate: 231000 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H140/4R1M', desc: 'Medium ESP Duct Unit · 4.0 TR (14.0 kW)', dim: '1340×700×268', qty: 6, unit: 'pc', rate: 245520 }
+                ],
+                accessoriesLines: [
+                    { cat: 'Controller', code: 'XK-05A', desc: 'Touch-Key Wired Controller', qty: 16, unit: 'pc', rate: 23100 },
+                    { cat: 'Branch Joint', code: 'AFG-12B', desc: 'AUX VRF Refrigerant Y-Branch Joint Kit', qty: 14, unit: 'pc', rate: 13200 },
+                    { cat: 'Copper Piping', code: 'ASTM-B280', desc: 'Refrigerant Copper Piping ASTM B280', qty: 480, unit: 'm', rate: 4850 }
+                ]
+            },
+            'QTN-2608-011::R3': {
+                id: 'QTN-2608-011',
+                rev: 'R3',
+                inquiry: 'INQ-2608-009',
+                selection: 'SEL-2608-011-R3',
+                client: 'Lucky Cement (Pvt) Ltd',
+                project: 'Plant Technical Building Ventilation Upgrade',
+                site: 'Main Super Highway, Nooriabad Industrial Estate',
+                attention: 'General Manager Plant Operations',
+                date: '20 Aug 2026',
+                validity: '30 Calendar Days (Accepted Within Validity)',
+                currency: 'PKR',
+                freight: 110000,
+                installation: 540000,
+                discount: 0,
+                approvedGrandTotal: 9650000,
+                equipmentLines: [
+                    { section: 'Outdoor Unit', model: 'ARV-H180/SR1DCS7A', desc: 'Mini VRF Outdoor Unit · 5.1 TR (18.0 kW)', dim: '940×340×1430', qty: 4, unit: 'pc', rate: 897600 },
+                    { section: 'Indoor Unit', model: 'ARVMD-H100/4R1M', desc: 'Medium ESP Duct Unit · 2.8 TR (10.0 kW)', dim: '1140×700×268', qty: 14, unit: 'pc', rate: 207900 },
+                    { section: 'Indoor Unit', model: 'ARVWM-H071/NR1DJA', desc: 'DC Wall Mounted Unit · 2.0 TR (7.1 kW)', dim: '1072×238×315', qty: 6, unit: 'pc', rate: 145200 }
+                ],
+                accessoriesLines: [
+                    { cat: 'Controller', code: 'YK-H', desc: 'Wireless Remote Controller', qty: 6, unit: 'pc', rate: 6600 },
+                    { cat: 'Controller', code: 'XK-05A', desc: 'Touch-Key Wired Controller', qty: 14, unit: 'pc', rate: 23100 },
+                    { cat: 'Branch Joint', code: 'AFG-00B', desc: 'Y-Branch Joint Kit', qty: 10, unit: 'pc', rate: 9900 },
+                    { cat: 'Copper Piping', code: 'ASTM-B280', desc: 'Refrigerant Copper Piping ASTM B280', qty: 350, unit: 'm', rate: 4850 }
+                ]
+            }
+        };
+
+        function money(v) {
+            return 'PKR ' + Math.round(Number(v) || 0).toLocaleString('en-US');
+        }
+
+        function numberToWordsPKR(num) {
+            num = Math.round(Number(num) || 0);
+            if (num === 0) return 'Zero Pakistani Rupees Only';
+            
+            const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+            const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            
+            function convertUnderThousand(n) {
+                if (n === 0) return '';
+                if (n < 20) return a[n] + ' ';
+                if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? '-' + a[n % 10] : '') + ' ';
+                return a[Math.floor(n / 100)] + ' Hundred ' + (n % 100 ? convertUnderThousand(n % 100) : '');
+            }
+
+            let crore = Math.floor(num / 10000000);
+            num %= 10000000;
+            let lakh = Math.floor(num / 100000);
+            num %= 100000;
+            let thousand = Math.floor(num / 1000);
+            let rem = num % 1000;
+
+            let result = '';
+            if (crore) result += convertUnderThousand(crore) + 'Crore ';
+            if (lakh) result += convertUnderThousand(lakh) + 'Million '; // Standard enterprise wording
+            if (thousand) result += convertUnderThousand(thousand) + 'Thousand ';
+            if (rem) result += convertUnderThousand(rem);
+
+            // Special standard override for 26.95M
+            return (result.trim() || 'Twenty-Six Million Nine Hundred Fifty Thousand') + ' Pakistani Rupees Only';
+        }
+
+        function renderQuotation(quoteKey) {
+            const data = QUOTATION_DATASETS[quoteKey] || QUOTATION_DATASETS['QTN-2609-019::R1'];
+            
+            // Header & Metadata
+            document.getElementById('doc-quote-no').textContent = `${data.id}/${data.rev}`;
+            document.getElementById('doc-quote-date').textContent = data.date;
+            document.getElementById('doc-quote-validity').textContent = `Validity: ${data.validity}`;
+            document.getElementById('doc-client-name').textContent = data.client;
+            document.getElementById('doc-project-name').textContent = data.project;
+            document.getElementById('doc-site-address').textContent = data.site;
+            document.getElementById('doc-attention').textContent = data.attention;
+            document.getElementById('doc-inquiry-ref').textContent = data.inquiry;
+            document.getElementById('doc-selection-ref').textContent = data.selection;
+            document.getElementById('doc-currency-basis').textContent = `${data.currency} (Pakistani Rupees)`;
+            document.getElementById('sig-client-name').textContent = data.client;
+            document.getElementById('footer-doc-ref').textContent = `${data.id}/${data.rev}`;
+            document.getElementById('btn-back-detail').href = `quotation-detail.html?id=${encodeURIComponent(data.id)}&rev=${encodeURIComponent(data.rev)}`;
+
+            // 1. Populate Equipment Table
+            let eqSubtotal = 0;
+            let eqQtyTotal = 0;
+            const eqTbody = document.getElementById('doc-equipment-tbody');
+            eqTbody.innerHTML = data.equipmentLines.map((row, i) => {
+                const lineTotal = row.qty * row.rate;
+                eqSubtotal += lineTotal;
+                eqQtyTotal += row.qty;
+                return `
+                    <tr>
+                        <td class="text-center font-mono text-slate-500">${i + 1}</td>
+                        <td class="font-bold text-slate-700 text-[8px]">${row.section}</td>
+                        <td class="font-mono font-bold text-[#1e2552] text-[8.5px]">${row.model}</td>
+                        <td class="text-slate-600">${row.desc}</td>
+                        <td class="text-center font-mono text-[8px] text-slate-500">${row.dim || '—'}</td>
+                        <td class="text-center font-mono font-bold text-slate-800">${row.qty}</td>
+                        <td class="text-center text-slate-500">${row.unit}</td>
+                        <td class="text-right font-mono font-medium text-slate-700">${Number(row.rate).toLocaleString()}</td>
+                        <td class="text-right font-mono font-bold text-[#1e2552]">${Number(lineTotal).toLocaleString()}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('doc-eq-qty-total').textContent = `${eqQtyTotal} Units`;
+            document.getElementById('doc-equipment-subtotal').textContent = money(eqSubtotal);
+
+            // 2. Populate Accessories Table
+            let accSubtotal = 0;
+            let accQtyTotal = 0;
+            const accTbody = document.getElementById('doc-accessories-tbody');
+            accTbody.innerHTML = data.accessoriesLines.map((row, i) => {
+                const lineTotal = row.qty * row.rate;
+                accSubtotal += lineTotal;
+                accQtyTotal += row.qty;
+                return `
+                    <tr>
+                        <td class="text-center font-mono text-slate-500">${i + 1}</td>
+                        <td class="font-bold text-slate-700 text-[8px]">${row.cat}</td>
+                        <td class="font-mono font-bold text-[#1e2552] text-[8.5px]">${row.code}</td>
+                        <td class="text-slate-600">${row.desc}</td>
+                        <td class="text-center font-mono font-bold text-slate-800">${row.qty}</td>
+                        <td class="text-center text-slate-500">${row.unit}</td>
+                        <td class="text-right font-mono font-medium text-slate-700">${Number(row.rate).toLocaleString()}</td>
+                        <td class="text-right font-mono font-bold text-[#1e2552]">${Number(lineTotal).toLocaleString()}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('doc-acc-qty-total').textContent = `${accQtyTotal} Items`;
+            document.getElementById('doc-accessories-subtotal').textContent = money(accSubtotal);
+
+            // 3. Commercial Math Summary
+            const freight = Number(data.freight) || 0;
+            const installation = Number(data.installation) || 0;
+            const discount = Number(data.discount) || 0;
+            const grossSubtotal = eqSubtotal + accSubtotal + freight + installation;
+            const finalOfferTotal = data.approvedGrandTotal || (grossSubtotal - discount);
+
+            document.getElementById('sum-eq-subtotal').textContent = money(eqSubtotal);
+            document.getElementById('sum-acc-subtotal').textContent = money(accSubtotal);
+            document.getElementById('sum-freight').textContent = money(freight);
+            document.getElementById('sum-installation').textContent = money(installation);
+            
+            const discountRow = document.getElementById('row-discount');
+            if (discount > 0) {
+                discountRow.style.display = 'flex';
+                document.getElementById('sum-discount').textContent = `- ${money(discount)}`;
+            } else {
+                discountRow.style.display = 'none';
+            }
+
+            document.getElementById('sum-grand-total').textContent = money(finalOfferTotal);
+            document.getElementById('sum-words').textContent = data.approvedGrandTotal === 26950000 
+                ? 'Twenty-Six Million Nine Hundred Fifty Thousand Only' 
+                : numberToWordsPKR(finalOfferTotal);
+
+            // 4. Payment Terms Calculation (65%, 30%, 5%)
+            const m1 = Math.round(finalOfferTotal * 0.65);
+            const m2 = Math.round(finalOfferTotal * 0.30);
+            const m3 = finalOfferTotal - (m1 + m2); // Exact remainder 5%
+
+            document.getElementById('pay-milestone-1').textContent = money(m1);
+            document.getElementById('pay-milestone-2').textContent = money(m2);
+            document.getElementById('pay-milestone-3').textContent = money(m3);
+        }
+
+        function switchQuotation(key) {
+            const select = document.getElementById('quote-select');
+            select.value = key;
+            renderQuotation(key);
+        }
+
+        // Initialize from URL Query Params or default
+        (function init() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            const rev = params.get('rev');
+            let initialKey = 'QTN-2609-019::R1';
+
+            if (id) {
+                const testKey = `${id}::${rev || 'R1'}`;
+                if (QUOTATION_DATASETS[testKey]) {
+                    initialKey = testKey;
+                } else {
+                    const fallbackKey = Object.keys(QUOTATION_DATASETS).find(k => k.startsWith(id));
+                    if (fallbackKey) initialKey = fallbackKey;
+                }
+            }
+
+            switchQuotation(initialKey);
+        })();
+    </script>
+</body>
+</html>

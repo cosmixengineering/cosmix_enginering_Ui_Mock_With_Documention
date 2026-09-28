@@ -3,21 +3,646 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delivery Tracking | Cosmix Engineering</title>
+    <title>Delivery Tracking & 3-Stage Gate Clearance - Cosmix ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/inventory.css">
 </head>
-<body class="inventory-app text-gray-800">
-    <div id="app-layout" class="flex h-screen overflow-hidden"></div>
-    <script src="../assets/js/shared.js"></script>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <!-- Modals Container -->
+    <div id="modal-container"></div>
+
+    <!-- Challan Preview Modal -->
+    <div id="challan-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 flex flex-col max-h-[92vh] overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-[#1e2552] text-white flex items-center justify-center font-bold text-xs">
+                        <i class="fas fa-file-invoice"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-900">Goods Delivery Challan (Official Release)</h3>
+                        <p class="text-[11px] text-slate-500">Security Gate Outward Pass & 3-Stage Authorization Document</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="modal-print-btn" class="px-3.5 py-1.5 bg-[#1e2552] hover:bg-[#121736] text-white rounded-lg font-semibold text-xs flex items-center gap-1.5 transition-all shadow-xs">
+                        <i class="fas fa-print"></i> Print Document
+                    </button>
+                    <button onclick="closeChallanModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-200/50 transition">
+                        <i class="fas fa-times text-base"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="challan-modal-content" class="p-6 overflow-y-auto bg-slate-100/50">
+                <!-- Dynamically Populated -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/engineering-store.js"></script>
     <script src="../assets/js/inventory-store.js"></script>
-    <script src="../assets/js/inventory-ui.js"></script>
-    <script src="../assets/js/inventory-requests.js"></script>
-    <script src="../assets/js/inventory-procurement.js"></script>
-    <script src="../assets/js/inventory-reports.js"></script>
-    <script>Inv.start('deliveries');</script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        let currentTab = 'gates'; // 'gates' or 'transit'
+        let currentFilter = 'ALL';
+        let searchQuery = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('deliveries');
+            buildDeliveriesUI();
+            renderContent();
+        });
+
+        function buildDeliveriesUI() {
+            const main = document.getElementById('main-content');
+            if (!main) return;
+
+            main.innerHTML = `
+                <div class="p-4 sm:p-6 space-y-5 max-w-7xl mx-auto pb-16">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-[#1e2552] text-[11px] transition">
+                                    <i class="fas fa-arrow-left mr-1"></i> Warehouse Stores
+                                </a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-[#1e2552] uppercase tracking-wider">Logistics & Dispatches</span>
+                            </div>
+                            <h1 class="text-xl font-bold text-slate-900 mt-1">Delivery Tracking & Gate Clearance</h1>
+                            <p class="text-xs text-slate-500 mt-0.5">3-Stage Delivery Clearance: Fleet Readiness &rarr; Payment Gate (30% / CEO Override) &rarr; Site OTP Challenge & Challan Release.</p>
+                        </div>
+                        <div class="flex items-center gap-2.5 flex-wrap">
+                            <button onclick="openNewGatePassModal()" class="px-3.5 py-2 bg-[#1e2552] hover:bg-[#121736] text-white rounded-xl text-xs font-semibold shadow-xs flex items-center gap-2 transition-all">
+                                <i class="fas fa-plus"></i> New Gate Pass
+                            </button>
+                            <a href="../engineering/delivery-gate.html" class="px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
+                                <i class="fas fa-shield-halved"></i> Engineering Gate Console
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Primary Module Tabs -->
+                    <div class="flex items-center justify-between border-b border-slate-200 bg-white px-4 pt-2 rounded-t-xl">
+                        <div class="flex gap-2">
+                            <button onclick="switchTab('gates')" id="tab-gates-btn" class="px-4 py-2.5 font-bold text-xs border-b-2 flex items-center gap-2 transition ${currentTab === 'gates' ? 'border-[#1e2552] text-[#1e2552]' : 'border-transparent text-slate-500 hover:text-slate-800'}">
+                                <i class="fas fa-shield-cat"></i> 3-Stage Delivery Gate Passes
+                                <span class="px-1.5 py-0.2 rounded-full bg-[#1e2552]/10 text-[#1e2552] text-[10px] font-mono" id="gate-count-badge">5</span>
+                            </button>
+                            <button onclick="switchTab('transit')" id="tab-transit-btn" class="px-4 py-2.5 font-bold text-xs border-b-2 flex items-center gap-2 transition ${currentTab === 'transit' ? 'border-[#1e2552] text-[#1e2552]' : 'border-transparent text-slate-500 hover:text-slate-800'}">
+                                <i class="fas fa-truck-fast"></i> Warehouse In-Transit & Riders
+                                <span class="px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-700 text-[10px] font-mono" id="transit-count-badge">4</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Content Container -->
+                    <div id="dynamic-tab-content" class="space-y-4">
+                        <!-- Rendered Dynamically -->
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            buildDeliveriesUI();
+            renderContent();
+        }
+
+        function renderContent() {
+            if (currentTab === 'gates') {
+                renderGatesTab();
+            } else {
+                renderTransitTab();
+            }
+        }
+
+        function renderGatesTab() {
+            const container = document.getElementById('dynamic-tab-content');
+            if (!container) return;
+
+            const kpis = CosmixEngineering.getGateSummaryKpis();
+            const allGates = CosmixEngineering.getDeliveryGates();
+
+            let filtered = allGates;
+            if (currentFilter !== 'ALL') {
+                filtered = filtered.filter(g => g.gateStatus === currentFilter);
+            }
+            if (searchQuery) {
+                filtered = filtered.filter(g => {
+                    const text = `${g.gatePassNo} ${g.challanNo} ${g.poRef} ${g.projectRef} ${g.destinationSite} ${g.vehicleNo} ${g.driverName} ${g.clientContactName}`.toLowerCase();
+                    return text.includes(searchQuery);
+                });
+            }
+
+            container.innerHTML = `
+                <!-- KPI Bar -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
+                        <span class="text-[11px] font-semibold text-slate-500">Active Gate Passes</span>
+                        <div class="text-lg font-bold text-slate-900 font-mono mt-1">${kpis.total}</div>
+                        <p class="text-[10px] text-slate-400">Consignments for Dispatch</p>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-teal-200 shadow-2xs bg-teal-50/20">
+                        <span class="text-[11px] font-semibold text-teal-800">Stage 1: Fleet Ready</span>
+                        <div class="text-lg font-bold text-teal-700 font-mono mt-1">${kpis.total - kpis.pendingGate1} Passed</div>
+                        <p class="text-[10px] text-teal-600">${kpis.pendingGate1} Awaiting Inspection</p>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 shadow-2xs bg-blue-50/20">
+                        <span class="text-[11px] font-semibold text-blue-800">Stage 2: Payment Gate</span>
+                        <div class="text-lg font-bold text-blue-700 font-mono mt-1">${kpis.total - kpis.pendingGate1 - kpis.pendingGate2} Cleared</div>
+                        <p class="text-[10px] text-blue-600">30% Milestone or CEO Override</p>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-purple-200 shadow-2xs bg-purple-50/20">
+                        <span class="text-[11px] font-semibold text-purple-800">Stage 3: Site OTP</span>
+                        <div class="text-lg font-bold text-purple-700 font-mono mt-1">${kpis.cleared} Cleared</div>
+                        <p class="text-[10px] text-purple-600">${kpis.pendingGate3} Challenged with OTP</p>
+                    </div>
+                </div>
+
+                <!-- Filter Toolbar -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs">
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+                        <button onclick="setGateFilter('ALL')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${currentFilter === 'ALL' ? 'bg-[#1e2552] text-white' : 'text-slate-600 hover:bg-slate-100'}">All Gate Passes</button>
+                        <button onclick="setGateFilter('PendingGate1')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${currentFilter === 'PendingGate1' ? 'bg-[#1e2552] text-white' : 'text-slate-600 hover:bg-slate-100'}">Awaiting Fleet Ready</button>
+                        <button onclick="setGateFilter('PendingGate2')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${currentFilter === 'PendingGate2' ? 'bg-[#1e2552] text-white' : 'text-slate-600 hover:bg-slate-100'}">Awaiting Payment</button>
+                        <button onclick="setGateFilter('PendingGate3')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${currentFilter === 'PendingGate3' ? 'bg-[#1e2552] text-white' : 'text-slate-600 hover:bg-slate-100'}">Awaiting Site OTP</button>
+                        <button onclick="setGateFilter('ClearedForDispatch')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${currentFilter === 'ClearedForDispatch' ? 'bg-[#1e2552] text-white' : 'text-slate-600 hover:bg-slate-100'}">Cleared for Dispatch</button>
+                    </div>
+                    <div class="relative min-w-[240px]">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" oninput="handleGateSearch(this.value)" placeholder="Search Gate Pass #, Vehicle..." class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none bg-slate-50/50">
+                    </div>
+                </div>
+
+                <!-- Gate Passes List -->
+                <div class="space-y-4">
+                    ${filtered.map(g => {
+                        const isCleared = g.gateStatus === 'ClearedForDispatch';
+                        const s1 = g.gate1StaffReady;
+                        const s2 = g.gate2CommercialTax;
+                        const s3 = g.gate3SiteOtp;
+
+                        return `
+                            <div class="bg-white rounded-2xl border ${isCleared ? 'border-slate-200/80' : 'border-[#1e2552]/30 ring-1 ring-[#1e2552]/10'} shadow-xs p-5 space-y-4">
+                                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                                    <div>
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="px-2.5 py-1 rounded-lg bg-[#1e2552]/10 text-[#1e2552] font-mono font-bold text-xs border border-[#1e2552]/20">${g.gatePassNo}</span>
+                                            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono font-semibold text-[11px] border border-slate-200">Challan: ${g.challanNo}</span>
+                                            <span class="text-slate-300">•</span>
+                                            <span class="font-bold text-slate-900 text-xs">${g.projectRef}</span>
+                                        </div>
+                                        <div class="text-[11.5px] text-slate-600 mt-1 flex items-center gap-3 flex-wrap">
+                                            <span><i class="fas fa-location-dot text-rose-500 mr-1"></i> ${g.destinationSite}</span>
+                                            <span class="text-slate-300">|</span>
+                                            <span><i class="fas fa-truck text-blue-500 mr-1"></i> ${g.vehicleNo} (${g.vehicleType})</span>
+                                            <span class="text-slate-300">|</span>
+                                            <span><i class="fas fa-user-gear text-slate-500 mr-1"></i> Driver: ${g.driverName} (${g.driverPhone})</span>
+                                        </div>
+                                    </div>
+                                    <span class="px-3 py-1.5 rounded-lg text-xs font-bold ${
+                                        isCleared ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                                        g.gateStatus === 'PendingGate3' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
+                                        g.gateStatus === 'PendingGate2' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                                        'bg-amber-100 text-amber-800 border border-amber-200'
+                                    }">
+                                        ${
+                                            isCleared ? '<i class="fas fa-circle-check"></i> Cleared For Dispatch' :
+                                            g.gateStatus === 'PendingGate3' ? '<i class="fas fa-key animate-pulse"></i> Awaiting Site OTP' :
+                                            g.gateStatus === 'PendingGate2' ? '<i class="fas fa-file-invoice-dollar"></i> Awaiting Payment Gate' :
+                                            '<i class="fas fa-user-shield"></i> Awaiting Fleet Readiness'
+                                        }
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                                    <!-- Stage 1 -->
+                                    <div class="bg-slate-50/80 p-3.5 rounded-xl border ${s1.passed ? 'border-emerald-200 bg-emerald-50/20' : 'border-amber-200 bg-amber-50/20'} flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-1">
+                                                <span class="font-bold text-slate-900 text-xs"><i class="fas fa-truck-ramp-box text-teal-600 mr-1"></i> Stage 1: Fleet Ready</span>
+                                                <span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold ${s1.passed ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${s1.passed ? 'PASSED' : 'PENDING'}</span>
+                                            </div>
+                                            <p class="text-[10.5px] text-slate-600">${s1.notes || 'Departure safety checklist verification required.'}</p>
+                                        </div>
+                                        <div class="pt-2 mt-2 border-t border-slate-200/60">
+                                            ${s1.passed ? `
+                                                <div class="text-[9.5px] text-emerald-700 font-semibold flex items-center justify-between">
+                                                    <span><i class="fas fa-check-circle mr-1"></i> Verified: ${s1.verifier?.split(' ')[0] || 'Lead'}</span>
+                                                    <span class="font-mono text-slate-400">${s1.verifiedAt?.substring(5) || ''}</span>
+                                                </div>
+                                            ` : `
+                                                <button onclick="openStage1Modal('${g.id}')" class="w-full py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-semibold">Inspect & Approve Fleet</button>
+                                            `}
+                                        </div>
+                                    </div>
+
+                                    <!-- Stage 2 -->
+                                    <div class="bg-slate-50/80 p-3.5 rounded-xl border ${s2.passed ? 'border-blue-200 bg-blue-50/20' : 'border-amber-200 bg-amber-50/20'} flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-1">
+                                                <span class="font-bold text-slate-900 text-xs"><i class="fas fa-file-invoice-dollar text-blue-600 mr-1"></i> Stage 2: Payment Gate</span>
+                                                <span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold ${s2.passed ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}">${s2.passed ? 'CLEARED' : 'PENDING'}</span>
+                                            </div>
+                                            <p class="text-[10.5px] text-slate-600">${s2.notes || 'Financial milestone verification required.'}</p>
+                                        </div>
+                                        <div class="pt-2 mt-2 border-t border-slate-200/60">
+                                            ${s2.passed ? `
+                                                <div class="text-[9.5px] text-blue-700 font-semibold flex items-center justify-between">
+                                                    <span><i class="fas fa-check-circle mr-1"></i> ${s2.ceoOverrideApproved ? 'CEO Override' : 'Accounts Ledger'}</span>
+                                                    <span class="font-mono text-slate-400">${s2.verifiedAt?.substring(5) || ''}</span>
+                                                </div>
+                                            ` : `
+                                                <button onclick="openStage2Modal('${g.id}')" class="w-full py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">Authorize Payment Gate</button>
+                                            `}
+                                        </div>
+                                    </div>
+
+                                    <!-- Stage 3 -->
+                                    <div class="bg-slate-50/80 p-3.5 rounded-xl border ${s3.passed ? 'border-purple-200 bg-purple-50/20' : 'border-purple-300 bg-purple-50/30'} flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-1">
+                                                <span class="font-bold text-slate-900 text-xs"><i class="fas fa-key text-purple-600 mr-1"></i> Stage 3: Site OTP Challenge</span>
+                                                <span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold ${s3.passed ? 'bg-purple-100 text-purple-800' : 'bg-purple-200 text-purple-900'}">${s3.passed ? 'AUTHENTICATED' : 'CHALLENGE ACTIVE'}</span>
+                                            </div>
+                                            <div class="text-[10.5px] text-slate-700">Recipient: <strong>${g.clientContactName}</strong> (${g.clientPhone})</div>
+                                            ${!s3.passed ? `
+                                                <div class="mt-2 space-y-1.5">
+                                                    <div class="flex items-center justify-between bg-white px-2 py-1 rounded border border-purple-200">
+                                                        <span class="text-[9.5px] text-purple-800 font-semibold">Demo OTP:</span>
+                                                        <span class="font-mono font-bold text-purple-900 text-xs bg-purple-50 px-1.5 py-0.2 rounded">${s3.otpCode}</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <input type="text" id="wh-otp-${g.id}" maxlength="6" placeholder="Enter 6-digit OTP" class="w-full px-2 py-1 bg-white border border-slate-300 rounded font-mono text-center text-xs font-bold outline-none">
+                                                        <button onclick="submitWhOtp('${g.id}')" class="px-2.5 py-1 bg-purple-700 hover:bg-purple-800 text-white rounded font-bold text-xs shrink-0">Verify</button>
+                                                    </div>
+                                                </div>
+                                            ` : `
+                                                <div class="mt-2 text-[9.5px] text-purple-800 font-semibold"><i class="fas fa-check-double mr-1"></i> OTP Authenticated at ${s3.otpVerifiedAt}</div>
+                                            `}
+                                        </div>
+                                        <div class="pt-2 mt-2 border-t border-slate-200/60 flex items-center justify-between">
+                                            ${!s3.passed ? `
+                                                <button onclick="triggerSendOtpWh('${g.id}')" class="text-[10px] font-semibold text-purple-700 hover:text-purple-900"><i class="fas fa-paper-plane mr-1"></i> Re-send OTP</button>
+                                            ` : `
+                                                <span class="text-[9.5px] text-emerald-700 font-semibold">Challenge Cleared</span>
+                                            `}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                                    <span class="text-[11px] text-slate-500">${(g.items || []).length} Consignment Item(s) Dispatched</span>
+                                    <div class="flex items-center gap-2">
+                                        <button onclick="previewChallan('${g.id}')" class="px-3 py-1 bg-[#1e2552] hover:bg-[#121736] text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                                            <i class="fas fa-file-invoice"></i> View Goods Delivery Challan
+                                        </button>
+                                        <button onclick="CosmixEngineering.printDeliveryChallan('${g.id}')" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                                            <i class="fas fa-print"></i> Print GDC
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function renderTransitTab() {
+            const container = document.getElementById('dynamic-tab-content');
+            if (!container) return;
+
+            const transitDeliveries = [
+                {
+                    id: 'DEL-8891',
+                    reference: 'REQ-8890 (Lucky Motor Duct Extension)',
+                    source: 'Store A (Central Warehouse)',
+                    destination: 'Lucky Motor Plant, Bin Qasim',
+                    rider: 'Rashid Khan (Company Fleet)',
+                    phone: '+92 300 8821901',
+                    status: 'OUT FOR DELIVERY',
+                    date: '2026-09-28',
+                    items: 'GI Sheet 22G (150 Kg), Flange Profile (40 Sets)'
+                },
+                {
+                    id: 'DEL-8892',
+                    reference: 'REQ-8893 (Indus Hospital Chiller)',
+                    source: 'Direct Vendor Transit',
+                    destination: 'Indus Hospital Korangi Campus',
+                    rider: 'TCS Express Logistics',
+                    phone: '+92 321 4401923',
+                    status: 'GOING FOR DELIVERY',
+                    date: '2026-09-28',
+                    items: 'Direct Expansion Copper Coil 12-Row (2 Sets)'
+                },
+                {
+                    id: 'DEL-8889',
+                    reference: 'REQ-8884 (Dolmen Mall Piping)',
+                    source: 'Store A (Central Warehouse)',
+                    destination: 'Dolmen Mall Clifton Plant Room',
+                    rider: 'Gulzar Ahmed (Flatbed Driver)',
+                    phone: '+92 345 5582910',
+                    status: 'RECEIVED',
+                    date: '2026-09-27',
+                    items: 'Chilled Water Header 8" Sch-40 (4 Nos)'
+                }
+            ];
+
+            container.innerHTML = `
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div>
+                            <h3 class="font-bold text-sm text-slate-900">Warehouse Outward In-Transit Register</h3>
+                            <p class="text-[11px] text-slate-500">Track internal rider handovers, vendor dispatches, and supervisor electronic delivery proofs.</p>
+                        </div>
+                        <span class="px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold">
+                            Live GPS & Rider Custody
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                                <tr>
+                                    <th class="py-2.5 px-3">Delivery Ref</th>
+                                    <th class="py-2.5 px-3">Source & Destination</th>
+                                    <th class="py-2.5 px-3">Assigned Rider</th>
+                                    <th class="py-2.5 px-3">Material Consignment</th>
+                                    <th class="py-2.5 px-3">Status</th>
+                                    <th class="py-2.5 px-3 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                ${transitDeliveries.map(d => `
+                                    <tr>
+                                        <td class="py-3 px-3">
+                                            <div class="font-mono font-bold text-slate-900">${d.id}</div>
+                                            <div class="text-[10px] text-slate-500">${d.reference}</div>
+                                        </td>
+                                        <td class="py-3 px-3">
+                                            <div class="font-semibold text-slate-800">${d.destination}</div>
+                                            <div class="text-[10px] text-slate-400">From: ${d.source}</div>
+                                        </td>
+                                        <td class="py-3 px-3">
+                                            <div class="font-medium text-slate-800">${d.rider}</div>
+                                            <div class="text-[10px] text-slate-500 font-mono">${d.phone}</div>
+                                        </td>
+                                        <td class="py-3 px-3 text-slate-700">
+                                            ${d.items}
+                                        </td>
+                                        <td class="py-3 px-3">
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${
+                                                d.status === 'RECEIVED' ? 'bg-emerald-100 text-emerald-800' :
+                                                d.status === 'OUT FOR DELIVERY' ? 'bg-blue-100 text-blue-800' :
+                                                'bg-purple-100 text-purple-800'
+                                            }">
+                                                ${d.status}
+                                            </span>
+                                        </td>
+                                        <td class="py-3 px-3 text-right">
+                                            <button onclick="showToastNotification('Delivery details opened for ${d.id}', 'info')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold transition">
+                                                View Slip
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setGateFilter(f) {
+            currentFilter = f;
+            renderGatesTab();
+        }
+
+        function handleGateSearch(val) {
+            searchQuery = (val || '').toLowerCase().trim();
+            renderGatesTab();
+        }
+
+        function triggerSendOtpWh(gateId) {
+            const res = CosmixEngineering.sendOtpChallenge(gateId, 'SMS_AND_EMAIL');
+            if (res.success) {
+                showToastNotification(`Security OTP Token [${res.otpCode}] sent to ${res.recipient} (${res.phone}).`, 'success');
+                renderGatesTab();
+            } else {
+                alert(res.message);
+            }
+        }
+
+        function submitWhOtp(gateId) {
+            const input = document.getElementById('wh-otp-' + gateId);
+            if (!input || !input.value) {
+                alert('Please enter 6-digit OTP code');
+                return;
+            }
+            const res = CosmixEngineering.verifySiteOtpAndClearGate(gateId, input.value);
+            if (res.success) {
+                showToastNotification(res.message, 'success');
+                renderGatesTab();
+                setTimeout(() => previewChallan(gateId), 400);
+            } else {
+                alert(res.message);
+            }
+        }
+
+        function previewChallan(gateId) {
+            const html = CosmixEngineering.generateChallanHtml(gateId);
+            const content = document.getElementById('challan-modal-content');
+            const printBtn = document.getElementById('modal-print-btn');
+            if (content) content.innerHTML = html;
+            if (printBtn) printBtn.onclick = () => CosmixEngineering.printDeliveryChallan(gateId);
+            document.getElementById('challan-modal')?.classList.remove('hidden');
+        }
+
+        function closeChallanModal() {
+            document.getElementById('challan-modal')?.classList.add('hidden');
+        }
+
+        // Modals
+        function openStage1Modal(gateId) {
+            const gate = CosmixEngineering.getDeliveryGateById(gateId);
+            if (!gate) return;
+
+            const modalHtml = `
+                <div id="stage1-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+                    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                                    <i class="fas fa-truck-ramp-box text-teal-600"></i> Stage 1: Fleet & Staff Ready Inspection
+                                </h3>
+                                <p class="text-[11px] text-slate-500">Gate Pass: <strong class="font-mono text-slate-700">${gate.gatePassNo}</strong></p>
+                            </div>
+                            <button onclick="closeModal('stage1-modal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+                        </div>
+                        <form onsubmit="handleStage1Submit(event, '${gate.id}')" class="p-5 space-y-3.5">
+                            <div class="space-y-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                                <label class="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer">
+                                    <input type="checkbox" id="chk-driver" checked required class="w-4 h-4 rounded text-teal-600">
+                                    <span>Driver valid commercial license & CNIC verified (<strong>${gate.driverLicense}</strong>)</span>
+                                </label>
+                                <label class="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer">
+                                    <input type="checkbox" id="chk-vehicle" checked required class="w-4 h-4 rounded text-teal-600">
+                                    <span>Vehicle roadworthiness, tire fitness & outward gate slip confirmed</span>
+                                </label>
+                                <label class="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer">
+                                    <input type="checkbox" id="chk-rigging" checked required class="w-4 h-4 rounded text-teal-600">
+                                    <span>Cargo lashing belts tensioned, edge protectors in place, tarpaulin tied</span>
+                                </label>
+                                <label class="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer">
+                                    <input type="checkbox" id="chk-ppe" checked required class="w-4 h-4 rounded text-teal-600">
+                                    <span>Rigging helpers equipped with mandatory safety hardhats, vests & steel-toe boots</span>
+                                </label>
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Inspector / Dispatch Engineer *</label>
+                                <input type="text" id="s1-verifier" required value="Engr. Tariq Masood (Dispatch In-Charge)" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none">
+                            </div>
+
+                            <div class="pt-2 flex justify-end gap-2">
+                                <button type="button" onclick="closeModal('stage1-modal')" class="px-3.5 py-1.5 text-slate-600 hover:bg-slate-100 rounded-lg text-xs font-semibold">Cancel</button>
+                                <button type="submit" class="px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold shadow-xs">Approve Fleet Readiness</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            showModal(modalHtml);
+        }
+
+        function handleStage1Submit(e, gateId) {
+            e.preventDefault();
+            const checklist = {
+                driverLicenseVerified: document.getElementById('chk-driver')?.checked,
+                vehicleFitnessVerified: document.getElementById('chk-vehicle')?.checked,
+                riggingLashingSecured: document.getElementById('chk-rigging')?.checked,
+                ppeCompliant: document.getElementById('chk-ppe')?.checked,
+                routeClearanceVerified: true,
+                toolsChecked: true
+            };
+            const verifier = document.getElementById('s1-verifier')?.value;
+
+            const res = CosmixEngineering.verifyStage1FleetReady(gateId, checklist, verifier, 'Fleet verified for departure.');
+            closeModal('stage1-modal');
+            if (res.success) {
+                showToastNotification(res.message, 'success');
+                renderGatesTab();
+            } else {
+                alert(res.message);
+            }
+        }
+
+        function openStage2Modal(gateId) {
+            const gate = CosmixEngineering.getDeliveryGateById(gateId);
+            if (!gate) return;
+
+            const modalHtml = `
+                <div id="stage2-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+                    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                                    <i class="fas fa-file-invoice-dollar text-blue-600"></i> Stage 2: Payment Gate Clearance
+                                </h3>
+                                <p class="text-[11px] text-slate-500">Gate Pass: <strong class="font-mono text-slate-700">${gate.gatePassNo}</strong></p>
+                            </div>
+                            <button onclick="closeModal('stage2-modal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+                        </div>
+                        <form onsubmit="handleStage2Submit(event, '${gate.id}')" class="p-5 space-y-3.5">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Advance Received (%) *</label>
+                                    <input type="number" id="s2-advance" min="0" max="100" value="${gate.gate2CommercialTax?.advancePercentage || 30}" required class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Accounts Ledger Ref *</label>
+                                    <input type="text" id="s2-ledger" value="${gate.gate2CommercialTax?.ledgerRef || 'INV-2026-CLEARANCE'}" required class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-mono outline-none">
+                                </div>
+                            </div>
+
+                            <label class="flex items-center gap-2 text-xs font-bold text-slate-800 cursor-pointer">
+                                <input type="checkbox" id="s2-ceo-override" class="w-4 h-4 rounded text-blue-600">
+                                <span>CEO Special Credit Override Approval (If Advance < 30%)</span>
+                            </label>
+
+                            <div class="pt-2 flex justify-end gap-2">
+                                <button type="button" onclick="closeModal('stage2-modal')" class="px-3.5 py-1.5 text-slate-600 hover:bg-slate-100 rounded-lg text-xs font-semibold">Cancel</button>
+                                <button type="submit" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-xs">Authorize Payment Gate</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            showModal(modalHtml);
+        }
+
+        function handleStage2Submit(e, gateId) {
+            e.preventDefault();
+            const advancePercentage = Number(document.getElementById('s2-advance')?.value || 0);
+            const ledgerRef = document.getElementById('s2-ledger')?.value;
+            const ceoOverrideApproved = document.getElementById('s2-ceo-override')?.checked;
+
+            const res = CosmixEngineering.verifyStage2Payment(gateId, {
+                advancePercentage,
+                ledgerRef,
+                ceoOverrideApproved,
+                ceoOverrideApprovedBy: ceoOverrideApproved ? 'Syed Moazzam Ali (Chief Executive Officer)' : null,
+                ceoOverrideReason: ceoOverrideApproved ? 'Executive account credit authorized' : null,
+                taxUndertakingObtained: true,
+                verifierName: ceoOverrideApproved ? 'Chief Executive Officer (CEO Office)' : 'Accounts & Billing Department'
+            });
+
+            closeModal('stage2-modal');
+            if (res.success) {
+                showToastNotification(res.message, 'success');
+                renderGatesTab();
+            } else {
+                alert(res.message);
+            }
+        }
+
+        function openNewGatePassModal() {
+            window.location.href = '../engineering/delivery-gate.html';
+        }
+
+        function showModal(html) {
+            const container = document.getElementById('modal-container');
+            if (container) container.innerHTML = html;
+        }
+
+        function closeModal(id) {
+            document.getElementById(id)?.remove();
+        }
+
+        function showToastNotification(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-xl border text-xs font-semibold flex items-center gap-2 transition-all transform translate-y-0 opacity-100 ${
+                type === 'success' ? 'bg-[#1e2552] text-white border-slate-700' :
+                'bg-slate-800 text-white border-slate-700'
+            }`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-info-circle text-blue-400'}"></i> <span>${message}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
 </body>
 </html>

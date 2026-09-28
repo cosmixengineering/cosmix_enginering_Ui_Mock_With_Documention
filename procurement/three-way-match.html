@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-Way Match & PO Contradiction Engine - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .badge-pulse {
+            animation: pulse-border 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <!-- Modal 1: Initiate New 3-Way Match Audit -->
+    <div id="new-audit-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl border border-slate-200 flex flex-col max-h-[92vh]">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-[#1e2552] text-white flex items-center justify-center text-xs">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-[#1e2552]">Initiate 3-Way Match Audit</h3>
+                        <p class="text-[11px] text-slate-500">Cross-examine PO terms, Warehouse GRN inward, and Vendor Tax Invoice.</p>
+                    </div>
+                </div>
+                <button onclick="closeAuditModal()" class="text-slate-400 hover:text-slate-600 transition-colors p-1"><i class="fas fa-times text-sm"></i></button>
+            </div>
+
+            <form id="new-audit-form" class="p-5 overflow-y-auto space-y-4 flex-1">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Select Purchase Order (Pillar 1) *</label>
+                        <select id="modal-po-select" onchange="onPoSelected()" required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-teal-500 outline-none">
+                            <option value="">-- Choose Purchase Order --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Select Warehouse GRN (Pillar 2) *</label>
+                        <select id="modal-grn-select" onchange="onGrnSelected()" required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-teal-500 outline-none">
+                            <option value="">-- Select Linked GRN --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Vendor Bill / Tax Invoice # (Pillar 3) *</label>
+                        <input type="text" id="modal-bill-number" placeholder="e.g. INV-PK-99201" required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-teal-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200/80">
+                    <div>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">Vendor / Supplier</span>
+                        <div id="modal-vendor-display" class="font-semibold text-slate-800 mt-0.5 text-xs">--</div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">Project Allocation</span>
+                        <div id="modal-project-display" class="font-semibold text-slate-700 mt-0.5 text-xs truncate">--</div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">Tax Invoice Date</span>
+                        <input type="date" id="modal-bill-date" required class="w-full mt-0.5 px-2 py-1 bg-white border border-slate-200 rounded text-xs">
+                    </div>
+                </div>
+
+                <!-- Interactive Comparison & Contradiction Detection Table -->
+                <div class="border border-slate-200 rounded-lg overflow-hidden">
+                    <div class="p-2.5 bg-slate-100/70 border-b border-slate-200 flex items-center justify-between">
+                        <span class="font-bold text-xs text-slate-700">Line Items 3-Pillar Verification</span>
+                        <span class="text-[10.5px] text-slate-500 italic"><i class="fas fa-info-circle text-teal-600 mr-1"></i> Contradiction Engine auto-evaluates unit rate >1% variance & overbilled qty.</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-[11px]">
+                            <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                                <tr>
+                                    <th class="py-2 px-2.5">Item Description</th>
+                                    <th class="py-2 px-2 text-right">PO Qty</th>
+                                    <th class="py-2 px-2 text-right">PO Rate (PKR)</th>
+                                    <th class="py-2 px-2 text-right bg-amber-50/50">GRN Qty</th>
+                                    <th class="py-2 px-2 text-right bg-indigo-50/50">Bill Qty *</th>
+                                    <th class="py-2 px-2 text-right bg-indigo-50/50">Bill Rate (PKR) *</th>
+                                    <th class="py-2 px-2 text-center">Live Analysis</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal-audit-lines" class="divide-y divide-slate-100">
+                                <tr>
+                                    <td colspan="7" class="py-4 text-center text-slate-400">Please select a Purchase Order above to load line items.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Live Engine Contradiction Alert Box -->
+                <div id="modal-live-alert" class="hidden p-3 rounded-lg border text-[11px] space-y-1">
+                    <!-- Populated dynamically -->
+                </div>
+            </form>
+
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <div class="text-[10.5px] text-slate-500">
+                    <i class="fas fa-lock text-emerald-600 mr-1"></i> FBR STRN Automated Check Enabled
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeAuditModal()" class="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
+                    <button type="button" onclick="submitNewAudit()" class="px-4 py-1.5 bg-[#1e2552] hover:bg-[#28326e] text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5">
+                        <i class="fas fa-microscope"></i> Run 3-Way Match Engine
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Approve with Variance Explanation -->
+    <div id="variance-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl border border-slate-200 flex flex-col">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-amber-50/60">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center text-xs">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-800">Approve with Variance Justification</h3>
+                        <p class="text-[10.5px] text-slate-500">Authorize accounts payable release with documented commercial override.</p>
+                    </div>
+                </div>
+                <button onclick="closeVarianceModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="p-5 space-y-3.5 text-[11px]">
+                <input type="hidden" id="var-match-id">
+                
+                <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 space-y-1">
+                    <div class="flex justify-between font-bold text-amber-900">
+                        <span>Match Reference:</span>
+                        <span id="var-match-code" class="font-mono">--</span>
+                    </div>
+                    <div class="flex justify-between text-amber-800">
+                        <span>Contractual Discrepancy Amount:</span>
+                        <span id="var-match-amount" class="font-mono font-bold">PKR 0</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Authorizing Cost Center Head *</label>
+                    <select id="var-cost-center-head" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none">
+                        <option value="Head of MEP Operations">Head of MEP Operations (Engr. Salman)</option>
+                        <option value="General Manager Commercial">General Manager Commercial</option>
+                        <option value="Chief Executive Officer">Chief Executive Officer / Managing Director</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Technical / Commercial Justification *</label>
+                    <textarea id="var-justification" rows="3" placeholder="Provide reason for accepting rate increase or quantity discrepancy (e.g. Unforeseen raw copper tariff escalation approved on site, emergency order premium)..." required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-amber-500"></textarea>
+                </div>
+
+                <div class="text-[10px] text-slate-400 bg-slate-50 p-2.5 rounded border border-slate-200">
+                    <i class="fas fa-certificate text-amber-600 mr-1"></i> This override will be appended to the official ERP Audit Trail and posted to Accounts Payable under variance voucher suffix <strong class="font-mono text-slate-700">-OVR</strong>.
+                </div>
+            </div>
+
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2">
+                <button type="button" onclick="closeVarianceModal()" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
+                <button type="button" onclick="confirmVarianceApproval()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1">
+                    <i class="fas fa-signature"></i> Endorse & Post to AP
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Request Vendor Credit Note (Debit Advice) -->
+    <div id="credit-note-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl border border-slate-200 flex flex-col">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-rose-50/60">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-rose-600 text-white flex items-center justify-center text-xs">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-800">Issue Debit Advice / Request Credit Note</h3>
+                        <p class="text-[10.5px] text-slate-500">Lock Accounts Payable release and notify supplier of billing contradiction.</p>
+                    </div>
+                </div>
+                <button onclick="closeCreditNoteModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="p-5 space-y-3.5 text-[11px]">
+                <input type="hidden" id="cn-match-id">
+
+                <div class="p-3 bg-rose-50 rounded-lg border border-rose-200 space-y-1">
+                    <div class="flex justify-between font-semibold text-rose-950">
+                        <span>Vendor (Supplier):</span>
+                        <span id="cn-vendor-name" class="font-bold">--</span>
+                    </div>
+                    <div class="flex justify-between text-rose-900">
+                        <span>Invoice Number:</span>
+                        <span id="cn-invoice-num" class="font-mono font-bold">--</span>
+                    </div>
+                    <div class="flex justify-between text-rose-800 pt-1 border-t border-rose-200/60 font-bold">
+                        <span>Proposed Debit Adjustment:</span>
+                        <span id="cn-discrepancy-amount" class="font-mono text-rose-700">PKR 0</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Debit Adjustment Amount (PKR) *</label>
+                    <input type="number" id="cn-amount-input" required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-mono outline-none focus:ring-1 focus:ring-rose-500">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Contradiction Notice & Formal Remarks *</label>
+                    <textarea id="cn-reason" rows="3" placeholder="State contradiction details (e.g. Invoiced unit rate of PKR 200 exceeds contracted PO rate of PKR 180; 50 Nos unreceived anchor fasteners must be deducted from statement)..." required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-rose-500"></textarea>
+                </div>
+            </div>
+
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2">
+                <button type="button" onclick="closeCreditNoteModal()" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
+                <button type="button" onclick="confirmCreditNoteRequest()" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1">
+                    <i class="fas fa-paper-plane"></i> Issue Debit Advice & CN Request
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: 3-Way Match Audit Certificate & Print Sheet -->
+    <div id="audit-cert-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl border border-slate-200 flex flex-col max-h-[92vh]">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded bg-[#1e2552] text-white font-mono font-bold text-xs" id="cert-code">VB-MATCH-2026-0103</span>
+                    <span class="text-xs text-slate-400">•</span>
+                    <span class="text-xs font-semibold text-slate-700">Financial Integrity Audit Certificate</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.print()" class="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold shadow-2xs">
+                        <i class="fas fa-print mr-1"></i> Print Certificate
+                    </button>
+                    <button onclick="closeCertModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-5 flex-1 text-slate-800" id="audit-cert-body">
+                <!-- Populated dynamically with formal print template -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/procurement-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('three-way-match');
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-12">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-teal-600 text-[11px]"><i class="fas fa-arrow-left mr-1"></i> Dashboard</a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-teal-700 uppercase tracking-wider">Financial Integrity & Reconciliation</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-[#1e2552] mt-0.5">PO Contradiction Engine & 3-Way Match Verification</h1>
+                            <p class="text-[11px] text-slate-500">Automated 3-pillar audit: Contracted PO Rate $\ge$ Warehouse GRN Inward Qty $\ge$ Vendor Tax Invoice before Accounts Payable voucher commitment.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs">
+                                <i class="fas fa-shield-check"></i> 1% Rate Tolerance Enforced
+                            </span>
+                            <button onclick="openNewAuditModal()" class="px-3.5 py-1.5 bg-[#1e2552] hover:bg-[#28326e] text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-plus"></i> New 3-Way Audit
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Executive KPI Summary Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">Reconciled & AP Released</span>
+                                <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-badge-check"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-slate-800 font-mono" id="kpi-reconciled-amt">PKR 1.96M</span>
+                                <span class="text-[10px] text-emerald-600 font-semibold" id="kpi-matched-count">2 Clean</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">VB-MATCH vouchers posted to Accounts</p>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-rose-200 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">Active Contradictions Flagged</span>
+                                <div class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-triangle-exclamation"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-rose-700 font-mono" id="kpi-contradictions">1 Flagged</span>
+                                <span class="text-[10px] text-rose-600 font-semibold">>1% Rate Jump</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">AP Release locked until resolved</p>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-amber-200 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">Missing GRN Inward Receipts</span>
+                                <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-truck-ramp-box"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-amber-700 font-mono" id="kpi-missing-grn">1 Premature</span>
+                                <span class="text-[10px] text-amber-600 font-semibold">0 Received</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">Invoiced before warehouse gate entry</p>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">Blocked Discrepancy Value</span>
+                                <div class="w-7 h-7 rounded-lg bg-[#1e2552]/5 text-[#1e2552] flex items-center justify-center text-xs">
+                                    <i class="fas fa-hand-holding-dollar"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-[#1e2552] font-mono" id="kpi-blocked-amt">PKR 1.07M</span>
+                                <span class="text-[10px] text-slate-500 font-semibold">Under Audit</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">Protected from erroneous outflow</p>
+                        </div>
+                    </div>
+
+                    <!-- Flow Infographic Banner -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-white p-3.5 rounded-xl border border-teal-200 shadow-2xs flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase">Pillar 1 • Contract</div>
+                                <div class="font-bold text-slate-800 text-xs">Purchase Order (PO)</div>
+                                <div class="text-[10.5px] text-slate-500">Contracted Rate & Approved Qty</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-amber-200 shadow-2xs flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-truck-ramp-box"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase">Pillar 2 • Physical Inward</div>
+                                <div class="font-bold text-slate-800 text-xs">Goods Receipt Note (GRN)</div>
+                                <div class="text-[10.5px] text-slate-500">Warehouse Verified Inward Qty</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-indigo-200 shadow-2xs flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shrink-0">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase">Pillar 3 • Financial Claim</div>
+                                <div class="font-bold text-slate-800 text-xs">Vendor Tax Invoice (Bill)</div>
+                                <div class="text-[10.5px] text-slate-500">Billed Amount & STRN Verified</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter & Search Toolbar -->
+                    <div class="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div class="flex items-center gap-2 flex-1 min-w-[280px]">
+                            <div class="relative w-full max-w-xs">
+                                <i class="fas fa-search absolute left-2.5 top-2.5 text-slate-400 text-[10px]"></i>
+                                <input type="text" id="match-search" oninput="renderMatchList()" placeholder="Search PO #, GRN #, Invoice #, Vendor..." class="w-full pl-7 pr-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-teal-500 outline-none">
+                            </div>
+                            <select id="status-filter" onchange="renderMatchList()" class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none">
+                                <option value="">All Verification Statuses</option>
+                                <option value="Matched">100% Matched (AP Posted)</option>
+                                <option value="ContradictionDetected">Contradiction Detected</option>
+                                <option value="MissingGRN">Missing GRN Receipts</option>
+                                <option value="ApprovedWithVariance">Approved with Override</option>
+                                <option value="CreditNoteRequested">Debit Advice / CN Requested</option>
+                            </select>
+                        </div>
+                        <div class="text-[11px] text-slate-500 font-medium" id="match-count-label">Showing 4 Verification Cases</div>
+                    </div>
+
+                    <!-- 3-Way Match Cases -->
+                    <div class="space-y-4" id="matches-container">
+                        <!-- Populated Dynamically -->
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderMatchList();
+            updateKpiStats();
+
+            // Check URL query parameters for direct PO filter
+            const urlParams = new URLSearchParams(window.location.search);
+            const poParam = urlParams.get('po');
+            if (poParam) {
+                const searchInput = document.getElementById('match-search');
+                if (searchInput) {
+                    searchInput.value = poParam;
+                    renderMatchList();
+                }
+            }
+        });
+
+        function updateKpiStats() {
+            const stats = CosmixProcurement.getSummaryStats();
+            const recEl = document.getElementById('kpi-reconciled-amt');
+            const matchEl = document.getElementById('kpi-matched-count');
+            const contraEl = document.getElementById('kpi-contradictions');
+            const missEl = document.getElementById('kpi-missing-grn');
+            const blockEl = document.getElementById('kpi-blocked-amt');
+
+            if (recEl) recEl.innerText = 'PKR ' + (stats.totalReconciledValuePkr / 1000000).toFixed(2) + 'M';
+            if (matchEl) matchEl.innerText = stats.cleanMatchesCount + ' Clean';
+            if (contraEl) contraEl.innerText = stats.contradictionCount + ' Flagged';
+            if (missEl) missEl.innerText = stats.missingGrnCount + ' Premature';
+            if (blockEl) blockEl.innerText = 'PKR ' + (stats.blockedApAmountPkr / 1000000).toFixed(2) + 'M';
+        }
+
+        function renderMatchList() {
+            const matches = CosmixProcurement.getThreeWayMatches();
+            const container = document.getElementById('matches-container');
+            if (!container) return;
+
+            const search = (document.getElementById('match-search')?.value || '').toLowerCase();
+            const statusFilter = document.getElementById('status-filter')?.value || '';
+
+            const filtered = matches.filter(m => {
+                const matchSearch = m.matchCode.toLowerCase().includes(search) ||
+                                    m.poNumber.toLowerCase().includes(search) ||
+                                    m.grnNumber.toLowerCase().includes(search) ||
+                                    m.vendorBillNumber.toLowerCase().includes(search) ||
+                                    m.vendorName.toLowerCase().includes(search);
+                const matchStatus = !statusFilter || m.status === statusFilter;
+                return matchSearch && matchStatus;
+            });
+
+            const countLabel = document.getElementById('match-count-label');
+            if (countLabel) countLabel.innerText = `Showing ${filtered.length} of ${matches.length} Verification Cases`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-400">
+                        <i class="fas fa-filter text-2xl mb-2"></i>
+                        <p class="text-xs">No matching 3-Way verification cases found for the selected filter.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(m => {
+                const isMatched = m.status === 'Matched';
+                const isApprovedWithVariance = m.status === 'ApprovedWithVariance';
+                const isCreditNoteReq = m.status === 'CreditNoteRequested';
+                const isContradiction = m.status === 'ContradictionDetected' || m.status === 'PriceVariance' || m.status === 'QuantityVariance' || m.status === 'MissingGRN';
+
+                let cardBorder = 'border-slate-200/80';
+                let statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fas fa-check-circle mr-1"></i> Matched & Cleared</span>';
+
+                if (isApprovedWithVariance) {
+                    cardBorder = 'border-purple-300';
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800"><i class="fas fa-signature mr-1"></i> Approved with Variance</span>';
+                } else if (isCreditNoteReq) {
+                    cardBorder = 'border-amber-400';
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-file-invoice mr-1"></i> Credit Note Requested</span>';
+                } else if (m.status === 'MissingGRN') {
+                    cardBorder = 'border-amber-400';
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-truck-ramp-box mr-1"></i> Missing GRN Receipt</span>';
+                } else if (isContradiction) {
+                    cardBorder = 'border-rose-400';
+                    statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 badge-pulse"><i class="fas fa-triangle-exclamation mr-1"></i> Contradiction Flagged</span>';
+                }
+
+                const linesHtml = (m.lineDetails || []).map((l, idx) => {
+                    const isQtyOver = l.status === 'QTY_OVERBILLED' || l.poQty < l.billQty || l.grnQty < l.billQty;
+                    const isRateOver = l.status === 'RATE_OVER_LIMIT' || (l.billRate > l.poRate && l.rateVariancePct > 1.0);
+                    const isMissing = l.status === 'MISSING_GRN' || (l.billQty > 0 && l.grnQty === 0);
+
+                    let rowBg = 'hover:bg-slate-50/80';
+                    let statusPill = `<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">MATCH</span>`;
+
+                    if (isMissing) {
+                        rowBg = 'bg-amber-50/70 text-amber-950 font-medium';
+                        statusPill = `<span class="px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 text-[9px] font-bold">MISSING GRN</span>`;
+                    } else if (isQtyOver && isRateOver) {
+                        rowBg = 'bg-rose-100/70 text-rose-950 font-medium';
+                        statusPill = `<span class="px-1.5 py-0.5 rounded bg-rose-200 text-rose-900 text-[9px] font-bold">DOUBLE VARIANCE</span>`;
+                    } else if (isQtyOver) {
+                        rowBg = 'bg-rose-50/70 text-rose-950 font-medium';
+                        statusPill = `<span class="px-1.5 py-0.5 rounded bg-rose-200 text-rose-900 text-[9px] font-bold">QTY OVERBILLED (+${l.qtyVariance || (l.billQty - l.grnQty)})</span>`;
+                    } else if (isRateOver) {
+                        rowBg = 'bg-rose-50/70 text-rose-950 font-medium';
+                        statusPill = `<span class="px-1.5 py-0.5 rounded bg-rose-200 text-rose-900 text-[9px] font-bold">RATE +${l.rateVariancePct}% (>1%)</span>`;
+                    }
+
+                    return `
+                        <tr class="border-b border-slate-100 text-[11px] ${rowBg}">
+                            <td class="py-2.5 px-3">
+                                <div class="font-semibold text-slate-800">${l.description}</div>
+                                <div class="text-[9.5px] font-mono text-slate-400">Code: ${l.itemCode} | UOM: ${l.uom || 'Nos'}</div>
+                            </td>
+                            <td class="py-2.5 px-2.5 text-right font-mono text-slate-700">${l.poQty}</td>
+                            <td class="py-2.5 px-2.5 text-right font-mono text-slate-700">PKR ${l.poRate.toLocaleString()}</td>
+                            <td class="py-2.5 px-2.5 text-right font-mono font-semibold ${isMissing ? 'text-amber-700 font-bold' : 'text-slate-800'}">${l.grnQty}</td>
+                            <td class="py-2.5 px-2.5 text-right font-mono font-bold ${isQtyOver ? 'text-rose-700' : 'text-indigo-900'}">${l.billQty}</td>
+                            <td class="py-2.5 px-2.5 text-right font-mono font-bold ${isRateOver ? 'text-rose-700' : 'text-indigo-900'}">PKR ${l.billRate.toLocaleString()}</td>
+                            <td class="py-2.5 px-2.5 text-right font-mono font-semibold ${l.amountVariancePkr > 0 ? 'text-rose-700' : 'text-slate-400'}">
+                                ${l.amountVariancePkr > 0 ? `+PKR ${l.amountVariancePkr.toLocaleString()}` : 'PKR 0'}
+                            </td>
+                            <td class="py-2.5 px-3 text-center">
+                                ${statusPill}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="bg-white rounded-xl border ${cardBorder} shadow-xs overflow-hidden transition-all">
+                        
+                        <!-- Header Bar -->
+                        <div class="p-3.5 bg-slate-50/90 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-[#1e2552] text-white">
+                                        ${m.matchCode}
+                                    </span>
+                                    <span class="text-slate-300">•</span>
+                                    <span class="font-bold text-slate-800 text-xs">${m.vendorName}</span>
+                                    <span class="text-slate-300">•</span>
+                                    <span class="text-[10px] text-slate-500 font-mono">Invoice Date: ${m.billDate}</span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-3 text-[10.5px] text-slate-500 mt-1">
+                                    <span>Pillar 1 PO: <a href="purchase-orders.html?po=${m.poNumber}" class="text-teal-700 font-mono font-bold hover:underline">${m.poNumber}</a></span>
+                                    <span class="text-slate-300">•</span>
+                                    <span>Pillar 2 GRN: <strong class="text-amber-700 font-mono">${m.grnNumber}</strong> <span class="text-slate-400">(${m.deliveryChallanNo || 'Challan'})</span></span>
+                                    <span class="text-slate-300">•</span>
+                                    <span>Pillar 3 Invoice: <strong class="text-indigo-700 font-mono">${m.vendorBillNumber}</strong></span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <div class="text-right">
+                                    <div class="text-[10px] text-slate-400 font-bold uppercase">Billed Amount (Inc. Tax)</div>
+                                    <div class="font-mono font-bold text-slate-800 text-sm">PKR ${m.billAmountPkr.toLocaleString()}</div>
+                                </div>
+                                <div>
+                                    ${statusBadge}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contradiction Warning Alert Banner (if applicable) -->
+                        ${m.contradictionSummary ? `
+                            <div class="px-4 py-2 text-[11px] flex items-center justify-between border-b ${isMatched ? 'bg-emerald-50/40 text-emerald-800 border-emerald-100' : 'bg-rose-50/80 text-rose-900 border-rose-200 font-medium'}">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas ${isMatched ? 'fa-check-circle text-emerald-600' : 'fa-triangle-exclamation text-rose-600'}"></i>
+                                    <span>${m.contradictionSummary}</span>
+                                </div>
+                                ${m.variancePkr > 0 ? `
+                                    <span class="font-mono font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800 text-[10px]">
+                                        Variance: PKR ${m.variancePkr.toLocaleString()}
+                                    </span>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+
+                        <!-- 3-Pillar Comparison Matrix Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-[11px]">
+                                <thead class="bg-slate-100/70 text-slate-600 font-semibold border-b border-slate-200 text-[10px] uppercase tracking-wider">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Item Specification</th>
+                                        <th class="py-2.5 px-2.5 text-right">Pillar 1 (PO Qty)</th>
+                                        <th class="py-2.5 px-2.5 text-right">Pillar 1 (PO Rate)</th>
+                                        <th class="py-2.5 px-2.5 text-right bg-amber-50/60 text-amber-900">Pillar 2 (GRN Inward)</th>
+                                        <th class="py-2.5 px-2.5 text-right bg-indigo-50/60 text-indigo-900">Pillar 3 (Bill Qty)</th>
+                                        <th class="py-2.5 px-2.5 text-right bg-indigo-50/60 text-indigo-900">Pillar 3 (Bill Rate)</th>
+                                        <th class="py-2.5 px-2.5 text-right">Variance (PKR)</th>
+                                        <th class="py-2.5 px-3 text-center">Engine Flag</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${linesHtml}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Footer Actions & Resolution Hub -->
+                        <div class="p-3.5 bg-slate-50/70 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px]">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-mono text-[10px] font-semibold border border-blue-200">
+                                    <i class="fas fa-check-circle text-blue-600 mr-1"></i> FBR STRN Verified
+                                </span>
+                                ${m.auditNotes ? `
+                                    <span class="text-slate-500 text-[10px] italic truncate max-w-[320px]" title="${m.auditNotes}">
+                                        Note: ${m.auditNotes}
+                                    </span>
+                                ` : ''}
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button onclick="openCertModal('${m.id}')" class="px-2.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold shadow-2xs flex items-center gap-1.5 transition-all">
+                                    <i class="fas fa-file-shield text-slate-500"></i> Audit Certificate
+                                </button>
+
+                                ${m.apVoucherCreated ? `
+                                    <div class="text-emerald-700 font-bold text-xs flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+                                        <i class="fas fa-badge-check"></i> Posted to AP: <span class="font-mono">${m.apVoucherRef}</span>
+                                    </div>
+                                ` : `
+                                    ${isContradiction ? `
+                                        <button onclick="openVarianceModal('${m.id}')" class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all" title="Approve with formal justification">
+                                            <i class="fas fa-signature"></i> Approve with Override
+                                        </button>
+                                        <button onclick="openCreditNoteModal('${m.id}')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all" title="Request Vendor Credit Note / Issue Debit Advice">
+                                            <i class="fas fa-file-invoice"></i> Request Credit Note
+                                        </button>
+                                    ` : `
+                                        <button onclick="authorizeStandardMatch('${m.id}')" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                                            <i class="fas fa-check-double"></i> Authorize & Generate AP Voucher
+                                        </button>
+                                    `}
+                                `}
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Action 1: Standard AP Authorization
+        function authorizeStandardMatch(matchId) {
+            const result = CosmixProcurement.approveMatchAndGenerateApVoucher(matchId);
+            if (result) {
+                alert(`3-Way Match Verification Approved!\nAccounts Payable Draft Voucher: ${result.apVoucherRef}\nPosted to General Ledger AP Queue.`);
+                renderMatchList();
+                updateKpiStats();
+            }
+        }
+
+        // Action 2: Variance Justification Modal
+        function openVarianceModal(matchId) {
+            const item = CosmixProcurement.getThreeWayMatchById(matchId);
+            if (!item) return;
+
+            document.getElementById('var-match-id').value = item.id;
+            document.getElementById('var-match-code').innerText = item.matchCode;
+            document.getElementById('var-match-amount').innerText = `PKR ${item.variancePkr.toLocaleString()}`;
+            document.getElementById('var-justification').value = '';
+
+            document.getElementById('variance-modal').classList.remove('hidden');
+        }
+
+        function closeVarianceModal() {
+            document.getElementById('variance-modal').classList.add('hidden');
+        }
+
+        function confirmVarianceApproval() {
+            const matchId = document.getElementById('var-match-id').value;
+            const head = document.getElementById('var-cost-center-head').value;
+            const justification = document.getElementById('var-justification').value.trim();
+
+            if (!justification) {
+                alert('Please provide a formal technical / commercial justification.');
+                return;
+            }
+
+            const updated = CosmixProcurement.approveWithVarianceExplanation(matchId, justification, head);
+            if (updated) {
+                alert(`Commercial Override Approved!\nVoucher ${updated.apVoucherRef} generated with documented endorsement by ${head}.`);
+                closeVarianceModal();
+                renderMatchList();
+                updateKpiStats();
+            }
+        }
+
+        // Action 3: Credit Note Request Modal
+        function openCreditNoteModal(matchId) {
+            const item = CosmixProcurement.getThreeWayMatchById(matchId);
+            if (!item) return;
+
+            document.getElementById('cn-match-id').value = item.id;
+            document.getElementById('cn-vendor-name').innerText = item.vendorName;
+            document.getElementById('cn-invoice-num').innerText = item.vendorBillNumber;
+            document.getElementById('cn-discrepancy-amount').innerText = `PKR ${item.variancePkr.toLocaleString()}`;
+            document.getElementById('cn-amount-input').value = item.variancePkr;
+            document.getElementById('cn-reason').value = item.contradictionSummary || 'Billing contradiction identified during 3-Way Match audit.';
+
+            document.getElementById('credit-note-modal').classList.remove('hidden');
+        }
+
+        function closeCreditNoteModal() {
+            document.getElementById('credit-note-modal').classList.add('hidden');
+        }
+
+        function confirmCreditNoteRequest() {
+            const matchId = document.getElementById('cn-match-id').value;
+            const amount = parseFloat(document.getElementById('cn-amount-input').value) || 0;
+            const reason = document.getElementById('cn-reason').value.trim();
+
+            if (amount <= 0 || !reason) {
+                alert('Please specify a valid deduction amount and formal reason.');
+                return;
+            }
+
+            const result = CosmixProcurement.requestVendorCreditNote(matchId, reason, amount);
+            if (result) {
+                alert(`Debit Advice ${result.creditNote.debitAdviceRef} issued!\nCredit Note Request ${result.creditNote.creditNoteRef} registered for PKR ${amount.toLocaleString()}.\nAccounts Payable release locked.`);
+                closeCreditNoteModal();
+                renderMatchList();
+                updateKpiStats();
+            }
+        }
+
+        // Action 4: Printable Audit Certificate
+        function openCertModal(matchId) {
+            const item = CosmixProcurement.getThreeWayMatchById(matchId);
+            if (!item) return;
+
+            document.getElementById('cert-code').innerText = item.matchCode;
+
+            const linesRows = (item.lineDetails || []).map((l, idx) => `
+                <tr class="border-b border-slate-200">
+                    <td class="py-2 px-3 font-mono text-slate-400 text-center">${idx + 1}</td>
+                    <td class="py-2 px-3 font-medium text-slate-800">${l.description} <span class="font-mono text-slate-400 text-[9.5px]">(${l.itemCode})</span></td>
+                    <td class="py-2 px-3 text-right font-mono">${l.poQty}</td>
+                    <td class="py-2 px-3 text-right font-mono">${l.grnQty}</td>
+                    <td class="py-2 px-3 text-right font-mono">${l.billQty}</td>
+                    <td class="py-2 px-3 text-right font-mono">PKR ${l.poRate.toLocaleString()}</td>
+                    <td class="py-2 px-3 text-right font-mono">PKR ${l.billRate.toLocaleString()}</td>
+                    <td class="py-2 px-3 text-center font-bold font-mono ${l.status === 'MATCH' ? 'text-emerald-700' : 'text-rose-700'}">${l.status}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('audit-cert-body').innerHTML = `
+                <!-- Certificate Letterhead -->
+                <div class="flex justify-between items-start border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-base font-extrabold text-[#1e2552] tracking-tight">COSMIX ENGINEERING (PVT) LTD</h2>
+                        <p class="text-[10px] text-slate-500">Internal Audit & Financial Controls Division</p>
+                        <p class="text-[10px] text-slate-500">Plot 12-C, Industrial Estate, Karachi | NTN: 7291048-2</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-1 rounded border border-teal-200">3-Way Match Verification Certificate</span>
+                        <div class="mt-2 font-mono text-sm font-bold text-slate-800">${item.matchCode}</div>
+                        <div class="text-[10px] text-slate-400 font-mono">Reconciliation Date: ${item.billDate}</div>
+                    </div>
+                </div>
+
+                <!-- Triad Summary Grid -->
+                <div class="grid grid-cols-3 gap-3 bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-[11px]">
+                    <div>
+                        <span class="font-bold text-teal-800 uppercase tracking-wider text-[9.5px]">Pillar 1: Purchase Order</span>
+                        <div class="font-mono font-bold text-slate-800 mt-0.5">${item.poNumber}</div>
+                        <div class="text-slate-500">Amount: PKR ${item.poAmountPkr.toLocaleString()}</div>
+                    </div>
+                    <div>
+                        <span class="font-bold text-amber-800 uppercase tracking-wider text-[9.5px]">Pillar 2: Goods Receipt Note</span>
+                        <div class="font-mono font-bold text-slate-800 mt-0.5">${item.grnNumber}</div>
+                        <div class="text-slate-500">DC Ref: ${item.deliveryChallanNo || 'Direct Inward'}</div>
+                    </div>
+                    <div>
+                        <span class="font-bold text-indigo-800 uppercase tracking-wider text-[9.5px]">Pillar 3: Vendor Tax Invoice</span>
+                        <div class="font-mono font-bold text-slate-800 mt-0.5">${item.vendorBillNumber}</div>
+                        <div class="text-slate-500 font-bold text-slate-800">Billed: PKR ${item.billAmountPkr.toLocaleString()}</div>
+                    </div>
+                </div>
+
+                <!-- Vendor Detail -->
+                <div class="p-3 bg-slate-50/50 rounded-lg border border-slate-200/80 text-[11px] flex justify-between items-center">
+                    <div>
+                        <span class="text-slate-500">Vendor:</span> <strong class="text-slate-800">${item.vendorName}</strong>
+                    </div>
+                    <div class="text-slate-500 font-mono">
+                        FBR STRN Status: <strong class="text-emerald-700">ACTIVE & VERIFIED</strong>
+                    </div>
+                </div>
+
+                <!-- Comparison Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-[11px]">
+                        <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="py-2 px-3 text-center">#</th>
+                                <th class="py-2 px-3">Item Specification</th>
+                                <th class="py-2 px-3 text-right">PO Qty</th>
+                                <th class="py-2 px-3 text-right">GRN Qty</th>
+                                <th class="py-2 px-3 text-right">Bill Qty</th>
+                                <th class="py-2 px-3 text-right">PO Rate</th>
+                                <th class="py-2 px-3 text-right">Bill Rate</th>
+                                <th class="py-2 px-3 text-center">Pillar Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${linesRows}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Financial Variance & Audit Findings -->
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-[11px] space-y-1">
+                    <div class="font-bold text-slate-800">Reconciliation Findings & Verification Result:</div>
+                    <p class="text-slate-600">${item.contradictionSummary || 'Zero discrepancies detected. Exact parity confirmed.'}</p>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-200 font-mono">
+                        <span>Net Variance Amount:</span>
+                        <span class="font-bold ${item.variancePkr > 0 ? 'text-rose-700' : 'text-emerald-700'}">PKR ${item.variancePkr.toLocaleString()}</span>
+                    </div>
+                </div>
+
+                <!-- Signatory Footer -->
+                <div class="grid grid-cols-3 gap-6 pt-8 text-[10px] text-slate-500 text-center">
+                    <div class="border-t border-slate-300 pt-1.5">
+                        <div class="font-bold text-slate-700">${item.checkedBy}</div>
+                        <div>Procurement Officer (Pillar 1 & 2)</div>
+                    </div>
+                    <div class="border-t border-slate-300 pt-1.5">
+                        <div class="font-bold text-slate-700">Tariq Mehmood (QA/Stores)</div>
+                        <div>Warehouse Inspector (Pillar 2)</div>
+                    </div>
+                    <div class="border-t border-slate-300 pt-1.5">
+                        <div class="font-bold text-slate-700">${item.approvedBy || 'Pending AP Authorization'}</div>
+                        <div>Accounts Payable & Audit Signatory</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('audit-cert-modal').classList.remove('hidden');
+        }
+
+        function closeCertModal() {
+            document.getElementById('audit-cert-modal').classList.add('hidden');
+        }
+
+        // Modal 1: Initiate New Audit Logic
+        function openNewAuditModal() {
+            const pos = CosmixProcurement.getPurchaseOrders();
+            const poSelect = document.getElementById('modal-po-select');
+            poSelect.innerHTML = '<option value="">-- Choose Purchase Order --</option>' + 
+                pos.map(p => `<option value="${p.poNumber}">${p.poNumber} — ${p.vendorName} (${p.status})</option>`).join('');
+
+            document.getElementById('modal-grn-select').innerHTML = '<option value="">-- Select Linked GRN --</option>';
+            document.getElementById('modal-bill-number').value = '';
+            document.getElementById('modal-bill-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('modal-vendor-display').innerText = '--';
+            document.getElementById('modal-project-display').innerText = '--';
+            document.getElementById('modal-audit-lines').innerHTML = `
+                <tr><td colspan="7" class="py-4 text-center text-slate-400">Please select a Purchase Order above to load line items.</td></tr>
+            `;
+            document.getElementById('modal-live-alert').classList.add('hidden');
+
+            document.getElementById('new-audit-modal').classList.remove('hidden');
+        }
+
+        function closeAuditModal() {
+            document.getElementById('new-audit-modal').classList.add('hidden');
+        }
+
+        let currentModalPo = null;
+
+        function onPoSelected() {
+            const poNumber = document.getElementById('modal-po-select').value;
+            if (!poNumber) return;
+
+            currentModalPo = CosmixProcurement.getPurchaseOrderById(poNumber);
+            if (!currentModalPo) return;
+
+            document.getElementById('modal-vendor-display').innerText = currentModalPo.vendorName;
+            document.getElementById('modal-project-display').innerText = currentModalPo.projectRef;
+
+            // Load linked GRNs
+            const grns = CosmixProcurement.getGrnByPo(poNumber);
+            const grnSelect = document.getElementById('modal-grn-select');
+            if (grns.length > 0) {
+                grnSelect.innerHTML = grns.map(g => `<option value="${g.grnNumber}">${g.grnNumber} — DC: ${g.deliveryChallanNo} (${g.receivedDate})</option>`).join('');
+            } else {
+                grnSelect.innerHTML = `<option value="GRN-PENDING">No GRN found (Simulate Missing GRN)</option>`;
+            }
+
+            renderModalLineItems();
+        }
+
+        function onGrnSelected() {
+            renderModalLineItems();
+        }
+
+        function renderModalLineItems() {
+            if (!currentModalPo) return;
+
+            const grnNumber = document.getElementById('modal-grn-select').value;
+            const grn = CosmixProcurement.getGrns().find(g => g.grnNumber === grnNumber);
+
+            const tbody = document.getElementById('modal-audit-lines');
+            tbody.innerHTML = (currentModalPo.lines || []).map((l, idx) => {
+                let defaultGrnQty = l.qtyReceived;
+                if (grn) {
+                    const gl = (grn.lines || []).find(x => x.itemCode === l.itemCode);
+                    if (gl) defaultGrnQty = gl.qtyReceived;
+                }
+
+                return `
+                    <tr class="modal-line-row border-b border-slate-100" data-code="${l.itemCode}" data-desc="${l.description}" data-uom="${l.uom}">
+                        <td class="py-2 px-2.5">
+                            <div class="font-semibold text-slate-800">${l.description}</div>
+                            <div class="text-[9.5px] font-mono text-slate-400">${l.itemCode}</div>
+                        </td>
+                        <td class="py-2 px-2 text-right font-mono text-slate-600 line-po-qty">${l.qtyOrdered}</td>
+                        <td class="py-2 px-2 text-right font-mono text-slate-600 line-po-rate">${l.unitRatePkr}</td>
+                        <td class="py-2 px-2 bg-amber-50/50">
+                            <input type="number" value="${defaultGrnQty}" oninput="evaluateLiveAudit()" class="line-grn-qty w-full px-1.5 py-1 text-right font-mono border border-slate-200 rounded text-xs">
+                        </td>
+                        <td class="py-2 px-2 bg-indigo-50/50">
+                            <input type="number" value="${l.qtyOrdered}" oninput="evaluateLiveAudit()" class="line-bill-qty w-full px-1.5 py-1 text-right font-mono border border-slate-200 rounded text-xs font-bold text-indigo-900">
+                        </td>
+                        <td class="py-2 px-2 bg-indigo-50/50">
+                            <input type="number" value="${l.unitRatePkr}" oninput="evaluateLiveAudit()" class="line-bill-rate w-full px-1.5 py-1 text-right font-mono border border-slate-200 rounded text-xs font-bold text-indigo-900">
+                        </td>
+                        <td class="py-2 px-2 text-center line-analysis-cell">
+                            <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">MATCH</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            evaluateLiveAudit();
+        }
+
+        function evaluateLiveAudit() {
+            const rows = document.querySelectorAll('.modal-line-row');
+            let hasOverbilling = false;
+            let hasRateVariance = false;
+            let hasMissingGrn = false;
+            let totalVariancePkr = 0;
+
+            rows.forEach(r => {
+                const poQty = parseFloat(r.querySelector('.line-po-qty')?.innerText) || 0;
+                const poRate = parseFloat(r.querySelector('.line-po-rate')?.innerText) || 0;
+                const grnQty = parseFloat(r.querySelector('.line-grn-qty')?.value) || 0;
+                const billQty = parseFloat(r.querySelector('.line-bill-qty')?.value) || 0;
+                const billRate = parseFloat(r.querySelector('.line-bill-rate')?.value) || 0;
+
+                const analysis = CosmixProcurement.analyzeLineItemContradiction(poQty, poRate, grnQty, billQty, billRate);
+                totalVariancePkr += analysis.amountVariancePkr;
+
+                const cell = r.querySelector('.line-analysis-cell');
+                if (analysis.status === 'MATCH') {
+                    cell.innerHTML = `<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">MATCH</span>`;
+                } else if (analysis.status === 'MISSING_GRN') {
+                    hasMissingGrn = true;
+                    cell.innerHTML = `<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold">0 GRN</span>`;
+                } else if (analysis.status === 'QTY_OVERBILLED') {
+                    hasOverbilling = true;
+                    cell.innerHTML = `<span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 text-[9px] font-bold">+${analysis.qtyVariance} Over</span>`;
+                } else if (analysis.status === 'RATE_OVER_LIMIT') {
+                    hasRateVariance = true;
+                    cell.innerHTML = `<span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 text-[9px] font-bold">+${analysis.rateVariancePct}% Rate</span>`;
+                } else {
+                    hasOverbilling = true;
+                    hasRateVariance = true;
+                    cell.innerHTML = `<span class="px-1.5 py-0.5 rounded bg-rose-200 text-rose-900 text-[9px] font-bold">DOUBLE VAR</span>`;
+                }
+            });
+
+            const alertBox = document.getElementById('modal-live-alert');
+            if (hasMissingGrn || hasOverbilling || hasRateVariance) {
+                alertBox.className = 'p-3 rounded-lg border bg-rose-50 border-rose-200 text-rose-900 text-[11px] space-y-1 block';
+                alertBox.innerHTML = `
+                    <div class="font-bold flex items-center gap-1.5">
+                        <i class="fas fa-triangle-exclamation text-rose-600"></i> Contradictions Detected in Real-time:
+                    </div>
+                    <ul class="list-disc list-inside text-[10.5px] text-rose-800 space-y-0.5">
+                        ${hasMissingGrn ? `<li>Line item billed with 0 physical GRN inward receipt.</li>` : ''}
+                        ${hasOverbilling ? `<li>Quantity billed exceeds warehouse received quantity.</li>` : ''}
+                        ${hasRateVariance ? `<li>Unit rate billed exceeds contracted PO rate beyond 1% tolerance threshold.</li>` : ''}
+                    </ul>
+                    <div class="font-mono font-bold text-xs pt-1 text-rose-950">
+                        Total Unadjusted Discrepancy: PKR ${Math.round(totalVariancePkr * 1.18).toLocaleString()} (Inc. 18% GST)
+                    </div>
+                `;
+            } else {
+                alertBox.className = 'p-3 rounded-lg border bg-emerald-50 border-emerald-200 text-emerald-900 text-[11px] space-y-1 block';
+                alertBox.innerHTML = `
+                    <div class="font-bold flex items-center gap-1.5">
+                        <i class="fas fa-circle-check text-emerald-600"></i> Parity Verified: 3-Pillar reconciliation is clean and within tolerance.
+                    </div>
+                `;
+            }
+        }
+
+        function submitNewAudit() {
+            if (!currentModalPo) {
+                alert('Please select a valid Purchase Order.');
+                return;
+            }
+
+            const billNumber = document.getElementById('modal-bill-number').value.trim();
+            const billDate = document.getElementById('modal-bill-date').value;
+            const grnNumber = document.getElementById('modal-grn-select').value;
+
+            if (!billNumber || !billDate) {
+                alert('Please fill in the Vendor Bill Invoice Number and Date.');
+                return;
+            }
+
+            const rows = document.querySelectorAll('.modal-line-row');
+            const rawLines = [];
+
+            rows.forEach(r => {
+                const code = r.getAttribute('data-code');
+                const desc = r.getAttribute('data-desc');
+                const uom = r.getAttribute('data-uom');
+                const poQty = parseFloat(r.querySelector('.line-po-qty')?.innerText) || 0;
+                const poRate = parseFloat(r.querySelector('.line-po-rate')?.innerText) || 0;
+                const grnQty = parseFloat(r.querySelector('.line-grn-qty')?.value) || 0;
+                const billQty = parseFloat(r.querySelector('.line-bill-qty')?.value) || 0;
+                const billRate = parseFloat(r.querySelector('.line-bill-rate')?.value) || 0;
+
+                rawLines.push({
+                    itemCode: code,
+                    description: desc,
+                    uom: uom,
+                    poQty,
+                    poRate,
+                    grnQty,
+                    billQty,
+                    billRate
+                });
+            });
+
+            const newMatch = CosmixProcurement.evaluateAndCreateThreeWayMatch({
+                poNumber: currentModalPo.poNumber,
+                grnNumber: grnNumber,
+                deliveryChallanNo: 'DC-REC-' + Math.floor(1000 + Math.random() * 9000),
+                vendorBillNumber: billNumber,
+                billDate: billDate,
+                vendorId: currentModalPo.vendorId,
+                vendorName: currentModalPo.vendorName,
+                rawLines: rawLines
+            });
+
+            alert(`3-Way Match Audit Created!\nAudit Code: ${newMatch.matchCode}\nStatus: ${newMatch.status}`);
+            closeAuditModal();
+            renderMatchList();
+            updateKpiStats();
+        }
+    </script>
+</body>
+</html>

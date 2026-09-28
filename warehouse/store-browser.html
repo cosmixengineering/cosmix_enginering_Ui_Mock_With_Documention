@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Store Catalog Browser (15 Families / 306 Items) - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <!-- Item Specification Detail Modal -->
+    <div id="item-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="px-6 py-4 bg-[#1e2552] text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-amber-400 text-sm font-bold shadow-inner">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-white" id="modal-item-title">Item Technical Specification</h3>
+                        <p class="text-[11px] text-slate-300 font-mono" id="modal-item-code">0-0001-01</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeItemModal()" class="text-slate-300 hover:text-white transition-colors text-base p-1">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4" id="modal-item-body">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+                <button type="button" onclick="closeItemModal()" class="px-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100">
+                    Close
+                </button>
+                <button type="button" id="modal-btn-pick" class="px-5 py-2 bg-[#1e2552] hover:bg-[#2c3672] text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2">
+                    <i class="fas fa-right-left text-amber-400"></i> Pick & Transfer to Site Store
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Transfer Modal -->
+    <div id="transfer-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="px-5 py-3.5 bg-[#1e2552] text-white flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-sm text-white">Dual-Store Pick to Site Transfer</h3>
+                    <p class="text-[10.5px] text-slate-300">Central Physical Warehouse -> Project Site Virtual Store</p>
+                </div>
+                <button type="button" onclick="closeTransferModal()" class="text-slate-300 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="quick-transfer-form" onsubmit="handleQuickTransferSubmit(event)" class="p-5 space-y-3">
+                <input type="hidden" id="quick-transfer-code">
+                
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Catalog Item</label>
+                    <div id="quick-transfer-item-display" class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-900"></div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Target MEP Project Site *</label>
+                    <select id="quick-transfer-site" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 bg-white">
+                        <option value="DHA Phase 8 — HVAC & MEP Complex">DHA Phase 8 — HVAC & MEP Complex</option>
+                        <option value="Clifton Commercial Tower">Clifton Commercial Tower</option>
+                        <option value="Lucky Motor Assembly Plant">Lucky Motor Assembly Plant</option>
+                        <option value="Korangi Workshop & Fabrication Bay">Korangi Workshop & Fabrication Bay</option>
+                        <option value="Bahria Icon Tower Retrofit">Bahria Icon Tower Retrofit</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Pick Quantity *</label>
+                        <input type="number" step="any" min="0.01" id="quick-transfer-qty" required placeholder="e.g. 5" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Challan Ref *</label>
+                        <input type="text" id="quick-transfer-ref" required placeholder="e.g. CH-2026-098" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono text-slate-800">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Assigned Logistics Driver</label>
+                    <select id="quick-transfer-rider" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-800 bg-white">
+                        <option value="Nadeem — Company Driver">Nadeem — Company Driver (0300-0000002)</option>
+                        <option value="Imran — Logistics Officer">Imran — Logistics Officer (0300-0000001)</option>
+                        <option value="Zubair — Third-Party Hauler">Zubair — Third-Party Hauler (0321-9988771)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Remarks</label>
+                    <input type="text" id="quick-transfer-notes" placeholder="e.g. Dispatched for floor installation" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs">
+                </div>
+
+                <div class="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeTransferModal()" class="px-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-[#1e2552] hover:bg-[#2c3672] text-white rounded-xl text-xs font-bold shadow-md">Execute Transfer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/inventory-dual-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        let activeFamilyFilter = '';
+        let activePresetFilter = 'all';
+        let currentSearch = '';
+        let currentViewMode = 'table'; // 'table' or 'grid'
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('store-browser');
+            renderStoreBrowser();
+            window.addEventListener('dualstore:updated', () => {
+                renderStoreBrowser();
+            });
+        });
+
+        function renderStoreBrowser() {
+            const families = window.DualStoreEngine.families;
+            const kpis = window.DualStoreEngine.getKPIs();
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-16">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-[#1e2552] text-[11px] font-semibold"><i class="fas fa-arrow-left mr-1"></i> Warehouse</a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-[#1e2552] uppercase tracking-wider">Master Catalog</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-slate-900 mt-0.5">Master Store Catalog Browser (15 Families / 306 Items)</h1>
+                            <p class="text-[11px] text-slate-500">Standardized family nomenclature: <strong>0-0001</strong> (VRF Outdoor & Piping) to <strong>0-0015</strong> (HSE & Custody Kits) with dual-store balances.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="dual-store.html" class="px-3.5 py-1.5 bg-[#1e2552] hover:bg-[#2c3672] text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-2 transition-all">
+                                <i class="fas fa-store text-amber-400"></i> Dual-Store Command Center
+                            </a>
+                            <button onclick="exportCatalogCsv()" class="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-file-csv text-emerald-600"></i> Export CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Preset Quick Filter Tabs -->
+                    <div class="bg-white p-2.5 rounded-xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <button onclick="selectPreset('all')" class="px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${activePresetFilter === 'all' && !activeFamilyFilter ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
+                                All 306 Standard SKUs
+                            </button>
+                            <button onclick="selectPreset('vrf')" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${activePresetFilter === 'vrf' ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
+                                VRF Systems & ODU/IDU (${getFamilyCount(['0-0001', '0-0002', '0-0011'])})
+                            </button>
+                            <button onclick="selectPreset('piping')" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${activePresetFilter === 'piping' ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
+                                Piping & Insulation (${getFamilyCount(['0-0001', '0-0002', '0-0003', '0-0004'])})
+                            </button>
+                            <button onclick="selectPreset('chillers')" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${activePresetFilter === 'chillers' ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
+                                Chillers, AHU & FCU (${getFamilyCount(['0-0005', '0-0006', '0-0007', '0-0008'])})
+                            </button>
+                            <button onclick="selectPreset('bms')" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${activePresetFilter === 'bms' ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
+                                BMS, Sensors & Controls (${getFamilyCount(['0-0003', '0-0013'])})
+                            </button>
+                            <button onclick="selectPreset('safety')" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${activePresetFilter === 'safety' ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
+                                Consumables & HSE Kits (${getFamilyCount(['0-0014', '0-0015'])})
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="setViewMode('table')" class="p-1.5 px-2.5 rounded-lg text-xs font-bold ${currentViewMode === 'table' ? 'bg-[#1e2552] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}" title="Table View">
+                                <i class="fas fa-list"></i>
+                            </button>
+                            <button onclick="setViewMode('grid')" class="p-1.5 px-2.5 rounded-lg text-xs font-bold ${currentViewMode === 'grid' ? 'bg-[#1e2552] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}" title="Card Grid View">
+                                <i class="fas fa-border-all"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 15 Family Chips Navigation -->
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">15 Store Family Classifications</span>
+                            <span class="text-[10px] text-slate-400">Click any family to filter instant view</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${families.map(f => {
+                                const isSelected = activeFamilyFilter === f.code;
+                                return `
+                                    <button onclick="selectFamily('${f.code}')" class="px-2.5 py-1 rounded-lg text-[10.5px] font-semibold border transition-all ${isSelected ? 'bg-[#1e2552] text-white border-[#1e2552] shadow-xs' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'}">
+                                        <strong class="font-mono text-amber-600 ${isSelected ? 'text-amber-400' : ''}">${f.code}</strong>: ${f.badge} <span class="ml-1 opacity-70">(${f.count})</span>
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Search Bar & Statistics Strip -->
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+                        <div class="relative flex-1 min-w-[280px] max-w-md">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-[11px]"></i>
+                            <input type="text" id="catalog-search" oninput="onCatalogSearch(this.value)" placeholder="Search 306 items by code, generic name, model, brand, rack..." class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#1e2552]">
+                        </div>
+                        <div class="flex items-center gap-4 text-[11px] text-slate-600">
+                            <div>
+                                <span class="text-slate-400">Physical Stock Valuation:</span>
+                                <span class="font-mono font-bold text-amber-700 ml-1">PKR ${(kpis.store1Valuation / 1000000).toFixed(2)}M</span>
+                            </div>
+                            <div class="border-l border-slate-200 pl-3">
+                                <span class="text-slate-400">Site Virtual Stock:</span>
+                                <span class="font-mono font-bold text-teal-700 ml-1">PKR ${(kpis.store2Valuation / 1000000).toFixed(2)}M</span>
+                            </div>
+                            <div class="border-l border-slate-200 pl-3 font-mono font-bold text-[#1e2552]" id="catalog-count-badge">
+                                306 Items
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Catalog Content Container -->
+                    <div id="catalog-container">
+                        <!-- Populated dynamically (Table or Grid) -->
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderCatalogItems();
+        }
+
+        function getFamilyCount(familyCodes) {
+            const items = window.DualStoreEngine.items;
+            return items.filter(i => familyCodes.includes(i.familyCode)).length;
+        }
+
+        function selectPreset(preset) {
+            activePresetFilter = preset;
+            activeFamilyFilter = '';
+            renderStoreBrowser();
+        }
+
+        function selectFamily(code) {
+            if (activeFamilyFilter === code) {
+                activeFamilyFilter = '';
+            } else {
+                activeFamilyFilter = code;
+                activePresetFilter = '';
+            }
+            renderStoreBrowser();
+        }
+
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            renderStoreBrowser();
+        }
+
+        function onCatalogSearch(val) {
+            currentSearch = val;
+            renderCatalogItems();
+        }
+
+        function getFilteredItems() {
+            let items = window.DualStoreEngine.items;
+
+            if (activeFamilyFilter) {
+                items = items.filter(i => i.familyCode === activeFamilyFilter);
+            } else if (activePresetFilter === 'vrf') {
+                items = items.filter(i => ['0-0001', '0-0002', '0-0011'].includes(i.familyCode));
+            } else if (activePresetFilter === 'piping') {
+                items = items.filter(i => ['0-0001', '0-0002', '0-0003', '0-0004'].includes(i.familyCode));
+            } else if (activePresetFilter === 'chillers') {
+                items = items.filter(i => ['0-0005', '0-0006', '0-0007', '0-0008'].includes(i.familyCode));
+            } else if (activePresetFilter === 'bms') {
+                items = items.filter(i => ['0-0003', '0-0013'].includes(i.familyCode));
+            } else if (activePresetFilter === 'safety') {
+                items = items.filter(i => ['0-0014', '0-0015'].includes(i.familyCode));
+            }
+
+            if (currentSearch) {
+                const term = currentSearch.toLowerCase();
+                items = items.filter(i => 
+                    i.code.toLowerCase().includes(term) ||
+                    i.name.toLowerCase().includes(term) ||
+                    i.genericName.toLowerCase().includes(term) ||
+                    i.specificName.toLowerCase().includes(term) ||
+                    i.description.toLowerCase().includes(term) ||
+                    i.brand.toLowerCase().includes(term) ||
+                    i.model.toLowerCase().includes(term) ||
+                    i.rack.toLowerCase().includes(term)
+                );
+            }
+
+            return items;
+        }
+
+        function renderCatalogItems() {
+            const container = document.getElementById('catalog-container');
+            if (!container) return;
+
+            const items = getFilteredItems();
+
+            const countBadge = document.getElementById('catalog-count-badge');
+            if (countBadge) countBadge.textContent = `${items.length} Items`;
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-12 rounded-xl border border-slate-200 text-center text-slate-400">
+                        <i class="fas fa-boxes text-3xl mb-3 text-slate-300 block"></i>
+                        <p class="font-semibold text-slate-600 text-sm">No items found matching criteria.</p>
+                        <p class="text-xs text-slate-400 mt-1">Try resetting the search query or selecting a different family filter.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (currentViewMode === 'table') {
+                container.innerHTML = `
+                    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-[11px]">
+                                <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Item Code</th>
+                                        <th class="py-2.5 px-3">Family & Category</th>
+                                        <th class="py-2.5 px-3">Item Description / Technical Specs</th>
+                                        <th class="py-2.5 px-3">Model & Brand</th>
+                                        <th class="py-2.5 px-3 text-center">Rack Bin</th>
+                                        <th class="py-2.5 px-3 text-right bg-amber-50/50 text-amber-900 border-l border-amber-100">Store 1 (Central Physical)</th>
+                                        <th class="py-2.5 px-3 text-right bg-teal-50/50 text-teal-900 border-l border-teal-100">Store 2 (Site Virtual)</th>
+                                        <th class="py-2.5 px-3 text-right">Standard Rate (PKR)</th>
+                                        <th class="py-2.5 px-3 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${items.map(it => `
+                                        <tr class="hover:bg-slate-50/80 transition-colors">
+                                            <td class="py-2.5 px-3 font-mono font-bold text-[#1e2552] whitespace-nowrap">
+                                                <button onclick="openItemModal('${it.code}')" class="text-[#1e2552] hover:underline font-bold">
+                                                    ${it.code}
+                                                </button>
+                                            </td>
+                                            <td class="py-2.5 px-3 font-sans whitespace-nowrap">
+                                                <span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                                    ${it.familyBadge || it.familyCode}
+                                                </span>
+                                            </td>
+                                            <td class="py-2.5 px-3 font-sans">
+                                                <div class="font-bold text-slate-800 text-xs">${it.name}</div>
+                                                <div class="text-[10px] text-slate-500 line-clamp-1">${it.description}</div>
+                                            </td>
+                                            <td class="py-2.5 px-3 font-sans whitespace-nowrap">
+                                                <span class="font-mono text-slate-700 font-medium">${it.model}</span>
+                                                <span class="text-[10px] text-slate-400 block">${it.brand} (${it.origin})</span>
+                                            </td>
+                                            <td class="py-2.5 px-3 text-center font-mono text-slate-600 text-[10px]">${it.rack}</td>
+                                            <td class="py-2.5 px-3 text-right font-mono bg-amber-50/30 font-bold text-amber-900 border-l border-amber-100">
+                                                ${it.store1Stock.toLocaleString()} <span class="text-[10px] text-amber-700/70">${it.uom}</span>
+                                            </td>
+                                            <td class="py-2.5 px-3 text-right font-mono bg-teal-50/30 font-bold text-teal-800 border-l border-teal-100">
+                                                ${it.store2Stock.toLocaleString()} <span class="text-[10px] text-teal-600/70">${it.uom}</span>
+                                            </td>
+                                            <td class="py-2.5 px-3 text-right font-mono text-slate-800 font-semibold whitespace-nowrap">
+                                                PKR ${it.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}
+                                            </td>
+                                            <td class="py-2.5 px-3 text-center font-sans whitespace-nowrap">
+                                                <div class="flex items-center justify-center gap-1.5">
+                                                    <button onclick="openItemModal('${it.code}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[10px] font-semibold" title="View Specs">
+                                                        <i class="fas fa-eye"></i> Specs
+                                                    </button>
+                                                    <button onclick="openQuickTransfer('${it.code}')" class="px-2 py-1 bg-[#1e2552] hover:bg-[#2c3672] text-white rounded text-[10px] font-bold" title="Transfer to Site">
+                                                        <i class="fas fa-right-left text-amber-400"></i> Pick
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Grid View
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+                        ${items.map(it => `
+                            <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 flex flex-col justify-between hover:border-slate-300 transition-all">
+                                <div>
+                                    <div class="flex items-start justify-between gap-2">
+                                        <span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-slate-100 text-slate-700 border border-slate-200 font-mono">
+                                            ${it.code}
+                                        </span>
+                                        <span class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider">
+                                            ${it.rack}
+                                        </span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-xs mt-2 line-clamp-2">${it.name}</h4>
+                                    <p class="text-[10.5px] text-slate-500 mt-1 line-clamp-2">${it.description}</p>
+                                    
+                                    <div class="mt-3 py-2 px-2.5 bg-slate-50 rounded-lg border border-slate-100 text-[10px] space-y-1">
+                                        <div class="flex justify-between">
+                                            <span class="text-slate-500">Model:</span>
+                                            <span class="font-mono font-semibold text-slate-800">${it.model}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-slate-500">Brand / Origin:</span>
+                                            <span class="font-medium text-slate-700">${it.brand} (${it.origin})</span>
+                                        </div>
+                                        ${it.capacity ? `
+                                            <div class="flex justify-between">
+                                                <span class="text-slate-500">Capacity:</span>
+                                                <span class="font-semibold text-amber-800">${it.capacity}</span>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2 mt-3 text-center">
+                                        <div class="bg-amber-50/50 p-2 rounded-lg border border-amber-100">
+                                            <span class="text-[9px] text-amber-800 font-bold uppercase block">Store 1 (Central)</span>
+                                            <span class="font-mono font-bold text-amber-900 text-xs mt-0.5 block">${it.store1Stock} ${it.uom}</span>
+                                        </div>
+                                        <div class="bg-teal-50/50 p-2 rounded-lg border border-teal-100">
+                                            <span class="text-[9px] text-teal-800 font-bold uppercase block">Store 2 (Site)</span>
+                                            <span class="font-mono font-bold text-teal-900 text-xs mt-0.5 block">${it.store2Stock} ${it.uom}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                                    <div class="font-mono font-bold text-slate-900 text-xs">
+                                        PKR ${it.unitPrice.toLocaleString()}
+                                    </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <button onclick="openItemModal('${it.code}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10.5px] font-semibold">
+                                            Specs
+                                        </button>
+                                        <button onclick="openQuickTransfer('${it.code}')" class="px-3 py-1 bg-[#1e2552] hover:bg-[#2c3672] text-white rounded-lg text-[10.5px] font-bold shadow-xs">
+                                            <i class="fas fa-right-left text-amber-400 mr-1"></i> Pick
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        function openItemModal(code) {
+            const item = window.DualStoreEngine.getItemByCode(code);
+            if (!item) return;
+
+            document.getElementById('modal-item-title').textContent = item.name;
+            document.getElementById('modal-item-code').textContent = `${item.code} · ${item.familyName}`;
+
+            const total = (Number(item.store1Stock) || 0) + (Number(item.store2Stock) || 0);
+
+            const body = `
+                <div class="space-y-4">
+                    
+                    <!-- Top Summary -->
+                    <div class="grid grid-cols-3 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 text-center">
+                        <div>
+                            <span class="text-[9.5px] font-bold text-amber-800 uppercase block">Store 1 Physical Stock</span>
+                            <span class="font-mono font-bold text-amber-900 text-sm mt-0.5 block">${item.store1Stock.toLocaleString()} ${item.uom}</span>
+                        </div>
+                        <div>
+                            <span class="text-[9.5px] font-bold text-teal-800 uppercase block">Store 2 Site Virtual</span>
+                            <span class="font-mono font-bold text-teal-900 text-sm mt-0.5 block">${item.store2Stock.toLocaleString()} ${item.uom}</span>
+                        </div>
+                        <div>
+                            <span class="text-[9.5px] font-bold text-slate-700 uppercase block">Total Consolidated</span>
+                            <span class="font-mono font-black text-slate-900 text-sm mt-0.5 block">${total.toLocaleString()} ${item.uom}</span>
+                        </div>
+                    </div>
+
+                    <!-- Technical Parameters Table -->
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                        <table class="w-full text-left text-xs">
+                            <tbody class="divide-y divide-slate-100">
+                                <tr>
+                                    <td class="py-2 px-3.5 bg-slate-50 font-bold text-slate-500 w-1/3">Store Family Code:</td>
+                                    <td class="py-2 px-3.5 font-mono font-bold text-[#1e2552]">${item.familyCode} (${item.familyName})</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-3.5 bg-slate-50 font-bold text-slate-500">Generic / Specific Name:</td>
+                                    <td class="py-2 px-3.5 text-slate-800 font-semibold">${item.genericName} — ${item.specificName}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-3.5 bg-slate-50 font-bold text-slate-500">Manufacturer Brand:</td>
+                                    <td class="py-2 px-3.5 text-slate-800 font-medium">${item.brand} (Origin: ${item.origin})</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-3.5 bg-slate-50 font-bold text-slate-500">Model / Part Number:</td>
+                                    <td class="py-2 px-3.5 font-mono font-bold text-slate-800">${item.model}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-3.5 bg-slate-50 font-bold text-slate-500">Technical Capacity / Rating:</td>
+                                    <td class="py-2 px-3.5 text-amber-800 font-bold">${item.capacity || 'Standard Rating'}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-3.5 bg-slate-50 font-bold text-slate-500">Assigned Central Bin / Rack:</td>
+                                    <td class="py-2 px-3.5 font-mono font-bold text-slate-700">${item.rack}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-3.5 bg-slate-50 font-bold text-slate-500">Standard Unit Rate:</td>
+                                    <td class="py-2 px-3.5 font-mono font-bold text-slate-900 text-sm">PKR ${item.unitPrice.toLocaleString()}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-3.5 bg-slate-50 font-bold text-slate-500">Full Description:</td>
+                                    <td class="py-2 px-3.5 text-slate-600">${item.description}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('modal-item-body').innerHTML = body;
+
+            const pickBtn = document.getElementById('modal-btn-pick');
+            if (pickBtn) {
+                pickBtn.onclick = () => {
+                    closeItemModal();
+                    openQuickTransfer(item.code);
+                };
+            }
+
+            document.getElementById('item-detail-modal').classList.remove('hidden');
+        }
+
+        function closeItemModal() {
+            document.getElementById('item-detail-modal').classList.add('hidden');
+        }
+
+        function openQuickTransfer(code) {
+            const item = window.DualStoreEngine.getItemByCode(code);
+            if (!item) return;
+
+            document.getElementById('quick-transfer-code').value = item.code;
+            document.getElementById('quick-transfer-item-display').innerHTML = `
+                <div class="font-mono font-bold text-[#1e2552]">${item.code}: ${item.name}</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Central Physical Stock: <strong class="text-amber-800">${item.store1Stock} ${item.uom}</strong> | Unit Price: PKR ${item.unitPrice.toLocaleString()}</div>
+            `;
+            document.getElementById('quick-transfer-qty').value = '';
+            document.getElementById('quick-transfer-ref').value = 'CH-2026-' + Math.floor(100 + Math.random() * 900);
+            document.getElementById('quick-transfer-notes').value = '';
+
+            document.getElementById('transfer-modal').classList.remove('hidden');
+        }
+
+        function closeTransferModal() {
+            document.getElementById('transfer-modal').classList.add('hidden');
+        }
+
+        function handleQuickTransferSubmit(e) {
+            e.preventDefault();
+            const itemCode = document.getElementById('quick-transfer-code').value;
+            const qty = document.getElementById('quick-transfer-qty').value;
+            const projectSite = document.getElementById('quick-transfer-site').value;
+            const challanRef = document.getElementById('quick-transfer-ref').value;
+            const rider = document.getElementById('quick-transfer-rider').value;
+            const notes = document.getElementById('quick-transfer-notes').value;
+
+            try {
+                const mov = window.DualStoreEngine.executeTransfer({
+                    srcStore: 'Store 1 (Central Warehouse)',
+                    dstStore: 'Store 2 (Site Virtual Store)',
+                    itemCode,
+                    qty,
+                    projectSite,
+                    challanRef,
+                    rider,
+                    supervisor: 'Ali Raza (Site Engineer)',
+                    notes
+                });
+
+                closeTransferModal();
+                alert(`Dual-Store Transfer Pick Successful!\n\nMovement ID: ${mov.id}\nItem: ${mov.itemCode} - ${mov.itemName}\nQuantity: ${mov.qty} ${mov.uom}\nDestination: ${mov.projectSite}\nChallan: ${mov.challanRef}`);
+                renderStoreBrowser();
+            } catch (err) {
+                alert('Transfer Failed: ' + err.message);
+            }
+        }
+
+        function exportCatalogCsv() {
+            const items = window.DualStoreEngine.items;
+            let csv = 'Item Code,Family Code,Family Name,Generic Name,Specific Name,Brand,Origin,Model,Capacity,Rack Bin,Store 1 Central Stock,Store 2 Site Virtual Stock,Unit of Measure,Unit Price PKR\n';
+            
+            items.forEach(i => {
+                csv += `"${i.code}","${i.familyCode}","${i.familyName}","${i.genericName}","${i.specificName}","${i.brand}","${i.origin}","${i.model}","${i.capacity}","${i.rack}",${i.store1Stock},${i.store2Stock},"${i.uom}",${i.unitPrice}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Cosmix_Master_Catalog_306_SKUs_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+        }
+    </script>
+</body>
+</html>

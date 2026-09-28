@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Fleet Asset & Fuel Travel Operations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+            transition: all 0.2s ease;
+        }
+        .glass-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.06);
+        }
+        table th { padding: 0.55rem 0.85rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.55rem 0.85rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-slate-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <!-- New Fuel Claim Modal -->
+    <div id="fuel-claim-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-blue-50 text-[#1e2552] flex items-center justify-center text-sm font-bold border border-blue-100">
+                        <i class="fas fa-gas-pump text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Submit Site Travel Fuel Claim</h3>
+                        <p class="text-[10.5px] text-slate-500 font-medium" id="modal-policy-subtitle">Audited at fixed 28.0 km/L standard · Home↔Office Excluded</p>
+                    </div>
+                </div>
+                <button onclick="closeClaimModal()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Select Vehicle Asset & Custodian <span class="text-rose-500">*</span></label>
+                    <select id="modal-claim-vehicle" onchange="updateModalFuelCalc()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 bg-white outline-none focus:border-[#1e2552] focus:ring-1 focus:ring-[#1e2552]">
+                        <option value="BIKE-001">BIKE-001 · Honda CD 70 (Farhan Ali - DHA Phase 8 MEP)</option>
+                        <option value="BIKE-002">BIKE-002 · Honda CG 125 (Tariq Mehmood - Central Warehouse)</option>
+                        <option value="VAN-001">VAN-001 · Suzuki Carry Bolan (Nadeem - Korangi Workshop)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Origin Site / Workshop <span class="text-rose-500">*</span></label>
+                        <input type="text" id="modal-claim-from" placeholder="e.g. Korangi Workshop" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#1e2552]">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Destination Project Site <span class="text-rose-500">*</span></label>
+                        <input type="text" id="modal-claim-to" placeholder="e.g. Lucky One Mall Site" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#1e2552]">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Distance Travelled (km) <span class="text-rose-500">*</span></label>
+                        <input type="number" id="modal-claim-distance" value="45" oninput="updateModalFuelCalc()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-mono font-bold outline-none focus:border-[#1e2552]">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Official Fuel Price (PKR/L)</label>
+                        <input type="number" id="modal-claim-price" value="275.50" oninput="updateModalFuelCalc()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-mono font-bold outline-none focus:border-[#1e2552]">
+                    </div>
+                </div>
+
+                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                    <div class="flex justify-between items-center text-slate-600">
+                        <span class="text-[11px] font-medium" id="modal-calc-rate-label">Calculated Consumption (@ 28.0 km/L):</span>
+                        <span class="font-mono font-bold text-slate-900" id="modal-calc-liters">1.61 Liters</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-600">
+                        <span class="text-[11px] font-medium">Verified Net Payable Amount:</span>
+                        <span class="font-mono font-black text-[#1e2552] text-sm" id="modal-calc-cost">PKR 443.55</span>
+                    </div>
+                    <div class="pt-2 border-t border-slate-200/80 text-[10px] text-emerald-700 font-semibold flex items-center gap-1.5">
+                        <i class="fas fa-shield-check"></i> Complies with CEO Policy Slot SiteStaff.Fuel.KmPerLiter
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button onclick="closeClaimModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition">Cancel</button>
+                <button onclick="submitClaim()" class="px-5 py-2 rounded-xl bg-[#1e2552] hover:bg-[#121736] text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                    <i class="fas fa-check-circle text-amber-300"></i> Submit & Audit Claim
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/shared.js"></script>
+    <script src="../assets/js/administrator-store.js"></script>
+    <script src="../assets/js/admin-store.js"></script>
+    <script>
+        renderLayout('fleet');
+
+        window.currentClaimTab = 'all';
+
+        function renderFleetUI() {
+            const adminStore = window.CosmixAdminStore;
+            const state = window.CosmixGeneralAdminStore.state;
+
+            // Live parameters from CEO Policy Slots
+            const fuelRate = adminStore ? adminStore.getSlotValue('SiteStaff.Fuel.KmPerLiter', 28.0) : 28.0;
+            const tuningKm = adminStore ? adminStore.getSlotValue('SiteStaff.Tuning.KmInterval', 1000.0) : 1000.0;
+            const tuningPkr = adminStore ? adminStore.getSlotValue('SiteStaff.Tuning.AmountPkr', 1800.0) : 1800.0;
+            const overhaulKm = adminStore ? adminStore.getSlotValue('SiteStaff.Overhaul.KmInterval', 8000.0) : 8000.0;
+            const overhaulPkr = adminStore ? adminStore.getSlotValue('SiteStaff.Overhaul.AmountPkr', 18000.0) : 18000.0;
+
+            // KPI Calculations
+            const totalVehicles = state.fleet.length;
+            const totalClaims = state.fuelClaims.length;
+            const pendingClaims = state.fuelClaims.filter(c => c.status === 'Pending').length;
+            const totalClaimAmount = state.fuelClaims.reduce((acc, c) => acc + c.totalClaimPkr, 0);
+            const totalMileage = state.fleet.reduce((acc, v) => acc + v.currentOdo, 0);
+
+            const fleetCardsHTML = state.fleet.map((v) => {
+                const effectiveRate = (v.type === 'Motorcycle') ? fuelRate : v.fuelRateKmPerLiter;
+                const tuningProgress = Math.min(100, Math.round(((v.currentOdo % tuningKm) / tuningKm) * 100));
+                const overhaulProgress = Math.min(100, Math.round(((v.currentOdo % overhaulKm) / overhaulKm) * 100));
+                const isTuningSoon = (v.currentOdo % tuningKm) >= (tuningKm * 0.85);
+                const isOverhaulSoon = (v.currentOdo % overhaulKm) >= (overhaulKm * 0.9);
+
+                return `
+                    <div class="glass-card p-4 space-y-3.5 relative overflow-hidden flex flex-col justify-between">
+                        <div>
+                            <!-- Card Header -->
+                            <div class="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-100">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-sm font-bold shrink-0 border border-slate-200">
+                                        <i class="fas ${v.type === 'Motorcycle' ? 'fa-motorcycle text-indigo-600' : 'fa-truck-pickup text-blue-600'}"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 text-xs">${v.makeModel}</h4>
+                                        <div class="flex items-center gap-1.5 mt-0.5">
+                                            <span class="font-mono text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">${v.regNo}</span>
+                                            <span class="text-[9.5px] font-mono text-slate-400 font-bold">${v.id}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="badge-pill bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> ${v.status}
+                                </span>
+                            </div>
+
+                            <!-- Vehicle Details Grid -->
+                            <div class="mt-3 p-3 bg-slate-50/80 border border-slate-100 rounded-xl text-xs space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-500 text-[11px]">Assigned Custodian:</span>
+                                    <span class="font-bold text-slate-800 text-[11.5px]">${v.assignedTo}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-500 text-[11px]">Primary Station:</span>
+                                    <span class="text-slate-700 font-medium text-[11px] truncate max-w-[150px]">${v.site}</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-1 border-t border-slate-200/50">
+                                    <span class="text-slate-500 text-[11px]">Odometer Reading:</span>
+                                    <span class="font-mono font-bold text-[#1e2552] text-xs">${v.currentOdo.toLocaleString()} km</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-500 text-[11px]">Mileage Policy:</span>
+                                    <span class="font-mono font-bold text-emerald-700 text-xs">${effectiveRate} km/L Fixed</span>
+                                </div>
+                            </div>
+
+                            <!-- Dual Maintenance Progress Meters -->
+                            <div class="mt-3 space-y-2.5">
+                                <!-- Tuning Meter -->
+                                <div>
+                                    <div class="flex justify-between items-center text-[10.5px] mb-1 font-medium">
+                                        <span class="text-slate-600 flex items-center gap-1">
+                                            <i class="fas fa-wrench text-amber-500 text-[9px]"></i> Tuning Cycle (${tuningKm.toLocaleString()} km)
+                                        </span>
+                                        <span class="font-mono font-bold ${isTuningSoon ? 'text-amber-600' : 'text-slate-700'}">${v.currentOdo % tuningKm} / ${tuningKm.toLocaleString()} km</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                                        <div class="h-full rounded-full transition-all duration-300 ${isTuningSoon ? 'bg-amber-500' : 'bg-blue-600'}" style="width: ${tuningProgress}%"></div>
+                                    </div>
+                                    <div class="flex justify-between text-[9.5px] text-slate-400 mt-0.5">
+                                        <span>Allowance: PKR ${tuningPkr.toLocaleString()}</span>
+                                        <span>${tuningKm - (v.currentOdo % tuningKm)} km remaining</span>
+                                    </div>
+                                </div>
+
+                                <!-- Overhaul Meter -->
+                                <div>
+                                    <div class="flex justify-between items-center text-[10.5px] mb-1 font-medium">
+                                        <span class="text-slate-600 flex items-center gap-1">
+                                            <i class="fas fa-cogs text-indigo-500 text-[9px]"></i> Engine Overhaul (${overhaulKm.toLocaleString()} km)
+                                        </span>
+                                        <span class="font-mono font-bold ${isOverhaulSoon ? 'text-rose-600' : 'text-slate-700'}">${v.currentOdo % overhaulKm} / ${overhaulKm.toLocaleString()} km</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                                        <div class="h-full rounded-full transition-all duration-300 ${isOverhaulSoon ? 'bg-rose-500' : 'bg-indigo-600'}" style="width: ${overhaulProgress}%"></div>
+                                    </div>
+                                    <div class="flex justify-between text-[9.5px] text-slate-400 mt-0.5">
+                                        <span>Allowance: PKR ${overhaulPkr.toLocaleString()}</span>
+                                        <span>${overhaulKm - (v.currentOdo % overhaulKm)} km remaining</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Action Bar -->
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+                            <button onclick="logOdometerQuick('${v.id}')" class="px-2.5 py-1 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-[10.5px] transition flex items-center gap-1">
+                                <i class="fas fa-tachometer-alt text-slate-400"></i> Update Odo
+                            </button>
+                            <button onclick="openClaimModalForVehicle('${v.id}')" class="px-3 py-1 rounded-xl bg-[#1e2552] hover:bg-[#121736] text-white font-bold text-[10.5px] transition shadow-2xs flex items-center gap-1">
+                                <i class="fas fa-plus text-amber-300"></i> Claim Fuel
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Filter Fuel Claims
+            const searchVal = (document.getElementById('claim-search-input')?.value || '').toLowerCase().trim();
+            const filteredClaims = state.fuelClaims.filter(c => {
+                if (window.currentClaimTab === 'pending' && c.status !== 'Pending') return false;
+                if (window.currentClaimTab === 'approved' && c.status !== 'Approved') return false;
+                if (searchVal) {
+                    const match = c.id.toLowerCase().includes(searchVal) ||
+                                  c.driver.toLowerCase().includes(searchVal) ||
+                                  c.fromLocation.toLowerCase().includes(searchVal) ||
+                                  c.toLocation.toLowerCase().includes(searchVal);
+                    if (!match) return false;
+                }
+                return true;
+            });
+
+            const claimsHTML = filteredClaims.map(c => {
+                const statusBadge = c.status === 'Approved'
+                    ? '<span class="badge-pill bg-emerald-50 text-emerald-700 border border-emerald-200"><i class="fas fa-check-circle text-[9px]"></i> Approved</span>'
+                    : '<span class="badge-pill bg-amber-50 text-amber-700 border border-amber-200"><i class="fas fa-clock text-[9px]"></i> Pending Audit</span>';
+
+                return `
+                    <tr class="hover:bg-slate-50/80 border-b border-slate-100 transition text-xs">
+                        <td class="font-mono font-bold text-[#1e2552] whitespace-nowrap">
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-file-invoice text-blue-500 text-xs"></i>
+                                <span>${c.id}</span>
+                            </div>
+                        </td>
+                        <td class="text-slate-600 whitespace-nowrap font-medium">${c.claimDate}</td>
+                        <td>
+                            <p class="font-bold text-slate-900 leading-tight">${c.driver}</p>
+                            <p class="font-mono text-[10px] text-slate-400 mt-0.5">${c.vehicleId}</p>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-1.5 text-slate-800 font-semibold text-[11px]">
+                                <span>${c.fromLocation}</span>
+                                <i class="fas fa-arrow-right text-slate-400 text-[9px]"></i>
+                                <span>${c.toLocation}</span>
+                            </div>
+                            <span class="text-[9.5px] text-emerald-600 font-medium inline-flex items-center gap-1 mt-0.5">
+                                <i class="fas fa-check text-[8.5px]"></i> Site-to-Site Transit Verified
+                            </span>
+                        </td>
+                        <td class="text-center font-mono">
+                            <span class="font-bold text-slate-900">${c.distanceKm} km</span>
+                            <span class="text-[10px] text-slate-500 block">${c.fuelConsumedLiters} L (@ ${fuelRate} km/L)</span>
+                        </td>
+                        <td class="font-mono font-bold text-slate-900 whitespace-nowrap">
+                            PKR ${c.totalClaimPkr.toFixed(2)}
+                        </td>
+                        <td class="text-center whitespace-nowrap">${statusBadge}</td>
+                        <td class="text-right whitespace-nowrap">
+                            ${c.status === 'Pending' ? `
+                                <button onclick="approveClaim('${c.id}')" class="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10.5px] font-bold shadow-2xs transition inline-flex items-center gap-1">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                            ` : `
+                                <button onclick="printClaimSlip('${c.id}')" class="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10.5px] font-semibold transition inline-flex items-center gap-1">
+                                    <i class="fas fa-receipt text-slate-400"></i> Slip
+                                </button>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="space-y-4">
+                    
+                    <!-- Top Command Bar -->
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Admin & Operations · Vehicle Asset Management</span>
+                                <span class="badge-pill bg-blue-50 text-[#1e2552] border border-blue-200">${fuelRate} km/L Formula Enforced</span>
+                            </div>
+                            <h2 class="text-base font-black text-slate-900 mt-0.5">Fleet Vehicles & Fuel Travel Reimbursements Desk</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Auditing motorcycle fleet travel, 1,000/8,000 km maintenance milestones (PKR ${tuningPkr.toLocaleString()} / PKR ${overhaulPkr.toLocaleString()}), and site claims.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openClaimModal()" class="bg-[#1e2552] hover:bg-[#121736] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-2 active:scale-95">
+                                <i class="fas fa-plus text-amber-300"></i> New Fuel Travel Claim
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4 KPI Metrics Grid -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Fleet Size</span>
+                                <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-motorcycle"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-slate-900">${totalVehicles} Vehicles</div>
+                            <p class="text-[10px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 100% Operational & Assigned
+                            </p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Odo Distance</span>
+                                <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-road"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-slate-900">${totalMileage.toLocaleString()} km</div>
+                            <p class="text-[10px] text-slate-500 mt-1">Verified via Odometer Readings</p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fuel Disbursed (MTD)</span>
+                                <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-gas-pump"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-emerald-700">PKR ${totalClaimAmount.toFixed(2)}</div>
+                            <p class="text-[10px] text-slate-500 mt-1">Audited at ${fuelRate} km/L Fixed</p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Claims Pending Audit</span>
+                                <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-clock"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-amber-700">${pendingClaims} Claims</div>
+                            <p class="text-[10px] text-slate-500 mt-1">Ready for Executive Approval</p>
+                        </div>
+                    </div>
+
+                    <!-- Fleet Assets Cards Grid -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2.5">
+                            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fas fa-motorcycle text-indigo-600"></i> Active Fleet Assets & Maintenance Milestone Status
+                            </h3>
+                            <span class="text-[10px] font-mono text-slate-400">Tuning @ ${tuningKm.toLocaleString()} km (PKR ${tuningPkr.toLocaleString()}) | Overhaul @ ${overhaulKm.toLocaleString()} km (PKR ${overhaulPkr.toLocaleString()})</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                            ${fleetCardsHTML}
+                        </div>
+                    </div>
+
+                    <!-- Fuel Travel Claims Register -->
+                    <div class="glass-card overflow-hidden">
+                        <div class="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="setClaimTab('all', this)" class="claim-tab-btn px-3 py-1 rounded-xl text-xs font-bold ${window.currentClaimTab === 'all' ? 'bg-[#1e2552] text-white' : 'text-slate-600 hover:bg-slate-100'} transition">
+                                    All Claims (${totalClaims})
+                                </button>
+                                <button onclick="setClaimTab('pending', this)" class="claim-tab-btn px-3 py-1 rounded-xl text-xs font-bold ${window.currentClaimTab === 'pending' ? 'bg-[#1e2552] text-white' : 'text-slate-600 hover:bg-slate-100'} transition">
+                                    Pending Audit (${pendingClaims})
+                                </button>
+                                <button onclick="setClaimTab('approved', this)" class="claim-tab-btn px-3 py-1 rounded-xl text-xs font-bold ${window.currentClaimTab === 'approved' ? 'bg-[#1e2552] text-white' : 'text-slate-600 hover:bg-slate-100'} transition">
+                                    Approved (${totalClaims - pendingClaims})
+                                </button>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <div class="relative">
+                                    <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
+                                    <input id="claim-search-input" type="text" oninput="refreshUI()" placeholder="Search driver, route, ref..." class="bg-white border border-slate-200 rounded-xl pl-7 pr-3 py-1 text-xs text-slate-800 outline-none focus:border-[#1e2552] w-48 shadow-2xs">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold text-[10px] uppercase tracking-wider">
+                                    <tr>
+                                        <th>Claim ID</th>
+                                        <th>Date</th>
+                                        <th>Driver & Vehicle</th>
+                                        <th>Transit Route (Site-to-Site)</th>
+                                        <th class="text-center">Distance & Fuel</th>
+                                        <th>Payable Amount</th>
+                                        <th class="text-center">Audit Status</th>
+                                        <th class="text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${claimsHTML.length ? claimsHTML : `
+                                        <tr>
+                                            <td colspan="8" class="text-center py-8 text-slate-400 font-medium">
+                                                No fuel claims match the selected filter.
+                                            </td>
+                                        </tr>
+                                    `}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function refreshUI() {
+            setPageContent('Fleet & Fuel Management', renderFleetUI());
+        }
+
+        window.setClaimTab = (tab) => {
+            window.currentClaimTab = tab;
+            refreshUI();
+        };
+
+        window.openClaimModal = () => {
+            document.getElementById('fuel-claim-modal').classList.remove('hidden');
+            updateModalFuelCalc();
+        };
+
+        window.openClaimModalForVehicle = (vehId) => {
+            document.getElementById('modal-claim-vehicle').value = vehId;
+            openClaimModal();
+        };
+
+        window.closeClaimModal = () => {
+            document.getElementById('fuel-claim-modal').classList.add('hidden');
+        };
+
+        window.updateModalFuelCalc = () => {
+            const adminStore = window.CosmixAdminStore;
+            const policyFuelRate = adminStore ? adminStore.getSlotValue('SiteStaff.Fuel.KmPerLiter', 28.0) : 28.0;
+
+            const vehId = document.getElementById('modal-claim-vehicle')?.value || 'BIKE-001';
+            const veh = window.CosmixGeneralAdminStore.state.fleet.find(v => v.id === vehId);
+            const rateToUse = (veh && veh.type !== 'Motorcycle') ? veh.fuelRateKmPerLiter : policyFuelRate;
+
+            const dist = parseFloat(document.getElementById('modal-claim-distance')?.value) || 0;
+            const price = parseFloat(document.getElementById('modal-claim-price')?.value) || 275.50;
+
+            const liters = dist / rateToUse;
+            const cost = liters * price;
+
+            const rateLabel = document.getElementById('modal-calc-rate-label');
+            const litersEl = document.getElementById('modal-calc-liters');
+            const costEl = document.getElementById('modal-calc-cost');
+            const subtitleEl = document.getElementById('modal-policy-subtitle');
+
+            if (rateLabel) rateLabel.innerText = `Calculated Consumption (@ ${rateToUse} km/L):`;
+            if (litersEl) litersEl.innerText = `${liters.toFixed(2)} Liters`;
+            if (costEl) costEl.innerText = `PKR ${cost.toFixed(2)}`;
+            if (subtitleEl) subtitleEl.innerText = `Audited at fixed ${rateToUse} km/L standard · Home↔Office Excluded`;
+        };
+
+        window.submitClaim = () => {
+            const veh = document.getElementById('modal-claim-vehicle').value;
+            const from = document.getElementById('modal-claim-from').value.trim() || 'Central Warehouse';
+            const to = document.getElementById('modal-claim-to').value.trim() || 'DHA Phase 8 Site';
+            const dist = parseFloat(document.getElementById('modal-claim-distance').value) || 0;
+            const price = parseFloat(document.getElementById('modal-claim-price').value) || 275.50;
+
+            let driverName = "Site Staff";
+            if (veh === 'BIKE-001') driverName = "Farhan Ali";
+            else if (veh === 'BIKE-002') driverName = "Tariq Mehmood";
+            else if (veh === 'VAN-001') driverName = "Nadeem";
+
+            window.CosmixGeneralAdminStore.addFuelClaim(veh, driverName, from, to, dist, price);
+            closeClaimModal();
+            showToast('Fuel claim registered and audited against CEO policy slots!', 'success');
+            refreshUI();
+        };
+
+        window.approveClaim = (id) => {
+            window.CosmixGeneralAdminStore.approveFuelClaim(id);
+            showToast(`Fuel claim ${id} approved for disbursement!`, 'success');
+            refreshUI();
+        };
+
+        window.logOdometerQuick = (vehId) => {
+            const currentVeh = window.CosmixGeneralAdminStore.state.fleet.find(v => v.id === vehId);
+            const currentOdo = currentVeh ? currentVeh.currentOdo : 0;
+            const adminStore = window.CosmixAdminStore;
+            const tuningKm = adminStore ? adminStore.getSlotValue('SiteStaff.Tuning.KmInterval', 1000.0) : 1000.0;
+            const overhaulKm = adminStore ? adminStore.getSlotValue('SiteStaff.Overhaul.KmInterval', 8000.0) : 8000.0;
+
+            openModal(`Update Physical Odometer: ${vehId}`, `
+                <div class="space-y-3 text-xs">
+                    <p class="text-slate-600">Enter the latest physical odometer reading verified from the vehicle speedometer.</p>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">New Odometer Reading (km)</label>
+                        <input id="quick-odo-input" type="number" value="${currentOdo + 45}" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono font-bold text-sm outline-none focus:border-[#1e2552]">
+                    </div>
+                    <div class="p-2.5 bg-blue-50 border border-blue-100 rounded-xl text-[10px] text-blue-800 space-y-0.5">
+                        <p><strong>Current Tuning Milestone:</strong> ${currentOdo % tuningKm} / ${tuningKm.toLocaleString()} km</p>
+                        <p><strong>Current Overhaul Milestone:</strong> ${currentOdo % overhaulKm} / ${overhaulKm.toLocaleString()} km</p>
+                    </div>
+                </div>
+            `, () => {
+                const newOdo = parseInt(document.getElementById('quick-odo-input')?.value) || currentOdo;
+                if (currentVeh) {
+                    currentVeh.currentOdo = newOdo;
+                    showToast(`Odometer for ${vehId} updated to ${newOdo.toLocaleString()} km!`, 'success');
+                    refreshUI();
+                }
+            });
+        };
+
+        window.printClaimSlip = (claimId) => {
+            const claim = window.CosmixGeneralAdminStore.state.fuelClaims.find(c => c.id === claimId);
+            if (!claim) return;
+            const adminStore = window.CosmixAdminStore;
+            const fuelRate = adminStore ? adminStore.getSlotValue('SiteStaff.Fuel.KmPerLiter', 28.0) : 28.0;
+
+            openModal(`Fuel Reimbursement Voucher: ${claim.id}`, `
+                <div class="space-y-3 font-mono text-xs border border-slate-200 p-4 rounded-xl bg-slate-50/50">
+                    <div class="text-center border-b border-slate-200 pb-2 font-sans">
+                        <h4 class="font-black text-sm text-[#1e2552]">COSMIX ENGINEERING (PVT) LTD</h4>
+                        <p class="text-[10px] text-slate-500">Official Fuel Travel Reimbursement Slip</p>
+                    </div>
+                    <div class="space-y-1 text-[11px]">
+                        <div class="flex justify-between"><span>Voucher Ref:</span><span class="font-bold">${claim.id}</span></div>
+                        <div class="flex justify-between"><span>Date:</span><span>${claim.claimDate}</span></div>
+                        <div class="flex justify-between"><span>Driver:</span><span class="font-bold">${claim.driver}</span></div>
+                        <div class="flex justify-between"><span>Vehicle:</span><span>${claim.vehicleId}</span></div>
+                        <div class="flex justify-between"><span>Route:</span><span class="text-right">${claim.fromLocation} &rarr; ${claim.toLocation}</span></div>
+                        <div class="flex justify-between"><span>Distance:</span><span>${claim.distanceKm} km</span></div>
+                        <div class="flex justify-between"><span>Standard:</span><span>${fuelRate} km/L (PolicySlot SiteStaff.Fuel.KmPerLiter)</span></div>
+                        <div class="flex justify-between border-t border-slate-300 pt-1 text-xs font-black">
+                            <span>Amount Approved:</span>
+                            <span class="text-emerald-700">PKR ${claim.totalClaimPkr.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            `, null);
+        };
+
+        refreshUI();
+    </script>
+</body>
+</html>

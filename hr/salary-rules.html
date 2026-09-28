@@ -1,15 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmix ERP - Salary Deductions & Policy Rules</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         html { font-size: 13px !important; }
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Poppins', sans-serif; }
         table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; }
         table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
     </style>
@@ -53,7 +53,7 @@
                         <div>
                             <p class="text-[9px] text-orange-600 font-bold uppercase tracking-wider">Attendance Penalties</p>
                             <h4 class="text-lg font-bold text-gray-800 mt-0.5">15m Grace</h4>
-                            <p class="text-[9px] text-orange-600 font-medium">3 Lates = 0.5 Day Cut</p>
+                            <p class="text-[9px] text-orange-600 font-medium">3 Lates = 1.0 Day Cut (CEO Policy)</p>
                         </div>
                         <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center text-sm">
                             <i class="fas fa-user-clock"></i>
@@ -180,14 +180,14 @@
                                 <!-- Rule 3: Late Attendance Penalty -->
                                 <tr class="hover:bg-blue-50/20 transition group">
                                     <td class="px-4 py-2.5">
-                                        <div class="font-bold text-gray-800">Late Attendance Deduction Policy</div>
+                                        <div class="font-bold text-gray-800">Late Attendance Deduction Policy (CEO Slot # 1)</div>
                                         </td>
                                     <td class="px-4 py-2.5">
                                         <span class="bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-[9.5px] font-bold border border-orange-100">Attendance Penalty</span>
                                     </td>
                                     <td class="px-4 py-2.5 text-gray-600 font-medium">Frequency Threshold</td>
                                     <td class="px-4 py-2.5">
-                                        <div class="font-bold text-orange-700 font-mono text-[11px]">0.5 Day per 3 Lates</div>
+                                        <div class="font-bold text-orange-700 font-mono text-[11px]">1.0 Day per 3 Lates</div>
                                         </td>
                                     <td class="px-4 py-2.5 text-gray-700 font-medium">All Field Techs & HQ</td>
                                     <td class="px-4 py-2.5 text-center">
@@ -197,7 +197,7 @@
                                         <span class="bg-green-50 text-green-700 px-2.5 py-0.5 rounded text-[9.5px] font-bold border border-green-200 uppercase">Active</span>
                                     </td>
                                     <td class="px-4 py-2.5 text-right">
-                                        <button onclick="openEditRuleModal('Late Attendance Deduction', 'Attendance Penalty', 'Frequency Threshold', '3 Lates = 0.5 Day', 'All Staff')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
+                                        <button onclick="openEditRuleModal('Late Attendance Deduction', 'Attendance Penalty', 'Frequency Threshold', '3 Lates = 1.0 Day', 'All Staff')" class="text-gray-400 hover:text-[#242b5f] p-1 rounded hover:bg-gray-100 text-xs transition" title="Edit Rule"><i class="fas fa-pen"></i></button>
                                     </td>
                                 </tr>
 
@@ -524,3 +524,4 @@
     </script>
 </body>
 </html>
+

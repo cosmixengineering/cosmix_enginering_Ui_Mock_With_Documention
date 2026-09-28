@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Aging Schedule (Debtors) - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <script src="../assets/js/finance-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('ar-aging');
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-12">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-indigo-600 text-[11px]"><i class="fas fa-arrow-left mr-1"></i> Dashboard</a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-amber-700 uppercase tracking-wider">Credit Control</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-slate-800 mt-0.5">Accounts Receivable (AR) Aging Schedule</h1>
+                            <p class="text-[11px] text-slate-500">Aging analysis of client trade receivables across 30, 60, 90, 120 and 120+ days aging buckets.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-bold font-mono">
+                                Total AR: PKR 24.85M
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Aging Buckets Summary -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">0 - 30 Days (Current)</span>
+                            <div class="font-mono font-bold text-slate-800 text-sm mt-1">PKR 14.35M</div>
+                            <span class="text-[9.5px] text-emerald-600 font-semibold">57.7% of total</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">31 - 60 Days</span>
+                            <div class="font-mono font-bold text-slate-800 text-sm mt-1">PKR 5.60M</div>
+                            <span class="text-[9.5px] text-amber-600 font-semibold">22.5% of total</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">61 - 90 Days</span>
+                            <div class="font-mono font-bold text-slate-800 text-sm mt-1">PKR 1.80M</div>
+                            <span class="text-[9.5px] text-orange-600 font-semibold">7.2% of total</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">91 - 120 Days</span>
+                            <div class="font-mono font-bold text-rose-700 text-sm mt-1">PKR 2.10M</div>
+                            <span class="text-[9.5px] text-rose-600 font-semibold">8.4% of total</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">> 120 Days (Critical)</span>
+                            <div class="font-mono font-bold text-rose-800 text-sm mt-1">PKR 1.00M</div>
+                            <span class="text-[9.5px] text-rose-700 font-semibold">4.0% Overdue</span>
+                        </div>
+                    </div>
+
+                    <!-- Aging Table -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-[11px]">
+                                <thead class="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Client Name</th>
+                                        <th class="py-2.5 px-3">Project Ref</th>
+                                        <th class="py-2.5 px-3 text-right">0-30 Days</th>
+                                        <th class="py-2.5 px-3 text-right">31-60 Days</th>
+                                        <th class="py-2.5 px-3 text-right">61-90 Days</th>
+                                        <th class="py-2.5 px-3 text-right">91-120 Days</th>
+                                        <th class="py-2.5 px-3 text-right">>120 Days</th>
+                                        <th class="py-2.5 px-3 text-right">Total Outstanding</th>
+                                        <th class="py-2.5 px-3 text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ar-rows" class="divide-y divide-slate-100">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderArRows();
+        });
+
+        function renderArRows() {
+            const list = CosmixFinance.getArAging();
+            const tbody = document.getElementById('ar-rows');
+            if (!tbody) return;
+
+            tbody.innerHTML = list.map(c => `
+                <tr class="hover:bg-slate-50 transition-all font-mono">
+                    <td class="py-2.5 px-3 font-sans font-bold text-slate-800">${c.clientName}</td>
+                    <td class="py-2.5 px-3 text-slate-500 font-sans text-[10.5px]">${c.projectRef}</td>
+                    <td class="py-2.5 px-3 text-right ${c.days0_30 > 0 ? 'text-slate-800 font-semibold' : 'text-slate-300'}">
+                        ${c.days0_30 > 0 ? 'PKR ' + c.days0_30.toLocaleString() : '-'}
+                    </td>
+                    <td class="py-2.5 px-3 text-right ${c.days31_60 > 0 ? 'text-amber-700 font-semibold' : 'text-slate-300'}">
+                        ${c.days31_60 > 0 ? 'PKR ' + c.days31_60.toLocaleString() : '-'}
+                    </td>
+                    <td class="py-2.5 px-3 text-right ${c.days61_90 > 0 ? 'text-orange-700 font-semibold' : 'text-slate-300'}">
+                        ${c.days61_90 > 0 ? 'PKR ' + c.days61_90.toLocaleString() : '-'}
+                    </td>
+                    <td class="py-2.5 px-3 text-right ${c.days91_120 > 0 ? 'text-rose-700 font-bold' : 'text-slate-300'}">
+                        ${c.days91_120 > 0 ? 'PKR ' + c.days91_120.toLocaleString() : '-'}
+                    </td>
+                    <td class="py-2.5 px-3 text-right ${c.daysOver120 > 0 ? 'text-rose-900 font-black' : 'text-slate-300'}">
+                        ${c.daysOver120 > 0 ? 'PKR ' + c.daysOver120.toLocaleString() : '-'}
+                    </td>
+                    <td class="py-2.5 px-3 text-right font-bold text-slate-900 text-xs">
+                        PKR ${c.totalPkr.toLocaleString()}
+                    </td>
+                    <td class="py-2.5 px-3 text-center font-sans">
+                        <span class="px-2 py-0.5 rounded text-[9px] font-bold ${c.status === 'Current' ? 'bg-emerald-100 text-emerald-800' : c.status === 'FollowUp' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'}">
+                            ${c.status}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

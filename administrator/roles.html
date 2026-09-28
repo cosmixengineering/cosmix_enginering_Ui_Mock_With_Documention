@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - 19 Enterprise RBAC Roles & Security Matrix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; }
+        body { font-family: 'Poppins', sans-serif; }
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+        .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <!-- Role Detail & Permission Inspector Modal -->
+    <div id="role-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-5 shadow-2xl border border-gray-200 space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm font-bold border border-purple-200">
+                        <i class="fas fa-user-shield"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900" id="modal-role-name">Role Details</h3>
+                        <p class="text-[10px] text-gray-400 font-mono" id="modal-role-code"></p>
+                    </div>
+                </div>
+                <button onclick="closeRoleModal()" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 overflow-y-auto flex-1 pr-1 text-xs">
+                <!-- Overview Header -->
+                <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Official Designation</span>
+                            <span class="font-bold text-gray-900 text-sm" id="modal-role-title"></span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Department</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200" id="modal-role-dept"></span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Assigned Active Users</span>
+                            <span class="font-mono font-bold text-gray-800" id="modal-role-usercount"></span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-[11px] pt-1 border-t border-slate-200/60" id="modal-role-desc"></p>
+                </div>
+
+                <!-- Segregation of Duties (SoD) Guardrail -->
+                <div class="p-3 bg-rose-50/50 border border-rose-200 rounded-xl">
+                    <span class="text-[10px] font-bold text-rose-800 uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                        <i class="fas fa-scale-balanced"></i> Segregation of Duties (SoD) Constraint
+                    </span>
+                    <p class="text-rose-900 text-[11px]" id="modal-role-sod"></p>
+                </div>
+
+                <!-- Granular Module Permissions Matrix -->
+                <div>
+                    <h4 class="text-[11px] font-bold text-gray-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <i class="fas fa-key text-indigo-600"></i> Module Permissions & Capabilities
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="modal-role-perms">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Active Assigned Users -->
+                <div>
+                    <h4 class="text-[11px] font-bold text-gray-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <i class="fas fa-users text-purple-600"></i> Active Assigned Personnel
+                    </h4>
+                    <div class="flex flex-wrap gap-1.5" id="modal-role-users">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end pt-3 border-t border-gray-100">
+                <button onclick="closeRoleModal()" class="px-4 py-1.5 rounded-lg bg-[#1e2552] hover:bg-[#151a3a] text-white text-xs font-bold shadow-xs transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script src="../assets/js/administrator-store.js"></script>
+    <script>
+        renderLayout('roles');
+
+        let currentDeptFilter = 'all';
+        let currentSearch = '';
+        let currentViewMode = 'list'; // 'list' or 'matrix'
+
+        function renderRolesUI() {
+            const allRoles = window.CosmixAdminStore.getRoles();
+            const roles = allRoles.filter(r => {
+                const matchDept = (currentDeptFilter === 'all' || r.dept.toLowerCase().includes(currentDeptFilter.toLowerCase()));
+                const matchSearch = !currentSearch ||
+                    r.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    (r.title && r.title.toLowerCase().includes(currentSearch.toLowerCase())) ||
+                    r.dept.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    r.code.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    r.description.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    (r.assignedUsers && r.assignedUsers.some(u => u.toLowerCase().includes(currentSearch.toLowerCase())));
+                return matchDept && matchSearch;
+            });
+
+            const deptPills = [
+                { id: 'all', label: 'All 19 Roles' },
+                { id: 'Executive', label: 'Executive' },
+                { id: 'Sales', label: 'Sales & CRM' },
+                { id: 'Estimation', label: 'Estimation' },
+                { id: 'Engineering', label: 'Engineering' },
+                { id: 'Supply Chain', label: 'Procurement' },
+                { id: 'Warehouse', label: 'Warehouse' },
+                { id: 'Accounts', label: 'Accounts & GL' },
+                { id: 'HR', label: 'HR' },
+                { id: 'Factory', label: 'Factory & QC' }
+            ];
+
+            const rolesHTML = roles.map((r, idx) => {
+                const deptBadgeColor = r.dept.includes('Executive') ? 'bg-red-50 text-red-700 border-red-200' :
+                                       r.dept.includes('Sales') || r.dept.includes('Estimation') ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                       r.dept.includes('Engineering') || r.dept.includes('Factory') ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                                       r.dept.includes('Warehouse') || r.dept.includes('Supply') ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                       r.dept.includes('Accounts') ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-purple-50 text-purple-700 border-purple-200';
+
+                return `
+                    <tr class="hover:bg-slate-50/70 border-b border-gray-100 transition text-xs">
+                        <td class="text-center font-mono text-gray-400 text-[10.5px]">${idx + 1}</td>
+                        <td>
+                            <div class="font-bold text-gray-900 flex items-center gap-1.5">
+                                <i class="fas fa-id-badge text-indigo-600 text-[11px]"></i>
+                                ${r.title || r.name}
+                            </div>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="font-mono text-[9px] font-bold text-gray-500 bg-gray-100 px-1 rounded">${r.code}</span>
+                                <span class="font-mono text-[9px] text-gray-400 truncate max-w-[120px]">${r.id}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold border ${deptBadgeColor}">
+                                ${r.dept}
+                            </span>
+                        </td>
+                        <td class="text-gray-600 text-[11px] max-w-md">
+                            <div>${r.description}</div>
+                            ${r.sodGuards ? `<div class="text-[10px] text-rose-700 mt-1 font-semibold flex items-center gap-1"><i class="fas fa-shield-halved text-[9px]"></i> SoD: ${r.sodGuards}</div>` : ''}
+                        </td>
+                        <td class="text-center">
+                            <span class="font-mono font-bold bg-slate-100 text-slate-800 px-2 py-0.5 rounded border border-slate-200 text-[10.5px]">
+                                ${r.userCount} Users
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="text-[10px] font-extrabold text-emerald-600 flex items-center justify-center gap-1">
+                                <i class="fas fa-shield-check"></i> System
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <button onclick="openRoleModal('${r.id}')" class="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-[10.5px] font-semibold transition flex items-center gap-1 ml-auto shadow-2xs">
+                                <i class="fas fa-eye text-purple-600"></i> Inspect
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Matrix View HTML
+            const modulesList = [
+                { key: 'sales', label: 'Sales' },
+                { key: 'estimation', label: 'Estimation' },
+                { key: 'procurement', label: 'Procurement' },
+                { key: 'warehouse', label: 'Warehouse' },
+                { key: 'engineering', label: 'Engineering' },
+                { key: 'accounts', label: 'Accounts' },
+                { key: 'finance', label: 'Finance GL' },
+                { key: 'hr', label: 'HR' },
+                { key: 'admin', label: 'Governance' }
+            ];
+
+            const matrixRowsHTML = allRoles.map((r, idx) => `
+                <tr class="hover:bg-slate-50/70 border-b border-gray-100 transition text-xs">
+                    <td class="font-mono text-gray-400 text-center">${idx + 1}</td>
+                    <td class="font-bold text-gray-900 sticky left-0 bg-white">
+                        <div class="truncate max-w-[170px]">${r.title || r.name}</div>
+                        <div class="text-[9px] text-gray-400 font-mono">${r.code}</div>
+                    </td>
+                    ${modulesList.map(m => {
+                        const p = r.permissions ? r.permissions[m.key] : null;
+                        const hasFull = p && (p.includes('Approve') || p.includes('Override') || p.includes('Create'));
+                        const hasView = p && p.includes('View');
+                        const hasOvr = p && p.includes('Override');
+
+                        if (hasOvr) {
+                            return `<td class="text-center"><span class="px-1.5 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded text-[9px] font-extrabold" title="${p.join(', ')}"><i class="fas fa-crown mr-0.5"></i> All</span></td>`;
+                        } else if (hasFull) {
+                            return `<td class="text-center"><span class="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[9px] font-bold" title="${p.join(', ')}"><i class="fas fa-check mr-0.5"></i> Full</span></td>`;
+                        } else if (hasView) {
+                            return `<td class="text-center"><span class="px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded text-[9px] font-bold" title="${p.join(', ')}"><i class="fas fa-eye mr-0.5"></i> Read</span></td>`;
+                        } else {
+                            return `<td class="text-center"><span class="text-gray-300 font-mono text-[10px]">—</span></td>`;
+                        }
+                    }).join('')}
+                </tr>
+            `).join('');
+
+            return `
+                <div class="space-y-4">
+                    
+                    <!-- Header Banner -->
+                    <div class="bg-white p-4 rounded-xl shadow-xs border border-gray-200 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                                    <i class="fas fa-user-shield text-purple-600"></i> 19 Normalized Enterprise RBAC Roles & Security Matrix
+                                </h2>
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-purple-100 text-purple-800 border border-purple-200">ASP.NET IDENTITY</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Role-Based Access Control matrix governing claims, segregation of duties (SoD), and commercial sign-offs.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-0.5">
+                                <button onclick="setViewMode('list')" class="px-3 py-1 rounded-md text-xs font-semibold transition ${currentViewMode === 'list' ? 'bg-white text-gray-900 shadow-2xs font-bold' : 'text-gray-600 hover:text-gray-900'}">
+                                    <i class="fas fa-list mr-1"></i> List View
+                                </button>
+                                <button onclick="setViewMode('matrix')" class="px-3 py-1 rounded-md text-xs font-semibold transition ${currentViewMode === 'matrix' ? 'bg-white text-gray-900 shadow-2xs font-bold' : 'text-gray-600 hover:text-gray-900'}">
+                                    <i class="fas fa-table-cells mr-1"></i> Permissions Matrix
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SoD Policy Constraints Banner -->
+                    <div class="bg-gradient-to-r from-slate-900 to-[#1e2552] text-white p-4 rounded-xl shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+                                <i class="fas fa-scale-balanced"></i> Segregation of Duties (SoD) Governance Rules
+                            </h3>
+                            <span class="px-2 py-0.5 rounded bg-white/10 text-white text-[9px] font-mono">Hard Enforced</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px] pt-1">
+                            <div class="p-2.5 bg-white/5 border border-white/10 rounded-lg">
+                                <span class="font-bold text-amber-300 block mb-0.5">1. PO Creation vs Release</span>
+                                <p class="text-slate-300 text-[10px]">PO creator cannot release or approve the same PO without secondary manager authorization.</p>
+                            </div>
+                            <div class="p-2.5 bg-white/5 border border-white/10 rounded-lg">
+                                <span class="font-bold text-emerald-300 block mb-0.5">2. GRN Inward vs Vendor Bill</span>
+                                <p class="text-slate-300 text-[10px]">Warehouse receiving officer who confirmed GRN cannot post or disburse vendor invoice.</p>
+                            </div>
+                            <div class="p-2.5 bg-white/5 border border-white/10 rounded-lg">
+                                <span class="font-bold text-rose-300 block mb-0.5">3. 25% Floor Margin Override</span>
+                                <p class="text-slate-300 text-[10px]">Only <strong class="text-white">Managing Director (CEO)</strong> role can sign off commercial discounts below 25% floor.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Strip -->
+                    <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-200 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            ${deptPills.map(f => `
+                                <button onclick="setDeptFilter('${f.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition ${currentDeptFilter.toLowerCase() === f.id.toLowerCase() ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'}">
+                                    ${f.label}
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div class="relative w-full sm:w-64">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                            <input type="text" id="role-search" value="${currentSearch}" onkeyup="handleSearch(this.value)" placeholder="Search role, user, department..." class="w-full pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-purple-500 bg-slate-50/50 focus:bg-white">
+                        </div>
+                    </div>
+
+                    <!-- Content: List View or Matrix View -->
+                    ${currentViewMode === 'list' ? `
+                        <!-- Roles List Table -->
+                        <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead class="bg-slate-50 border-b border-gray-200 text-gray-600 font-extrabold text-[10px] uppercase tracking-wider">
+                                        <tr>
+                                            <th class="w-10 text-center">#</th>
+                                            <th class="w-56">Role Designation & Code</th>
+                                            <th class="w-32">Department</th>
+                                            <th>Domain Responsibilities & SoD Constraints</th>
+                                            <th class="w-24 text-center">Assigned</th>
+                                            <th class="w-24 text-center">Type</th>
+                                            <th class="w-20 text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${rolesHTML}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ` : `
+                        <!-- Roles vs Modules Permissions Matrix Table -->
+                        <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                            <div class="p-3 border-b border-gray-100 flex items-center justify-between bg-slate-50/50">
+                                <span class="text-xs font-bold text-gray-800">19 Roles Cross-Functional Permission Matrix</span>
+                                <span class="text-[10px] text-gray-400">Claims Based Authorization</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead class="bg-slate-50 border-b border-gray-200 text-gray-600 font-extrabold text-[10px] uppercase tracking-wider">
+                                        <tr>
+                                            <th class="w-8 text-center">#</th>
+                                            <th class="w-48 sticky left-0 bg-slate-50">Role</th>
+                                            ${modulesList.map(m => `<th class="text-center w-24">${m.label}</th>`).join('')}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${matrixRowsHTML}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `}
+
+                </div>
+            `;
+        }
+
+        function refreshUI() {
+            setPageContent('19 Enterprise RBAC Roles & Security Matrix', renderRolesUI());
+        }
+
+        function setDeptFilter(f) {
+            currentDeptFilter = f;
+            refreshUI();
+        }
+
+        function setViewMode(m) {
+            currentViewMode = m;
+            refreshUI();
+        }
+
+        function handleSearch(val) {
+            currentSearch = val;
+            refreshUI();
+        }
+
+        function openRoleModal(id) {
+            const role = window.CosmixAdminStore.getRoleById(id);
+            if (!role) return;
+
+            document.getElementById('modal-role-name').innerText = role.title || role.name;
+            document.getElementById('modal-role-code').innerText = `UUID: ${role.id} | System Code: ${role.code}`;
+            document.getElementById('modal-role-title').innerText = role.title || role.name;
+            document.getElementById('modal-role-dept').innerText = role.dept;
+            document.getElementById('modal-role-usercount').innerText = `${role.userCount} Assigned Personnel`;
+            document.getElementById('modal-role-desc').innerText = role.description;
+            document.getElementById('modal-role-sod').innerText = role.sodGuards || 'Standard Segregation of Duties applied.';
+
+            // Render Permissions
+            const permsContainer = document.getElementById('modal-role-perms');
+            permsContainer.innerHTML = '';
+            if (role.permissions) {
+                Object.entries(role.permissions).forEach(([mod, perms]) => {
+                    const el = document.createElement('div');
+                    el.className = 'p-2 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between';
+                    el.innerHTML = `
+                        <span class="font-bold text-gray-800 capitalize">${mod}:</span>
+                        <div class="flex flex-wrap gap-1 justify-end">
+                            ${perms.map(p => `
+                                <span class="px-1.5 py-0.2 rounded text-[9px] font-bold ${p === 'Override' ? 'bg-rose-100 text-rose-700' : p === 'Approve' ? 'bg-emerald-100 text-emerald-800' : 'bg-white border border-gray-200 text-gray-700'}">${p}</span>
+                            `).join('')}
+                        </div>
+                    `;
+                    permsContainer.appendChild(el);
+                });
+            }
+
+            // Render Users
+            const usersContainer = document.getElementById('modal-role-users');
+            usersContainer.innerHTML = '';
+            if (role.assignedUsers && role.assignedUsers.length) {
+                role.assignedUsers.forEach(u => {
+                    const el = document.createElement('span');
+                    el.className = 'px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-xs font-semibold flex items-center gap-1.5';
+                    el.innerHTML = `<i class="fas fa-user-circle text-purple-500"></i> ${u}`;
+                    usersContainer.appendChild(el);
+                });
+            } else {
+                usersContainer.innerHTML = '<span class="text-gray-400 italic">No direct users assigned.</span>';
+            }
+
+            document.getElementById('role-detail-modal').classList.remove('hidden');
+        }
+
+        function closeRoleModal() {
+            document.getElementById('role-detail-modal').classList.add('hidden');
+        }
+
+        refreshUI();
+    </script>
+</body>
+</html>

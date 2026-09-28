@@ -240,7 +240,12 @@
             const report = data.issues.find(i => i.asset === a.id && i.status === 'Open');
             const inward = { id: id('RET'), type: 'Tool return', reference: a.id, vendor: a.site, date: today(), status: 'Pending receipt', lines: [{ item: a.item, qty: 1, received: 0 }], asset: a.id, reason: input.reason, photo: input.photo, condition: input.condition, issue: report ? report.id : null };
             data.inwards.unshift(inward); a.status = 'Return pending'; if (report) { report.status = 'Return arranged'; report.returnRef = inward.id; } return inward.id;
-        }); }
+        }); },
+        get dualStore() { return global.DualStoreEngine || null; },
+        executeDualStoreTransfer(input) {
+            if (!global.DualStoreEngine) throw new Error('DualStoreEngine is not loaded.');
+            return global.DualStoreEngine.executeTransfer(input);
+        }
     };
     global.InventoryStore = api;
 })(typeof window === 'undefined' ? globalThis : window);

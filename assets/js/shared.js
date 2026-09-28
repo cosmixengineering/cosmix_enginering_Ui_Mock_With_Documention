@@ -4,33 +4,40 @@ const renderLayout = (activePage) => {
     let currentDeptId = 'root';
     if (pathNorm.includes('/warehouse/')) {
         currentDeptId = 'warehouse';
-    } else if (pathNorm.includes('/accounts/') || pathNorm.includes('/finance/')) {
+    } else if (pathNorm.includes('/finance/')) {
+        currentDeptId = 'finance';
+    } else if (pathNorm.includes('/accounts/')) {
         currentDeptId = 'accounts';
     } else if (pathNorm.includes('/hr/')) {
         currentDeptId = 'hr';
     } else {
-        const matched = pathNorm.match(/\/(sales|admin|administrator|engineering|procurement)(\/|$)/i);
+        const matched = pathNorm.match(/\/(sales|admin|administrator|engineering|procurement|finance|accounts)(\/|$)/i);
         currentDeptId = matched ? matched[1].toLowerCase() : 'root';
     }
-    const isSubfolder = pathNorm.includes('/hr/') || pathNorm.includes('/accounts/') || pathNorm.includes('/warehouse/') || pathNorm.includes('/sales/');
+    const isSubfolder = pathNorm.includes('/hr/') || pathNorm.includes('/accounts/') || pathNorm.includes('/warehouse/') || pathNorm.includes('/sales/') || pathNorm.includes('/administrator/') || pathNorm.includes('/admin/') || pathNorm.includes('/procurement/') || pathNorm.includes('/engineering/') || pathNorm.includes('/finance/');
     const p = isSubfolder ? '../' : './';
 
     const DEPARTMENTS = [
         { id: 'hr', name: 'Human Resources', badge: 'HR', icon: 'fas fa-users-cog', color: 'text-indigo-600', bg: 'bg-indigo-50', url: p + 'hr/index.html' },
-        { id: 'accounts', name: 'Accounts & Finance', badge: 'Accounts', icon: 'fas fa-file-invoice-dollar', color: 'text-blue-600', bg: 'bg-blue-50', url: p + 'accounts/index.html' },
+        { id: 'accounts', name: 'Accounts & Billing', badge: 'Accounts', icon: 'fas fa-file-invoice-dollar', color: 'text-blue-600', bg: 'bg-blue-50', url: p + 'accounts/index.html' },
         { id: 'sales', name: 'Sales & CRM', badge: 'Sales', icon: 'fas fa-chart-line', color: 'text-emerald-600', bg: 'bg-emerald-50', url: p + 'sales/index.html' },
-        { id: 'finance', name: 'Finance & Accounts', badge: 'Finance', icon: 'fas fa-calculator', color: 'text-blue-600', bg: 'bg-blue-50', url: p + 'accounts/index.html' },
+        { id: 'finance', name: 'Finance & General Ledger', badge: 'GL & Finance', icon: 'fas fa-calculator', color: 'text-blue-600', bg: 'bg-blue-50', url: p + 'finance/index.html' },
         { id: 'warehouse', name: 'Warehouse Stores', badge: 'Stores', icon: 'fas fa-boxes', color: 'text-amber-600', bg: 'bg-amber-50', url: p + 'warehouse/index.html' },
         { id: 'admin', name: 'Admin & Fleet', badge: 'Admin', icon: 'fas fa-building', color: 'text-blue-600', bg: 'bg-blue-50', url: p + 'admin/index.html' },
         { id: 'administrator', name: 'System Administrator', badge: 'SuperAdmin', icon: 'fas fa-user-shield', color: 'text-red-600', bg: 'bg-red-50', url: p + 'administrator/index.html' },
         { id: 'engineering', name: 'MEP Operations', badge: 'Engr', icon: 'fas fa-hard-hat', color: 'text-orange-600', bg: 'bg-orange-50', url: p + 'engineering/index.html' },
         { id: 'procurement', name: 'Procurement & SCM', badge: 'Supply', icon: 'fas fa-truck-loading', color: 'text-teal-600', bg: 'bg-teal-50', url: p + 'procurement/index.html' }
     ];
-    const isAccounts = (currentDeptId === 'accounts' || currentDeptId === 'finance');
+    const isAdministrator = currentDeptId === 'administrator';
+    const isAdmin = currentDeptId === 'admin';
+    const isProcurement = currentDeptId === 'procurement';
+    const isEngineering = currentDeptId === 'engineering';
+    const isFinance = currentDeptId === 'finance';
+    const isAccounts = currentDeptId === 'accounts';
     const isWarehouse = (currentDeptId === 'warehouse' || currentDeptId === 'inventory');
     const isSales = currentDeptId === 'sales';
     const salesDecisionCount = isSales ? (window.CosmixSales?.state?.approvalInbox || []).filter(item => item.unread).length : 0;
-    const currentDept = DEPARTMENTS.find(d => d.id === currentDeptId) || (isAccounts ? DEPARTMENTS[1] : DEPARTMENTS[0]);
+    const currentDept = DEPARTMENTS.find(d => d.id === currentDeptId) || (isAdministrator ? DEPARTMENTS[6] : isAdmin ? DEPARTMENTS[5] : isProcurement ? DEPARTMENTS[8] : isEngineering ? DEPARTMENTS[7] : isFinance ? DEPARTMENTS[3] : isAccounts ? DEPARTMENTS[1] : DEPARTMENTS[0]);
 
     // Ensure Font Awesome is always loaded across all pages
     if (!document.querySelector('link[href*="font-awesome"]')) {
@@ -40,12 +47,12 @@ const renderLayout = (activePage) => {
         document.head.appendChild(faLink);
     }
 
-    // Ensure JetBrains Mono is loaded for financial amounts & invoices
-    if (!document.querySelector('link[href*="JetBrains+Mono"]')) {
-        const jbLink = document.createElement('link');
-        jbLink.rel = 'stylesheet';
-        jbLink.href = 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap';
-        document.head.appendChild(jbLink);
+    // Ensure Poppins & JetBrains Mono are loaded for global ERP UI
+    if (!document.querySelector('link[href*="Poppins"]')) {
+        const fontLink = document.createElement('link');
+        fontLink.rel = 'stylesheet';
+        fontLink.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap';
+        document.head.appendChild(fontLink);
     }
 
     // Inject global ultra-compact ERP styling across all pages
@@ -54,27 +61,117 @@ const renderLayout = (activePage) => {
         compactStyle.id = 'cosmix-compact-css';
         compactStyle.innerHTML = `
             html { font-size: 13px !important; }
-            body { font-family: 'Inter', sans-serif !important; background-color: #f8fafc !important; }
+            *, body, input, select, textarea, button, table { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; }
+            body { background-color: #f8fafc !important; color: #0f172a; }
             table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; }
             table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
             .dropdown-menu { display: none; }
             .dropdown.open > .dropdown-menu, .dropdown.open .dropdown-menu { display: block !important; opacity: 1 !important; visibility: visible !important; }
-            .font-mono, [class*="font-mono"] { font-family: 'JetBrains Mono', monospace !important; font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+            .font-mono, [class*="font-mono"], .font-mono * { font-family: 'JetBrains Mono', monospace !important; font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
         `;
         document.head.appendChild(compactStyle);
     }
 
-    const navItemsHTML = isWarehouse ? `<div>
+    const navItemsHTML = isAdministrator ? `
+        <div>
+            <div class="flex items-center justify-between px-2 mb-2">
+                <p id="menu-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider transition-opacity duration-300">System Governance</p>
+                <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-100 transition-opacity duration-300">SUPERADMIN</span>
+            </div>
+            <nav class="space-y-1">
+                ${createNavLink(p + 'administrator/index.html', 'Dashboard', 'fas fa-shield-halved', activePage === 'dashboard')}
+                ${createNavLink(p + 'administrator/policy-slots.html', '40 Policy Slots', 'fas fa-sliders', activePage === 'policy-slots', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-indigo-700', label: '40 Slots' })}
+                ${createNavLink(p + 'administrator/commercial-margins.html', 'Commercial Margins', 'fas fa-percent', activePage === 'margins', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: '25% Floor' })}
+                ${createNavLink(p + 'administrator/roles.html', '19 RBAC Roles', 'fas fa-user-shield', activePage === 'roles', { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: '19 Roles' })}
+                ${createNavLink(p + 'administrator/audit-logs.html', 'Audit Trail', 'fas fa-clipboard-list', activePage === 'audit-logs', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Audit' })}
+                ${createNavLink(p + 'administrator/sop-stages.html', '17 SOP Stages', 'fas fa-route', activePage === 'sop-stages', { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: '17 Stages' })}
+                <div class="pt-2 mt-2 border-t border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
+                    ${createNavLink(p + 'admin/index.html', 'Admin & Operations', 'fas fa-building', false, { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Admin' })}
+                    ${createNavLink(p + 'hr/index.html', 'HR Operations', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
+                    ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
+                    ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Accounts' })}
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse Stores', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
+                </div>
+            </nav>
+        </div>
+    ` : isAdmin ? `
+        <div>
+            <div class="flex items-center justify-between px-2 mb-2">
+                <p id="menu-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider transition-opacity duration-300">Admin & Operations</p>
+                <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100 transition-opacity duration-300">ADMIN</span>
+            </div>
+            <nav class="space-y-1">
+                ${createNavLink(p + 'admin/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
+                ${createNavLink(p + 'admin/site-staff-policy.html', 'Site Staff Policy', 'fas fa-person-digging', activePage === 'site-staff-policy', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-indigo-700', label: '28 km/L' })}
+                ${createNavLink(p + 'admin/fleet-vehicles.html', 'Fleet & Fuel Logs', 'fas fa-motorcycle', activePage === 'fleet', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Fleet' })}
+                ${createNavLink(p + 'admin/facilities.html', 'Facilities & Offices', 'fas fa-building', activePage === 'facilities')}
+                ${createNavLink(p + 'admin/sim-cards.html', 'Company SIMs', 'fas fa-sim-card', activePage === 'sims', { bg: 'bg-rose-50 border border-rose-200', text: 'text-rose-700', label: 'SIM Audit' })}
+                <div class="pt-2 mt-2 border-t border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
+                    ${createNavLink(p + 'administrator/index.html', 'SuperAdmin', 'fas fa-shield-halved', false, { bg: 'bg-red-50 border border-red-200', text: 'text-red-700', label: 'Gov' })}
+                    ${createNavLink(p + 'hr/index.html', 'HR Operations', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
+                    ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
+                    ${createNavLink(p + 'accounts/index.html', 'Accounts & Finance', 'fas fa-file-invoice-dollar', false, { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Accounts' })}
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse Stores', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
+                </div>
+            </nav>
+        </div>
+    ` : isProcurement ? `
+        <div>
+            <div class="flex items-center justify-between px-2 mb-2">
+                <p id="menu-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider transition-opacity duration-300">Procurement & SCM</p>
+                <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-700 border border-teal-100 transition-opacity duration-300">PROCUREMENT</span>
+            </div>
+            <nav class="space-y-1">
+                ${createNavLink(p + 'procurement/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
+                ${createNavLink(p + 'procurement/purchase-orders.html', 'Purchase Orders (PO)', 'fas fa-file-contract', activePage === 'purchase-orders' || activePage === 'po-detail', { bg: 'bg-teal-50 border border-teal-200', text: 'text-teal-700', label: 'BOM Match' })}
+                ${createNavLink(p + 'procurement/vendor-quotations.html', 'RFQ & Comparatives', 'fas fa-scale-balanced', activePage === 'rfq' || activePage === 'quotations', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-indigo-700', label: 'L1 Bid' })}
+                ${createNavLink(p + 'procurement/three-way-match.html', '3-Way Match (PO-GRN-VB)', 'fas fa-cubes-stacked', activePage === 'three-way-match', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Auto VB' })}
+                ${createNavLink(p + 'procurement/vendor-directory.html', 'Approved Vendors', 'fas fa-address-book', activePage === 'vendors', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'NTN/STRN' })}
+                <div class="pt-2 mt-2 border-t border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse (GRN)', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'GRN' })}
+                    ${createNavLink(p + 'accounts/index.html', 'Accounts Payable', 'fas fa-file-invoice-dollar', false, { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'AP' })}
+                    ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
+                    ${createNavLink(p + 'administrator/index.html', 'SuperAdmin', 'fas fa-shield-halved', false, { bg: 'bg-red-50 border border-red-200', text: 'text-red-700', label: 'Gov' })}
+                </div>
+            </nav>
+        </div>
+    ` : isEngineering ? `
+        <div>
+            <div class="flex items-center justify-between px-2 mb-2">
+                <p id="menu-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider transition-opacity duration-300">Engineering & Production</p>
+                <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-orange-50 text-orange-700 border border-orange-100 transition-opacity duration-300">ENGINEERING</span>
+            </div>
+            <nav class="space-y-1">
+                ${createNavLink(p + 'engineering/index.html', 'Operations Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
+                ${createNavLink(p + 'engineering/production.html', 'Production Orders', 'fas fa-industry', activePage === 'production', { bg: 'bg-orange-50 border border-orange-200', text: 'text-orange-700', label: '8 SOP' })}
+                ${createNavLink(p + 'engineering/factory-qc.html', 'Factory QC Clearance', 'fas fa-clipboard-check', activePage === 'factory-qc', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'QC Gate' })}
+                ${createNavLink(p + 'engineering/jobs.html', 'Site Installation Jobs', 'fas fa-helmet-safety', activePage === 'jobs', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-indigo-700', label: 'HSE Form' })}
+                ${createNavLink(p + 'engineering/delivery-gate.html', '3-Stage Delivery Gate', 'fas fa-truck-ramp-box', activePage === 'delivery-gate', { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'OTP Gate' })}
+                <div class="pt-2 mt-2 border-t border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
+                    ${createNavLink(p + 'procurement/index.html', 'Procurement & SCM', 'fas fa-truck-loading', false, { bg: 'bg-teal-50 border border-teal-200', text: 'text-teal-700', label: 'SCM' })}
+                    ${createNavLink(p + 'warehouse/index.html', 'Warehouse Stores', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
+                    ${createNavLink(p + 'sales/index.html', 'Sales & CRM', 'fas fa-chart-line', false, { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Sales' })}
+                </div>
+            </nav>
+        </div>
+    ` : isWarehouse ? `<div>
             <div class="flex items-center justify-between px-2 mb-2">
                 <p id="menu-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider transition-opacity duration-300">Warehouse Module</p>
                 <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-100 transition-opacity duration-300">STORES</span>
             </div>
             <nav class="space-y-1">
                 ${createNavLink(p + 'warehouse/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
+                ${createNavLink(p + 'warehouse/dual-store.html', 'Dual-Store Engine', 'fas fa-store', activePage === 'dual-store', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Store 1/2' })}
+                ${createNavLink(p + 'warehouse/store-browser.html', '15 Families Catalog', 'fas fa-sitemap', activePage === 'store-browser', { bg: 'bg-teal-50 border border-teal-200', text: 'text-teal-700', label: '306 Items' })}
                 ${createNavLink(p + 'warehouse/inventory.html', 'Master Inventory', 'fas fa-boxes-stacked', activePage === 'inventory', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '1,245' })}
                 ${createNavLink(p + 'warehouse/inward.html', 'Inward (GRN)', 'fas fa-arrow-right-to-bracket', activePage === 'inward')}
                 ${createNavLink(p + 'warehouse/outward.html', 'Outward (Dispatch)', 'fas fa-truck-ramp-box', activePage === 'outward', { bg: 'bg-red-50 border border-red-200', text: 'text-red-700', label: '12' })}
-                  ${createNavLink(p + 'warehouse/equipment.html', 'Tools & Equipment', 'fas fa-tools', activePage === 'equipment', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Assign' })}
+                ${createNavLink(p + 'warehouse/deliveries.html', 'Delivery & Gate Clearance', 'fas fa-truck-fast', activePage === 'deliveries', { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: '3-Gate OTP' })}
+                ${createNavLink(p + 'warehouse/equipment.html', 'Tools & Equipment', 'fas fa-tools', activePage === 'equipment', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Assign' })}
                   ${createNavLink(p + 'warehouse/history.html', 'Stock History & Ledger', 'fas fa-history', activePage === 'history')}
                   ${createNavLink(p + 'warehouse/vendors.html', 'Vendor Directory', 'fas fa-handshake', activePage === 'vendors')}
                 <div class="pt-2 mt-2 border-t border-slate-100">
@@ -85,10 +182,33 @@ const renderLayout = (activePage) => {
                     ${createNavLink(p + 'warehouse/index.html', 'Warehouse Stores', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
             </nav>
-        </div>` : isAccounts ? `
+        </div>
+    ` : isFinance ? `
         <div>
             <div class="flex items-center justify-between px-2 mb-2">
-                <p id="menu-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider transition-opacity duration-300">Accounts & Finance</p>
+                <p id="menu-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider transition-opacity duration-300">Finance & GL</p>
+                <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 transition-opacity duration-300">GL & FINANCE</span>
+            </div>
+            <nav class="space-y-1">
+                ${createNavLink(p + 'finance/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
+                ${createNavLink(p + 'finance/chart-of-accounts.html', 'Chart of Accounts', 'fas fa-sitemap', activePage === 'coa', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-indigo-700', label: '1100-5400' })}
+                ${createNavLink(p + 'finance/fiscal-periods.html', 'Fiscal Periods', 'fas fa-calendar-check', activePage === 'fiscal-periods', { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'FY 26-27' })}
+                ${createNavLink(p + 'finance/journals.html', 'Journal Entries (JV)', 'fas fa-book-journal-whills', activePage === 'journals', { bg: 'bg-emerald-50 border border-emerald-200', text: 'text-emerald-700', label: 'Dr = Cr' })}
+                ${createNavLink(p + 'finance/trial-balance.html', 'Trial Balance', 'fas fa-scale-unbalanced', activePage === 'trial-balance', { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Live' })}
+                ${createNavLink(p + 'finance/ar-aging.html', 'AR Aging (Debtors)', 'fas fa-user-clock', activePage === 'ar-aging', { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: '30-120d' })}
+                ${createNavLink(p + 'finance/ap-aging.html', 'AP Aging (Creditors)', 'fas fa-file-invoice-dollar', activePage === 'ap-aging', { bg: 'bg-purple-50 border border-purple-200', text: 'text-purple-700', label: 'Payables' })}
+                <div class="pt-2 mt-2 border-t border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
+                    ${createNavLink(p + 'accounts/index.html', 'Accounts (Billing)', 'fas fa-receipt', false, { bg: 'bg-blue-50 border border-blue-200', text: 'text-blue-700', label: 'Billing' })}
+                    ${createNavLink(p + 'procurement/index.html', 'Procurement (3WM)', 'fas fa-truck-loading', false, { bg: 'bg-teal-50 border border-teal-200', text: 'text-teal-700', label: 'SCM' })}
+                    ${createNavLink(p + 'administrator/index.html', 'SuperAdmin', 'fas fa-shield-halved', false, { bg: 'bg-red-50 border border-red-200', text: 'text-red-700', label: 'Gov' })}
+                </div>
+            </nav>
+        </div>
+    ` : isAccounts ? `
+        <div>
+            <div class="flex items-center justify-between px-2 mb-2">
+                <p id="menu-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider transition-opacity duration-300">Accounts & Billing</p>
                 <span class="menu-text text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100 transition-opacity duration-300">ACCOUNTS</span>
             </div>
             <nav class="space-y-1">
@@ -100,6 +220,7 @@ const renderLayout = (activePage) => {
                   ${createNavLink(p + 'accounts/workers.html', 'Financial Records', 'fas fa-folder-open', activePage === 'workers' || activePage === 'employee')}
                 <div class="pt-2 mt-2 border-t border-slate-100">
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1 menu-text">Connected Modules</p>
+                    ${createNavLink(p + 'finance/index.html', 'General Ledger & COA', 'fas fa-calculator', false, { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-indigo-700', label: 'Finance' })}
                     ${createNavLink(p + 'hr/index.html', 'HR Operations Portal', 'fas fa-users-cog', false, { bg: 'bg-slate-100 border border-slate-200', text: 'text-slate-600', label: 'HR' })}
                     ${createNavLink(p + 'warehouse/index.html', 'Warehouse Stores', 'fas fa-boxes', false, { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-800', label: 'Stores' })}
                 </div>
@@ -114,7 +235,8 @@ const renderLayout = (activePage) => {
             <nav class="space-y-1">
                 ${createNavLink(p + 'sales/index.html', 'Dashboard', 'fas fa-chart-pie', activePage === 'dashboard')}
                 <p class="menu-text px-2 pt-2 text-[8px] font-bold uppercase tracking-wider text-slate-400">Daily work</p>
-                ${createNavLink(p + 'sales/inquiries.html', 'Inquiries', 'fas fa-inbox', activePage === 'inquiries', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '6' })}
+                ${createNavLink(p + 'sales/inbound-hub.html', 'Inbound Drop Hub', 'fas fa-inbox', activePage === 'inbound-hub', { bg: 'bg-indigo-50 border border-indigo-200', text: 'text-[#242b5f]', label: 'Drop Hub' })}
+                ${createNavLink(p + 'sales/inquiries.html', 'Inquiries', 'fas fa-folder-open', activePage === 'inquiries', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '6' })}
                 ${createNavLink(p + 'sales/selection.html', 'AUX Selection', 'fas fa-snowflake', activePage === 'selection' || activePage === 'selection-detail' || activePage === 'selection-pricing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: 'AUX' })}
                 ${createNavLink(p + 'sales/costing.html', 'BOQ Pricing', 'fas fa-calculator', activePage === 'costing', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: '3' })}
                 ${createNavLink(p + 'sales/approvals.html', 'Approvals Received', 'fas fa-stamp', activePage === 'approvals', { bg: 'bg-slate-50 border border-slate-200', text: 'text-slate-600', label: salesDecisionCount ? `${salesDecisionCount} New` : 'Inbox' })}
@@ -177,14 +299,23 @@ const renderLayout = (activePage) => {
         </div>
     `;
 
+    const deptTitle = isAdministrator ? 'SuperAdmin Console' :
+                      isAdmin ? 'Admin & Fleet Desk' :
+                      isProcurement ? 'Procurement Desk' :
+                      isEngineering ? 'Engineering Ops Desk' :
+                      isFinance ? 'Finance & GL Desk' :
+                      isAccounts ? 'Accounts & Billing' :
+                      isWarehouse ? 'Inventory & Stores' :
+                      isSales ? 'Sales & CRM Desk' : 'HR Operations Desk';
+
     const sidebarHTML = `
-        <aside id="sidebar" class="bg-white border-r border-slate-200/80 text-slate-800 flex flex-col transition-all duration-300 w-[215px] h-screen shrink-0 relative z-20 shadow-[1px_0_4px_rgba(0,0,0,0.02)] select-none">
+        <aside id="sidebar" class="bg-white border-r border-slate-200/80 text-slate-800 flex flex-col transition-all duration-300 w-[220px] h-screen shrink-0 relative z-20 shadow-[1px_0_4px_rgba(0,0,0,0.02)] select-none">
             <!-- Sidebar Header / Logo -->
-            <div class="px-3.5 py-2.5 flex items-center justify-between border-b border-slate-100 h-[54px] bg-white">
-                <a href="${isAccounts ? p + 'accounts/index.html' : isWarehouse ? p + 'warehouse/index.html' : isSales ? p + 'sales/index.html' : p + 'hr/index.html'}" class="flex items-center gap-2 overflow-hidden whitespace-nowrap" title="Cosmix ERP">
+            <div class="px-4 py-3 flex items-center justify-between border-b border-slate-100 h-[56px] bg-white">
+                <a href="${isAccounts ? p + 'accounts/index.html' : isWarehouse ? p + 'warehouse/index.html' : isSales ? p + 'sales/index.html' : isAdministrator ? p + 'administrator/index.html' : isAdmin ? p + 'admin/index.html' : p + 'hr/index.html'}" class="flex items-center gap-2 overflow-hidden whitespace-nowrap" title="Cosmix ERP">
                     <img id="logo-img" src="${p}assets/images/cosmix-logo.png" onerror="this.src='https://cosmixengineering.com/wp-content/uploads/2024/09/cropped-Cosmix-Logo-PNG-File-300x90.png'" alt="Cosmix Engineering" class="h-8 max-w-[130px] w-auto object-contain transition-all duration-300">
                 </a>
-                <button id="toggle-btn" onclick="toggleSidebar()" class="text-slate-400 hover:text-[#242b5f] hover:bg-slate-100 p-1.5 rounded-lg border border-slate-200/70 transition-all shrink-0" title="Collapse / Expand Menu">
+                <button id="toggle-btn" onclick="toggleSidebar()" class="text-slate-400 hover:text-[#1e2552] hover:bg-slate-100 p-1.5 rounded-lg border border-slate-200/70 transition-all shrink-0" title="Collapse / Expand Menu">
                     <i class="fas fa-bars text-xs"></i>
                 </button>
             </div>
@@ -194,20 +325,20 @@ const renderLayout = (activePage) => {
                 ${navItemsHTML}
             </div>
             
-            <!-- Sidebar Footer: Admin & Sign Out -->
+            <!-- Sidebar Footer: Dynamic Desk & Sign Out -->
             <div class="p-2.5 border-t border-slate-100 bg-slate-50/60 mt-auto shrink-0 space-y-1.5">
-                <div class="menu-text flex items-center gap-2 px-2 py-1.5 rounded-lg bg-white border border-slate-200/70 shadow-2xs transition-opacity duration-300">
-                    <div class="w-6 h-6 rounded-full bg-[#242b5f] text-white flex items-center justify-center font-bold text-[9.5px] shrink-0">
+                <div class="menu-text flex items-center gap-2 px-2.5 py-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs transition-opacity duration-300">
+                    <div class="w-6 h-6 rounded-lg bg-[#1e2552] text-white flex items-center justify-center font-bold text-[10px] shrink-0">
                         CE
                     </div>
                     <div class="min-w-0 flex-1">
-                        <p class="text-[11px] font-bold text-slate-800 truncate leading-tight">${isAccounts ? 'Accounts Desk' : isWarehouse ? 'Inventory Desk' : isSales ? 'Sales Desk' : 'HR Console'}</p>
-                        <p class="text-[9px] text-emerald-600 font-semibold flex items-center gap-1 leading-tight">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> ${isAccounts ? 'Finance Online' : isWarehouse ? 'Stores Online' : isSales ? 'Sales Online' : 'HR Online'}
+                        <p class="text-[11px] font-bold text-slate-900 truncate leading-tight">${deptTitle}</p>
+                        <p class="text-[9px] text-emerald-600 font-semibold flex items-center gap-1 leading-tight mt-0.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active & Online
                         </p>
                     </div>
                 </div>
-                <a href="${p}login.html" class="flex items-center gap-2.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all px-2 py-1.5 rounded-lg group" title="Sign Out">
+                <a href="${p}login.html" class="flex items-center gap-2.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all px-2.5 py-1.5 rounded-xl group" title="Sign Out">
                     <div class="w-5 flex items-center justify-center shrink-0">
                         <i class="fas fa-sign-out-alt text-xs text-slate-400 group-hover:text-rose-600 transition-colors"></i>
                     </div>
@@ -241,32 +372,22 @@ const renderLayout = (activePage) => {
                         <span class="max-w-[120px] truncate">${currentDept.name}</span>
                         <i class="fas fa-chevron-down text-[8px] text-gray-400 ml-0.5"></i>
                     </button>
-                    <div class="dropdown-menu absolute left-0 top-8 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
-                        <div class="px-5 py-2 border-b border-gray-50 flex items-center justify-between">
-                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Departments</span>
-                            <span class="text-[8px] bg-blue-50 text-blue-700 px-1 rounded font-bold">${isAccounts ? 'Accounts Active' : isWarehouse ? 'Stores Active' : isSales ? 'Sales Active' : 'HR Active'}</span>
+                    <div class="dropdown-menu absolute left-0 top-8 w-60 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
+                        <div class="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
+                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Enterprise Modules</span>
+                            <span class="text-[8px] bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-bold">${currentDept.badge} Active</span>
                         </div>
-                        <div class="py-1">
+                        <div class="py-1 max-h-80 overflow-y-auto">
                             ${DEPARTMENTS.map(d => {
-                                const isThisDeptActive = d.id === currentDeptId || (d.id === 'accounts' && isAccounts);
-                                if (d.id === 'hr' || d.id === 'accounts' || d.id === 'finance' || d.id === 'warehouse' || d.id === 'sales') {
-                                    const targetUrl = d.url;
-                                    return `
-                                        <a href="${targetUrl}" class="flex items-center gap-2.5 px-5 py-2.5 text-xs ${isThisDeptActive ? 'bg-blue-50/70 text-[#242b5f] font-bold' : 'text-gray-700 hover:bg-gray-50'} transition">
-                                            <span class="w-5 h-5 rounded flex items-center justify-center ${d.bg} ${d.color} text-[10px]"><i class="${d.icon}"></i></span>
-                                            <span class="flex-1 truncate">${d.name}</span>
-                                            ${isThisDeptActive ? '<i class="fas fa-check text-[9px] text-[#242b5f]"></i>' : '<span class="text-[8px] bg-emerald-50 text-emerald-700 px-1 py-0.2 rounded font-bold">Active</span>'}
-                                        </a>
-                                    `;
-                                } else {
-                                    return `
-                                        <a href="javascript:void(0)" onclick="showToast('${d.name} panel will be activated soon', 'info')" class="flex items-center gap-2.5 px-5 py-2.5 text-xs text-gray-400 hover:bg-gray-50 transition">
-                                            <span class="w-5 h-5 rounded flex items-center justify-center bg-gray-100 text-gray-400 text-[10px]"><i class="${d.icon}"></i></span>
-                                            <span class="flex-1 truncate">${d.name}</span>
-                                            <span class="text-[8px] bg-amber-50 text-amber-700 px-1 py-0.2 rounded font-bold">Phase 2</span>
-                                        </a>
-                                    `;
-                                }
+                                const isThisDeptActive = d.id === currentDeptId;
+                                const targetUrl = d.url;
+                                return `
+                                    <a href="${targetUrl}" class="flex items-center gap-2.5 px-4 py-2 text-xs ${isThisDeptActive ? 'bg-indigo-50/70 text-[#1e2552] font-bold' : 'text-gray-700 hover:bg-gray-50'} transition">
+                                        <span class="w-5 h-5 rounded flex items-center justify-center ${d.bg} ${d.color} text-[10px]"><i class="${d.icon}"></i></span>
+                                        <span class="flex-1 truncate">${d.name}</span>
+                                        ${isThisDeptActive ? '<i class="fas fa-check text-[9px] text-[#1e2552]"></i>' : '<span class="text-[8px] bg-emerald-50 text-emerald-700 px-1 py-0.2 rounded font-bold">Online</span>'}
+                                    </a>
+                                `;
                             }).join('')}
                         </div>
                     </div>
@@ -294,7 +415,8 @@ const renderLayout = (activePage) => {
                         ${createTopBarLink(p + 'accounts/payroll.html', 'fas fa-money-check-alt', activePage === 'payroll', 'Payroll Ledger')}
                         ${createTopBarLink(p + 'accounts/attendance.html', 'fas fa-user-clock', activePage === 'attendance', 'Attendance Audit')}
                     ` : isSales ? `
-                        ${createTopBarLink(p + 'sales/inquiries.html', 'fas fa-inbox', activePage === 'inquiries', 'Inquiries & Tenders')}
+                        ${createTopBarLink(p + 'sales/inbound-hub.html', 'fas fa-inbox', activePage === 'inbound-hub', 'Inbound Drop Hub')}
+                        ${createTopBarLink(p + 'sales/inquiries.html', 'fas fa-folder-open', activePage === 'inquiries', 'Inquiries & Tenders')}
                         ${createTopBarLink(p + 'sales/selection.html', 'fas fa-snowflake', activePage === 'selection', 'Technical Selection')}
                         ${createTopBarLink(p + 'sales/costing.html', 'fas fa-calculator', activePage === 'costing', 'BOQ Rate Filling')}
                         ${createTopBarLink(p + 'sales/rates.html', 'fas fa-tags', activePage === 'rates', 'Vendor Rates')}
@@ -402,15 +524,21 @@ const renderLayout = (activePage) => {
                         </div>
                         <i class="fas fa-chevron-down text-gray-400 text-[8px]"></i>
                     </button>
-                    <div class="dropdown-menu absolute right-0 top-9 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 text-left">
-                        <div class="px-5 py-2.5 border-b border-gray-50">
-                            <p class="text-xs font-bold text-gray-800">${currentDept.name}</p>
-                            <p class="text-[9px] text-gray-400">admin@cosmixengineering.com</p>
+                    <div class="dropdown-menu absolute right-0 top-9 w-60 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 text-left">
+                        <div class="px-4 py-2.5 border-b border-gray-100">
+                            <p class="text-xs font-bold text-gray-900">${currentDept.name}</p>
+                            <p class="text-[9.5px] text-indigo-700 font-semibold">Managing Director Persona</p>
+                            <p class="text-[9px] text-gray-400 font-mono">admin@cosmixengineering.com</p>
                         </div>
-                        <a href="${p}hr/employee-profile.html" class="block px-5 py-2.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge text-[#242b5f] w-4"></i> View Profile</a>
-                        <button onclick="openModal('Cosmix ERP System Status', '<div class=space-y-2 text-xs><p class=font-bold text-gray-800>Cosmix Engineering ERP v2.4</p><p class=text-gray-600>Active Sites: 8 Industrial Sites Online<br>Database: SQLite Synced<br>Biometric Sync: Real-time Cloud API<br>Server Health: 99.98% SLA</p></div>', null)" class="w-full text-left px-5 py-2.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-server text-green-600 w-4"></i> System Status</button>
+                        <div class="py-1">
+                            <a href="${p}administrator/roles.html" class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-user-shield text-purple-600 w-4"></i> 19 RBAC Security Matrix</a>
+                            <a href="${p}administrator/commercial-margins.html" class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-percent text-emerald-600 w-4"></i> Margin Floor Desk (25%)</a>
+                            <a href="${p}administrator/audit-logs.html" class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-clipboard-list text-amber-600 w-4"></i> Central Audit Trail</a>
+                            <a href="${p}hr/employee-profile.html" class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-id-badge text-[#1e2552] w-4"></i> View Personnel Profile</a>
+                            <button onclick="openModal('Cosmix ERP System Governance', '<div class=\\\'space-y-2 text-xs text-slate-700\\\'><p class=\\\'font-bold text-slate-900\\\'>Cosmix Enterprise ERP · Production Build P5</p><p>Architecture: .NET 8 Clean Architecture / SQLite / EF Core<br>Security: ASP.NET Core Identity (19 AppRoles)<br>Commercial Floor: 25.0% (Hard Enforced)<br>Audit Trail: Immutable Append-Only Ledger<br>Active Sites: 8 Industrial Sites Online</p></div>', null)" class="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="fas fa-server text-blue-600 w-4"></i> System Diagnostics</button>
+                        </div>
                         <div class="h-px bg-gray-100 my-1"></div>
-                        <a href="${p}login.html" class="block px-5 py-2.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 font-semibold"><i class="fas fa-sign-out-alt w-4"></i> Sign Out</a>
+                        <a href="${p}login.html" class="block px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-semibold"><i class="fas fa-sign-out-alt w-4"></i> Sign Out</a>
                     </div>
                 </div>
             </div>
@@ -421,19 +549,7 @@ const renderLayout = (activePage) => {
         ${sidebarHTML}
         <div class="flex-1 flex flex-col h-screen overflow-hidden bg-[#f8fafc]">
             ${headerHTML}
-            <main id="main-content" class="flex-1 overflow-y-auto p-4 lg:p-5 opacity-0 transition-opacity duration-500"></main>
-            <!-- Software Status / Action Footer -->
-            <div class="bg-white text-gray-800 text-sm font-bold py-5 px-6 flex flex-wrap justify-between items-center z-40 border-t-2 border-gray-200 shadow-[0_-4px_15px_rgba(0,0,0,0.08)]">
-                <div class="flex gap-4 items-center flex-wrap">
-                    <button class="hover:text-blue-700 transition flex items-center gap-2 font-bold bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 shadow-sm" onclick="location.reload()"><i class="fas fa-sync-alt text-blue-600"></i> Refresh View</button>
-                    <button class="hover:text-emerald-700 transition flex items-center gap-2 font-bold bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 shadow-sm" onclick="if(!document.fullscreenElement){document.documentElement.requestFullscreen();}else{document.exitFullscreen();}"><i class="fas fa-expand text-emerald-600"></i> Fullscreen Mode</button>
-                    <button class="hover:text-amber-700 transition flex items-center gap-2 font-bold bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 shadow-sm" onclick="window.print()"><i class="fas fa-print text-amber-600"></i> Print Document</button>
-                </div>
-                <div class="flex gap-4 items-center flex-wrap mt-3 sm:mt-0">
-                    <button class="hover:text-indigo-700 transition flex items-center gap-2 font-bold bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 shadow-sm" onclick="openModal('Keyboard Shortcuts', '<ul class=\'space-y-3 text-sm\'><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Ctrl + P</kbd> Print Current Page</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>F11</kbd> Toggle Fullscreen</li><li><kbd class=\'bg-gray-200 px-2 py-1 rounded font-mono text-xs\'>Esc</kbd> Close active popups</li></ul>', null)"><i class="fas fa-keyboard text-indigo-600"></i> Shortcuts</button>
-                    <button class="hover:text-rose-700 transition flex items-center gap-2 font-bold bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 shadow-sm" onclick="openModal('IT Support', '<div class=\'p-3 text-sm text-gray-700\'>Please email support@cosmixengineering.com for IT assistance.</div>', null)"><i class="fas fa-headset text-rose-600"></i> IT Support</button>
-                </div>
-            </div>
+            <main id="main-content" class="flex-1 overflow-y-auto p-4 lg:p-6 opacity-0 transition-opacity duration-300"></main>
         </div>
     `;
 
@@ -444,37 +560,21 @@ const renderLayout = (activePage) => {
             <div id="toast-container" class="fixed bottom-5 right-5 flex flex-col gap-2 pointer-events-none" style="z-index: 99999;"></div>
 
             <!-- Global Modal Container with Backdrop Click-to-Close -->
-            <div id="global-modal" onclick="if(event.target === this) closeModal()" class="fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
-                <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]" id="global-modal-content">
-                    <div class="px-4 py-2.5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-xl">
-                        <h3 id="modal-title" class="text-sm font-bold text-gray-800"></h3>
-                        <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 transition focus:outline-none">
+            <div id="global-modal" onclick="if(event.target === this) closeModal()" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-200">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg transform scale-95 transition-transform duration-200 flex flex-col max-h-[90vh] border border-slate-200" id="global-modal-content">
+                    <div class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-2xl">
+                        <h3 id="modal-title" class="text-sm font-bold text-slate-900"></h3>
+                        <button onclick="closeModal()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition focus:outline-none">
                             <i class="fas fa-times text-xs"></i>
                         </button>
                     </div>
-                    <div id="modal-body" class="p-4 overflow-y-auto text-xs"></div>
-                    <div class="px-4 py-2.5 border-t border-gray-100 flex justify-end gap-2 bg-gray-50/50 rounded-b-xl" id="modal-footer">
-                        <button onclick="closeModal()" class="px-5 py-2 text-xs font-bold text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50 transition">Cancel</button>
-                        <button onclick="submitModal()" class="px-5 py-2 text-xs font-bold text-white bg-[#242b5f] rounded hover:opacity-90 transition shadow-sm">Confirm</button>
+                    <div id="modal-body" class="p-5 overflow-y-auto text-xs"></div>
+                    <div class="px-5 py-3 border-t border-slate-100 flex justify-end gap-2 bg-slate-50/50 rounded-b-2xl" id="modal-footer">
+                        <button onclick="closeModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition shadow-2xs">Cancel</button>
+                        <button onclick="submitModal()" class="px-5 py-2 text-xs font-bold text-white bg-[#1e2552] hover:bg-[#121736] rounded-xl transition shadow-sm">Confirm</button>
                     </div>
                 </div>
             </div>
-        `);
-    }
-
-    // Global Floating Round Flowchart Button (Fixed bottom-right across all pages)
-    if (!document.getElementById('global-flowchart-btn')) {
-        document.body.insertAdjacentHTML('beforeend', `
-            <a href="${isSales ? p + 'sales/workflow.html' : p + 'hr/flowchart.html'}" id="global-flowchart-btn" title="${isSales ? 'Open Sales Workflow' : 'Open HR Process Flowchart'}" class="fixed bottom-20 right-6 z-[9990] w-14 h-14 rounded-full bg-gradient-to-tr from-[#242b5f] to-[#3b4594] text-white shadow-2xl hover:shadow-indigo-950/40 flex items-center justify-center text-xl border-2 border-white hover:scale-110 active:scale-95 transition-all duration-300 group cursor-pointer" aria-label="${isSales ? 'Sales Workflow' : 'HR Process Flowchart'}">
-                <i class="fas fa-diagram-project transition-transform duration-300 group-hover:rotate-12"></i>
-                <span class="absolute right-16 px-5 py-2.5 bg-slate-900/95 text-white text-xs font-bold rounded-lg shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-x-2 group-hover:translate-x-0 border border-slate-700/50 flex items-center gap-2">
-                    <i class="fas fa-sitemap text-indigo-400 text-xs"></i> ${isSales ? 'Sales Workflow' : 'HR Process Flowchart'}
-                </span>
-                <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white"></span>
-                </span>
-            </a>
         `);
     }
 

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Commercial Margins & Override Desk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; }
+        body { font-family: 'Poppins', sans-serif; }
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+        .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <!-- Override Decision & Sign-Off Modal -->
+    <div id="decision-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-gray-200 space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold border border-emerald-200">
+                        <i class="fas fa-stamp"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900" id="modal-override-title">Executive Margin Override Decision</h3>
+                        <p class="text-[10px] text-gray-400 font-mono" id="modal-override-sub"></p>
+                    </div>
+                </div>
+                <button onclick="closeDecisionModal()" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2 text-xs">
+                <div class="flex justify-between"><span class="text-gray-500">Client / Customer:</span><span class="font-bold text-gray-900" id="modal-client"></span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Tender Classification:</span><span class="font-semibold text-indigo-700" id="modal-tender-type"></span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Quoted / Cost Built:</span><span class="font-mono font-bold text-gray-900" id="modal-amounts"></span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-500">Proposed Margin:</span><span class="font-mono font-extrabold text-rose-600 text-sm bg-rose-50 px-2 py-0.5 rounded border border-rose-200" id="modal-margin"></span></div>
+                <div class="border-t border-slate-200/60 pt-2 text-[11px] text-gray-600">
+                    <strong class="text-gray-800">Sales Justification:</strong>
+                    <p class="mt-0.5 italic text-gray-700 bg-white p-2 rounded-lg border border-slate-200" id="modal-justification"></p>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-bold mb-1 text-xs">Managing Director Decision Remarks <span class="text-rose-500">*</span></label>
+                <textarea id="modal-decision-note" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="e.g., Authorized strategic bid discount due to guaranteed Phase 2 package."></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                <button onclick="closeDecisionModal()" class="px-3.5 py-1.5 rounded-lg border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50 transition">Cancel</button>
+                <button onclick="submitDecision('Rejected')" class="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-xs transition">Reject Request</button>
+                <button onclick="submitDecision('Approved')" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                    <i class="fas fa-check-double text-xs"></i> Approve (BossApprovedAtUtc)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Override Request Modal -->
+    <div id="new-request-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-gray-200 space-y-3">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold border border-indigo-200">
+                        <i class="fas fa-file-signature"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900">Submit Margin Floor Override Request</h3>
+                        <p class="text-[10px] text-gray-400">Request CEO sign-off for quotes below 25.0% floor</p>
+                    </div>
+                </div>
+                <button onclick="closeNewRequestModal()" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="space-y-2.5 text-xs">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-1">Quote Reference</label>
+                        <input type="text" id="req-quote-id" value="QTN-2609-112" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs font-mono outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-1">Tender Classification</label>
+                        <select id="req-tender-type" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-indigo-500">
+                            <option value="Private Commercial">Private Commercial</option>
+                            <option value="Industrial Mega-Project">Industrial Mega-Project</option>
+                            <option value="Government Tender">Government Tender (PEPRA)</option>
+                            <option value="Framework Agreement">Framework Agreement</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-bold mb-1">Client / Company Name</label>
+                    <input type="text" id="req-client-name" placeholder="e.g., Packages Limited" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-bold mb-1">Project Name & Scope</label>
+                    <input type="text" id="req-project-name" placeholder="e.g., Cleanroom AHU & VRF Package" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-indigo-500">
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-1">Quoted Price (PKR)</label>
+                        <input type="number" id="req-quoted" value="18000000" oninput="calcReqMargin()" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs font-mono outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-1">Cost Built (PKR)</label>
+                        <input type="number" id="req-cost" value="15000000" oninput="calcReqMargin()" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs font-mono outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-1">Proposed Margin</label>
+                        <input type="text" id="req-margin-display" value="16.67%" readonly class="w-full px-2.5 py-1.5 border border-rose-200 bg-rose-50 text-rose-700 font-bold font-mono rounded-lg text-xs outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-bold mb-1">Sales Justification & Terms <span class="text-rose-500">*</span></label>
+                    <textarea id="req-reason" rows="2" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-indigo-500" placeholder="e.g., Volume order discount, advance payment terms, competitive bidding constraint."></textarea>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                <button onclick="closeNewRequestModal()" class="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50">Cancel</button>
+                <button onclick="submitNewRequest()" class="px-4 py-1.5 rounded-lg bg-[#1e2552] hover:bg-[#151a3a] text-white text-xs font-bold shadow-xs">Submit to CEO Queue</button>
+            </div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script src="../assets/js/administrator-store.js"></script>
+    <script>
+        renderLayout('margins');
+
+        let activeDecisionId = null;
+
+        function renderMarginsUI() {
+            const margins = window.CosmixAdminStore.getMarginSettings();
+            const requests = margins.overrideRequests || [];
+
+            const pendingCount = requests.filter(r => r.status === 'Pending').length;
+            const approvedCount = requests.filter(r => r.status === 'Approved').length;
+
+            const requestsHTML = requests.length ? requests.map((r, idx) => {
+                const isPending = r.status === 'Pending';
+                const statusBadge = isPending 
+                    ? `<span class="px-2 py-0.5 rounded text-[9.5px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Awaiting CEO</span>`
+                    : r.status === 'Approved'
+                    ? `<span class="px-2 py-0.5 rounded text-[9.5px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-1"><i class="fas fa-check-circle"></i> BossApproved</span>`
+                    : `<span class="px-2 py-0.5 rounded text-[9.5px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200 inline-flex items-center gap-1"><i class="fas fa-times-circle"></i> Rejected</span>`;
+
+                return `
+                    <tr class="hover:bg-slate-50/70 border-b border-gray-100 transition text-xs">
+                        <td>
+                            <div class="font-mono text-gray-800 font-bold text-[10.5px]">${r.id}</div>
+                            <div class="font-mono text-[9px] text-gray-400 mt-0.5">${r.quoteId}</div>
+                        </td>
+                        <td>
+                            <div class="font-bold text-gray-900">${r.clientName}</div>
+                            <div class="text-[10.5px] text-gray-500">${r.projectName}</div>
+                            <span class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-slate-100 text-slate-600 border border-slate-200 mt-0.5 inline-block">${r.tenderType || 'Commercial'}</span>
+                        </td>
+                        <td>
+                            <div class="font-mono font-bold text-gray-900">Rs. ${(r.quotedAmount / 1e6).toFixed(2)}M</div>
+                            <div class="text-[9.5px] text-gray-400 font-mono">Cost: Rs. ${(r.costBuilt / 1e6).toFixed(2)}M</div>
+                        </td>
+                        <td>
+                            <span class="font-mono font-extrabold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 inline-block text-[11px]">
+                                ${r.proposedMargin}%
+                            </span>
+                            <span class="text-[9.5px] text-rose-600 font-semibold block mt-0.5">Gap: -${(margins.primaryPercent - r.proposedMargin).toFixed(2)}%</span>
+                        </td>
+                        <td>
+                            <div class="text-[11px] text-gray-700 max-w-xs truncate" title="${r.reason}">${r.reason}</div>
+                            <div class="text-[9.5px] text-gray-400 mt-0.5">Requested by <strong class="text-gray-600">${r.requestedBy}</strong> (${r.requestedByRole || 'Sales'}) · ${r.requestedAt.split(' ')[0]}</div>
+                        </td>
+                        <td class="text-center">${statusBadge}</td>
+                        <td class="text-right">
+                            ${isPending ? `
+                                <button onclick="openDecisionModal('${r.id}')" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold shadow-xs transition flex items-center gap-1 ml-auto">
+                                    <i class="fas fa-stamp text-[10px]"></i> Sign-Off
+                                </button>
+                            ` : `
+                                <div class="text-[9.5px] text-gray-500 text-right">
+                                    <span class="font-semibold text-emerald-700 block">${r.decisionBy || 'CEO'}</span>
+                                    <span class="text-gray-400 block">${r.decisionAt ? r.decisionAt.split(' ')[0] : ''}</span>
+                                </div>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('') : `
+                <tr><td colspan="7" class="text-center py-8 text-gray-400 text-xs">No commercial margin override requests recorded.</td></tr>
+            `;
+
+            return `
+                <div class="space-y-4">
+                    
+                    <!-- Header Banner -->
+                    <div class="bg-white p-4 rounded-xl shadow-xs border border-gray-200 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                                    <i class="fas fa-percent text-emerald-600"></i> Commercial Margin Policies & CEO Override Desk
+                                </h2>
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">FLOOR GATE: 25.0%</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Strict 25.0% Floor Margin (hard block unless BossApprovedAtUtc) and 35.0% Target Margin governance.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="openNewRequestModal()" class="px-3.5 py-1.5 rounded-lg bg-[#1e2552] hover:bg-[#151a3a] text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                                <i class="fas fa-plus-circle text-xs"></i> New Override Request
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Margin Bands Config & Live Policy Simulator (2 Columns) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        
+                        <!-- Left: Policy Bands Master Form (1 Col) -->
+                        <div class="bg-white p-4 rounded-xl shadow-xs border border-gray-200 space-y-3">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                <h3 class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                                    <i class="fas fa-sliders text-indigo-600"></i> Executive Margin Thresholds
+                                </h3>
+                                <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">ENFORCED</span>
+                            </div>
+
+                            <div class="space-y-3 text-xs">
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-1">Floor Margin % (Hard Block Below This)</label>
+                                    <div class="relative">
+                                        <input type="number" step="0.1" id="band-floor" value="${margins.primaryPercent}" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-mono font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
+                                        <span class="absolute right-3 top-1.5 text-xs font-bold text-gray-400">%</span>
+                                    </div>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">Default: 25.0%. Hard gate prevents PDF export without CEO sign-off.</p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-1">Target Margin % (Commercial Baseline)</label>
+                                    <div class="relative">
+                                        <input type="number" step="0.1" id="band-target" value="${margins.alternatePercent}" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-mono font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
+                                        <span class="absolute right-3 top-1.5 text-xs font-bold text-gray-400">%</span>
+                                    </div>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">Default: 35.0%. Standard pricing engine default margin.</p>
+                                </div>
+
+                                <div class="flex items-center gap-2 pt-1">
+                                    <input type="checkbox" id="band-lock" ${margins.lockDefaults ? 'checked' : ''} class="rounded text-indigo-600 focus:ring-indigo-500">
+                                    <label for="band-lock" class="text-xs font-semibold text-gray-700">Lock Defaults (Prevent Non-CEO Editing)</label>
+                                </div>
+
+                                <div class="pt-1">
+                                    <button onclick="saveMarginBands()" class="w-full py-1.5 bg-[#1e2552] hover:bg-[#151a3a] text-white rounded-lg text-xs font-bold shadow-xs transition">
+                                        Save & Record Policy Update
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Live Quote Margin Analyzer & Hard Block Simulator (2 Cols) -->
+                        <div class="lg:col-span-2 bg-gradient-to-br from-slate-900 to-[#1e2552] text-white p-5 rounded-xl shadow-xs space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                                    <i class="fas fa-calculator"></i> Live Margin Policy Simulator & Hard Gate Test
+                                </h3>
+                                <span class="px-2 py-0.5 rounded bg-white/10 text-white text-[9px] font-mono">ISopTransitionService</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                <div>
+                                    <label class="block text-slate-300 font-bold mb-1">Simulate Quoted Amount (PKR)</label>
+                                    <input type="number" id="sim-quote-pkr" value="10000000" oninput="runMarginSimulator()" class="w-full px-3 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white font-mono font-bold text-xs outline-none focus:border-emerald-400">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-300 font-bold mb-1">Simulate Direct Cost Built (PKR)</label>
+                                    <input type="number" id="sim-cost-pkr" value="8200000" oninput="runMarginSimulator()" class="w-full px-3 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white font-mono font-bold text-xs outline-none focus:border-emerald-400">
+                                </div>
+                            </div>
+
+                            <!-- Live Calculation Output Banner -->
+                            <div id="sim-result-banner" class="p-3 bg-rose-500/20 border border-rose-500/40 rounded-xl space-y-1.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sm text-rose-300 flex items-center gap-1.5">
+                                        <i class="fas fa-triangle-exclamation"></i> HARD BLOCK TRIGGERED (Sub-25% Margin)
+                                    </span>
+                                    <span class="font-mono font-extrabold text-base text-rose-300" id="sim-margin-pct">18.00%</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px]" id="sim-margin-desc">
+                                    Gross Profit: Rs. 1,800,000. Floor Gap: -7.00%. Quotation PDF generation is hard-blocked until Managing Director signs off via <code class="text-amber-300">BossApprovedAtUtc</code>.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Margin Override Requests Queue Table -->
+                    <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden space-y-0">
+                        <div class="p-3.5 border-b border-gray-100 flex flex-wrap items-center justify-between bg-slate-50/50 gap-2">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-inbox text-slate-500 text-xs"></i>
+                                <h3 class="text-xs font-bold text-gray-800">Commercial Margin Override Queue (Managing Director Decisions)</h3>
+                            </div>
+                            <div class="flex items-center gap-2 text-[10.5px]">
+                                <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-bold">${pendingCount} Pending</span>
+                                <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">${approvedCount} Approved</span>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 border-b border-gray-200 text-gray-600 font-extrabold text-[10px] uppercase tracking-wider">
+                                    <tr>
+                                        <th class="w-28">Req ID & Quote</th>
+                                        <th>Client & Project Scope</th>
+                                        <th class="w-36">Quoted / Cost Built</th>
+                                        <th class="w-28">Proposed Margin</th>
+                                        <th>Sales Justification</th>
+                                        <th class="w-32 text-center">Status</th>
+                                        <th class="w-24 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${requestsHTML}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function refreshUI() {
+            setPageContent('Commercial Margins & Override Desk', renderMarginsUI());
+            runMarginSimulator();
+        }
+
+        function saveMarginBands() {
+            const floor = document.getElementById('band-floor').value;
+            const target = document.getElementById('band-target').value;
+            const lock = document.getElementById('band-lock').checked;
+
+            window.CosmixAdminStore.updateMarginBands(floor, target, lock, null, "Managing Director updated commercial margin floor/target policies");
+            showToast('Margin policy updated & recorded to Central Audit Trail', 'success');
+            refreshUI();
+        }
+
+        function runMarginSimulator() {
+            const quotePkr = parseFloat(document.getElementById('sim-quote-pkr')?.value) || 0;
+            const costPkr = parseFloat(document.getElementById('sim-cost-pkr')?.value) || 0;
+            const banner = document.getElementById('sim-result-banner');
+            const pctEl = document.getElementById('sim-margin-pct');
+            const descEl = document.getElementById('sim-margin-desc');
+
+            if (!banner || !pctEl || !descEl) return;
+
+            if (quotePkr <= 0) {
+                banner.className = 'p-3 bg-slate-800/40 border border-slate-700 rounded-xl';
+                pctEl.innerText = '0.00%';
+                descEl.innerText = 'Enter quotation and cost amounts to analyze policy compliance.';
+                return;
+            }
+
+            const profit = quotePkr - costPkr;
+            const marginPct = (profit / quotePkr) * 100;
+            const floor = window.CosmixAdminStore.state.margins.primaryPercent;
+            const target = window.CosmixAdminStore.state.margins.alternatePercent;
+
+            pctEl.innerText = `${marginPct.toFixed(2)}%`;
+
+            if (marginPct >= target) {
+                banner.className = 'p-3 bg-emerald-500/20 border border-emerald-500/40 rounded-xl space-y-1';
+                banner.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-sm text-emerald-300 flex items-center gap-1.5">
+                            <i class="fas fa-circle-check"></i> OPTIMAL TARGET MARGIN (&ge; ${target}%)
+                        </span>
+                        <span class="font-mono font-extrabold text-base text-emerald-300">${marginPct.toFixed(2)}%</span>
+                    </div>
+                    <p class="text-slate-300 text-[11px]">Gross Profit: Rs. ${profit.toLocaleString()}. Meets commercial target. Quotation PDF generation and client dispatch cleared automatically.</p>
+                `;
+            } else if (marginPct >= floor) {
+                banner.className = 'p-3 bg-blue-500/20 border border-blue-500/40 rounded-xl space-y-1';
+                banner.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-sm text-sky-300 flex items-center gap-1.5">
+                            <i class="fas fa-circle-info"></i> STANDARD MARGIN (&ge; ${floor}% Floor)
+                        </span>
+                        <span class="font-mono font-extrabold text-base text-sky-300">${marginPct.toFixed(2)}%</span>
+                    </div>
+                    <p class="text-slate-300 text-[11px]">Gross Profit: Rs. ${profit.toLocaleString()}. Above 25% floor. Standard commercial sales manager approval applies.</p>
+                `;
+            } else {
+                banner.className = 'p-3 bg-rose-500/20 border border-rose-500/40 rounded-xl space-y-1';
+                banner.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-sm text-rose-300 flex items-center gap-1.5">
+                            <i class="fas fa-triangle-exclamation"></i> HARD BLOCK TRIGGERED (Sub-${floor}% Floor)
+                        </span>
+                        <span class="font-mono font-extrabold text-base text-rose-300">${marginPct.toFixed(2)}%</span>
+                    </div>
+                    <p class="text-slate-300 text-[11px]">Gross Profit: Rs. ${profit.toLocaleString()}. Floor Gap: ${(marginPct - floor).toFixed(2)}%. Quotation PDF generation is locked until Managing Director sign-off (BossApprovedAtUtc).</p>
+                `;
+            }
+        }
+
+        function openDecisionModal(id) {
+            activeDecisionId = id;
+            const req = window.CosmixAdminStore.state.margins.overrideRequests.find(r => r.id === id);
+            if (!req) return;
+
+            document.getElementById('modal-override-title').innerText = `Executive Decision: ${req.id}`;
+            document.getElementById('modal-override-sub').innerText = `${req.projectName} (${req.quoteId})`;
+            document.getElementById('modal-client').innerText = req.clientName;
+            document.getElementById('modal-tender-type').innerText = req.tenderType || 'Private Commercial';
+            document.getElementById('modal-amounts').innerText = `Quoted: Rs. ${(req.quotedAmount / 1e6).toFixed(2)}M · Cost: Rs. ${(req.costBuilt / 1e6).toFixed(2)}M`;
+            document.getElementById('modal-margin').innerText = `${req.proposedMargin}% (Floor: 25.0%)`;
+            document.getElementById('modal-justification').innerText = req.reason;
+            document.getElementById('modal-decision-note').value = '';
+
+            document.getElementById('decision-modal').classList.remove('hidden');
+        }
+
+        function closeDecisionModal() {
+            document.getElementById('decision-modal').classList.add('hidden');
+            activeDecisionId = null;
+        }
+
+        function submitDecision(decision) {
+            if (!activeDecisionId) return;
+            const note = document.getElementById('modal-decision-note').value.trim();
+            if (!note) {
+                alert('Please enter Managing Director decision remarks before submitting.');
+                return;
+            }
+
+            const res = window.CosmixAdminStore.decideMarginOverride(activeDecisionId, decision, note, "Zeeshan Ashraf", "Managing Director");
+            if (res.success) {
+                closeDecisionModal();
+                showToast(`Margin override request ${decision} (BossApprovedAtUtc stamped)`, decision === 'Approved' ? 'success' : 'info');
+                refreshUI();
+            }
+        }
+
+        function openNewRequestModal() {
+            document.getElementById('req-client-name').value = '';
+            document.getElementById('req-project-name').value = '';
+            document.getElementById('req-reason').value = '';
+            calcReqMargin();
+            document.getElementById('new-request-modal').classList.remove('hidden');
+        }
+
+        function closeNewRequestModal() {
+            document.getElementById('new-request-modal').classList.add('hidden');
+        }
+
+        function calcReqMargin() {
+            const quoted = parseFloat(document.getElementById('req-quoted').value) || 0;
+            const cost = parseFloat(document.getElementById('req-cost').value) || 0;
+            const margin = quoted > 0 ? (((quoted - cost) / quoted) * 100).toFixed(2) : '0.00';
+            document.getElementById('req-margin-display').value = `${margin}%`;
+        }
+
+        function submitNewRequest() {
+            const quoteId = document.getElementById('req-quote-id').value.trim();
+            const clientName = document.getElementById('req-client-name').value.trim();
+            const projectName = document.getElementById('req-project-name').value.trim();
+            const tenderType = document.getElementById('req-tender-type').value;
+            const quotedAmount = parseFloat(document.getElementById('req-quoted').value);
+            const costBuilt = parseFloat(document.getElementById('req-cost').value);
+            const reason = document.getElementById('req-reason').value.trim();
+
+            if (!clientName || !projectName || !reason) {
+                alert('Please fill in all mandatory fields.');
+                return;
+            }
+
+            const proposedMargin = parseFloat((((quotedAmount - costBuilt) / quotedAmount) * 100).toFixed(2));
+
+            window.CosmixAdminStore.requestMarginOverride({
+                quoteId,
+                clientName,
+                projectName,
+                tenderType,
+                quotedAmount,
+                costBuilt,
+                proposedMargin,
+                requestedBy: "Bilal Tariq",
+                requestedByRole: "Sales Engineer",
+                requestedByEmail: "sales@cosmixengineering.com",
+                reason
+            });
+
+            closeNewRequestModal();
+            showToast('Margin override request submitted to Managing Director queue', 'success');
+            refreshUI();
+        }
+
+        refreshUI();
+    </script>
+</body>
+</html>

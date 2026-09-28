@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmix ERP - Corporate Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         html { font-size: 13px !important; }
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Poppins', sans-serif; }
         .font-mono, [class*="font-mono"] { font-family: 'JetBrains Mono', monospace !important; font-variant-numeric: tabular-nums; }
         .slide-fade {
             animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -163,10 +163,44 @@
                         <i class="fas fa-arrow-right text-[10px]"></i>
                     </button>
 
+                    <!-- Quick Direct Portal Jump (Dev/Demo) -->
+                    <div class="pt-4 mt-4 border-t border-gray-100">
+                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 text-center">Quick Portal Access (Demo Roles)</div>
+                        <div class="grid grid-cols-2 gap-1.5 text-[10.5px]">
+                            <a href="administrator/index.html" class="px-2 py-1.5 rounded bg-red-50 hover:bg-red-100 text-red-700 font-bold border border-red-200 text-center flex items-center justify-center gap-1">
+                                <i class="fas fa-shield-halved text-[9px]"></i> SuperAdmin
+                            </a>
+                            <a href="finance/index.html" class="px-2 py-1.5 rounded bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold border border-indigo-200 text-center flex items-center justify-center gap-1">
+                                <i class="fas fa-calculator text-[9px]"></i> Finance (GL)
+                            </a>
+                            <a href="engineering/index.html" class="px-2 py-1.5 rounded bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold border border-orange-200 text-center flex items-center justify-center gap-1">
+                                <i class="fas fa-hard-hat text-[9px]"></i> Engineering
+                            </a>
+                            <a href="procurement/index.html" class="px-2 py-1.5 rounded bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold border border-teal-200 text-center flex items-center justify-center gap-1">
+                                <i class="fas fa-truck-loading text-[9px]"></i> Procurement
+                            </a>
+                            <a href="warehouse/index.html" class="px-2 py-1.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold border border-amber-200 text-center flex items-center justify-center gap-1">
+                                <i class="fas fa-boxes text-[9px]"></i> Warehouse
+                            </a>
+                            <a href="admin/index.html" class="px-2 py-1.5 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200 text-center flex items-center justify-center gap-1">
+                                <i class="fas fa-building text-[9px]"></i> Admin / Fleet
+                            </a>
+                            <a href="sales/index.html" class="px-2 py-1.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold border border-emerald-200 text-center flex items-center justify-center gap-1">
+                                <i class="fas fa-chart-line text-[9px]"></i> Sales / CRM
+                            </a>
+                            <a href="accounts/index.html" class="px-2 py-1.5 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200 text-center flex items-center justify-center gap-1">
+                                <i class="fas fa-file-invoice-dollar text-[9px]"></i> Accounts (Billing)
+                            </a>
+                            <a href="hr/index.html" class="px-2 py-1.5 rounded bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold border border-purple-200 text-center flex items-center justify-center gap-1 col-span-2">
+                                <i class="fas fa-users-cog text-[9px]"></i> HR Operations Portal
+                            </a>
+                        </div>
+                    </div>
+
                 </form>
 
                 <!-- Security Footnote -->
-                <div class="mt-6 pt-5 border-t border-gray-100 flex items-center justify-center gap-1.5 text-[10px] text-gray-400">
+                <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-center gap-1.5 text-[10px] text-gray-400">
                     <i class="fas fa-lock text-gray-400"></i>
                     <span>Authorized Personnel Only • Enterprise Encryption</span>
                 </div>
@@ -340,3 +374,4 @@
 
 </body>
 </html>
+

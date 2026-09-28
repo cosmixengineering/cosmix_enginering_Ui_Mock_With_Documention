@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP Aging Schedule (Creditors) - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <script src="../assets/js/finance-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('ap-aging');
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-12">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-indigo-600 text-[11px]"><i class="fas fa-arrow-left mr-1"></i> Dashboard</a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-purple-700 uppercase tracking-wider">Payables Governance</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-slate-800 mt-0.5">Accounts Payable (AP) Aging Schedule</h1>
+                            <p class="text-[11px] text-slate-500">Aging analysis of vendor liabilities and 3-Way Match verified commitments.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-xs font-bold font-mono">
+                                Total AP: PKR 16.90M
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Aging Buckets Summary -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">0 - 30 Days (Current)</span>
+                            <div class="font-mono font-bold text-slate-800 text-sm mt-1">PKR 5.06M</div>
+                            <span class="text-[9.5px] text-emerald-600 font-semibold">29.9% of total</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">31 - 60 Days</span>
+                            <div class="font-mono font-bold text-slate-800 text-sm mt-1">PKR 4.37M</div>
+                            <span class="text-[9.5px] text-amber-600 font-semibold">25.8% of total</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">61 - 90 Days</span>
+                            <div class="font-mono font-bold text-slate-800 text-sm mt-1">PKR 1.42M</div>
+                            <span class="text-[9.5px] text-orange-600 font-semibold">8.4% of total</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">91 - 120 Days</span>
+                            <div class="font-mono font-bold text-slate-400 text-sm mt-1">PKR 0</div>
+                            <span class="text-[9.5px] text-slate-400 font-semibold">0.0% of total</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">> 120 Days</span>
+                            <div class="font-mono font-bold text-slate-400 text-sm mt-1">PKR 0</div>
+                            <span class="text-[9.5px] text-slate-400 font-semibold">Zero Overdue</span>
+                        </div>
+                    </div>
+
+                    <!-- AP Aging Table -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-[11px]">
+                                <thead class="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Vendor / Supplier</th>
+                                        <th class="py-2.5 px-3">PO Reference</th>
+                                        <th class="py-2.5 px-3">Terms</th>
+                                        <th class="py-2.5 px-3 text-right">0-30 Days</th>
+                                        <th class="py-2.5 px-3 text-right">31-60 Days</th>
+                                        <th class="py-2.5 px-3 text-right">61-90 Days</th>
+                                        <th class="py-2.5 px-3 text-right">91-120 Days</th>
+                                        <th class="py-2.5 px-3 text-right">>120 Days</th>
+                                        <th class="py-2.5 px-3 text-right">Total Payable</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ap-rows" class="divide-y divide-slate-100">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderApRows();
+        });
+
+        function renderApRows() {
+            const list = CosmixFinance.getApAging();
+            const tbody = document.getElementById('ap-rows');
+            if (!tbody) return;
+
+            tbody.innerHTML = list.map(v => `
+                <tr class="hover:bg-slate-50 transition-all font-mono">
+                    <td class="py-2.5 px-3 font-sans font-bold text-slate-800">${v.vendorName}</td>
+                    <td class="py-2.5 px-3 text-indigo-700 font-bold">${v.poRef}</td>
+                    <td class="py-2.5 px-3 text-slate-500 font-sans">${v.terms}</td>
+                    <td class="py-2.5 px-3 text-right ${v.days0_30 > 0 ? 'text-slate-800 font-semibold' : 'text-slate-300'}">
+                        ${v.days0_30 > 0 ? 'PKR ' + v.days0_30.toLocaleString() : '-'}
+                    </td>
+                    <td class="py-2.5 px-3 text-right ${v.days31_60 > 0 ? 'text-amber-700 font-semibold' : 'text-slate-300'}">
+                        ${v.days31_60 > 0 ? 'PKR ' + v.days31_60.toLocaleString() : '-'}
+                    </td>
+                    <td class="py-2.5 px-3 text-right ${v.days61_90 > 0 ? 'text-orange-700 font-semibold' : 'text-slate-300'}">
+                        ${v.days61_90 > 0 ? 'PKR ' + v.days61_90.toLocaleString() : '-'}
+                    </td>
+                    <td class="py-2.5 px-3 text-right text-slate-300">-</td>
+                    <td class="py-2.5 px-3 text-right text-slate-300">-</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-slate-900 text-xs">
+                        PKR ${v.totalPkr.toLocaleString()}
+                    </td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

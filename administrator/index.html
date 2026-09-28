@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - System Governance & SuperAdmin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; }
+        body { font-family: 'Poppins', sans-serif; }
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script src="../assets/js/administrator-store.js"></script>
+    <script>
+        renderLayout('dashboard');
+
+        const state = window.CosmixAdminStore.state;
+        const slotsCount = state.policySlots.length;
+        const pendingOverrides = state.margins.overrideRequests.filter(r => r.status === 'Pending');
+        const rolesCount = state.roles.length;
+        const auditCount = state.auditLogs.length;
+
+        setPageContent('System Governance & SuperAdmin Dashboard', `
+            <div class="space-y-4">
+                
+                <!-- Welcome Banner & Governance Header -->
+                <div class="bg-white p-4 rounded-xl shadow-xs border border-gray-200">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-xl text-red-600">
+                                <i class="fas fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-base font-bold text-gray-800 tracking-tight">System Governance & SuperAdmin</h2>
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-red-100 text-red-700 uppercase tracking-wide">CEO LEVEL</span>
+                                </div>
+                                <p class="text-[11px] text-gray-500 mt-0.5">Master 40 Policy Slots, Margin Floor Gates (25%/35%), 19 RBAC Roles & Enterprise Audit Logs</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Quick Action CTA Buttons -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="policy-slots.html" class="bg-[#1e2552] hover:bg-[#151a3a] text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                                <i class="fas fa-sliders text-xs"></i> 40 Policy Slots
+                            </a>
+                            <a href="commercial-margins.html" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                                <i class="fas fa-percent text-xs"></i> Margin Override Desk
+                            </a>
+                            <a href="roles.html" class="bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-xs">
+                                <i class="fas fa-user-shield text-purple-600"></i> 19 Roles Matrix
+                            </a>
+                            <a href="audit-logs.html" class="bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-xs">
+                                <i class="fas fa-clipboard-list text-amber-600"></i> Audit Trail
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Alert Ribbon -->
+                    <div class="mt-4 bg-amber-50/70 border border-amber-200/80 rounded-lg p-2.5 flex items-center justify-between text-[11px] font-semibold text-amber-900">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-triangle-exclamation text-amber-600"></i>
+                            <span>Commercial Governance: <strong>${pendingOverrides.length} Quote Margin Override Request(s)</strong> awaiting CEO sign-off.</span>
+                        </div>
+                        <a href="commercial-margins.html" class="text-amber-800 hover:text-amber-950 font-bold underline text-[10.5px]">Review Override Queue &rarr;</a>
+                    </div>
+                </div>
+
+                <!-- 4 Top Governance KPI Summary Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    
+                    <!-- KPI 1: Master Policy Slots -->
+                    <div class="bg-white p-3.5 rounded-xl shadow-xs border border-gray-100 hover:border-indigo-300 transition group cursor-pointer" onclick="window.location.href='policy-slots.html'">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider">Master Policy Slots</p>
+                            <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs group-hover:bg-indigo-600 group-hover:text-white transition">
+                                <i class="fas fa-sliders"></i>
+                            </span>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-gray-900 mt-1">${slotsCount} Slots</h4>
+                        <div class="flex items-center justify-between text-[9.5px] mt-1.5 pt-1.5 border-t border-gray-50">
+                            <span class="text-indigo-600 font-semibold">SiteStaff, CostBuild, Terms</span>
+                            <span class="text-gray-400">100% Active</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2: Commercial Margin Policy -->
+                    <div class="bg-white p-3.5 rounded-xl shadow-xs border border-gray-100 hover:border-emerald-300 transition group cursor-pointer" onclick="window.location.href='commercial-margins.html'">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider">Margin Floor Policy</p>
+                            <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs group-hover:bg-emerald-600 group-hover:text-white transition">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-emerald-600 mt-1">${state.margins.primaryPercent}% Floor / ${state.margins.alternatePercent}% Target</h4>
+                        <div class="flex items-center justify-between text-[9.5px] mt-1.5 pt-1.5 border-t border-gray-50">
+                            <span class="text-emerald-700 font-semibold"><i class="fas fa-shield-alt mr-0.5"></i> Hard Block Active</span>
+                            <span class="text-gray-400">${state.margins.lockDefaults ? 'Locked' : 'Unlocked'}</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3: Enterprise RBAC Roles -->
+                    <div class="bg-white p-3.5 rounded-xl shadow-xs border border-gray-100 hover:border-purple-300 transition group cursor-pointer" onclick="window.location.href='roles.html'">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider">RBAC Security Matrix</p>
+                            <span class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-xs group-hover:bg-purple-600 group-hover:text-white transition">
+                                <i class="fas fa-users-gear"></i>
+                            </span>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-purple-700 mt-1">${rolesCount} Roles</h4>
+                        <div class="flex items-center justify-between text-[9.5px] mt-1.5 pt-1.5 border-t border-gray-50">
+                            <span class="text-purple-600 font-semibold">SoD Constraints Enforced</span>
+                            <span class="text-gray-400">47 Total Users</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4: Enterprise Audit Trail -->
+                    <div class="bg-white p-3.5 rounded-xl shadow-xs border border-gray-100 hover:border-amber-300 transition group cursor-pointer" onclick="window.location.href='audit-logs.html'">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider">Audit Trail Events</p>
+                            <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center text-xs group-hover:bg-amber-600 group-hover:text-white transition">
+                                <i class="fas fa-fingerprint"></i>
+                            </span>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-amber-700 mt-1">${auditCount} Events</h4>
+                        <div class="flex items-center justify-between text-[9.5px] mt-1.5 pt-1.5 border-t border-gray-50">
+                            <span class="text-amber-700 font-semibold">100% Immutable</span>
+                            <span class="text-gray-400">Tamper-Proof</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Governance Section: 2 Columns (Policy Categories & Recent Audit Logs) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    
+                    <!-- Left: 40 Policy Slots by Category Overview (2 Cols) -->
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                        <div class="p-3.5 border-b border-gray-100 flex items-center justify-between bg-slate-50/50">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-layer-group text-slate-500 text-xs"></i>
+                                <h3 class="text-xs font-bold text-gray-800">40 CEO Master Policy Slots (Domain Categories)</h3>
+                            </div>
+                            <a href="policy-slots.html" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Manage All 40 Slots &rarr;</a>
+                        </div>
+                        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            
+                            <!-- Category 1: SiteStaff (20 slots) -->
+                            <div class="p-3 rounded-lg border border-indigo-100 bg-indigo-50/30 hover:border-indigo-300 transition cursor-pointer" onclick="window.location.href='policy-slots.html?cat=SiteStaff'">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+                                        <i class="fas fa-person-digging text-indigo-600"></i> SiteStaff Rules
+                                    </span>
+                                    <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800">20 Slots</span>
+                                </div>
+                                <p class="text-[11px] text-gray-600">28 km/L Fuel, 1,800/18,000 maintenance, 15-min late grace (3 lates = 1 day deduction), meal stipends, 1% gaming/call penalties.</p>
+                            </div>
+
+                            <!-- Category 2: CostBuild (6 slots) -->
+                            <div class="p-3 rounded-lg border border-emerald-100 bg-emerald-50/30 hover:border-emerald-300 transition cursor-pointer" onclick="window.location.href='policy-slots.html?cat=CostBuild'">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                                        <i class="fas fa-calculator text-emerald-600"></i> CostBuild Engine
+                                    </span>
+                                    <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">6 Slots</span>
+                                </div>
+                                <p class="text-[11px] text-gray-600">GI Sheet (285 PKR/kg), NBR Insulation (920 PKR/m²), Labor (12%), Machining (8%), Transport (3%), Wastage (5%).</p>
+                            </div>
+
+                            <!-- Category 3: QuoteTerms (7 slots) -->
+                            <div class="p-3 rounded-lg border border-purple-100 bg-purple-50/30 hover:border-purple-300 transition cursor-pointer" onclick="window.location.href='policy-slots.html?cat=QuoteTerms'">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="text-xs font-bold text-purple-900 flex items-center gap-1.5">
+                                        <i class="fas fa-file-contract text-purple-600"></i> Quote Annexure-A
+                                    </span>
+                                    <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">7 Slots</span>
+                                </div>
+                                <p class="text-[11px] text-gray-600">Payment Milestones (65% / 30% / 5%), FX / Duty clause, Ex-Stock delivery, Tax exclusive block, Sign-off: Zeeshan Ashraf (CEO).</p>
+                            </div>
+
+                            <!-- Category 4: Import & Landed Cost (3 slots) -->
+                            <div class="p-3 rounded-lg border border-blue-100 bg-blue-50/30 hover:border-blue-300 transition cursor-pointer" onclick="window.location.href='policy-slots.html?cat=Import'">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                                        <i class="fas fa-ship text-blue-600"></i> Import Landed Cost
+                                    </span>
+                                    <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">3 Slots</span>
+                                </div>
+                                <p class="text-[11px] text-gray-600">HS Customs Tariff Duty (11.0%), Sea/Air Freight (4.5%), Port Wharfage & Clearing Extras (3.5%).</p>
+                            </div>
+
+                            <!-- Category 5: Department & Commercial (4 slots) -->
+                            <div class="p-3 rounded-lg border border-amber-100 bg-amber-50/30 hover:border-amber-300 transition cursor-pointer" onclick="window.location.href='policy-slots.html?cat=Commercial'">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                                        <i class="fas fa-building-columns text-amber-600"></i> Commercial & SLAs
+                                    </span>
+                                    <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">4 Slots</span>
+                                </div>
+                                <p class="text-[11px] text-gray-600">Commercial advance (65%), Quote validity (15 days), Application Engineering review SLA (24 hours).</p>
+                            </div>
+
+                            <!-- Category 6: 17 SOP Stages Gating -->
+                            <div class="p-3 rounded-lg border border-slate-200 bg-slate-50/50 hover:border-slate-400 transition cursor-pointer" onclick="window.location.href='sop-stages.html'">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        <i class="fas fa-route text-slate-600"></i> SOP Stage Gatekeeper
+                                    </span>
+                                    <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">17 Stages</span>
+                                </div>
+                                <p class="text-[11px] text-gray-600">Track 0 (Project Execution: 9 stages) and Track 1 (Factory Manufacturing: 8 stages) with mandatory checklist enforcement.</p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Right: Live System Audit Trail Stream (1 Col) -->
+                    <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden flex flex-col">
+                        <div class="p-3.5 border-b border-gray-100 flex items-center justify-between bg-slate-50/50">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-clock-rotate-left text-slate-500 text-xs"></i>
+                                <h3 class="text-xs font-bold text-gray-800">Recent Audit Logs</h3>
+                            </div>
+                            <a href="audit-logs.html" class="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800">View All &rarr;</a>
+                        </div>
+                        <div class="p-3 flex-1 overflow-y-auto max-h-[380px] space-y-2.5">
+                            ${state.auditLogs.slice(0, 6).map(log => `
+                                <div class="p-2.5 rounded-lg border border-gray-100 bg-gray-50/50 hover:bg-white hover:border-gray-200 transition text-[11px]">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-gray-800">${log.action}</span>
+                                        <span class="text-[9.5px] text-gray-400">${log.timestamp.split(' ')[1] || log.timestamp}</span>
+                                    </div>
+                                    <p class="text-gray-600 text-[10.5px] mt-0.5">${log.reason}</p>
+                                    <div class="flex items-center justify-between mt-1.5 text-[9.5px] text-gray-400">
+                                        <span class="font-mono bg-white px-1.5 py-0.5 rounded border border-gray-100">${log.entityId}</span>
+                                        <span class="text-indigo-600 font-semibold">${log.user.split('@')[0]}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        `);
+    </script>
+</body>
+</html>
+

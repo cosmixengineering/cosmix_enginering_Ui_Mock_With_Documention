@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance & General Ledger Control - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <script src="../assets/js/finance-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('dashboard');
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-12">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold border border-indigo-200 text-[10px] tracking-wider uppercase">Financial Control</span>
+                                <span class="text-slate-400 text-xs">•</span>
+                                <span class="text-xs text-slate-500 font-medium">General Ledger, COA & Period Lock Governance</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-slate-800 mt-0.5">General Ledger & Financial Controller</h1>
+                            <p class="text-[11px] text-slate-500">Double-entry balanced accounting (Dr=Cr), 4-digit Chart of Accounts, live Trial Balance and AR/AP Aging schedules.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="journals.html" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-plus"></i> New Journal Entry (JV)
+                            </a>
+                            <a href="trial-balance.html" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-scale-unbalanced"></i> Trial Balance
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- KPI Financial Health Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">GL Net Revenue</span>
+                                <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-arrow-trend-up"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-slate-800 font-mono">PKR 52.85M</span>
+                                <span class="text-[10px] text-emerald-600 font-semibold">Account 4100+4200</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">Contracting & Service Revenue</p>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">Trade Receivables (AR)</span>
+                                <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-user-clock"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-amber-700 font-mono">PKR 24.85M</span>
+                                <a href="ar-aging.html" class="text-[10px] text-amber-600 font-semibold hover:underline">Aging &rarr;</a>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">Account 1400 (5 Major Clients)</p>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">Trade Payables (AP)</span>
+                                <div class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-purple-700 font-mono">PKR 16.90M</span>
+                                <a href="ap-aging.html" class="text-[10px] text-purple-600 font-semibold hover:underline">Aging &rarr;</a>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">Account 2100 (Suppliers & Mill POs)</p>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-500">Active Fiscal Period</span>
+                                <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-lg font-bold text-slate-800 font-mono">Sep 2026</span>
+                                <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">OPEN</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1">FY 2026-2027 Monthly Lock</p>
+                        </div>
+                    </div>
+
+                    <!-- Main Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        
+                        <!-- Recent Journal Entries Table (2 Cols) -->
+                        <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200/80 shadow-xs flex flex-col">
+                            <div class="p-3.5 border-b border-slate-100 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-book-journal-whills text-emerald-600"></i>
+                                    <h2 class="font-bold text-slate-800 text-sm">Recent General Ledger Vouchers (JVs)</h2>
+                                </div>
+                                <a href="journals.html" class="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700">View All JVs &rarr;</a>
+                            </div>
+                            <div class="overflow-x-auto flex-1">
+                                <table class="w-full text-left text-[11px]">
+                                    <thead class="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-100">
+                                        <tr>
+                                            <th class="py-2.5 px-3">Voucher #</th>
+                                            <th class="py-2.5 px-3">Date</th>
+                                            <th class="py-2.5 px-3">Narration & Reference</th>
+                                            <th class="py-2.5 px-3 text-right">Debit (PKR)</th>
+                                            <th class="py-2.5 px-3 text-right">Credit (PKR)</th>
+                                            <th class="py-2.5 px-3 text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="jv-table-body" class="divide-y divide-slate-100">
+                                        <!-- Dynamically Populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Quick GL & COA Breakdown (1 Col) -->
+                        <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs flex flex-col">
+                            <div class="p-3.5 border-b border-slate-100 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-sitemap text-indigo-600"></i>
+                                    <h2 class="font-bold text-slate-800 text-sm">Chart of Accounts Summary</h2>
+                                </div>
+                                <a href="chart-of-accounts.html" class="text-[11px] font-semibold text-indigo-600 hover:text-indigo-700">Explore COA &rarr;</a>
+                            </div>
+                            <div class="p-3.5 space-y-2.5 flex-1 overflow-y-auto" id="coa-quick-list">
+                                <!-- Populated Dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flow Infographic Banner -->
+                    <div class="bg-linear-to-r from-indigo-950 to-slate-900 text-white p-4 rounded-xl shadow-xs">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="font-bold text-sm text-indigo-300 flex items-center gap-2">
+                                    <i class="fas fa-scale-balanced"></i> Double-Entry Balanced Governance
+                                </h3>
+                                <p class="text-slate-300 text-[11px] mt-1">
+                                    All operational transactions (Sales IPCs, 3-Way Match Vendor Bills, Biometric Payroll) generate balanced double-entry JVs ($Dr = Cr$) and post instantly to the General Ledger.
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <a href="fiscal-periods.html" class="px-3 py-1.5 bg-indigo-500 hover:bg-indigo-400 text-slate-900 font-bold rounded-lg text-[11px] transition-all">
+                                    <i class="fas fa-lock mr-1"></i> Period Locks
+                                </a>
+                                <a href="trial-balance.html" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[11px] font-medium border border-white/20 transition-all">
+                                    <i class="fas fa-scale-unbalanced mr-1"></i> Trial Balance
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderDashboardData();
+        });
+
+        function renderDashboardData() {
+            const jvs = CosmixFinance.getJournalEntries();
+            const coa = CosmixFinance.getChartOfAccounts();
+
+            const jvBody = document.getElementById('jv-table-body');
+            if (jvBody) {
+                jvBody.innerHTML = jvs.map(j => `
+                    <tr class="hover:bg-slate-50/80 transition-all">
+                        <td class="py-2.5 px-3 font-mono font-bold text-emerald-700">
+                            <a href="journals.html" class="hover:underline">${j.voucherNo}</a>
+                        </td>
+                        <td class="py-2.5 px-3 text-slate-500 font-mono">${j.voucherDate}</td>
+                        <td class="py-2.5 px-3">
+                            <div class="font-medium text-slate-800">${j.reference}</div>
+                            <div class="text-[9.5px] text-slate-400 truncate max-w-xs">${j.narration}</div>
+                        </td>
+                        <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-800">PKR ${j.totalDebitPkr.toLocaleString()}</td>
+                        <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-800">PKR ${j.totalCreditPkr.toLocaleString()}</td>
+                        <td class="py-2.5 px-3 text-center">
+                            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
+                                ${j.status}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const coaBox = document.getElementById('coa-quick-list');
+            if (coaBox) {
+                coaBox.innerHTML = coa.slice(0, 6).map(acc => `
+                    <div class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-100 text-[11px]">
+                        <div>
+                            <span class="font-mono font-bold text-indigo-700">${acc.code}</span>
+                            <span class="text-slate-700 font-medium ml-1.5">${acc.name}</span>
+                        </div>
+                        <div class="font-mono font-bold text-slate-800 text-[10.5px]">
+                            PKR ${acc.balancePkr.toLocaleString()}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    </script>
+</body>
+</html>

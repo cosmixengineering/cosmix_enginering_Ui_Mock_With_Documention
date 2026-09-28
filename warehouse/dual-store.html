@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual-Store Architecture (Store 1 Physical vs Store 2 Virtual) - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <!-- Dual-Store Transfer Pick List Modal -->
+    <div id="transfer-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 flex flex-col max-h-[92vh] overflow-hidden animate-fadeIn">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-[#1e2552] text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-amber-400 text-sm font-bold shadow-inner">
+                        <i class="fas fa-right-left"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-white tracking-wide">Dual-Store Transfer Pick List</h3>
+                        <p class="text-[11px] text-slate-300">Issue stock from Central Physical Warehouse to Project Site Virtual Store.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeTransferModal()" class="text-slate-300 hover:text-white transition-colors text-base p-1">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <form id="transfer-form" onsubmit="handleTransferSubmit(event)" class="p-6 space-y-4 overflow-y-auto">
+                
+                <!-- Store Source and Destination -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span> Source Store *
+                        </label>
+                        <select id="src-store" onchange="updateTransferStoreLabels(); checkTransferBalances();" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-[#1e2552] focus:ring-1 focus:ring-[#1e2552] transition-all">
+                            <option value="Store 1 (Central Warehouse)">Store 1: Central Physical Warehouse (Plot 12-C Korangi)</option>
+                            <option value="Store 2 (Site Virtual Store)">Store 2: Floor / Site Virtual Store (Project Issue)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-teal-500"></span> Destination Store *
+                        </label>
+                        <select id="dst-store" onchange="checkTransferBalances();" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-[#1e2552] focus:ring-1 focus:ring-[#1e2552] transition-all">
+                            <option value="Store 2 (Site Virtual Store)">Store 2: Floor / Site Virtual Store (Project Issue)</option>
+                            <option value="Store 1 (Central Warehouse)">Store 1: Central Physical Warehouse (Plot 12-C Korangi)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Item Selection -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                        <span>Select Master Catalog Item (306 Standard SKUs) *</span>
+                        <span id="selected-item-stock-preview" class="font-mono text-[10px] text-amber-700 font-bold"></span>
+                    </label>
+                    <select id="transfer-item" required onchange="onItemSelectionChanged()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono text-slate-800 outline-none focus:border-[#1e2552] focus:ring-1 focus:ring-[#1e2552] transition-all bg-white">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <!-- Target Project Site -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Target MEP Project Site / Installation Job *
+                    </label>
+                    <select id="transfer-site" required onchange="onSiteSelectionChanged()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-[#1e2552] focus:ring-1 focus:ring-[#1e2552] transition-all bg-white">
+                        <option value="DHA Phase 8 — HVAC & MEP Complex">DHA Phase 8 — HVAC & MEP Commercial Complex</option>
+                        <option value="Clifton Commercial Tower">Clifton Commercial Tower — Multi-Story Office Fitout</option>
+                        <option value="Lucky Motor Assembly Plant">Lucky Motor Assembly Plant — Cleanroom AHU & VRF</option>
+                        <option value="Korangi Workshop & Fabrication Bay">Korangi Workshop & Fabrication Bay</option>
+                        <option value="Bahria Icon Tower Retrofit">Bahria Icon Tower — Chilled Water Retrofit</option>
+                    </select>
+                </div>
+
+                <!-- Quantity & Gate Challan Reference -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Transfer Quantity * <span id="transfer-uom-label" class="text-slate-400 font-normal"></span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" step="any" min="0.01" id="transfer-qty" required oninput="checkTransferBalances()" placeholder="e.g. 10" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-800 outline-none focus:border-[#1e2552] focus:ring-1 focus:ring-[#1e2552]">
+                            <span id="transfer-qty-uom-tag" class="absolute right-3 top-2 text-[10px] text-slate-400 font-mono font-semibold"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Gate Pass / Delivery Challan Ref *
+                        </label>
+                        <input type="text" id="transfer-ref" required placeholder="e.g. CH-2026-095" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono text-slate-800 outline-none focus:border-[#1e2552] focus:ring-1 focus:ring-[#1e2552]">
+                    </div>
+                </div>
+
+                <!-- Logistics & Receiver Person -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Assigned Dispatcher / Rider *
+                        </label>
+                        <select id="transfer-rider" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-800 outline-none focus:border-[#1e2552] focus:ring-1 focus:ring-[#1e2552] bg-white">
+                            <option value="Nadeem — Company Driver">Nadeem — Company Driver (0300-0000002)</option>
+                            <option value="Imran — Logistics Officer">Imran — Logistics Officer (0300-0000001)</option>
+                            <option value="Zubair — Third-Party Hauler">Zubair — Third-Party Hauler (0321-9988771)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Receiving Site Supervisor / Engineer *
+                        </label>
+                        <input type="text" id="transfer-supervisor" required value="Ali Raza (Site Engineer)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-800 outline-none focus:border-[#1e2552] focus:ring-1 focus:ring-[#1e2552]">
+                    </div>
+                </div>
+
+                <!-- Live Balance Impact Preview Box -->
+                <div id="balance-impact-box" class="p-3.5 bg-blue-50/70 rounded-xl border border-blue-200 text-slate-700 space-y-2">
+                    <div class="flex items-center justify-between text-[11px] font-bold text-blue-950">
+                        <span><i class="fas fa-calculator text-blue-600 mr-1.5"></i> Live Dual-Store Balance Impact</span>
+                        <span id="impact-valuation" class="font-mono text-xs font-bold text-blue-800">PKR 0.00</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-[10.5px]">
+                        <div class="bg-white p-2 rounded-lg border border-blue-100">
+                            <span class="text-slate-500 font-semibold block text-[10px]">Store 1 (Central Physical):</span>
+                            <span id="impact-store1-change" class="font-mono font-bold text-slate-800">-</span>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg border border-blue-100">
+                            <span class="text-slate-500 font-semibold block text-[10px]">Store 2 (Site Virtual):</span>
+                            <span id="impact-store2-change" class="font-mono font-bold text-slate-800">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Managerial Negative Override (if needed) -->
+                <div id="override-section" class="p-3 bg-amber-50 rounded-xl border border-amber-200 hidden space-y-2">
+                    <div class="flex items-start gap-2">
+                        <input type="checkbox" id="transfer-override" onchange="toggleOverrideReason(this.checked)" class="mt-0.5 w-4 h-4 rounded text-[#1e2552] focus:ring-[#1e2552]">
+                        <label for="transfer-override" class="text-[11px] font-bold text-amber-900 cursor-pointer">
+                            Authorize Managerial Negative Stock Override (Immediate Project Priority)
+                        </label>
+                    </div>
+                    <div id="override-reason-container" class="hidden">
+                        <input type="text" id="transfer-override-reason" placeholder="State explicit justification (e.g. Critical tender commissioning deadline authorized by Director)" class="w-full px-2.5 py-1.5 bg-white border border-amber-300 rounded-lg text-xs outline-none">
+                    </div>
+                </div>
+
+                <!-- Remarks -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Transfer Purpose / Technical Notes
+                    </label>
+                    <textarea id="transfer-notes" rows="2" placeholder="e.g. Material picked for 3rd floor AHU ducting and refrigerant piping line" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none focus:border-[#1e2552] focus:ring-1 focus:ring-[#1e2552]"></textarea>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+                    <button type="button" onclick="closeTransferModal()" class="px-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" id="btn-submit-transfer" class="px-5 py-2 bg-[#1e2552] hover:bg-[#2c3672] text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2 transition-all">
+                        <i class="fas fa-check-circle text-amber-400"></i> Execute Transfer & Update Ledger
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/inventory-dual-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        let currentFilterFamily = '';
+        let currentFilterStatus = '';
+        let currentSearchTerm = '';
+        let currentActiveTab = 'matrix'; // 'matrix' or 'ledger'
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('dual-store');
+            renderDualStoreDashboard();
+            populateItemDropdown();
+            window.addEventListener('dualstore:updated', () => {
+                renderDualStoreDashboard();
+            });
+        });
+
+        function renderDualStoreDashboard() {
+            const kpis = window.DualStoreEngine.getKPIs();
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-16">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-[#1e2552] text-[11px] font-semibold"><i class="fas fa-arrow-left mr-1"></i> Warehouse</a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-[#1e2552] uppercase tracking-wider">Dual-Store Engine</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-slate-900 mt-0.5">Dual-Store Architecture (Physical vs Virtual Site Allocation)</h1>
+                            <p class="text-[11px] text-slate-500">Realtime segregation: <strong>Store 1</strong> (Central Master Stock — Plot 12-C Korangi) vs <strong>Store 2</strong> (Floor / Site Virtual Store issued to active MEP projects).</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="store-browser.html" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-sitemap text-teal-600"></i> 15 Families Catalog (306 SKUs)
+                            </a>
+                            <button onclick="openTransferModal()" class="px-4 py-1.5 bg-[#1e2552] hover:bg-[#2c3672] text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-2 transition-all">
+                                <i class="fas fa-right-left text-amber-400"></i> New Transfer Pick List
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dual Store KPI Summary Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                        
+                        <!-- Store 1 Physical Card -->
+                        <div class="bg-white rounded-xl border border-amber-200/80 shadow-xs p-4 flex flex-col justify-between relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-16 h-16 bg-amber-50 rounded-bl-full pointer-events-none -mr-4 -mt-4 opacity-50"></div>
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shadow-xs">
+                                            1
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800 text-xs">Store 1: Central Warehouse</h3>
+                                            <p class="text-[10px] text-slate-400">Plot 12-C Industrial Area Korangi</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[9px] font-extrabold uppercase">PHYSICAL MASTER</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 mt-3.5 bg-slate-50/80 p-2.5 rounded-lg border border-slate-100">
+                                    <div>
+                                        <span class="text-[9px] text-slate-400 font-bold uppercase block">On-Hand Stock</span>
+                                        <div class="font-mono font-bold text-slate-900 text-sm mt-0.5">${kpis.store1Units.toLocaleString()} Units</div>
+                                    </div>
+                                    <div>
+                                        <span class="text-[9px] text-slate-400 font-bold uppercase block">Stock Valuation</span>
+                                        <div class="font-mono font-bold text-amber-700 text-sm mt-0.5">PKR ${(kpis.store1Valuation / 1000000).toFixed(2)}M</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Store 2 Virtual Card -->
+                        <div class="bg-white rounded-xl border border-teal-200/80 shadow-xs p-4 flex flex-col justify-between relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-16 h-16 bg-teal-50 rounded-bl-full pointer-events-none -mr-4 -mt-4 opacity-50"></div>
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs shadow-xs">
+                                            2
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800 text-xs">Store 2: Project Sites</h3>
+                                            <p class="text-[10px] text-slate-400">Virtual Allocation to Active Jobs</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-[9px] font-extrabold uppercase">SITE VIRTUAL</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 mt-3.5 bg-slate-50/80 p-2.5 rounded-lg border border-slate-100">
+                                    <div>
+                                        <span class="text-[9px] text-slate-400 font-bold uppercase block">Site Issued</span>
+                                        <div class="font-mono font-bold text-slate-900 text-sm mt-0.5">${kpis.store2Units.toLocaleString()} Units</div>
+                                    </div>
+                                    <div>
+                                        <span class="text-[9px] text-slate-400 font-bold uppercase block">Site Valuation</span>
+                                        <div class="font-mono font-bold text-teal-700 text-sm mt-0.5">PKR ${(kpis.store2Valuation / 1000000).toFixed(2)}M</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Consolidated Valuation Card -->
+                        <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Consolidated Master</span>
+                                <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-xs">
+                                    <i class="fas fa-boxes-stacked"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <span class="text-xl font-bold font-mono text-slate-900">PKR ${(kpis.totalValuation / 1000000).toFixed(2)}M</span>
+                                <p class="text-[10px] text-slate-400 mt-0.5 font-medium">${kpis.totalSkus} Active SKUs across 15 Families</p>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
+                                <span class="text-slate-500">Active Project Floors:</span>
+                                <span class="font-bold text-slate-800 font-mono">${kpis.activeSitesCount} Sites</span>
+                            </div>
+                        </div>
+
+                        <!-- Reconciliation Card -->
+                        <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ledger Reconciliation</span>
+                                <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs">
+                                    <i class="fas fa-shield-check"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-2">
+                                <span class="text-xl font-bold font-mono text-emerald-700">100.0%</span>
+                                <span class="text-[10px] text-emerald-600 font-bold uppercase">Zero Shrinkage</span>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
+                                <span class="text-slate-500">Audit Ledger Logs:</span>
+                                <span class="font-bold text-[#1e2552] font-mono">${kpis.totalMovements} Transactions</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Navigation Tabs: Matrix vs Ledger -->
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <div class="flex items-center gap-2">
+                            <button onclick="switchTab('matrix')" id="tab-btn-matrix" class="px-4 py-2 rounded-lg text-xs font-bold transition-all ${currentActiveTab === 'matrix' ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}">
+                                <i class="fas fa-table-cells mr-1.5"></i> Dual-Store Live Stock Matrix (306 SKUs)
+                            </button>
+                            <button onclick="switchTab('ledger')" id="tab-btn-ledger" class="px-4 py-2 rounded-lg text-xs font-bold transition-all ${currentActiveTab === 'ledger' ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}">
+                                <i class="fas fa-list-check mr-1.5"></i> Append-Only Stock Movements Ledger (${kpis.totalMovements})
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="exportToCsv()" class="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-file-csv text-emerald-600"></i> Export CSV
+                            </button>
+                            <button onclick="window.print()" class="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-print text-slate-500"></i> Print Balance Sheet
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB 1: Live Stock Matrix Section -->
+                    <div id="section-matrix" class="${currentActiveTab === 'matrix' ? '' : 'hidden'} space-y-4">
+                        
+                        <!-- Search & Filter Controls -->
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[300px]">
+                                <div class="relative flex-1 max-w-sm">
+                                    <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-[11px]"></i>
+                                    <input type="text" id="matrix-search" oninput="onSearchChanged(this.value)" placeholder="Search code, generic/specific name, brand, bin..." class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#1e2552]">
+                                </div>
+                                <select id="matrix-family-filter" onchange="onFamilyFilterChanged(this.value)" class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 outline-none bg-white">
+                                    <option value="">All 15 Store Families</option>
+                                    ${window.DualStoreEngine.families.map(f => `
+                                        <option value="${f.code}">${f.code}: ${f.badge}</option>
+                                    `).join('')}
+                                </select>
+                                <select id="matrix-status-filter" onchange="onStatusFilterChanged(this.value)" class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 outline-none bg-white">
+                                    <option value="">All Stock Levels</option>
+                                    <option value="low">Low Stock (Below Safety Level)</option>
+                                    <option value="active_site">Active Site Virtual Allocation</option>
+                                    <option value="store1_only">Central Warehouse Only</option>
+                                </select>
+                            </div>
+                            <div class="text-[11px] text-slate-500 font-mono font-semibold" id="matrix-count-display">
+                                Showing 306 Items
+                            </div>
+                        </div>
+
+                        <!-- Live Comparison Table -->
+                        <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-[11px]">
+                                    <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                                        <tr>
+                                            <th class="py-2.5 px-3">Item Code</th>
+                                            <th class="py-2.5 px-3">Family & Category</th>
+                                            <th class="py-2.5 px-3">Item Description / Technical Spec</th>
+                                            <th class="py-2.5 px-3 text-center">Rack Bin</th>
+                                            <th class="py-2.5 px-3 text-right bg-amber-50/50 text-amber-900 border-l border-amber-100">Store 1 (Central Physical)</th>
+                                            <th class="py-2.5 px-3 text-right bg-teal-50/50 text-teal-900 border-l border-teal-100">Store 2 (Site Virtual)</th>
+                                            <th class="py-2.5 px-3 text-right border-l border-slate-200">Total On-Hand</th>
+                                            <th class="py-2.5 px-3 text-right">Standard Rate (PKR)</th>
+                                            <th class="py-2.5 px-3 text-center">Stock Status</th>
+                                            <th class="py-2.5 px-3 text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="matrix-tbody" class="divide-y divide-slate-100">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- TAB 2: Append-Only Stock Movements Ledger Section -->
+                    <div id="section-ledger" class="${currentActiveTab === 'ledger' ? '' : 'hidden'} space-y-4">
+                        
+                        <!-- Ledger Search & Filters -->
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex flex-wrap items-center gap-2 flex-1">
+                                <div class="relative flex-1 max-w-sm">
+                                    <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-[11px]"></i>
+                                    <input type="text" id="ledger-search" oninput="filterLedgerRows()" placeholder="Search Movement ID, Challan, Site, Item..." class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#1e2552]">
+                                </div>
+                                <select id="ledger-site-filter" onchange="filterLedgerRows()" class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 outline-none bg-white">
+                                    <option value="">All Project Sites</option>
+                                    <option value="DHA Phase 8">DHA Phase 8 — HVAC & MEP Complex</option>
+                                    <option value="Clifton Commercial Tower">Clifton Commercial Tower</option>
+                                    <option value="Lucky Motor">Lucky Motor Assembly Plant</option>
+                                    <option value="Korangi Workshop">Korangi Workshop & Fabrication Bay</option>
+                                    <option value="Bahria Icon">Bahria Icon Tower Retrofit</option>
+                                </select>
+                            </div>
+                            <div class="text-[11px] text-slate-500 font-semibold font-mono">
+                                Audit Trail: Immutable Append-Only Ledger
+                            </div>
+                        </div>
+
+                        <!-- Ledger Table -->
+                        <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-[11px]">
+                                    <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                                        <tr>
+                                            <th class="py-2.5 px-3">Movement ID</th>
+                                            <th class="py-2.5 px-3">Date & Time</th>
+                                            <th class="py-2.5 px-3">Item Details</th>
+                                            <th class="py-2.5 px-3 text-center">Direction</th>
+                                            <th class="py-2.5 px-3">Target Project Site</th>
+                                            <th class="py-2.5 px-3 text-right">Qty Transferred</th>
+                                            <th class="py-2.5 px-3">Challan / Ref</th>
+                                            <th class="py-2.5 px-3">Logistics & Receiver</th>
+                                            <th class="py-2.5 px-3 text-right">Valuation (PKR)</th>
+                                            <th class="py-2.5 px-3 text-center">Balance After (S1 / S2)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ledger-tbody" class="divide-y divide-slate-100 font-mono">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderMatrixRows();
+            renderLedgerRows();
+        }
+
+        function switchTab(tab) {
+            currentActiveTab = tab;
+            const secMatrix = document.getElementById('section-matrix');
+            const secLedger = document.getElementById('section-ledger');
+            const btnMatrix = document.getElementById('tab-btn-matrix');
+            const btnLedger = document.getElementById('tab-btn-ledger');
+
+            if (tab === 'matrix') {
+                secMatrix.classList.remove('hidden');
+                secLedger.classList.add('hidden');
+                btnMatrix.className = 'px-4 py-2 rounded-lg text-xs font-bold transition-all bg-[#1e2552] text-white shadow-xs';
+                btnLedger.className = 'px-4 py-2 rounded-lg text-xs font-bold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200';
+            } else {
+                secMatrix.classList.add('hidden');
+                secLedger.classList.remove('hidden');
+                btnLedger.className = 'px-4 py-2 rounded-lg text-xs font-bold transition-all bg-[#1e2552] text-white shadow-xs';
+                btnMatrix.className = 'px-4 py-2 rounded-lg text-xs font-bold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200';
+            }
+        }
+
+        function renderMatrixRows() {
+            const tbody = document.getElementById('matrix-tbody');
+            if (!tbody) return;
+
+            let items = window.DualStoreEngine.items;
+
+            if (currentFilterFamily) {
+                items = items.filter(i => i.familyCode === currentFilterFamily);
+            }
+
+            if (currentFilterStatus === 'low') {
+                items = items.filter(i => (Number(i.store1Stock) || 0) < (Number(i.minStock) || 0));
+            } else if (currentFilterStatus === 'active_site') {
+                items = items.filter(i => (Number(i.store2Stock) || 0) > 0);
+            } else if (currentFilterStatus === 'store1_only') {
+                items = items.filter(i => (Number(i.store2Stock) || 0) === 0 && (Number(i.store1Stock) || 0) > 0);
+            }
+
+            if (currentSearchTerm) {
+                const term = currentSearchTerm.toLowerCase();
+                items = items.filter(i => 
+                    i.code.toLowerCase().includes(term) ||
+                    i.name.toLowerCase().includes(term) ||
+                    i.description.toLowerCase().includes(term) ||
+                    i.brand.toLowerCase().includes(term) ||
+                    i.rack.toLowerCase().includes(term) ||
+                    i.model.toLowerCase().includes(term)
+                );
+            }
+
+            const countDisplay = document.getElementById('matrix-count-display');
+            if (countDisplay) {
+                countDisplay.textContent = `Showing ${items.length} of 306 Items`;
+            }
+
+            if (items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="py-8 text-center text-slate-400 font-sans">
+                            <i class="fas fa-boxes text-2xl mb-2 text-slate-300 block"></i>
+                            No items found matching the selected filter criteria.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = items.map(it => {
+                const totalStock = (Number(it.store1Stock) || 0) + (Number(it.store2Stock) || 0);
+                const isLow = (Number(it.store1Stock) || 0) < (Number(it.minStock) || 0);
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-2.5 px-3 font-mono font-bold text-[#1e2552] whitespace-nowrap">${it.code}</td>
+                        <td class="py-2.5 px-3 font-sans whitespace-nowrap">
+                            <span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                ${it.familyBadge || it.familyCode}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 font-sans">
+                            <div class="font-bold text-slate-800 text-xs">${it.name}</div>
+                            <div class="text-[10px] text-slate-500 line-clamp-1">${it.brand} · ${it.model} · ${it.description}</div>
+                        </td>
+                        <td class="py-2.5 px-3 text-center font-mono text-slate-600 text-[10px]">${it.rack}</td>
+                        <td class="py-2.5 px-3 text-right font-mono bg-amber-50/30 font-bold text-amber-900 border-l border-amber-100">
+                            ${it.store1Stock.toLocaleString()} <span class="text-[10px] text-amber-700/70">${it.uom}</span>
+                        </td>
+                        <td class="py-2.5 px-3 text-right font-mono bg-teal-50/30 font-bold text-teal-800 border-l border-teal-100">
+                            ${it.store2Stock.toLocaleString()} <span class="text-[10px] text-teal-600/70">${it.uom}</span>
+                        </td>
+                        <td class="py-2.5 px-3 text-right font-mono font-black text-slate-900 border-l border-slate-100">
+                            ${totalStock.toLocaleString()} <span class="text-[10px] text-slate-500 font-normal">${it.uom}</span>
+                        </td>
+                        <td class="py-2.5 px-3 text-right font-mono text-slate-800 font-semibold whitespace-nowrap">
+                            PKR ${it.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}
+                        </td>
+                        <td class="py-2.5 px-3 text-center font-sans whitespace-nowrap">
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold ${isLow ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
+                                ${isLow ? 'REORDER NEEDED' : 'HEALTHY MASTER'}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 text-center font-sans whitespace-nowrap">
+                            <button onclick="openTransferModal('${it.code}')" class="px-2.5 py-1 bg-slate-100 hover:bg-[#1e2552] hover:text-white text-slate-700 rounded-lg text-[10.5px] font-bold shadow-2xs transition-all flex items-center gap-1 mx-auto">
+                                <i class="fas fa-right-left text-[9px]"></i> Transfer
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderLedgerRows() {
+            const tbody = document.getElementById('ledger-tbody');
+            if (!tbody) return;
+
+            let movements = window.DualStoreEngine.movements;
+            const search = (document.getElementById('ledger-search')?.value || '').toLowerCase();
+            const siteFilter = document.getElementById('ledger-site-filter')?.value || '';
+
+            if (siteFilter) {
+                movements = movements.filter(m => m.projectSite.toLowerCase().includes(siteFilter.toLowerCase()));
+            }
+
+            if (search) {
+                movements = movements.filter(m => 
+                    m.id.toLowerCase().includes(search) ||
+                    m.itemCode.toLowerCase().includes(search) ||
+                    m.itemName.toLowerCase().includes(search) ||
+                    m.challanRef.toLowerCase().includes(search) ||
+                    m.projectSite.toLowerCase().includes(search)
+                );
+            }
+
+            if (movements.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="py-8 text-center text-slate-400 font-sans">
+                            No ledger movements recorded matching the criteria.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = movements.map(m => {
+                const isS1ToS2 = m.srcStore.indexOf('Store 1') !== -1;
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-2.5 px-3 font-bold text-[#1e2552]">${m.id}</td>
+                        <td class="py-2.5 px-3 text-slate-500 text-[10px] whitespace-nowrap">${m.date}</td>
+                        <td class="py-2.5 px-3 font-sans">
+                            <span class="font-mono font-bold text-slate-900">${m.itemCode}</span>
+                            <span class="text-slate-600 block text-[10px] font-medium line-clamp-1">${m.itemName}</span>
+                        </td>
+                        <td class="py-2.5 px-3 text-center whitespace-nowrap font-sans">
+                            <span class="px-2 py-0.5 rounded text-[9.5px] font-bold ${isS1ToS2 ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-teal-100 text-teal-900 border border-teal-200'}">
+                                ${isS1ToS2 ? 'Store 1 → Store 2 (Pick Issue)' : 'Store 2 → Store 1 (Site Return)'}
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 font-sans text-slate-700 font-medium">${m.projectSite}</td>
+                        <td class="py-2.5 px-3 text-right font-bold text-slate-900">${m.qty.toLocaleString()} ${m.uom}</td>
+                        <td class="py-2.5 px-3 font-bold text-slate-700">${m.challanRef}</td>
+                        <td class="py-2.5 px-3 font-sans text-[10.5px]">
+                            <div class="font-semibold text-slate-800">${m.rider}</div>
+                            <div class="text-[9.5px] text-slate-500">Recv: ${m.supervisor}</div>
+                        </td>
+                        <td class="py-2.5 px-3 text-right font-bold text-slate-800">PKR ${m.totalValuation.toLocaleString()}</td>
+                        <td class="py-2.5 px-3 text-center font-mono text-[10px] text-slate-600">
+                            S1: <span class="font-bold text-amber-800">${m.store1BalanceAfter}</span> | S2: <span class="font-bold text-teal-800">${m.store2BalanceAfter}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterLedgerRows() {
+            renderLedgerRows();
+        }
+
+        function onSearchChanged(val) {
+            currentSearchTerm = val;
+            renderMatrixRows();
+        }
+
+        function onFamilyFilterChanged(val) {
+            currentFilterFamily = val;
+            renderMatrixRows();
+        }
+
+        function onStatusFilterChanged(val) {
+            currentFilterStatus = val;
+            renderMatrixRows();
+        }
+
+        function populateItemDropdown(preselectCode = '') {
+            const select = document.getElementById('transfer-item');
+            if (!select) return;
+
+            const items = window.DualStoreEngine.items;
+            select.innerHTML = items.map(i => `
+                <option value="${i.code}" ${i.code === preselectCode ? 'selected' : ''}>
+                    ${i.code}: ${i.name} [S1 Stock: ${i.store1Stock} ${i.uom} | S2: ${i.store2Stock} ${i.uom}]
+                </option>
+            `).join('');
+
+            onItemSelectionChanged();
+        }
+
+        function onItemSelectionChanged() {
+            const itemCode = document.getElementById('transfer-item')?.value;
+            const item = window.DualStoreEngine.getItemByCode(itemCode);
+            if (!item) return;
+
+            const preview = document.getElementById('selected-item-stock-preview');
+            if (preview) {
+                preview.textContent = `Store 1 On-Hand: ${item.store1Stock} ${item.uom} | Store 2: ${item.store2Stock} ${item.uom}`;
+            }
+
+            const uomLabel = document.getElementById('transfer-uom-label');
+            if (uomLabel) uomLabel.textContent = `(${item.uom})`;
+
+            const uomTag = document.getElementById('transfer-qty-uom-tag');
+            if (uomTag) uomTag.textContent = item.uom;
+
+            checkTransferBalances();
+        }
+
+        function updateTransferStoreLabels() {
+            const src = document.getElementById('src-store').value;
+            const dst = document.getElementById('dst-store');
+            if (src.indexOf('Store 1') !== -1) {
+                dst.value = 'Store 2 (Site Virtual Store)';
+            } else {
+                dst.value = 'Store 1 (Central Warehouse)';
+            }
+        }
+
+        function onSiteSelectionChanged() {
+            const siteName = document.getElementById('transfer-site').value;
+            const supInput = document.getElementById('transfer-supervisor');
+            if (!supInput) return;
+
+            if (siteName.indexOf('DHA') !== -1) supInput.value = 'Ali Raza (Site Engineer)';
+            else if (siteName.indexOf('Clifton') !== -1) supInput.value = 'Usman Tariq (Project Supervisor)';
+            else if (siteName.indexOf('Lucky') !== -1) supInput.value = 'Tariq Mehmood (HSE Lead)';
+            else if (siteName.indexOf('Korangi') !== -1) supInput.value = 'Farhan Ali (Workshop Supervisor)';
+            else supInput.value = 'Kamran Shah (Mechanical Engineer)';
+        }
+
+        function checkTransferBalances() {
+            const itemCode = document.getElementById('transfer-item')?.value;
+            const item = window.DualStoreEngine.getItemByCode(itemCode);
+            if (!item) return;
+
+            const qty = Number(document.getElementById('transfer-qty')?.value || 0);
+            const src = document.getElementById('src-store')?.value || '';
+            const isS1ToS2 = src.indexOf('Store 1') !== -1;
+
+            const s1After = isS1ToS2 ? Math.round((item.store1Stock - qty) * 100) / 100 : Math.round((item.store1Stock + qty) * 100) / 100;
+            const s2After = isS1ToS2 ? Math.round((item.store2Stock + qty) * 100) / 100 : Math.round((item.store2Stock - qty) * 100) / 100;
+
+            const totalVal = Math.round(qty * item.unitPrice * 100) / 100;
+            const valElem = document.getElementById('impact-valuation');
+            if (valElem) valElem.textContent = `PKR ${totalVal.toLocaleString()}`;
+
+            const s1Elem = document.getElementById('impact-store1-change');
+            if (s1Elem) {
+                s1Elem.innerHTML = `${item.store1Stock} → <span class="${s1After < 0 ? 'text-rose-600 font-bold' : 'text-slate-900'}">${s1After} ${item.uom}</span>`;
+            }
+
+            const s2Elem = document.getElementById('impact-store2-change');
+            if (s2Elem) {
+                s2Elem.innerHTML = `${item.store2Stock} → <span class="${s2After < 0 ? 'text-rose-600 font-bold' : 'text-slate-900'}">${s2After} ${item.uom}</span>`;
+            }
+
+            const isNegative = isS1ToS2 ? (s1After < 0) : (s2After < 0);
+            const overrideSec = document.getElementById('override-section');
+            if (overrideSec) {
+                if (isNegative && qty > 0) {
+                    overrideSec.classList.remove('hidden');
+                } else {
+                    overrideSec.classList.add('hidden');
+                }
+            }
+        }
+
+        function toggleOverrideReason(checked) {
+            const reasonContainer = document.getElementById('override-reason-container');
+            if (reasonContainer) {
+                if (checked) reasonContainer.classList.remove('hidden');
+                else reasonContainer.classList.add('hidden');
+            }
+        }
+
+        function openTransferModal(code) {
+            const modal = document.getElementById('transfer-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            if (code) {
+                populateItemDropdown(code);
+            } else {
+                populateItemDropdown();
+            }
+
+            const refInput = document.getElementById('transfer-ref');
+            if (refInput && !refInput.value) {
+                refInput.value = 'CH-2026-' + Math.floor(100 + Math.random() * 900);
+            }
+        }
+
+        function closeTransferModal() {
+            const modal = document.getElementById('transfer-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function handleTransferSubmit(e) {
+            e.preventDefault();
+            const srcStore = document.getElementById('src-store').value;
+            const dstStore = document.getElementById('dst-store').value;
+            const itemCode = document.getElementById('transfer-item').value;
+            const qty = document.getElementById('transfer-qty').value;
+            const projectSite = document.getElementById('transfer-site').value;
+            const challanRef = document.getElementById('transfer-ref').value;
+            const rider = document.getElementById('transfer-rider').value;
+            const supervisor = document.getElementById('transfer-supervisor').value;
+            const notes = document.getElementById('transfer-notes').value;
+            const isOverride = document.getElementById('transfer-override')?.checked || false;
+            const overrideReason = document.getElementById('transfer-override-reason')?.value || '';
+
+            try {
+                const mov = window.DualStoreEngine.executeTransfer({
+                    srcStore,
+                    dstStore,
+                    itemCode,
+                    qty,
+                    projectSite,
+                    challanRef,
+                    rider,
+                    supervisor,
+                    notes,
+                    isOverride,
+                    overrideReason
+                });
+
+                closeTransferModal();
+                alert(`Dual-Store Transfer Pick List Executed Successfully!\n\nMovement ID: ${mov.id}\nItem: ${mov.itemCode} - ${mov.itemName}\nQuantity: ${mov.qty} ${mov.uom}\nDirection: ${mov.srcStore} -> ${mov.dstStore}\nProject: ${mov.projectSite}\nChallan: ${mov.challanRef}\nValuation: PKR ${mov.totalValuation.toLocaleString()}\n\nAppend-Only Stock Movement Ledger has been updated.`);
+                renderDualStoreDashboard();
+            } catch (err) {
+                alert('Transfer Validation Failed: ' + err.message);
+            }
+        }
+
+        function exportToCsv() {
+            const items = window.DualStoreEngine.items;
+            let csv = 'Item Code,Family,Generic Name,Specific Name,Brand,Model,Rack Bin,Store 1 Central Stock,Store 2 Site Virtual Stock,Total Stock,Unit of Measure,Unit Price PKR,Valuation PKR\n';
+            
+            items.forEach(i => {
+                const tot = (Number(i.store1Stock) || 0) + (Number(i.store2Stock) || 0);
+                const val = Math.round(tot * (Number(i.unitPrice) || 0));
+                csv += `"${i.code}","${i.familyName}","${i.genericName}","${i.specificName}","${i.brand}","${i.model}","${i.rack}",${i.store1Stock},${i.store2Stock},${tot},"${i.uom}",${i.unitPrice},${val}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Cosmix_Dual_Store_Inventory_Report_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+        }
+    </script>
+</body>
+</html>

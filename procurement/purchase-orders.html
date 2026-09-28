@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Orders (PO) & Contradiction Audit - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .badge-pulse {
+            animation: pulse-border 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <!-- Create PO Modal -->
+    <div id="po-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-3xl rounded-xl shadow-2xl border border-slate-200 flex flex-col max-h-[90vh]">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-[#1e2552] text-white flex items-center justify-center text-xs">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-[#1e2552]">Generate New Purchase Order</h3>
+                        <p class="text-[11px] text-slate-500">Bind to released Project BOM items & approved vendors.</p>
+                    </div>
+                </div>
+                <button onclick="closePoModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="create-po-form" class="p-5 overflow-y-auto space-y-4 flex-1">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Approved Vendor *</label>
+                        <select id="modal-vendor-select" required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-teal-500 outline-none">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Project & BOM Reference *</label>
+                        <input type="text" id="modal-project-ref" placeholder="e.g. PRJ-2026-050 (Packages Mall AHU Ducting)" required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-teal-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Payment Terms</label>
+                        <select id="modal-payment-terms" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-teal-500 outline-none">
+                            <option value="30 Days Net Credit">30 Days Net Credit</option>
+                            <option value="15 Days Credit">15 Days Credit</option>
+                            <option value="50% Advance / 50% on Delivery">50% Advance / 50% Delivery</option>
+                            <option value="100% Advance">100% Advance</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Required Delivery Date</label>
+                        <input type="date" id="modal-delivery-date" required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-teal-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Currency</label>
+                        <input type="text" value="PKR" readonly class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-500">
+                    </div>
+                </div>
+
+                <!-- Line items builder -->
+                <div class="border-t border-slate-100 pt-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-[11px] font-bold text-slate-700">Line Items & BOM Allocation</label>
+                        <button type="button" onclick="addModalLineItem()" class="text-[10.5px] font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1">
+                            <i class="fas fa-plus"></i> Add Line
+                        </button>
+                    </div>
+                    <div id="modal-line-items" class="space-y-2">
+                        <!-- Dynamic items -->
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1 text-[11px]">
+                    <div class="flex justify-between text-slate-600">
+                        <span>Subtotal (Excl. Tax):</span>
+                        <span id="modal-subtotal" class="font-mono font-semibold">PKR 0</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Sales Tax (18% GST):</span>
+                        <span id="modal-tax" class="font-mono font-semibold">PKR 0</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-slate-800 text-xs pt-1 border-t border-slate-200">
+                        <span>Total PO Commitment:</span>
+                        <span id="modal-total" class="font-mono text-teal-700">PKR 0</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Delivery & Quality Notes</label>
+                    <textarea id="modal-notes" rows="2" placeholder="e.g. Mill test certificates (MTC) required upon delivery at Factory Gate 2..." class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-teal-500 outline-none"></textarea>
+                </div>
+            </form>
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2">
+                <button type="button" onclick="closePoModal()" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
+                <button type="button" onclick="submitNewPo()" class="px-3.5 py-1.5 bg-[#1e2552] hover:bg-[#28326e] text-white rounded-lg text-xs font-bold shadow-xs">Generate & Issue PO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PO Details & 3-Way Reconciliation Modal -->
+    <div id="po-view-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl border border-slate-200 flex flex-col max-h-[92vh]">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded bg-[#1e2552] text-white font-mono font-bold text-xs" id="view-po-num">PO-2026-0101</span>
+                    <span class="text-xs text-slate-400">•</span>
+                    <span class="text-xs font-semibold text-slate-700" id="view-po-vendor">Vendor Name</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openThreeWayMatchDirect()" class="px-2.5 py-1 bg-teal-50 border border-teal-200 hover:bg-teal-100 text-teal-800 rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
+                        <i class="fas fa-cubes-stacked"></i> 3-Way Audit Engine
+                    </button>
+                    <button onclick="window.print()" class="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold shadow-2xs">
+                        <i class="fas fa-print mr-1"></i> Print / PDF
+                    </button>
+                    <button onclick="closeViewModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-5 flex-1 text-slate-800" id="po-view-body">
+                <!-- Injected PO Print Layout -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/procurement-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        let currentPoList = [];
+        let selectedPoForAudit = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('purchase-orders');
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-12">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-teal-600 text-[11px]"><i class="fas fa-arrow-left mr-1"></i> Dashboard</a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-teal-700 uppercase tracking-wider">Purchase Orders</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-[#1e2552] mt-0.5">Purchase Order Management & Contradiction Tracking</h1>
+                            <p class="text-[11px] text-slate-500">Contractual commitments issued to approved vendors with live 3-Way Match reconciliation status.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="three-way-match.html" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-cubes-stacked"></i> 3-Way Match Verification Hub
+                            </a>
+                            <button onclick="openPoModal()" class="px-3.5 py-1.5 bg-[#1e2552] hover:bg-[#28326e] text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-plus"></i> Create Purchase Order
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div class="flex items-center gap-2 flex-1 min-w-[280px]">
+                            <div class="relative w-full max-w-xs">
+                                <i class="fas fa-search absolute left-2.5 top-2.5 text-slate-400 text-[10px]"></i>
+                                <input type="text" id="po-search" oninput="filterOrders()" placeholder="Search PO #, Vendor, Project..." class="w-full pl-7 pr-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-teal-500 outline-none">
+                            </div>
+                            <select id="status-filter" onchange="filterOrders()" class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none">
+                                <option value="">All Lifecycle Statuses</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Issued">Issued</option>
+                                <option value="PartiallyReceived">Partially Received</option>
+                                <option value="Received">Fully Received</option>
+                                <option value="Invoiced">Invoiced / AP Matched</option>
+                            </select>
+                            <select id="reconciliation-filter" onchange="filterOrders()" class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none">
+                                <option value="">All 3-Way Match States</option>
+                                <option value="Matched">100% Reconciled (Matched)</option>
+                                <option value="ContradictionDetected">Contradiction Flagged</option>
+                                <option value="MissingGRN">Missing GRN Receipts</option>
+                                <option value="PendingGRN">Awaiting GRN Inward</option>
+                                <option value="PendingAudit">Awaiting Bill Audit</option>
+                            </select>
+                        </div>
+                        <div class="text-[11px] text-slate-500 font-medium" id="po-count-label">Showing 6 Purchase Orders</div>
+                    </div>
+
+                    <!-- PO List Table -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-100 text-[11px]">
+                                    <tr>
+                                        <th class="py-2.5 px-3">PO Number</th>
+                                        <th class="py-2.5 px-3">Issue Date</th>
+                                        <th class="py-2.5 px-3">Vendor</th>
+                                        <th class="py-2.5 px-3">Project Reference</th>
+                                        <th class="py-2.5 px-3 text-right">Total (PKR)</th>
+                                        <th class="py-2.5 px-3 text-center">Lifecycle</th>
+                                        <th class="py-2.5 px-3 text-center">3-Way Reconciliation</th>
+                                        <th class="py-2.5 px-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="po-rows" class="divide-y divide-slate-100 text-[11px]">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderPoTable();
+            populateVendorSelect();
+
+            // Support URL param ?po=PO-2026-XXXX
+            const urlParams = new URLSearchParams(window.location.search);
+            const poParam = urlParams.get('po');
+            if (poParam) {
+                viewPo(poParam);
+            }
+        });
+
+        function renderPoTable() {
+            currentPoList = CosmixProcurement.getPurchaseOrders();
+            filterOrders();
+        }
+
+        function filterOrders() {
+            const search = (document.getElementById('po-search')?.value || '').toLowerCase();
+            const status = document.getElementById('status-filter')?.value || '';
+            const reconStatus = document.getElementById('reconciliation-filter')?.value || '';
+
+            const filtered = currentPoList.filter(p => {
+                const matchSearch = p.poNumber.toLowerCase().includes(search) || 
+                                    p.vendorName.toLowerCase().includes(search) || 
+                                    p.projectRef.toLowerCase().includes(search);
+                const matchStatus = !status || p.status === status;
+                const matchRecon = !reconStatus || p.reconciliationStatus === reconStatus;
+                return matchSearch && matchStatus && matchRecon;
+            });
+
+            const countLabel = document.getElementById('po-count-label');
+            if (countLabel) countLabel.innerText = `Showing ${filtered.length} of ${currentPoList.length} Purchase Orders`;
+
+            const tbody = document.getElementById('po-rows');
+            if (!tbody) return;
+
+            tbody.innerHTML = filtered.map(p => {
+                let badgeClass = 'bg-slate-100 text-slate-600';
+                if (p.status === 'Issued') badgeClass = 'bg-blue-50 text-blue-700 border border-blue-200';
+                if (p.status === 'PartiallyReceived') badgeClass = 'bg-amber-50 text-amber-700 border border-amber-200';
+                if (p.status === 'Received') badgeClass = 'bg-teal-50 text-teal-700 border border-teal-200';
+                if (p.status === 'Invoiced') badgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+
+                // 3-Way Match Pill
+                let reconBadge = '<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-slate-100 text-slate-600">Pending</span>';
+                if (p.reconciliationStatus === 'Matched') {
+                    reconBadge = '<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><i class="fas fa-check-circle mr-1"></i> Reconciled</span>';
+                } else if (p.reconciliationStatus === 'ContradictionDetected') {
+                    reconBadge = '<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-rose-50 text-rose-700 border border-rose-200 badge-pulse"><i class="fas fa-triangle-exclamation mr-1"></i> Contradiction</span>';
+                } else if (p.reconciliationStatus === 'MissingGRN') {
+                    reconBadge = '<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-amber-50 text-amber-800 border border-amber-200"><i class="fas fa-truck-ramp-box mr-1"></i> Missing GRN</span>';
+                } else if (p.reconciliationStatus === 'PendingGRN') {
+                    reconBadge = '<span class="px-2 py-0.5 rounded text-[9.5px] font-semibold bg-blue-50 text-blue-700">Awaiting Inward</span>';
+                } else if (p.reconciliationStatus === 'ApprovedWithVariance') {
+                    reconBadge = '<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-purple-50 text-purple-700 border border-purple-200">Override Approved</span>';
+                } else if (p.reconciliationStatus === 'CreditNoteRequested') {
+                    reconBadge = '<span class="px-2 py-0.5 rounded text-[9.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Debit Advised</span>';
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition-all">
+                        <td class="py-2.5 px-3 font-mono font-bold text-teal-700">
+                            <button onclick="viewPo('${p.poNumber}')" class="hover:underline">${p.poNumber}</button>
+                        </td>
+                        <td class="py-2.5 px-3 text-slate-500 font-mono">${p.issueDate}</td>
+                        <td class="py-2.5 px-3">
+                            <div class="font-semibold text-slate-800">${p.vendorName}</div>
+                            <div class="text-[9.5px] text-slate-400 font-mono">NTN: ${p.vendorNtn}</div>
+                        </td>
+                        <td class="py-2.5 px-3 text-slate-600 truncate max-w-[200px]" title="${p.projectRef}">${p.projectRef}</td>
+                        <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-800">PKR ${p.totalPkr.toLocaleString()}</td>
+                        <td class="py-2.5 px-3 text-center">
+                            <span class="px-2 py-0.5 rounded-md text-[9.5px] font-bold ${badgeClass}">${p.status}</span>
+                        </td>
+                        <td class="py-2.5 px-3 text-center">
+                            ${reconBadge}
+                        </td>
+                        <td class="py-2.5 px-3 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <button onclick="viewPo('${p.poNumber}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[10.5px] font-semibold" title="View Details / Print">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="three-way-match.html?po=${p.poNumber}" class="px-2 py-1 bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 rounded text-[10.5px] font-semibold" title="3-Way Match Verification">
+                                    <i class="fas fa-cubes-stacked"></i>
+                                </a>
+                                ${p.status === 'Draft' ? `
+                                    <button onclick="approvePo('${p.poNumber}')" class="px-2 py-1 bg-[#1e2552] hover:bg-[#28326e] text-white rounded text-[10.5px] font-bold" title="Approve & Issue">
+                                        <i class="fas fa-paper-plane mr-1"></i> Issue
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function viewPo(poNumber) {
+            const po = CosmixProcurement.getPurchaseOrderById(poNumber);
+            if (!po) return;
+
+            selectedPoForAudit = po.poNumber;
+            document.getElementById('view-po-num').innerText = po.poNumber;
+            document.getElementById('view-po-vendor').innerText = po.vendorName;
+
+            // Find associated 3-Way Match if any
+            const match = CosmixProcurement.getThreeWayMatches().find(m => m.poNumber === po.poNumber);
+
+            const linesHtml = (po.lines || []).map((l, idx) => `
+                <tr class="border-b border-slate-100">
+                    <td class="py-2 px-3 font-mono text-slate-400 text-center">${idx + 1}</td>
+                    <td class="py-2 px-3 font-mono text-teal-700 font-semibold">${l.itemCode}</td>
+                    <td class="py-2 px-3 font-medium text-slate-800">${l.description}</td>
+                    <td class="py-2 px-3 text-right font-mono">${l.qtyOrdered} ${l.uom}</td>
+                    <td class="py-2 px-3 text-right font-mono">${l.qtyReceived || 0} ${l.uom}</td>
+                    <td class="py-2 px-3 text-right font-mono font-bold ${l.qtyInvoiced > l.qtyReceived ? 'text-rose-700' : 'text-slate-800'}">${l.qtyInvoiced || 0} ${l.uom}</td>
+                    <td class="py-2 px-3 text-right font-mono">PKR ${l.unitRatePkr.toLocaleString()}</td>
+                    <td class="py-2 px-3 text-right font-mono font-bold text-slate-800">PKR ${l.totalPkr.toLocaleString()}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('po-view-body').innerHTML = `
+                <!-- Contradiction Warning Alert Banner (if applicable) -->
+                ${match && (match.status === 'ContradictionDetected' || match.status === 'MissingGRN') ? `
+                    <div class="p-3 bg-rose-50 border border-rose-300 rounded-lg text-rose-950 text-[11px] space-y-1">
+                        <div class="font-bold flex items-center justify-between">
+                            <span class="flex items-center gap-1.5"><i class="fas fa-triangle-exclamation text-rose-600"></i> Active 3-Way Match Contradiction Flagged</span>
+                            <a href="three-way-match.html?po=${po.poNumber}" class="text-rose-700 font-bold underline hover:text-rose-900">Resolve in 3-Way Match Engine &rarr;</a>
+                        </div>
+                        <p class="text-[10.5px] text-rose-800">${match.contradictionSummary}</p>
+                    </div>
+                ` : ''}
+
+                <!-- Letterhead Header -->
+                <div class="flex justify-between items-start border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-base font-extrabold text-[#1e2552] tracking-tight">COSMIX ENGINEERING (PVT) LTD</h2>
+                        <p class="text-[10px] text-slate-500">HVAC, Cleanrooms & MEP Turnkey Solutions</p>
+                        <p class="text-[10px] text-slate-500">Plot 12-C, Industrial Estate, Karachi | NTN: 7291048-2</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-1 rounded border border-teal-200">Official Purchase Order</span>
+                        <div class="mt-2 font-mono text-sm font-bold text-slate-800">${po.poNumber}</div>
+                        <div class="text-[10px] text-slate-400 font-mono">Date: ${po.issueDate}</div>
+                    </div>
+                </div>
+
+                <!-- Vendor & Delivery Meta -->
+                <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3.5 rounded-lg border border-slate-200/80 text-[11px]">
+                    <div>
+                        <span class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Vendor (Supplier):</span>
+                        <div class="font-bold text-slate-800 mt-0.5">${po.vendorName}</div>
+                        <div class="text-slate-500 font-mono">NTN: ${po.vendorNtn} | STRN: ${po.vendorStrn || 'N/A'}</div>
+                        <div class="text-slate-500 mt-1">Payment Terms: <strong>${po.paymentTerms}</strong></div>
+                    </div>
+                    <div>
+                        <span class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Delivery & Project Allocation:</span>
+                        <div class="font-semibold text-slate-800 mt-0.5">${po.projectRef}</div>
+                        <div class="text-slate-500">BOM Ref: <strong class="font-mono text-teal-700">${po.bomRef}</strong></div>
+                        <div class="text-slate-500 mt-1">Delivery Target: <strong>${po.deliveryDate || 'ASAP'}</strong></div>
+                    </div>
+                </div>
+
+                <!-- Line Items Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-[11px]">
+                        <thead class="bg-slate-100 text-slate-600 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="py-2 px-3 text-center">#</th>
+                                <th class="py-2 px-3">Item Code</th>
+                                <th class="py-2 px-3">Item Description</th>
+                                <th class="py-2 px-3 text-right">PO Qty</th>
+                                <th class="py-2 px-3 text-right">GRN Inward</th>
+                                <th class="py-2 px-3 text-right">Invoiced Qty</th>
+                                <th class="py-2 px-3 text-right">Unit Rate (PKR)</th>
+                                <th class="py-2 px-3 text-right">Total (PKR)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${linesHtml}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Financial Summary -->
+                <div class="flex justify-end pt-2">
+                    <div class="w-72 bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1.5 text-[11px]">
+                        <div class="flex justify-between text-slate-600">
+                            <span>Subtotal (Excl. Tax):</span>
+                            <span class="font-mono font-semibold">PKR ${po.subtotalPkr.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>Sales Tax (18% GST):</span>
+                            <span class="font-mono font-semibold">PKR ${po.taxPkr.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-slate-800 text-xs pt-1.5 border-t border-slate-200">
+                            <span>Grand Total:</span>
+                            <span class="font-mono text-teal-700">PKR ${po.totalPkr.toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes & Authorizations -->
+                <div class="border-t border-slate-200 pt-3 text-[10.5px] text-slate-500 space-y-3">
+                    <div>
+                        <strong>Terms & Instructions:</strong>
+                        <p class="mt-0.5 text-slate-600">${po.notes || 'All supplies must match specified technical grades and undergo inward inspection.'}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-8 pt-6">
+                        <div class="border-t border-slate-300 pt-1 text-center">
+                            <div class="font-semibold text-slate-700">${po.createdBy}</div>
+                            <div class="text-[9.5px] text-slate-400">Prepared By (Procurement)</div>
+                        </div>
+                        <div class="border-t border-slate-300 pt-1 text-center">
+                            <div class="font-semibold text-slate-700">${po.approvedBy || 'Pending Management Authorization'}</div>
+                            <div class="text-[9.5px] text-slate-400">Authorized Signatory / CEO</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('po-view-modal').classList.remove('hidden');
+        }
+
+        function closeViewModal() {
+            document.getElementById('po-view-modal').classList.add('hidden');
+        }
+
+        function openThreeWayMatchDirect() {
+            if (selectedPoForAudit) {
+                window.location.href = `three-way-match.html?po=${selectedPoForAudit}`;
+            } else {
+                window.location.href = 'three-way-match.html';
+            }
+        }
+
+        function approvePo(poNumber) {
+            CosmixProcurement.updatePoStatus(poNumber, 'Issued', 'management@cosmixengineering.com');
+            renderPoTable();
+        }
+
+        function openPoModal() {
+            document.getElementById('po-modal').classList.remove('hidden');
+            document.getElementById('modal-line-items').innerHTML = '';
+            addModalLineItem();
+        }
+
+        function closePoModal() {
+            document.getElementById('po-modal').classList.add('hidden');
+        }
+
+        function populateVendorSelect() {
+            const vendors = CosmixProcurement.getVendors();
+            const select = document.getElementById('modal-vendor-select');
+            if (select) {
+                select.innerHTML = vendors.map(v => `<option value="${v.id}">${v.name} (${v.category})</option>`).join('');
+            }
+        }
+
+        let lineCounter = 0;
+        function addModalLineItem() {
+            lineCounter++;
+            const container = document.getElementById('modal-line-items');
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-12 gap-2 items-center bg-slate-50 p-2 rounded border border-slate-200 text-[11px] line-item-row';
+            row.id = 'line-' + lineCounter;
+            row.innerHTML = `
+                <div class="col-span-3">
+                    <input type="text" placeholder="Item Code (e.g. 0-0001-01)" required class="line-code w-full px-2 py-1 border border-slate-200 rounded outline-none font-mono">
+                </div>
+                <div class="col-span-4">
+                    <input type="text" placeholder="Description" required class="line-desc w-full px-2 py-1 border border-slate-200 rounded outline-none">
+                </div>
+                <div class="col-span-1">
+                    <input type="text" placeholder="UOM" value="Kg" class="line-uom w-full px-2 py-1 border border-slate-200 rounded outline-none text-center">
+                </div>
+                <div class="col-span-2">
+                    <input type="number" placeholder="Qty" oninput="calcModalTotals()" required class="line-qty w-full px-2 py-1 border border-slate-200 rounded outline-none text-right font-mono">
+                </div>
+                <div class="col-span-2 flex items-center gap-1">
+                    <input type="number" placeholder="Rate PKR" oninput="calcModalTotals()" required class="line-rate w-full px-2 py-1 border border-slate-200 rounded outline-none text-right font-mono">
+                    <button type="button" onclick="document.getElementById('line-${lineCounter}').remove(); calcModalTotals();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        function calcModalTotals() {
+            const rows = document.querySelectorAll('.line-item-row');
+            let subtotal = 0;
+            rows.forEach(r => {
+                const qty = parseFloat(r.querySelector('.line-qty')?.value) || 0;
+                const rate = parseFloat(r.querySelector('.line-rate')?.value) || 0;
+                subtotal += (qty * rate);
+            });
+            const tax = Math.round(subtotal * 0.18);
+            const total = subtotal + tax;
+
+            document.getElementById('modal-subtotal').innerText = 'PKR ' + subtotal.toLocaleString();
+            document.getElementById('modal-tax').innerText = 'PKR ' + tax.toLocaleString();
+            document.getElementById('modal-total').innerText = 'PKR ' + total.toLocaleString();
+        }
+
+        function submitNewPo() {
+            const vendorId = document.getElementById('modal-vendor-select').value;
+            const vendor = CosmixProcurement.getVendorById(vendorId);
+            const projectRef = document.getElementById('modal-project-ref').value;
+            const paymentTerms = document.getElementById('modal-payment-terms').value;
+            const deliveryDate = document.getElementById('modal-delivery-date').value;
+            const notes = document.getElementById('modal-notes').value;
+
+            if (!projectRef || !deliveryDate) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            const rows = document.querySelectorAll('.line-item-row');
+            const lines = [];
+            rows.forEach((r, idx) => {
+                const code = r.querySelector('.line-code').value;
+                const desc = r.querySelector('.line-desc').value;
+                const uom = r.querySelector('.line-uom').value || 'Nos';
+                const qty = parseFloat(r.querySelector('.line-qty').value) || 0;
+                const rate = parseFloat(r.querySelector('.line-rate').value) || 0;
+                if (code && qty > 0) {
+                    lines.push({
+                        id: 'pol-' + (idx + 1),
+                        itemCode: code,
+                        description: desc,
+                        uom: uom,
+                        qtyOrdered: qty,
+                        unitRatePkr: rate,
+                        totalPkr: qty * rate,
+                        qtyReceived: 0,
+                        qtyInvoiced: 0
+                    });
+                }
+            });
+
+            if (lines.length === 0) {
+                alert('Please add at least one line item');
+                return;
+            }
+
+            CosmixProcurement.createPurchaseOrder({
+                vendorId: vendor.id,
+                vendorName: vendor.name,
+                vendorNtn: vendor.ntn,
+                vendorStrn: vendor.strn,
+                projectRef: projectRef,
+                bomRef: 'BOM-AUTO-' + Math.floor(100 + Math.random() * 900),
+                paymentTerms: paymentTerms,
+                deliveryDate: deliveryDate,
+                notes: notes,
+                lines: lines
+            });
+
+            closePoModal();
+            renderPoTable();
+        }
+    </script>
+</body>
+</html>

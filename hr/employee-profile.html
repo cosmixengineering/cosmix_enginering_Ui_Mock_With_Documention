@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmix ERP - Employee Profile</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Leaflet CSS & JS for Real-Time Geofence Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>html { font-size: 13px !important; } body { font-family: 'Inter', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; } .leaflet-popup-content-wrapper { border-radius: 8px !important; } </style>
+    <style>html { font-size: 13px !important; } body { font-family: 'Poppins', sans-serif; } table th { padding: 0.4rem 0.75rem !important; font-size: 0.72rem !important; } table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; } .leaflet-popup-content-wrapper { border-radius: 8px !important; } </style>
 </head>
 <body class="text-gray-800 bg-[#f8fafc]">
     <div id="app-layout" class="flex min-h-screen"></div>
@@ -713,7 +713,7 @@
         function updatePopupContent(site) {
             if (!employeeMarker) return;
             employeeMarker.bindPopup(`
-                <div style="font-family:Inter,sans-serif; font-size:11px; line-height:1.4; padding:2px;">
+                <div style="font-family: 'Poppins', sans-serif; font-size:11px; line-height:1.4; padding:2px;">
                     <b style="color:#242b5f; font-size:12px;">Ali Khan (EMP-1042)</b><br>
                     <span style="color:#64748b;">HVAC Engineer • MEP Operations</span><br>
                     <div style="margin-top:4px; padding:3px 6px; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:4px; color:#047857; font-weight:bold; font-size:10px;">
@@ -1113,4 +1113,5 @@
     </script>
 </body>
 </html>
+
 

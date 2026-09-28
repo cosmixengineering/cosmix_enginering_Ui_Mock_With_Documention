@@ -1,18 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmix ERP - Working Site Profile & List</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Leaflet CSS & JS for Interactive Site Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         html { font-size: 13px !important; } 
-        body { font-family: 'Inter', sans-serif; } 
+        body { font-family: 'Poppins', sans-serif; } 
         table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; } 
         table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
         .tab-btn.active {
@@ -1196,7 +1196,7 @@
             // Center Pin
             const marker = L.marker([siteData.lat, siteData.lng]).addTo(detailMap);
             marker.bindPopup(`
-                <div style="font-family:'Inter',sans-serif; font-size:11px;" class="p-1">
+                <div style="font-family: 'Poppins', sans-serif; font-size:11px;" class="p-1">
                     <b style="color:#242b5f;">${siteData.name}</b>
                     <p style="color:#64748b; margin:2px 0 0 0;">${siteData.address}</p>
                     <p style="color:#16a34a; font-weight:bold; margin:2px 0 0 0;">${siteData.radius}m Active Geofence Boundary</p>
@@ -1241,3 +1241,4 @@
     </script>
 </body>
 </html>
+

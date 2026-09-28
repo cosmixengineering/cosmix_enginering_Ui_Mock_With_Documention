@@ -441,6 +441,77 @@
 .pdf-output-stat { border: 1px solid #dfe5ec; border-radius: 7px; padding: 9px; }
 .pdf-output-stat span { display: block; color: #94a3b8; font-size: 8px; font-weight: 750; letter-spacing: .05em; text-transform: uppercase; }
 .pdf-output-stat strong { display: block; margin-top: 4px; color: #242b5f; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+/* Inbound Drop Hub */
+.inbound-feed-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+.inbound-feed-card:hover {
+    border-color: #cbd5e1;
+    background: #fafbff;
+    transform: translateY(-1px);
+}
+.inbound-feed-card.active {
+    border-color: #242b5f;
+    background: #f4f6fb;
+    box-shadow: 0 0 0 1.5px #242b5f;
+}
+.inbound-chat-feed {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px;
+    max-height: 480px;
+    overflow-y: auto;
+}
+.inbound-bubble-client {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0 10px 10px 10px;
+    padding: 9px 12px;
+    max-width: 84%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.inbound-bubble-desk {
+    background: #242b5f;
+    color: #ffffff;
+    border-radius: 10px 0 10px 10px;
+    padding: 9px 12px;
+    max-width: 84%;
+    margin-left: auto;
+}
+.inbound-audio-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+.inbound-wave-bar {
+    display: inline-block;
+    width: 3px;
+    background: #242b5f;
+    border-radius: 2px;
+    margin: 0 1.5px;
+    vertical-align: middle;
+    transition: height .2s ease;
+}
+.inbound-attachment-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    background: #fff;
+    padding: 9px 11px;
+    transition: border-color .15s ease, background .15s ease;
+}
+.inbound-attachment-card:hover {
+    border-color: #242b5f;
+    background: #f8fafc;
+}
+
 @media (max-width: 900px) {
     .sales-step:not(:last-child)::after { display: none; }
     .sales-workspace-head, .sales-register-toolbar, .sales-cost-nav { align-items: flex-start; flex-direction: column; }

@@ -72,7 +72,7 @@
     }
 
     async function createEditedPdfBytes(sourceBytes, edits) {
-        if (!window.PDFLib) throw new Error('PDF editing library load nahi hui.');
+        if (!window.PDFLib) throw new Error('PDF editing library failed to load.');
         const { PDFDocument, StandardFonts, rgb } = window.PDFLib;
         const document = await PDFDocument.load(sourceBytes, { ignoreEncryption: false, updateMetadata: false });
         const fonts = new Map();

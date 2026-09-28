@@ -211,6 +211,251 @@
             { time: '09:05', icon: 'fa-file-excel', color: 'cyan', text: 'AUX workbook SEL-2609-014-R1 uploaded for validation.' },
             { time: 'Yesterday', icon: 'fa-envelope', color: 'blue', text: 'QTN-2609-018/R2 sent by Email and WhatsApp.' },
             { time: 'Yesterday', icon: 'fa-triangle-exclamation', color: 'amber', text: 'Old tender QTN-2604-006 moved to commercial revalidation.' }
+        ],
+        inboundDrops: [
+            {
+                id: 'DRP-2609-001',
+                channel: 'Email',
+                sender: 'Engr. Salman Farooq <salman.f@artisticmilliners.com>',
+                organization: 'Artistic Milliners Apparel Unit 8',
+                phone: '+92 21 35061234',
+                subject: 'RFQ: VRF System Replacement for Executive Block & Design Studio',
+                timestamp: '2026-09-18T09:42:00.000Z',
+                classifier: 'VRF Inquiry',
+                classifierConfidence: '98% (High Precision Match)',
+                status: 'Pending Review',
+                convertedInquiryId: null,
+                priority: 'High',
+                city: 'Karachi',
+                deadline: '2026-09-26',
+                rawBody: `From: Engr. Salman Farooq <salman.f@artisticmilliners.com>
+To: Cosmix Sales Engineering <sales@cosmixengineering.com>
+Date: Fri, 18 Sep 2026 09:42:10 +0500
+Subject: RFQ: VRF System Replacement for Executive Block & Design Studio
+
+Dear Cosmix Sales Team,
+
+We are seeking a comprehensive turnkey proposal and technical AUX VRF equipment selection for our Apparel Unit 8 facility located in Korangi Industrial Area, Karachi. 
+
+Scope of Requirements:
+1. Complete decommissioning of existing obsolete DX packaged units.
+2. Supply, installation, testing and commissioning of high-efficiency Variable Refrigerant Flow (VRF) heat pump system.
+3. Indoor terminal schedule: 16 Four-Way Cassette units across Executive Management and Textile Design Studios.
+4. Outdoor capacity requirement: Approximately 28 TR (2 Modular Mini VRF cascades).
+5. All refrigerant copper piping (ASTM B280), branch joints, wired master controllers, and BMS integration module.
+
+Attached files:
+- Architectural floor plans and heat load schedule (Drawings.pdf)
+- Complete Bill of Quantities breakdown (Artistic_Unit8_HVAC_BOQ.xlsx)
+- Factory HVAC technical specifications (Specifications_HVAC_R2.pdf)
+
+Please ensure quotation submission by or before 26 September 2026.
+
+Kind regards,
+Engr. Salman Farooq
+Senior Manager MEP & Utilities
+Artistic Milliners (Pvt.) Ltd.
+Cell: +92 300 9283410 | Direct: +92 21 35061234`,
+                chatTranscript: [],
+                voiceNoteTranscript: '',
+                voiceNoteDuration: '',
+                attachments: [
+                    { name: 'Artistic_Unit8_HVAC_BOQ.xlsx', type: 'xlsx', sizeMB: 1.4, category: 'Official BOQ', icon: 'fa-file-excel', color: 'text-emerald-600' },
+                    { name: 'Artistic_DesignStudio_Drawings.pdf', type: 'pdf', sizeMB: 18.6, category: 'Architectural Drawings', icon: 'fa-file-pdf', color: 'text-rose-600' },
+                    { name: 'Specifications_HVAC_R2.pdf', type: 'pdf', sizeMB: 3.8, category: 'Technical Specifications', icon: 'fa-file-pdf', color: 'text-rose-600' }
+                ],
+                extractedData: {
+                    client: 'Artistic Milliners (Pvt.) Ltd.',
+                    project: 'Apparel Unit 8 VRF Replacement',
+                    city: 'Karachi',
+                    type: 'VRF',
+                    priority: 'High',
+                    scope: '16x Four-Way Cassettes, 2x Modular Outdoor VRF (28 TR), Branch Joints & Piping',
+                    deadline: '2026-09-26'
+                }
+            },
+            {
+                id: 'DRP-2609-002',
+                channel: 'WhatsApp',
+                sender: 'M. Tariq (Procurement Lead)',
+                organization: 'Dolmen Real Estate / Tri-Star',
+                phone: '+92 300 8245190',
+                subject: 'Urgent Spare Compressor & Inverter PCB for AUX ARV-H224',
+                timestamp: '2026-09-18T10:18:00.000Z',
+                classifier: 'Spare Part RFQ',
+                classifierConfidence: '96% (Spare Model Match)',
+                status: 'Pending Review',
+                convertedInquiryId: null,
+                priority: 'Critical',
+                city: 'Karachi',
+                deadline: '2026-09-19',
+                rawBody: `WhatsApp Business Inbound Stream [Session +92 300 8245190]
+Contact: M. Tariq (Procurement Lead) · Dolmen Real Estate
+Time: 18 Sep 2026 10:18 AM PKT`,
+                chatTranscript: [
+                    { sender: 'Client', time: '10:16 AM', text: 'Good morning Cosmix team. We have an emergency breakdown at Dolmen Clifton executive tower.' },
+                    { sender: 'Client', time: '10:17 AM', text: 'Need immediate ex-stock price and availability for Inverter Scroll Compressor and Main Inverter Drive PCB for AUX VRF Outdoor Model ARV-H224/SR1DCMA.' },
+                    { sender: 'Client', time: '10:17 AM', isVoiceNote: true, duration: '0:42 min', text: 'Voice Memo' },
+                    { sender: 'Client', time: '10:18 AM', isImage: true, fileName: 'Compressor_Nameplate_Photo.jpg', text: 'Equipment nameplate photo and burnt inverter terminal PCB attached. Please check warehouse stock and send quotation on official letterhead.' }
+                ],
+                voiceNoteTranscript: 'Voice Note Audio Memo: "Salman bhai, please check warehouse inventory immediately for compressor model Highly / Panasonic used in 6.4 TR Aux outdoor, along with the main inverter drive PCB board. Send quotation on letterhead today because the executive conference floor cooling is currently down."',
+                voiceNoteDuration: '0:42 min',
+                attachments: [
+                    { name: 'Compressor_Nameplate_Photo.jpg', type: 'image', sizeMB: 2.1, category: 'Equipment Nameplate', icon: 'fa-file-image', color: 'text-blue-600' },
+                    { name: 'Inverter_PCB_Fault_Burn.jpg', type: 'image', sizeMB: 3.4, category: 'Defect Evidence', icon: 'fa-file-image', color: 'text-blue-600' },
+                    { name: 'Spare_Parts_Req_Dolmen.pdf', type: 'pdf', sizeMB: 0.6, category: 'Purchase Requisition', icon: 'fa-file-pdf', color: 'text-rose-600' }
+                ],
+                extractedData: {
+                    client: 'Dolmen Real Estate / Tri-Star',
+                    project: 'Dolmen Clifton Tower Maintenance',
+                    city: 'Karachi',
+                    type: 'Spare Parts',
+                    priority: 'Critical',
+                    scope: '1x Inverter Scroll Compressor (ARV-H224), 1x Main Driver PCB Kit',
+                    deadline: '2026-09-19'
+                }
+            },
+            {
+                id: 'DRP-2609-003',
+                channel: 'Email',
+                sender: 'Directorate of Works & Services <tenders@fwo-mep.gov.pk>',
+                organization: 'Frontier Works Organisation (FWO)',
+                phone: '+92 51 9271340',
+                subject: 'Tender Notification: Supply & Installation of HVAC Ventilation & Fan Coil Package B',
+                timestamp: '2026-09-17T16:20:00.000Z',
+                classifier: 'Tender Package',
+                classifierConfidence: '99% (Government Tender Match)',
+                status: 'In Review',
+                convertedInquiryId: null,
+                priority: 'High',
+                city: 'Islamabad',
+                deadline: '2026-10-05',
+                rawBody: `From: Directorate of Works & Services <tenders@fwo-mep.gov.pk>
+To: Registered HVAC Vendors <tenders-notice@fwo-mep.gov.pk>
+Date: Thu, 17 Sep 2026 16:20:44 +0500
+Subject: Tender Notification: Supply & Installation of HVAC Ventilation & Fan Coil Package B
+
+NOTICE INVITING TENDER (NIT-FWO-MEP-2026-09-B)
+
+1. Sealed technical and commercial bids are invited from pre-qualified MEP Contractors and authorized Original Equipment Distributors for the Supply, Installation, Testing & Commissioning of HVAC Ventilation Packages for Sector G-14 Infrastructure Complex, Islamabad.
+2. Scope encompasses:
+   - Axial Flow Smoke Spill Fans (High-temp 300°C / 2 hrs rated) - 12 Sets
+   - Centrifugal Inline Duct Exhaust Fans (800 - 2400 CFM) - 42 Units
+   - Motorized Fire and Smoke Dampers with UL listed actuators - 36 Units
+   - Chilled Water Concealed Fan Coil Units - 28 Units
+3. Bid Security: 2% of total bid value in the form of Pay Order / Bank Guarantee.
+4. Tender dossier and technical schedules attached.
+5. Submission Deadline: 05 October 2026 at 11:30 hrs PST.
+
+Deputy Director Works (HVAC & MEP)
+Frontier Works Organisation HQ, Rawalpindi / Islamabad`,
+                chatTranscript: [],
+                voiceNoteTranscript: '',
+                voiceNoteDuration: '',
+                attachments: [
+                    { name: 'FWO_Tender_Document_HVAC_PkgB.pdf', type: 'pdf', sizeMB: 32.4, category: 'Tender Dossier', icon: 'fa-file-pdf', color: 'text-rose-600' },
+                    { name: 'Bill_of_Quantities_Section4.xlsx', type: 'xlsx', sizeMB: 2.8, category: 'Official BOQ', icon: 'fa-file-excel', color: 'text-emerald-600' },
+                    { name: 'MEP_SingleLine_Diagrams.pdf', type: 'pdf', sizeMB: 45.1, category: 'Engineering Schematics', icon: 'fa-file-pdf', color: 'text-rose-600' }
+                ],
+                extractedData: {
+                    client: 'Frontier Works Organisation (FWO)',
+                    project: 'Sector G-14 Complex HVAC Package B',
+                    city: 'Islamabad',
+                    type: 'Mixed HVAC',
+                    priority: 'High',
+                    scope: '12x Axial Smoke Spill Fans, 42x Inline Exhaust Units, 28x FCUs, 36x Fire Dampers',
+                    deadline: '2026-10-05'
+                }
+            },
+            {
+                id: 'DRP-2609-004',
+                channel: 'WhatsApp',
+                sender: 'Fawad Chaudhry (Facility Manager)',
+                organization: 'Pearl Continental Hotel',
+                phone: '+92 333 4291880',
+                subject: 'BMS Gateway Communication Error & Modbus Calibration',
+                timestamp: '2026-09-17T14:10:00.000Z',
+                classifier: 'Service Complaint',
+                classifierConfidence: '95% (Service Diagnostic Match)',
+                status: 'Pending Review',
+                convertedInquiryId: null,
+                priority: 'Medium',
+                city: 'Lahore',
+                deadline: '2026-09-18',
+                rawBody: `WhatsApp Business Inbound Stream [Session +92 333 4291880]
+Contact: Fawad Chaudhry (Facility Manager) · Pearl Continental Hotel
+Time: 17 Sep 2026 02:10 PM PKT`,
+                chatTranscript: [
+                    { sender: 'Client', time: '02:05 PM', text: 'Good afternoon Cosmix service desk. The Modbus BACnet gateway installed on 4th floor executive guest wing is generating timeout alarms.' },
+                    { sender: 'Client', time: '02:07 PM', isVoiceNote: true, duration: '0:35 min', text: 'Voice Memo' },
+                    { sender: 'Client', time: '02:09 PM', isImage: true, fileName: 'BMS_Alarm_Error_Log.png', text: 'Attached BMS SCADA alarm capture showing communication fault code E04. Please dispatch technician.' }
+                ],
+                voiceNoteTranscript: 'Voice Note Audio Memo: "The central chiller and VRF monitoring panel on 4th floor went offline around 11:30 AM today. The BMS workstation is failing to read compressor running status. Please assign a technician to check gateway wiring and Modbus baud rate configuration."',
+                voiceNoteDuration: '0:35 min',
+                attachments: [
+                    { name: 'BMS_Alarm_Error_Log.png', type: 'image', sizeMB: 1.2, category: 'Diagnostic Capture', icon: 'fa-file-image', color: 'text-blue-600' },
+                    { name: 'Gateway_Wiring_Diagram.pdf', type: 'pdf', sizeMB: 1.5, category: 'Wiring Schematic', icon: 'fa-file-pdf', color: 'text-rose-600' }
+                ],
+                extractedData: {
+                    client: 'Pearl Continental Hotel',
+                    project: '4th Floor VRF BMS Gateway Fault',
+                    city: 'Lahore',
+                    type: 'Service / Warranty',
+                    priority: 'Medium',
+                    scope: 'BMS Gateway Diagnostic, Modbus RTU Signal Analysis & Master Controller Reset',
+                    deadline: '2026-09-18'
+                }
+            },
+            {
+                id: 'DRP-2609-005',
+                channel: 'Email',
+                sender: 'Hamza Abbasi <h.abbasi@goharheights.com>',
+                organization: 'Gohar Construction Group',
+                phone: '+92 21 34988711',
+                subject: 'HVAC Selection & Price Request for 12-Story Luxury Apartments',
+                timestamp: '2026-09-16T11:05:00.000Z',
+                classifier: 'VRF Inquiry',
+                classifierConfidence: '97% (VRF Architecture Match)',
+                status: 'Converted',
+                convertedInquiryId: 'INQ-2609-015',
+                priority: 'High',
+                city: 'Karachi',
+                deadline: '2026-09-30',
+                rawBody: `From: Hamza Abbasi <h.abbasi@goharheights.com>
+To: Cosmix Sales Desk <sales@cosmixengineering.com>
+Date: Wed, 16 Sep 2026 11:05:22 +0500
+Subject: HVAC Selection & Price Request for 12-Story Luxury Apartments
+
+Dear Sirs,
+
+Please find attached the finalized architectural drawings, floor cutouts, and load schedules for the 12-story Gohar Heights residential tower on main University Road, Karachi.
+
+We require a comprehensive AUX VRF system selection and formal commercial quote.
+
+Attached files:
+- GoharHeights_HeatLoad_Schedule.xlsx
+- Structural_Slab_Cutouts.pdf
+
+Thank you,
+Hamza Abbasi
+Project Director, Gohar Construction Group`,
+                chatTranscript: [],
+                voiceNoteTranscript: '',
+                voiceNoteDuration: '',
+                attachments: [
+                    { name: 'GoharHeights_HeatLoad_Schedule.xlsx', type: 'xlsx', sizeMB: 4.1, category: 'Heat Load Schedule', icon: 'fa-file-excel', color: 'text-emerald-600' },
+                    { name: 'Structural_Slab_Cutouts.pdf', type: 'pdf', sizeMB: 12.3, category: 'Structural Drawings', icon: 'fa-file-pdf', color: 'text-rose-600' }
+                ],
+                extractedData: {
+                    client: 'Grand Monarch Residency / Gohar Group',
+                    project: 'Apartment VRF Packages',
+                    city: 'Karachi',
+                    type: 'VRF',
+                    priority: 'High',
+                    scope: '48 Outdoor Units, 192 Indoor Slim Ducts',
+                    deadline: '2026-09-30'
+                }
+            }
         ]
     };
 
@@ -259,6 +504,7 @@
                     if (!Array.isArray(parsed.productCatalog)) parsed.productCatalog = [];
                     if (!Array.isArray(parsed.catalogImports)) parsed.catalogImports = clone(demoState.catalogImports);
                     if (!Array.isArray(parsed.approvalInbox)) parsed.approvalInbox = clone(demoState.approvalInbox);
+                    if (!Array.isArray(parsed.inboundDrops)) parsed.inboundDrops = clone(demoState.inboundDrops);
                     if (!parsed.salesSetup || !Array.isArray(parsed.salesSetup.categories) || !Array.isArray(parsed.salesSetup.units) || !Array.isArray(parsed.salesSetup.vendors)) parsed.salesSetup = clone(demoState.salesSetup);
                     if (!parsed.tenderDocuments?.workspace || !Array.isArray(parsed.tenderDocuments.templates)) parsed.tenderDocuments = clone(demoState.tenderDocuments);
                     else {
@@ -349,7 +595,7 @@
     function validateSelection(id, note) {
         const row = state.selections.find(x => x.id === id);
         if (!row) return { ok: false, reason: 'Selection not found.' };
-        if (Number(row.issues || 0) > 0) return { ok: false, reason: 'Open validation decision pehle resolve karein.' };
+        if (Number(row.issues || 0) > 0) return { ok: false, reason: 'Open validation decisions must be resolved before proceeding.' };
         row.status = 'Validated'; row.boq = 'BOQ ready';
         row.validation = { by: 'Sales Engineer', at: new Date().toISOString(), note: note || 'Technical selection reviewed.' };
         save(); return { ok: true, row };
@@ -374,7 +620,7 @@
     function approveCosting(comment) {
         if (state.costing.status === 'Approved') return { ok: false, reason: 'This BOQ revision is already approved and locked.' };
         const unresolved = state.costing.lines.find(x => !x.excluded && Number(x.pkrRate || 0) <= 0);
-        if (unresolved) return { ok: false, reason: `${unresolved.model} ka commercial rate/decision pending hai.` };
+        if (unresolved) return { ok: false, reason: `${unresolved.model} requires a valid commercial rate or formal exclusion.` };
         state.costing.status = 'Approved';
         state.costing.components.forEach(x => { if (/Boss Review|Management Review/.test(x.status)) x.status = 'Management Approved'; });
         const quote = state.quotations.find(x => x.inquiry === state.costing.inquiry);
@@ -393,7 +639,7 @@
     function submitApprovalRequest(data = {}) {
         state.approvalInbox = state.approvalInbox || [];
         const sourceRef = String(data.sourceRef || '').trim();
-        if (!sourceRef) return { ok: false, reason: 'Source reference required hai.' };
+        if (!sourceRef) return { ok: false, reason: 'Source reference is required.' };
         const existing = state.approvalInbox.find(x => x.sourceRef === sourceRef && x.status === 'Awaiting Management');
         if (existing) return { ok: true, existing: true, row: existing };
         const sequence = state.approvalInbox.reduce((max, x) => Math.max(max, Number(String(x.id).replace(/\D/g, '')) || 0), 0) + 1;
@@ -412,7 +658,7 @@
 
     function acknowledgeApproval(id) {
         const row = state.approvalInbox?.find(x => x.id === id);
-        if (!row || row.status === 'Awaiting Management') return { ok: false, reason: row ? 'Management decision abhi receive nahi hua.' : 'Decision record nahi mila.' };
+        if (!row || row.status === 'Awaiting Management') return { ok: false, reason: row ? 'Management decision is pending.' : 'Decision record not found.' };
         row.unread = false;
         row.acknowledgedAt = row.acknowledgedAt || new Date().toISOString();
         save(); return { ok: true, row };
@@ -420,10 +666,10 @@
 
     function applyApprovalDecision(id) {
         const row = state.approvalInbox?.find(x => x.id === id);
-        if (!row) return { ok: false, reason: 'Decision record nahi mila.' };
-        if (row.status === 'Awaiting Management') return { ok: false, reason: 'Management decision abhi receive nahi hua.' };
+        if (!row) return { ok: false, reason: 'Decision record not found.' };
+        if (row.status === 'Awaiting Management') return { ok: false, reason: 'Management decision is pending.' };
         if (row.appliedAt) return { ok: true, existing: true, row, quote: row.appliedRef ? findQuote(row.appliedRef.replace('/', '::')) : null };
-        if (!row.acknowledgedAt) return { ok: false, reason: 'Decision apply karne se pehle acknowledge karein.' };
+        if (!row.acknowledgedAt) return { ok: false, reason: 'Acknowledge decision prior to application.' };
         let quote = row.quoteRef ? findQuote(row.quoteRef) : null;
         if (row.status === 'Revision Required' && quote) {
             quote = createQuoteRevision(row.quoteRef, { value: Number(row.approvedValue || quote.value), nextAction: 'Prepare revised quotation from management instruction' });
@@ -524,10 +770,10 @@
 
     function buildTenderPackage(result = {}) {
         const workspace = state.tenderDocuments?.workspace;
-        if (!workspace) return { ok: false, reason: 'Tender workspace nahi mila.' };
+        if (!workspace) return { ok: false, reason: 'Tender workspace not found.' };
         const missing = workspace.fields.find(x => x.required && !String(x.value || '').trim());
-        if (missing) return { ok: false, reason: `${missing.label} required hai.` };
-        if (!workspace.documents.length) return { ok: false, reason: 'Merge package mein kam az kam ek document required hai.' };
+        if (missing) return { ok: false, reason: `${missing.label} is required.` };
+        if (!workspace.documents.length) return { ok: false, reason: 'Merge package requires at least one document.' };
         const totals = tenderPackageTotals();
         const sequence = (workspace.builds?.length || 0) + 13;
         const tenderRef = workspace.fields.find(x => x.id === 'tenderNo')?.value || workspace.id;
@@ -919,6 +1165,132 @@
         }).map(x => ({ ...x, recommended: x.model === substitution?.to }));
     }
 
+    function addInboundDrop(data) {
+        const nextNum = (state.inboundDrops || []).length + 1;
+        const id = `DRP-2609-${String(nextNum).padStart(3, '0')}`;
+        const newDrop = {
+            id,
+            channel: data.channel || 'Email',
+            sender: data.sender || 'Anonymous Submitter',
+            organization: data.organization || 'Prospective Enterprise Client',
+            phone: data.phone || '',
+            subject: data.subject || 'Inbound Commercial / Technical Requirement',
+            timestamp: new Date().toISOString(),
+            classifier: data.classifier || 'VRF Inquiry',
+            classifierConfidence: data.classifierConfidence || 'Manual Submission Rule',
+            status: data.status || 'Pending Review',
+            convertedInquiryId: null,
+            priority: data.priority || 'Medium',
+            city: data.city || 'Karachi',
+            deadline: data.deadline || '2026-10-15',
+            rawBody: data.rawBody || '',
+            chatTranscript: Array.isArray(data.chatTranscript) ? data.chatTranscript : [],
+            voiceNoteTranscript: data.voiceNoteTranscript || '',
+            voiceNoteDuration: data.voiceNoteDuration || '',
+            attachments: Array.isArray(data.attachments) ? data.attachments : [],
+            extractedData: data.extractedData || {
+                client: data.organization || data.sender || 'Inbound Client',
+                project: data.subject || 'Commercial HVAC Requirement',
+                city: data.city || 'Karachi',
+                type: data.classifier === 'Spare Part RFQ' ? 'Spare Parts' : data.classifier === 'Tender Package' ? 'Mixed HVAC' : data.classifier === 'Service Complaint' ? 'Service / Warranty' : 'VRF',
+                priority: data.priority || 'Medium',
+                scope: data.scope || 'Extracted scope from inbound drop packet',
+                deadline: data.deadline || '2026-10-15'
+            }
+        };
+
+        if (!Array.isArray(state.inboundDrops)) state.inboundDrops = [];
+        state.inboundDrops.unshift(newDrop);
+        state.activities.unshift({
+            time: 'Just now',
+            icon: newDrop.channel === 'WhatsApp' ? 'fa-brands fa-whatsapp' : 'fa-envelope-open-text',
+            color: newDrop.channel === 'WhatsApp' ? 'emerald' : 'blue',
+            text: `Inbound drop ${newDrop.id} (${newDrop.channel} - ${newDrop.classifier}) received from ${newDrop.organization}.`
+        });
+        save();
+        return newDrop;
+    }
+
+    function updateInboundDrop(id, patch) {
+        const row = (state.inboundDrops || []).find(x => x.id === id);
+        if (row) {
+            Object.assign(row, patch);
+            save();
+        }
+        return row;
+    }
+
+    function classifyInboundDrop(id, classifier) {
+        const row = (state.inboundDrops || []).find(x => x.id === id);
+        if (row) {
+            row.classifier = classifier;
+            row.classifierConfidence = 'Manual Verified Rule';
+            if (row.extractedData) {
+                row.extractedData.type = classifier === 'Spare Part RFQ' ? 'Spare Parts' : classifier === 'Tender Package' ? 'Mixed HVAC' : classifier === 'Service Complaint' ? 'Service / Warranty' : 'VRF';
+            }
+            save();
+        }
+        return row;
+    }
+
+    function convertInboundToInquiry(dropId, customData = {}) {
+        const drop = (state.inboundDrops || []).find(x => x.id === dropId);
+        if (!drop) return { ok: false, reason: 'Inbound drop thread not found' };
+        if (drop.status === 'Converted') return { ok: false, reason: `Thread already converted to ${drop.convertedInquiryId}` };
+
+        const ext = drop.extractedData || {};
+        const n = String(state.inquiries.length + 19).padStart(3, '0');
+        const inquiryId = `INQ-2609-${n}`;
+        
+        const newInquiry = {
+            id: inquiryId,
+            client: customData.client || ext.client || drop.organization || 'Inbound Client',
+            project: customData.project || ext.project || drop.subject || 'Commercial HVAC Project',
+            city: customData.city || ext.city || drop.city || 'Karachi',
+            source: customData.source || (drop.channel === 'WhatsApp' ? 'Inbound WhatsApp' : 'Inbound Email'),
+            type: customData.type || ext.type || (drop.classifier === 'Spare Part RFQ' ? 'Spare Parts' : drop.classifier === 'Tender Package' ? 'Mixed HVAC' : drop.classifier === 'Service Complaint' ? 'Service / Warranty' : 'VRF'),
+            owner: customData.owner || 'GM Sales',
+            engineer: customData.engineer || 'Sales Engineer',
+            due: customData.due || ext.deadline || drop.deadline || '2026-09-30',
+            stage: 'New',
+            priority: customData.priority || ext.priority || drop.priority || 'Medium',
+            followUp: `Converted from ${drop.id} (${drop.channel}) · Triage complete`,
+            value: 0,
+            originDropId: drop.id,
+            originAttachments: clone(drop.attachments || [])
+        };
+
+        state.inquiries.unshift(newInquiry);
+        drop.status = 'Converted';
+        drop.convertedInquiryId = inquiryId;
+        
+        state.activities.unshift({
+            time: 'Just now',
+            icon: drop.channel === 'WhatsApp' ? 'fa-brands fa-whatsapp' : 'fa-envelope-open-text',
+            color: 'emerald',
+            text: `Inbound drop ${drop.id} converted to Commercial Inquiry ${inquiryId} (${newInquiry.client}).`
+        });
+
+        save();
+        return { ok: true, inquiry: newInquiry, drop };
+    }
+
+    function dismissInboundDrop(id, reason = 'Archived by desk') {
+        const row = (state.inboundDrops || []).find(x => x.id === id);
+        if (row) {
+            row.status = 'Archived';
+            row.dismissReason = reason;
+            save();
+        }
+        return row;
+    }
+
+    function resetInboundDrops() {
+        state.inboundDrops = clone(demoState.inboundDrops);
+        save();
+        return state.inboundDrops;
+    }
+
     window.CosmixSales = {
         get state() { return state; },
         get storageAvailable() { return storageAvailable; },
@@ -926,6 +1298,7 @@
         addComponent, updateCostLine, approveCosting, submitApprovalRequest, acknowledgeApproval, applyApprovalDecision, addRate, updateRate, reviseRate, selectRate, upsertSalesSetup, toggleSalesSetup, quoteRef, findQuote, updateQuote, createQuoteRevision, markQuoteSent, acceptQuote,
         manualCatalog, upsertCatalogItems, setCatalogItemStatus, manualLinkedItems, addManualQuoteItem, updateManualQuoteLine, removeManualQuoteLine, updateManualQuotation, resetManualQuotation, manualQuoteLineTotal, manualQuoteTotals,
         prepareSelectionPricing, updateSelectionPricingLine, applySelectionPricingRate, updateSelectionPricing, selectionPricingTotals, selectionPricingCandidates,
-        tenderPackageTotals, updateTenderField, selectTenderTemplate, addTenderDocuments, moveTenderDocument, removeTenderDocument, updateTenderCompression, buildTenderPackage, resetTenderWorkspace
+        tenderPackageTotals, updateTenderField, selectTenderTemplate, addTenderDocuments, moveTenderDocument, removeTenderDocument, updateTenderCompression, buildTenderPackage, resetTenderWorkspace,
+        addInboundDrop, updateInboundDrop, classifyInboundDrop, convertInboundToInquiry, dismissInboundDrop, resetInboundDrops
     };
 })();

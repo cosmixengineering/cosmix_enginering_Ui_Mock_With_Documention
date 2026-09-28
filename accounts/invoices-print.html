@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Official Sales Tax Invoice & 65/30/5 Milestone Certificate - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f1f5f9; color: #0f172a; }
+        .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+        @media print {
+            body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
+            .no-print { display: none !important; }
+            .print-container { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            @page { size: A4 portrait; margin: 10mm 12mm; }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 flex flex-col items-center">
+
+    <!-- Top Action Bar (Hidden in Print) -->
+    <div class="no-print w-full max-w-4xl mb-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="invoices.html" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                <i class="fas fa-arrow-left"></i> Back to Invoices
+            </a>
+            <span class="text-slate-300">|</span>
+            <span class="text-xs text-slate-600 font-medium">Select Invoice / IPC:</span>
+            <select id="invoice-picker" onchange="loadInvoice(this.value)" class="border border-slate-300 rounded-md px-2.5 py-1 text-xs font-mono font-bold text-slate-800 outline-none">
+                <option value="INV-2026-044">INV-2026-044: Lucky Motor (M1 - 65% Advance & Procurement)</option>
+                <option value="INV-2026-089">INV-2026-089: Lucky Landmark (M2 - 30% Factory Delivery Pass)</option>
+                <option value="INV-2026-088">INV-2026-088: Packages Real Estate (M2 - 30% Delivery & Erection)</option>
+                <option value="INV-2026-039">INV-2026-039: Indus Hospital (M1 - 65% Cleanroom HEPA & Units)</option>
+                <option value="INV-2026-038">INV-2026-038: Indus Hospital (M3 - 5% TAB Testing & Handover)</option>
+                <option value="INV-2026-086">INV-2026-086: Lucky Cement (M2 - 30% Kiln Exhaust Blowers)</option>
+                <option value="INV-2026-085">INV-2026-085: DHA City (M1 - 65% Utilities Advance)</option>
+                <option value="INV-2026-087">INV-2026-087: Engro Fertilizers (Commercial Substation Trays)</option>
+            </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button onclick="window.print()" class="px-4 py-1.5 bg-[#1e2552] hover:bg-[#161b3d] text-white rounded-lg text-xs font-bold shadow flex items-center gap-1.5 transition">
+                <i class="fas fa-print text-amber-300"></i> Print / Save as PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Official A4 Printable Invoice Sheet -->
+    <div class="print-container bg-white w-full max-w-4xl p-8 rounded-2xl border border-slate-300 shadow-lg space-y-4 text-slate-800">
+        
+        <!-- Letterhead & Corporate Branding Header -->
+        <div class="flex justify-between items-start border-b-2 border-[#1e2552] pb-4">
+            <div class="flex items-start gap-3.5">
+                <div class="w-14 h-14 rounded-xl bg-[#1e2552] text-white flex items-center justify-center font-black text-xl shadow-md shrink-0">
+                    CE
+                </div>
+                <div>
+                    <h1 class="text-lg font-black text-[#1e2552] uppercase tracking-wider">COSMIX ENGINEERING (PVT) LTD</h1>
+                    <p class="text-xs font-bold text-slate-700">Turnkey MEP Contracting, HVAC, Electrical, Cleanroom & Firefighting Systems</p>
+                    <p class="text-[10px] text-slate-500 font-mono mt-0.5">Plot 12-C, PECHS Block 6, Karachi | Phone: +92 21 34567890 | Web: www.cosmixengineering.com</p>
+                    <p class="text-[10px] text-slate-500 font-mono">NTN: <strong class="text-slate-800">7291048-2</strong> | STRN: <strong class="text-slate-800">17-00-7291-048-11</strong> | SRB: <strong class="text-slate-800">SRB-KHI-8891</strong> | PRA: <strong class="text-slate-800">PRA-LHE-9921</strong></p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="px-3 py-1 bg-[#1e2552] text-white text-[10px] font-bold rounded uppercase tracking-wider inline-block">Sales Tax Invoice & IPC</span>
+                <div class="mt-1.5 font-mono text-base font-black text-[#1e2552]" id="inv-id">INV-2026-044</div>
+                <div class="text-[11px] text-slate-500">Invoice Date: <strong class="font-mono text-slate-800" id="inv-date">18 Sep 2026</strong></div>
+                <div class="text-[11px] text-amber-700 font-semibold" id="inv-terms">Payment Terms: Net 30 Days</div>
+            </div>
+        </div>
+
+        <!-- 65/30/5 Contract Milestone Valuation Box -->
+        <div class="bg-indigo-50/50 p-3.5 rounded-xl border border-indigo-100 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+            <div>
+                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 block">Total Contract Value:</span>
+                <div class="font-bold text-[#1e2552] text-sm font-mono mt-0.5" id="inv-contract-val">PKR 32,000,000</div>
+                <div class="text-[10px] text-slate-500 font-mono" id="inv-po-ref">PO-LMC-2026-0044</div>
+            </div>
+            <div>
+                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 block">Milestone Certified:</span>
+                <div class="font-bold text-slate-900 text-sm font-mono mt-0.5" id="inv-milestone-pct">65% Allocation</div>
+                <div class="text-[10px] text-indigo-700 font-semibold" id="inv-milestone-tier">Milestone 1 of 3</div>
+            </div>
+            <div>
+                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 block">Milestone Gross Claim:</span>
+                <div class="font-bold text-slate-900 text-sm font-mono mt-0.5" id="inv-milestone-gross">PKR 20,800,000</div>
+                <div class="text-[10px] text-emerald-700 font-semibold">Advance & Procurement</div>
+            </div>
+            <div>
+                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 block">Statutory Jurisdiction:</span>
+                <div class="font-bold text-indigo-900 text-xs font-mono mt-0.5" id="inv-tax-auth">18% FBR GST</div>
+                <div class="text-[10px] text-slate-500">Delivery Pass: <span class="font-mono font-bold text-slate-700" id="inv-gate-pass">GP-2026-0819</span></div>
+            </div>
+        </div>
+
+        <!-- Bill To & Project Site Details -->
+        <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
+            <div>
+                <span class="text-[9.5px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Billed To (Client Enterprise):</span>
+                <div class="font-bold text-slate-900 text-sm" id="inv-client">Lucky Motor Corporation Ltd</div>
+                <div class="text-[11px] text-slate-600 font-mono mt-0.5">NTN: <strong class="text-slate-800" id="inv-ntn">2847192-3</strong> | STRN: <strong class="text-slate-800" id="inv-strn">17-00-2847-192-12</strong></div>
+                <div class="text-[11px] text-slate-500 mt-1" id="inv-client-addr">Plot 42, Bin Qasim Industrial Park, Karachi, Sindh</div>
+                <div class="text-[11px] text-slate-600 mt-1">Authorized Department: <strong class="text-slate-800">Procurement & Facilities Directorate</strong></div>
+            </div>
+            <div>
+                <span class="text-[9.5px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Project Site & Location:</span>
+                <div class="font-bold text-[#1e2552] text-sm" id="inv-site">Lucky Motor Assembly Plant, Bin Qasim (Sindh)</div>
+                <div class="text-[11px] text-slate-600 mt-0.5">Milestone Scope: <strong class="text-slate-800" id="inv-scope-header">Advance on Signing & Equipment Procurement</strong></div>
+                <div class="text-[11px] text-slate-500 mt-1">Contractor: <strong class="text-slate-800">Cosmix Engineering (Pvt) Ltd</strong></div>
+                <div class="text-[11px] text-emerald-700 font-bold mt-1">Certification Status: <span id="inv-status-label">Approved & Certified for Payment</span></div>
+            </div>
+        </div>
+
+        <!-- Line Items BOQ Table -->
+        <div>
+            <div class="text-xs font-bold text-slate-800 mb-2 flex items-center justify-between">
+                <span>Certified Bill of Quantities (BOQ) & Milestone Deliverables:</span>
+                <span class="text-[10px] text-slate-400 font-mono">Currency: PKR</span>
+            </div>
+            <div class="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 text-[11px]">
+                        <tr>
+                            <th class="py-2 px-3 text-center w-10">#</th>
+                            <th class="py-2 px-3">Deliverable / Scope Description</th>
+                            <th class="py-2 px-3 text-center">Unit</th>
+                            <th class="py-2 px-3 text-right">Qty</th>
+                            <th class="py-2 px-3 text-right">Unit Rate (PKR)</th>
+                            <th class="py-2 px-3 text-right">Gross Amount (PKR)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100" id="inv-lines-body">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                    <tfoot class="bg-slate-50/90 font-bold border-t border-slate-200">
+                        <tr>
+                            <td colspan="5" class="py-2 px-3 text-right text-slate-600 font-sans">Subtotal (Gross Milestone Base Value):</td>
+                            <td class="py-2 px-3 text-right font-mono text-slate-900" id="inv-subtotal">PKR 20,800,000</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Financial & Statutory Tax Summary -->
+        <div class="flex flex-col sm:flex-row justify-between items-start gap-4 pt-1">
+            
+            <!-- Left: Bank Remittance Details & General Ledger Audit -->
+            <div class="w-full sm:w-1/2 space-y-2">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-[10.5px] space-y-1">
+                    <span class="font-bold text-slate-700 uppercase tracking-wider text-[9.5px] block mb-1">Direct Bank Account for Wire Remittance:</span>
+                    <div>Account Title: <strong>Cosmix Engineering (Pvt) Ltd</strong></div>
+                    <div>Bank Name: <strong>Meezan Bank Ltd (Corporate Branch Karachi)</strong></div>
+                    <div>IBAN: <strong class="font-mono text-slate-900">PK36MEZN00010982347101</strong></div>
+                    <div>Account #: <strong class="font-mono text-slate-900">0109-8234-71</strong></div>
+                    <div class="text-[9.5px] text-slate-400 pt-0.5">Please quote invoice number on bank remittance voucher.</div>
+                </div>
+
+                <div class="bg-indigo-50/40 p-2.5 rounded-lg border border-indigo-100 text-[10px] font-mono text-slate-600">
+                    <div class="flex justify-between">
+                        <span>GL Journal Voucher:</span>
+                        <strong class="text-indigo-900" id="gl-voucher-no">JV-2026-0902</strong>
+                    </div>
+                    <div class="flex justify-between mt-0.5 text-[9.5px]">
+                        <span>Dr 1200 AR (Debtors):</span>
+                        <span id="gl-dr-text">PKR 24,544,000</span>
+                    </div>
+                    <div class="flex justify-between text-[9.5px]">
+                        <span>Cr 4100 Contracting Revenue:</span>
+                        <span id="gl-cr-rev-text">PKR 20,800,000</span>
+                    </div>
+                    <div class="flex justify-between text-[9.5px]">
+                        <span>Cr 2200 Output Sales Tax:</span>
+                        <span id="gl-cr-tax-text">PKR 3,744,000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Tax Math Summary -->
+            <div class="w-full sm:w-80 bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                <div class="flex justify-between text-slate-600">
+                    <span>Gross Milestone Value:</span>
+                    <span class="font-mono font-semibold" id="math-gross">PKR 20,800,000</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span id="math-tax-label">Sales Tax (18% FBR):</span>
+                    <span class="font-mono font-bold text-emerald-700" id="math-tax">+ PKR 3,744,000</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span>Retention Withheld (5%):</span>
+                    <span class="font-mono font-semibold text-purple-700" id="math-retention">- PKR 1,040,000</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span>Withholding Tax (WHT 4.5%):</span>
+                    <span class="font-mono font-semibold text-rose-700" id="math-wht">- PKR 936,000</span>
+                </div>
+                <div class="flex justify-between items-center pt-2 border-t-2 border-slate-300 font-bold text-slate-900">
+                    <span class="text-xs uppercase">Net Receivable Amount:</span>
+                    <span class="font-mono text-sm text-[#1e2552]" id="math-net">PKR 22,568,000</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Authorization Signatures -->
+        <div class="grid grid-cols-3 gap-6 pt-6 border-t border-slate-200 text-center text-[10px] text-slate-500">
+            <div>
+                <div class="h-8 flex items-end justify-center font-bold text-slate-800 italic" style="font-family: cursive;">Engr. Faisal Tariq</div>
+                <div class="border-t border-slate-300 pt-1 font-semibold text-slate-700">Project / Billing Engineer</div>
+                <div class="text-[9px] text-slate-400">Cosmix Engineering (Pvt) Ltd</div>
+            </div>
+            <div>
+                <div class="h-8 flex items-end justify-center font-bold text-slate-800 italic" style="font-family: cursive;">Huma Khan</div>
+                <div class="border-t border-slate-300 pt-1 font-semibold text-slate-700">Head of Finance & Taxation</div>
+                <div class="text-[9px] text-slate-400">Authorized Finance Signatory</div>
+            </div>
+            <div>
+                <div class="h-8 flex items-end justify-center font-bold text-slate-800 italic" style="font-family: cursive;">Resident Engineer</div>
+                <div class="border-t border-slate-300 pt-1 font-semibold text-slate-700">Client / Consultant Stamp</div>
+                <div class="text-[9px] text-slate-400">Certified for Milestone Release</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const INVOICE_DATABASE = {
+            'INV-2026-044': {
+                id: 'INV-2026-044',
+                date: '18 Sep 2026',
+                terms: 'Net 30 Days',
+                client: 'Lucky Motor Corporation Ltd',
+                ntn: '2847192-3',
+                strn: '17-00-2847-192-12',
+                address: 'Plot 42, Bin Qasim Industrial Park, Karachi, Sindh',
+                poRef: 'PO-LMC-2026-0044',
+                contractVal: 32000000,
+                milestonePct: '65% Allocation',
+                milestoneTier: 'Milestone 1 of 3: Advance on Signing & Equipment Procurement',
+                site: 'Lucky Motor Assembly Plant, Bin Qasim (Sindh)',
+                scopeHeader: 'Milestone 1 (65%): Advance on Signing & Equipment Procurement',
+                taxAuth: '18% FBR GST',
+                taxRate: 0.18,
+                taxLabel: 'Sales Tax (18% FBR GST):',
+                retentionRate: 0.05,
+                whtRate: 0.045,
+                gatePass: 'GP-2026-0819',
+                jvNo: 'JV-2026-0902',
+                status: 'Paid & Reconciled',
+                lines: [
+                    { desc: 'Mobilization Advance & Initial Engineering Design Clearance (30% Contract Base)', unit: 'Job', qty: 1, rate: 9600000 },
+                    { desc: 'AHU & Heavy Chiller Factory Manufacturing Order Placement (Double-Skin 12,000 CFM)', unit: 'Job', qty: 1, rate: 8320000 },
+                    { desc: 'GI Sheet 22G & Seamless Header Piping Raw Material Procurement', unit: 'Job', qty: 1, rate: 2880000 }
+                ]
+            },
+            'INV-2026-089': {
+                id: 'INV-2026-089',
+                date: '28 Sep 2026',
+                terms: 'Net 30 Days',
+                client: 'Lucky Landmark (Pvt) Ltd',
+                ntn: '0819234-2',
+                strn: '17-00-0819-234-19',
+                address: '8th Floor, Lucky One Tower, Rashid Minhas Road, Karachi',
+                poRef: 'PO-LND-2026-9812',
+                contractVal: 22666667,
+                milestonePct: '30% Allocation',
+                milestoneTier: 'Milestone 2 of 3: Equipment Delivery at Factory Gate / Delivery Pass',
+                site: 'Lucky One Mall, Karachi (Sindh)',
+                scopeHeader: 'Milestone 2 (30%): Equipment Delivery at Factory Gate / Delivery Pass',
+                taxAuth: '13% SRB Services',
+                taxRate: 0.13,
+                taxLabel: 'Sales Tax (13% SRB):',
+                retentionRate: 0.05,
+                whtRate: 0.045,
+                gatePass: 'GP-2026-0842',
+                jvNo: 'JV-2026-0904',
+                status: 'Approved Milestone Certificate',
+                lines: [
+                    { desc: 'Chilled Water Pipe Supply & Delivery at Site (Heavy Gauge Seamless 8")', unit: 'Meters', qty: 450, rate: 4200 },
+                    { desc: 'Armaflex Class-O Nitrile Rubber Thermal Insulation (25mm Sheet)', unit: 'Meters', qty: 450, rate: 1250 },
+                    { desc: 'Motorized Modulating 2-Way Control Valves with Actuators (Belimo)', unit: 'Sets', qty: 12, rate: 75000 },
+                    { desc: 'Hydrostatic Pressure Testing (250 PSI) & Factory Delivery Pass Verification', unit: 'Job', qty: 1, rate: 3447500 }
+                ]
+            },
+            'INV-2026-088': {
+                id: 'INV-2026-088',
+                date: '24 Sep 2026',
+                terms: 'Net 15 Days',
+                client: 'Packages Real Estate Ltd',
+                ntn: '1249871-5',
+                strn: '17-00-1249-871-19',
+                address: 'Packages Mall, Walton Road, Lahore, Punjab',
+                poRef: 'PO-PKG-2026-0041',
+                contractVal: 24000000,
+                milestonePct: '30% Allocation',
+                milestoneTier: 'Milestone 2 of 3: Equipment Delivery at Factory Gate / Delivery Pass',
+                site: 'Packages Mall, Lahore (Punjab)',
+                scopeHeader: 'Milestone 2 (30%): Firefighting Piping & Sprinklers Delivery & Erection',
+                taxAuth: '16% PRA Services',
+                taxRate: 0.16,
+                taxLabel: 'Sales Tax (16% PRA):',
+                retentionRate: 0.05,
+                whtRate: 0.045,
+                gatePass: 'GP-2026-0771',
+                jvNo: 'JV-2026-0905',
+                status: 'Approved / Cheque Due',
+                lines: [
+                    { desc: 'Schedule 40 Carbon Steel Firefighting Pipe 4" & 6" Gate Delivery', unit: 'Rft', qty: 600, rate: 2800 },
+                    { desc: 'UL/FM Certified Sprinkler Heads Pendant Quick Response Staged at Site', unit: 'Nos', qty: 350, rate: 1800 },
+                    { desc: 'Zone Control Valves & Flow Switches 4" Delivered & Mounted', unit: 'Sets', qty: 6, rate: 95000 },
+                    { desc: 'Fire Pump Rigging & Primary Header Erection Complete', unit: 'Job', qty: 1, rate: 4320000 }
+                ]
+            },
+            'INV-2026-039': {
+                id: 'INV-2026-039',
+                date: '12 Sep 2026',
+                terms: 'Net 30 Days',
+                client: 'The Indus Hospital & Health Network',
+                ntn: '3192044-8',
+                strn: '17-00-3192-044-15',
+                address: 'Korangi Crossing, Karachi, Sindh',
+                poRef: 'PO-IND-2026-0039',
+                contractVal: 18500000,
+                milestonePct: '65% Allocation',
+                milestoneTier: 'Milestone 1 of 3: Advance on Signing & Equipment Procurement',
+                site: 'Blood Bank Cleanroom & Ward, Karachi (Sindh)',
+                scopeHeader: 'Milestone 1 (65%): Cleanroom HEPA & Precision Cooling Advance Procurement',
+                taxAuth: '13% SRB Services',
+                taxRate: 0.13,
+                taxLabel: 'Sales Tax (13% SRB):',
+                retentionRate: 0.05,
+                whtRate: 0.045,
+                gatePass: 'GP-2026-0612',
+                jvNo: 'JV-2026-0899',
+                status: 'Paid & Reconciled',
+                lines: [
+                    { desc: 'Class 10,000 Cleanroom Engineering Advance & Submittal Approval', unit: 'Job', qty: 1, rate: 4810000 },
+                    { desc: 'H14 Grade Terminal HEPA Filter Boxes & Gauges Procurement', unit: 'Job', qty: 1, rate: 4215000 },
+                    { desc: 'Precision DX Air Handling Unit Factory Order Placement', unit: 'Job', qty: 1, rate: 3000000 }
+                ]
+            },
+            'INV-2026-038': {
+                id: 'INV-2026-038',
+                date: '02 Sep 2026',
+                terms: 'Net 15 Days',
+                client: 'The Indus Hospital & Health Network',
+                ntn: '3192044-8',
+                strn: '17-00-3192-044-15',
+                address: 'Korangi Crossing, Karachi, Sindh',
+                poRef: 'PO-IND-2026-0039',
+                contractVal: 18500000,
+                milestonePct: '5% Allocation',
+                milestoneTier: 'Milestone 3 of 3: Site Testing, Commissioning & Handover signoff',
+                site: 'Blood Bank Cleanroom & Ward, Karachi (Sindh)',
+                scopeHeader: 'Milestone 3 (5%): Site Testing, Commissioning & Handover signoff',
+                taxAuth: '13% SRB Services',
+                taxRate: 0.13,
+                taxLabel: 'Sales Tax (13% SRB):',
+                retentionRate: 0.05,
+                whtRate: 0.045,
+                gatePass: 'GP-2026-0620',
+                jvNo: 'JV-2026-0888',
+                status: 'Approved & Certified for Payment',
+                lines: [
+                    { desc: 'Cleanroom Airborne Particle Count & Class 10,000 ISO 7 Validation', unit: 'Job', qty: 1, rate: 370000 },
+                    { desc: 'Air Balancing (TAB) Certification & Temperature/Humidity Testing', unit: 'Job', qty: 1, rate: 325000 },
+                    { desc: 'Final Handover Signoff, As-Built Schematics & Training Certificate', unit: 'Job', qty: 1, rate: 230000 }
+                ]
+            },
+            'INV-2026-086': {
+                id: 'INV-2026-086',
+                date: '15 Sep 2026',
+                terms: 'Net 30 Days',
+                client: 'Lucky Cement Industrial Plant',
+                ntn: '0981245-1',
+                strn: '17-00-0981-245-14',
+                address: 'Industrial Area, Pezu, KPK',
+                poRef: 'PO-LKC-2026-0042',
+                contractVal: 16000000,
+                milestonePct: '30% Allocation',
+                milestoneTier: 'Milestone 2 of 3: Equipment Delivery at Factory Gate / Delivery Pass',
+                site: 'Lucky Cement Plant, Pezu KPK (KPK)',
+                scopeHeader: 'Milestone 2 (30%): Kiln Exhaust Blowers Delivery Pass & Duct Erection',
+                taxAuth: '15% KPRA Services',
+                taxRate: 0.15,
+                taxLabel: 'Sales Tax (15% KPRA):',
+                retentionRate: 0.05,
+                whtRate: 0.045,
+                gatePass: 'GP-2026-0719',
+                jvNo: 'JV-2026-0901',
+                status: 'Submitted to Client',
+                lines: [
+                    { desc: 'High-Temperature Mild Steel Heavy Gauge Ductwork (4mm Welded) Gate Delivery', unit: 'Tons', qty: 6.5, rate: 420000 },
+                    { desc: 'Centrifugal High Pressure Exhaust Blowers 15kW IE3 Delivered & Mounted', unit: 'Sets', qty: 2, rate: 450000 },
+                    { desc: 'Dynamic Balancing & Thermal Insulation Works Certified', unit: 'Job', qty: 1, rate: 1170000 }
+                ]
+            },
+            'INV-2026-085': {
+                id: 'INV-2026-085',
+                date: '10 Sep 2026',
+                terms: 'Net 15 Days',
+                client: 'DHA City Sector 3 Commercial',
+                ntn: '3318291-0',
+                strn: '17-00-3318-291-18',
+                address: 'Main Super Highway, Karachi, Sindh',
+                poRef: 'PO-DHA-2026-0033',
+                contractVal: 50000000,
+                milestonePct: '65% Allocation',
+                milestoneTier: 'Milestone 1 of 3: Advance on Signing & Equipment Procurement',
+                site: 'DHA City Sector 3 Commercial, Karachi (Sindh)',
+                scopeHeader: 'Milestone 1 (65%): Advance Mobilization & MEP Piping Procurement',
+                taxAuth: '13% SRB Services',
+                taxRate: 0.13,
+                taxLabel: 'Sales Tax (13% SRB):',
+                retentionRate: 0.0,
+                whtRate: 0.045,
+                gatePass: 'GP-2026-0599',
+                jvNo: 'JV-2026-0880',
+                status: 'Paid & Reconciled',
+                lines: [
+                    { desc: 'Mobilization Advance Payment against Bank Guarantee (65% Milestone Base)', unit: 'Job', qty: 1, rate: 32500000 }
+                ]
+            },
+            'INV-2026-087': {
+                id: 'INV-2026-087',
+                date: '20 Sep 2026',
+                terms: 'Net 30 Days',
+                client: 'Engro Fertilizers Complex',
+                ntn: '0711928-8',
+                strn: '17-00-0711-928-11',
+                address: 'Plant Site Area, Daharki, Sindh',
+                poRef: 'PO-ENG-2026-0045',
+                contractVal: 28000000,
+                milestonePct: '20% Commercial Deliverable',
+                milestoneTier: 'Commercial Sales Tax Invoice (Goods & Equipment Deliverable)',
+                site: 'Engro Complex, Daharki (Sindh)',
+                scopeHeader: 'Substation Electrical Cable Tray & Busway Supply & Testing',
+                taxAuth: '18% FBR GST',
+                taxRate: 0.18,
+                taxLabel: 'Sales Tax (18% FBR GST):',
+                retentionRate: 0.0,
+                whtRate: 0.045,
+                gatePass: 'GP-2026-0765',
+                jvNo: 'JV-2026-0895',
+                status: 'Paid & Reconciled',
+                lines: [
+                    { desc: 'Heavy Duty Perforated GI Cable Trays 600mm x 50mm with Covers', unit: 'Meters', qty: 850, rate: 3200 },
+                    { desc: 'Copper Sandwich Busway Trunking System 2500A IP65', unit: 'Meters', qty: 120, rate: 18500 },
+                    { desc: 'High Voltage Termination Kits & Earth Busbar Links', unit: 'Sets', qty: 8, rate: 82500 }
+                ]
+            }
+        };
+
+        function loadInvoice(invId) {
+            const inv = INVOICE_DATABASE[invId] || INVOICE_DATABASE['INV-2026-044'];
+            
+            document.getElementById('inv-id').innerText = inv.id;
+            document.getElementById('inv-date').innerText = inv.date;
+            document.getElementById('inv-terms').innerText = 'Payment Terms: ' + inv.terms;
+            document.getElementById('inv-client').innerText = inv.client;
+            document.getElementById('inv-ntn').innerText = inv.ntn;
+            document.getElementById('inv-strn').innerText = inv.strn;
+            document.getElementById('inv-client-addr').innerText = inv.address;
+            document.getElementById('inv-po-ref').innerText = inv.poRef;
+            document.getElementById('inv-site').innerText = inv.site;
+            document.getElementById('inv-scope-header').innerText = inv.scopeHeader;
+            document.getElementById('inv-contract-val').innerText = 'PKR ' + (inv.contractVal || 32000000).toLocaleString();
+            document.getElementById('inv-milestone-pct').innerText = inv.milestonePct;
+            document.getElementById('inv-milestone-tier').innerText = inv.milestoneTier;
+            document.getElementById('inv-tax-auth').innerText = inv.taxAuth;
+            document.getElementById('inv-gate-pass').innerText = inv.gatePass || 'GP-2026-0819';
+            document.getElementById('inv-status-label').innerText = inv.status;
+            document.getElementById('gl-voucher-no').innerText = inv.jvNo || 'JV-2026-0902';
+
+            let gross = 0;
+            const linesHtml = inv.lines.map((l, idx) => {
+                const lineTotal = l.qty * l.rate;
+                gross += lineTotal;
+                return `
+                    <tr class="hover:bg-slate-50 font-mono">
+                        <td class="py-2.5 px-3 text-center text-slate-400 font-sans">${idx + 1}</td>
+                        <td class="py-2.5 px-3 font-sans font-medium text-slate-800">${l.desc}</td>
+                        <td class="py-2.5 px-3 text-center font-sans text-slate-600">${l.unit}</td>
+                        <td class="py-2.5 px-3 text-right font-bold text-slate-900">${l.qty.toLocaleString()}</td>
+                        <td class="py-2.5 px-3 text-right text-slate-700">PKR ${l.rate.toLocaleString()}</td>
+                        <td class="py-2.5 px-3 text-right font-bold text-slate-900">PKR ${lineTotal.toLocaleString()}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('inv-lines-body').innerHTML = linesHtml;
+            document.getElementById('inv-subtotal').innerText = 'PKR ' + gross.toLocaleString();
+            document.getElementById('inv-milestone-gross').innerText = 'PKR ' + gross.toLocaleString();
+
+            const tax = Math.round(gross * inv.taxRate);
+            const retention = Math.round(gross * inv.retentionRate);
+            const wht = Math.round(gross * inv.whtRate);
+            const totalDrAR = gross + tax;
+            const net = totalDrAR - retention - wht;
+
+            document.getElementById('math-gross').innerText = 'PKR ' + gross.toLocaleString();
+            document.getElementById('math-tax-label').innerText = inv.taxLabel;
+            document.getElementById('math-tax').innerText = '+ PKR ' + tax.toLocaleString();
+            document.getElementById('math-retention').innerText = '- PKR ' + retention.toLocaleString();
+            document.getElementById('math-wht').innerText = '- PKR ' + wht.toLocaleString();
+            document.getElementById('math-net').innerText = 'PKR ' + net.toLocaleString();
+
+            document.getElementById('gl-dr-text').innerText = 'PKR ' + totalDrAR.toLocaleString();
+            document.getElementById('gl-cr-rev-text').innerText = 'PKR ' + gross.toLocaleString();
+            document.getElementById('gl-cr-tax-text').innerText = 'PKR ' + tax.toLocaleString();
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idParam = urlParams.get('id');
+            if (idParam && INVOICE_DATABASE[idParam]) {
+                document.getElementById('invoice-picker').value = idParam;
+                loadInvoice(idParam);
+            } else {
+                loadInvoice('INV-2026-044');
+            }
+        });
+    </script>
+</body>
+</html>

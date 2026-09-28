@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Corporate SIM Cards Audit & Policy Compliance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+            transition: all 0.2s ease;
+        }
+        .glass-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.06);
+        }
+        table th { padding: 0.55rem 0.85rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.55rem 0.85rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-slate-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <script src="../assets/js/shared.js"></script>
+    <script src="../assets/js/administrator-store.js"></script>
+    <script src="../assets/js/admin-store.js"></script>
+    <script>
+        renderLayout('sims');
+
+        window.currentSimTab = 'all';
+
+        function renderSimsUI() {
+            const adminStore = window.CosmixAdminStore;
+            const penaltyPkr = adminStore ? adminStore.getSlotValue('SiteStaff.Sim.NonUseDeductionPkr', 1500.0) : 1500.0;
+
+            const rawSims = [
+                { id: 'SIM-001', number: '0300-1122334', network: 'Jazz Corporate', plan: 'Postpaid 15GB CUG', assignedTo: 'Farhan Ali', role: 'Senior Site Tech', site: 'DHA Phase 8 MEP', lastActive: '2026-09-25 18:30', usageGb: 12.4, totalGb: 15, isActive: true, penalty: false },
+                { id: 'SIM-002', number: '0300-5566778', network: 'Jazz Corporate', plan: 'Postpaid 20GB CUG', assignedTo: 'Tariq Mehmood', role: 'Purchaser & Stores', site: 'Central Warehouse', lastActive: '2026-09-25 19:15', usageGb: 16.8, totalGb: 20, isActive: true, penalty: false },
+                { id: 'SIM-003', number: '0300-4433221', network: 'Zong Corporate', plan: 'Postpaid 10GB CUG', assignedTo: 'Kamran Qureshi', role: 'Installation Tech', site: 'Lucky Textile Site', lastActive: '2026-09-18 10:00', usageGb: 0.8, totalGb: 10, isActive: false, penalty: true },
+                { id: 'SIM-004', number: '0300-9988776', network: 'Jazz Corporate', plan: 'Postpaid 25GB CUG', assignedTo: 'Engr. Faisal Tariq', role: 'Billing Engineer', site: 'Lucky One Mall', lastActive: '2026-09-25 20:45', usageGb: 22.1, totalGb: 25, isActive: true, penalty: false },
+                { id: 'SIM-005', number: '0300-6677889', network: 'Zong Corporate', plan: 'Postpaid 15GB CUG', assignedTo: 'Rashid Khan', role: 'Factory Manager', site: 'Korangi Yard', lastActive: '2026-09-25 17:30', usageGb: 11.5, totalGb: 15, isActive: true, penalty: false },
+                { id: 'SIM-006', number: '0300-3344556', network: 'Jazz Corporate', plan: 'Postpaid 10GB CUG', assignedTo: 'Nadeem Transport', role: 'Office Rider', site: 'HQ Logistics', lastActive: '2026-09-25 16:10', usageGb: 8.2, totalGb: 10, isActive: true, penalty: false },
+                { id: 'SIM-007', number: '0300-8899001', network: 'Jazz Corporate', plan: 'Postpaid 10GB CUG', assignedTo: 'Aslam Pervez', role: 'Materials Driver', site: 'Site Transit', lastActive: '2026-09-17 11:20', usageGb: 1.1, totalGb: 10, isActive: false, penalty: true },
+                { id: 'SIM-008', number: '0300-7766554', network: 'Zong Corporate', plan: 'Postpaid 15GB CUG', assignedTo: 'Sara Ahmed', role: 'Site QC Inspector', site: 'Packages Mall Site', lastActive: '2026-09-25 18:00', usageGb: 13.9, totalGb: 15, isActive: true, penalty: false }
+            ];
+
+            const totalCount = rawSims.length;
+            const activeCount = rawSims.filter(s => s.isActive).length;
+            const flaggedCount = rawSims.filter(s => s.penalty).length;
+            const monthlyCost = totalCount * 1850;
+
+            const filteredSims = rawSims.filter(s => {
+                if (window.currentSimTab === 'active' && !s.isActive) return false;
+                if (window.currentSimTab === 'flagged' && !s.penalty) return false;
+                return true;
+            });
+
+            const rowsHTML = filteredSims.map(s => {
+                const usagePercent = Math.round((s.usageGb / s.totalGb) * 100);
+                const statusBadge = s.isActive 
+                    ? '<span class="badge-pill bg-emerald-50 text-emerald-700 border border-emerald-200"><i class="fas fa-signal text-[9px]"></i> Active CUG</span>'
+                    : '<span class="badge-pill bg-rose-50 text-rose-700 border border-rose-200"><i class="fas fa-triangle-exclamation text-[9px]"></i> Inactive (>7d)</span>';
+
+                return `
+                    <tr class="hover:bg-slate-50/80 border-b border-slate-100 transition text-xs">
+                        <td class="font-mono font-bold text-[#1e2552]">${s.id}</td>
+                        <td>
+                            <div class="font-mono font-bold text-slate-900 text-xs">${s.number}</div>
+                            <span class="text-[10px] text-slate-400 font-semibold">${s.network} · ${s.plan}</span>
+                        </td>
+                        <td>
+                            <div class="font-bold text-slate-900">${s.assignedTo}</div>
+                            <span class="text-[10.5px] text-slate-500">${s.role} · ${s.site}</span>
+                        </td>
+                        <td class="w-36">
+                            <div class="flex justify-between text-[10px] text-slate-500 mb-0.5">
+                                <span>${s.usageGb} / ${s.totalGb} GB</span>
+                                <span class="font-bold">${usagePercent}%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full ${usagePercent > 85 ? 'bg-amber-500' : 'bg-blue-600'}" style="width: ${usagePercent}%"></div>
+                            </div>
+                        </td>
+                        <td class="font-mono text-[11px] text-slate-600 whitespace-nowrap">${s.lastActive}</td>
+                        <td class="text-center whitespace-nowrap">${statusBadge}</td>
+                        <td class="text-center whitespace-nowrap">
+                            ${s.penalty ? `
+                                <span class="badge-pill font-mono font-black bg-rose-100 text-rose-800 border border-rose-200">
+                                    -PKR ${penaltyPkr.toLocaleString()}
+                                </span>
+                            ` : `
+                                <span class="text-slate-400 text-[10px]">Compliant</span>
+                            `}
+                        </td>
+                        <td class="text-right whitespace-nowrap">
+                            ${s.penalty ? `
+                                <button onclick="triggerPenalty('${s.id}', '${s.assignedTo}', ${penaltyPkr})" class="px-3 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[10.5px] font-bold shadow-2xs transition inline-flex items-center gap-1">
+                                    <i class="fas fa-gavel"></i> Deduct PKR ${penaltyPkr.toLocaleString()}
+                                </button>
+                            ` : `
+                                <button onclick="viewSimAuditLog('${s.id}')" class="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10.5px] font-semibold transition inline-flex items-center gap-1">
+                                    <i class="fas fa-chart-simple text-slate-400"></i> Forensic Logs
+                                </button>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="space-y-4">
+                    
+                    <!-- Top Command Bar -->
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Admin & Operations · Corporate Telecom Governance</span>
+                                <span class="badge-pill bg-rose-50 text-rose-700 border border-rose-200">PolicySlot SiteStaff.Sim.NonUseDeductionPkr</span>
+                            </div>
+                            <h2 class="text-base font-black text-slate-900 mt-0.5">Corporate SIM Inventory & Activity Compliance Desk</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Mandatory site staff telecom compliance: Inactivity or non-business misuse exceeding 7 days triggers automatic PKR ${penaltyPkr.toLocaleString()} payroll deduction.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="showToast('Jazz & Zong corporate CUG data synchronized via API', 'success')" class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition shadow-2xs">
+                                <i class="fas fa-sync-alt text-slate-400 mr-1"></i> Sync CUG API
+                            </button>
+                            <button onclick="openAllocateSimModal()" class="bg-[#1e2552] hover:bg-[#121736] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5 active:scale-95">
+                                <i class="fas fa-plus text-amber-300"></i> Allocate New SIM
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4 Summary KPI Cards -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned SIM Pool</span>
+                                <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-sim-card"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-slate-900">${totalCount} SIM Assets</div>
+                            <p class="text-[10px] text-slate-500 mt-1">Jazz & Zong Corporate Pool</p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Connectivity</span>
+                                <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-signal"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-emerald-700">${activeCount} Active (${Math.round((activeCount/totalCount)*100)}%)</div>
+                            <p class="text-[10px] text-emerald-600 font-semibold mt-1">Live in Field Operations</p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Inactivity Penalties</span>
+                                <span class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-triangle-exclamation"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-rose-700">${flaggedCount} Flagged</div>
+                            <p class="text-[10px] text-rose-600 font-semibold mt-1">PKR ${(flaggedCount * penaltyPkr).toLocaleString()} Pending Deductions</p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Monthly Telecom Bill</span>
+                                <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-receipt"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-slate-900">PKR ${monthlyCost.toLocaleString()}</div>
+                            <p class="text-[10px] text-slate-500 mt-1">Fixed CUG Bundle Package</p>
+                        </div>
+                    </div>
+
+                    <!-- Policy Clause Banner -->
+                    <div class="p-3.5 bg-rose-50/70 border border-rose-200 rounded-xl flex items-start gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs shrink-0 mt-0.5"><i class="fas fa-shield-halved"></i></span>
+                        <div>
+                            <h4 class="text-xs font-bold text-rose-900">CEO Policy Slot SiteStaff.Sim.NonUseDeductionPkr (PKR ${penaltyPkr.toLocaleString()}) Enforced</h4>
+                            <p class="text-[11px] text-rose-700 mt-0.5">All field resident engineers, supervisors, and dispatch riders must maintain active SIM connectivity during project work hours. Unauthorized non-business usage or inactivity exceeding 7 consecutive calendar days automatically posts a mandatory PKR ${penaltyPkr.toLocaleString()} deduction to the employee salary voucher.</p>
+                        </div>
+                    </div>
+
+                    <!-- SIM Register Table -->
+                    <div class="glass-card overflow-hidden">
+                        <div class="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="setSimTab('all', this)" class="px-3 py-1 rounded-xl text-xs font-bold ${window.currentSimTab === 'all' ? 'bg-[#1e2552] text-white' : 'text-slate-600 hover:bg-slate-100'} transition">
+                                    All SIMs (${totalCount})
+                                </button>
+                                <button onclick="setSimTab('active', this)" class="px-3 py-1 rounded-xl text-xs font-bold ${window.currentSimTab === 'active' ? 'bg-[#1e2552] text-white' : 'text-slate-600 hover:bg-slate-100'} transition">
+                                    Active (${activeCount})
+                                </button>
+                                <button onclick="setSimTab('flagged', this)" class="px-3 py-1 rounded-xl text-xs font-bold ${window.currentSimTab === 'flagged' ? 'bg-[#1e2552] text-white' : 'text-slate-600 hover:bg-slate-100'} transition">
+                                    Flagged for Fine (${flaggedCount})
+                                </button>
+                            </div>
+                            <span class="text-[10px] font-mono text-slate-400">cosmixhub.db Compliance</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold text-[10px] uppercase tracking-wider">
+                                    <tr>
+                                        <th>Asset Code</th>
+                                        <th>Mobile Number & Plan</th>
+                                        <th>Assigned Custodian & Site</th>
+                                        <th>Data Quota Usage</th>
+                                        <th>Last Active UTC</th>
+                                        <th class="text-center">Network Status</th>
+                                        <th class="text-center">Penalty Status</th>
+                                        <th class="text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHTML}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function refreshUI() {
+            setPageContent('Corporate SIM Cards Audit', renderSimsUI());
+        }
+
+        window.setSimTab = (tab) => {
+            window.currentSimTab = tab;
+            refreshUI();
+        };
+
+        window.triggerPenalty = (id, custodian, amount) => {
+            openModal(`Confirm Payroll Penalty Deduction: ${id}`, `
+                <div class="space-y-3 text-xs">
+                    <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl space-y-1">
+                        <p class="font-bold text-rose-900 flex items-center gap-1.5"><i class="fas fa-gavel"></i> Policy Slot SiteStaff.Sim.NonUseDeductionPkr</p>
+                        <p class="text-rose-700 text-[11px]">Employee <strong>${custodian}</strong> has kept corporate SIM <strong>${id}</strong> inactive for over 7 consecutive work days without formal approved leave.</p>
+                    </div>
+                    <div class="space-y-1.5 font-mono text-[11.5px] bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <div class="flex justify-between"><span>Deduction Amount:</span><strong class="text-rose-700">PKR ${amount.toLocaleString()}.00</strong></div>
+                        <div class="flex justify-between"><span>Payroll Ledger:</span><span>September 2026 Salary Sheet</span></div>
+                        <div class="flex justify-between"><span>GL Account:</span><span>5300 (Staff Penalty Recoveries)</span></div>
+                    </div>
+                    <p class="text-[10px] text-slate-500">Upon confirmation, this deduction is permanently linked to the employee's monthly pay slip and journal entry is posted.</p>
+                </div>
+            `, () => {
+                showToast(`PKR ${amount.toLocaleString()} wage deduction posted to payroll ledger for ${custodian}!`, 'error');
+                refreshUI();
+            });
+        };
+
+        window.viewSimAuditLog = (simId) => {
+            const rawSims = [
+                { id: 'SIM-001', number: '0300-1122334', network: 'Jazz Corporate', plan: 'Postpaid 15GB CUG', assignedTo: 'Farhan Ali', role: 'Senior Site Tech', site: 'DHA Phase 8 MEP', lastActive: '2026-09-25 18:30', usageGb: 12.4, totalGb: 15, imei: '864920192841029', callsMin: 420 },
+                { id: 'SIM-002', number: '0300-5566778', network: 'Jazz Corporate', plan: 'Postpaid 20GB CUG', assignedTo: 'Tariq Mehmood', role: 'Purchaser & Stores', site: 'Central Warehouse', lastActive: '2026-09-25 19:15', usageGb: 16.8, totalGb: 20, imei: '864920192841031', callsMin: 680 },
+                { id: 'SIM-003', number: '0300-4433221', network: 'Zong Corporate', plan: 'Postpaid 10GB CUG', assignedTo: 'Kamran Qureshi', role: 'Installation Tech', site: 'Lucky Textile Site', lastActive: '2026-09-18 10:00', usageGb: 0.8, totalGb: 10, imei: '864920192841099', callsMin: 12 },
+                { id: 'SIM-004', number: '0300-9988776', network: 'Jazz Corporate', plan: 'Postpaid 25GB CUG', assignedTo: 'Engr. Faisal Tariq', role: 'Billing Engineer', site: 'Lucky One Mall', lastActive: '2026-09-25 20:45', usageGb: 22.1, totalGb: 25, imei: '864920192841055', callsMin: 890 }
+            ];
+
+            const sim = rawSims.find(s => s.id === simId) || rawSims[0];
+
+            openModal(`Telecom Forensic Audit · ${sim.id} (${sim.number})`, `
+                <div class="space-y-3.5 text-xs">
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+                        <div class="flex justify-between"><span>Assigned Custodian:</span><strong>${sim.assignedTo}</strong></div>
+                        <div class="flex justify-between"><span>Site Deployment:</span><span>${sim.site} (${sim.role})</span></div>
+                        <div class="flex justify-between font-mono"><span>Handset IMEI:</span><span>${sim.imei}</span></div>
+                        <div class="flex justify-between"><span>Monthly Calls Logged:</span><strong>${sim.callsMin} Mins (CUG Unlimited)</strong></div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-xs mb-1.5">Data Quota Utilization (${sim.usageGb} / ${sim.totalGb} GB)</h4>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                            <div class="h-full rounded-full bg-blue-600" style="width: ${(sim.usageGb/sim.totalGb)*100}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <div class="bg-slate-100 px-3 py-1.5 font-bold text-[11px] text-slate-700">Recent Tower & GPS Ping Activity</div>
+                        <div class="p-3 text-[11px] space-y-1 text-slate-600 font-mono">
+                            <div class="flex justify-between"><span>2026-09-25 18:30:12</span><span>Cell ID 410-01-9921 (DHA Phase 8)</span></div>
+                            <div class="flex justify-between"><span>2026-09-25 14:15:00</span><span>Cell ID 410-01-8812 (Clifton Sector 4)</span></div>
+                            <div class="flex justify-between"><span>2026-09-25 09:45:33</span><span>Cell ID 410-01-4402 (HQ PECHS Tower)</span></div>
+                        </div>
+                    </div>
+                </div>
+            `, null);
+        };
+
+        window.openAllocateSimModal = () => {
+            openModal('Allocate New Corporate SIM Asset', `
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Select Field Employee</label>
+                        <select id="alloc-staff" class="w-full px-3 py-2 border border-slate-200 rounded-xl outline-none focus:border-[#1e2552]">
+                            <option>Asadullah Khan · HVAC Commissioning Tech (Lucky One Mall)</option>
+                            <option>Zubair Ahmed · Electrical Foreman (Packages Mall)</option>
+                            <option>Muhammad Imran · Firefighting Pipefitter (Engro Complex)</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Network Provider</label>
+                            <select id="alloc-net" class="w-full px-3 py-2 border border-slate-200 rounded-xl outline-none">
+                                <option>Jazz Corporate Postpaid</option>
+                                <option>Zong Corporate Postpaid</option>
+                                <option>Telenor Corporate</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Data Bundle</label>
+                            <select id="alloc-data" class="w-full px-3 py-2 border border-slate-200 rounded-xl outline-none">
+                                <option>15 GB CUG (Standard Field)</option>
+                                <option>20 GB CUG (Supervisor)</option>
+                                <option>25 GB CUG (Project Lead)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">SIM Card ICCID / Number</label>
+                        <input type="text" id="alloc-num" placeholder="0300-XXXXXXX" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono outline-none focus:border-[#1e2552]">
+                    </div>
+                </div>
+            `, () => {
+                const staff = document.getElementById('alloc-staff')?.value || 'Field Staff';
+                const num = document.getElementById('alloc-num')?.value || '0300-9988112';
+                showToast(`New corporate SIM ${num} allocated to ${staff.split('·')[0]}!`, 'success');
+                refreshUI();
+            });
+        };
+
+        refreshUI();
+    </script>
+</body>
+</html>

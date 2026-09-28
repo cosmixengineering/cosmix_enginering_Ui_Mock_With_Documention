@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFQ & Comparative Statements - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <script src="../assets/js/procurement-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('rfq');
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-12">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-teal-600 text-[11px]"><i class="fas fa-arrow-left mr-1"></i> Dashboard</a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-teal-700 uppercase tracking-wider">Tendering & RFQ</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-slate-800 mt-0.5">Vendor RFQ & Comparative Statements</h1>
+                            <p class="text-[11px] text-slate-500">Multi-vendor price comparative sheets, commercial evaluation, and Lowest Evaluated Bidder (L1) award engine.</p>
+                        </div>
+                        <button onclick="alert('New RFQ creation initialized against active project requisition.')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                            <i class="fas fa-bullhorn"></i> Broadcast New RFQ
+                        </button>
+                    </div>
+
+                    <!-- RFQ Enquiries Accordion / Comparative Sheets -->
+                    <div class="space-y-4" id="rfq-container">
+                        <!-- Populated Dynamically -->
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderRfqs();
+        });
+
+        function renderRfqs() {
+            const rfqs = CosmixProcurement.getRfqs();
+            const container = document.getElementById('rfq-container');
+            if (!container) return;
+
+            container.innerHTML = rfqs.map(rfq => {
+                const hasBids = rfq.bids && rfq.bids.length > 0;
+                const l1Bid = hasBids ? rfq.bids.find(b => b.isL1) || rfq.bids[0] : null;
+
+                const bidsTableRows = hasBids ? rfq.bids.map((b, idx) => `
+                    <tr class="hover:bg-slate-50/80 transition-all ${b.isL1 ? 'bg-emerald-50/40 font-semibold' : ''}">
+                        <td class="py-2.5 px-3">
+                            <div class="flex items-center gap-2">
+                                ${b.isL1 ? '<span class="px-1.5 py-0.5 rounded bg-emerald-600 text-white font-bold text-[9px] uppercase tracking-wider">L1 Winner</span>' : `<span class="text-slate-400 font-mono text-[10px]">L${idx + 1}</span>`}
+                                <span class="text-slate-800 font-semibold">${b.vendorName}</span>
+                            </div>
+                        </td>
+                        <td class="py-2.5 px-3 font-mono text-right text-slate-700">PKR ${b.unitRate1?.toLocaleString() || '-'}</td>
+                        <td class="py-2.5 px-3 font-mono text-right text-slate-700">PKR ${b.unitRate2?.toLocaleString() || '-'}</td>
+                        <td class="py-2.5 px-3 font-mono text-right font-bold ${b.isL1 ? 'text-emerald-700' : 'text-slate-800'}">
+                            PKR ${b.bidTotalPkr.toLocaleString()}
+                        </td>
+                        <td class="py-2.5 px-3 text-center text-slate-600">${b.deliveryDays} Days</td>
+                        <td class="py-2.5 px-3 text-slate-600">${b.paymentTerms}</td>
+                        <td class="py-2.5 px-3 text-center">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${b.score >= 90 ? 'bg-emerald-100 text-emerald-800' : b.score >= 80 ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}">
+                                ${b.score}/100
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-3 text-right">
+                            ${b.isL1 ? `
+                                <button onclick="awardL1('${rfq.id}', '${b.vendorId}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10.5px] font-bold shadow-xs transition-all">
+                                    <i class="fas fa-check mr-1"></i> Award PO
+                                </button>
+                            ` : `
+                                <span class="text-slate-400 text-[10px] italic">Non-L1</span>
+                            `}
+                        </td>
+                    </tr>
+                `).join('') : `
+                    <tr>
+                        <td colspan="8" class="py-6 text-center text-slate-400 text-xs">
+                            <i class="fas fa-clock text-slate-300 text-lg mb-1 block"></i>
+                            Awaiting vendor bid submissions. Closing date: <strong>${rfq.closingDate}</strong>
+                        </td>
+                    </tr>
+                `;
+
+                return `
+                    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+                        <!-- RFQ Card Header -->
+                        <div class="p-4 bg-slate-50/70 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono font-bold text-[10px]">${rfq.rfqNumber}</span>
+                                    <span class="text-slate-300">•</span>
+                                    <span class="text-slate-500 font-medium">${rfq.projectRef}</span>
+                                    <span class="text-slate-300">•</span>
+                                    <span class="text-slate-400 font-mono">BOM: ${rfq.requisitionRef}</span>
+                                </div>
+                                <h3 class="font-bold text-sm text-slate-800 mt-1">${rfq.title}</h3>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="text-right">
+                                    <div class="text-[10px] text-slate-400 uppercase font-semibold">Closing Date</div>
+                                    <div class="font-mono font-bold text-slate-700">${rfq.closingDate}</div>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-md text-[10px] font-bold ${rfq.status === 'EvaluationReady' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                    ${rfq.status === 'EvaluationReady' ? 'Ready for Award' : 'Bids In Progress'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Comparative Statement Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-[11px]">
+                                <thead class="bg-slate-100/80 text-slate-600 font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Bidding Vendor</th>
+                                        <th class="py-2.5 px-3 text-right">Item 1 Rate</th>
+                                        <th class="py-2.5 px-3 text-right">Item 2 Rate</th>
+                                        <th class="py-2.5 px-3 text-right">Total Evaluated (PKR)</th>
+                                        <th class="py-2.5 px-3 text-center">Lead Time</th>
+                                        <th class="py-2.5 px-3">Terms</th>
+                                        <th class="py-2.5 px-3 text-center">Score</th>
+                                        <th class="py-2.5 px-3 text-right">Decision</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${bidsTableRows}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        ${hasBids && l1Bid ? `
+                            <div class="p-3 bg-emerald-50/50 border-t border-emerald-100 flex items-center justify-between text-[11px]">
+                                <div class="flex items-center gap-2 text-emerald-900">
+                                    <i class="fas fa-circle-check text-emerald-600"></i>
+                                    <span>Evaluation Recommendation: <strong>${l1Bid.vendorName}</strong> has the lowest compliant commercial offer of <strong>PKR ${l1Bid.bidTotalPkr.toLocaleString()}</strong> with ${l1Bid.deliveryDays} days lead time.</span>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function awardL1(rfqId, vendorId) {
+            const vendor = CosmixProcurement.getVendorById(vendorId);
+            const rfq = CosmixProcurement.getRfqs().find(r => r.id === rfqId);
+            if (!vendor || !rfq) return;
+
+            if (confirm(`Confirm award of ${rfq.rfqNumber} to lowest bidder "${vendor.name}" and generate Purchase Order?`)) {
+                const newPo = CosmixProcurement.createPurchaseOrder({
+                    vendorId: vendor.id,
+                    vendorName: vendor.name,
+                    vendorNtn: vendor.ntn,
+                    vendorStrn: vendor.strn,
+                    projectRef: rfq.projectRef,
+                    bomRef: rfq.requisitionRef,
+                    paymentTerms: '15 Days Credit',
+                    deliveryDate: '2026-10-02',
+                    notes: `Awarded from ${rfq.rfqNumber} (L1 Lowest Evaluated Bid).`,
+                    lines: rfq.items.map((it, idx) => ({
+                        id: 'pol-' + (idx + 1),
+                        itemCode: it.itemCode,
+                        description: it.description,
+                        uom: it.uom,
+                        qtyOrdered: it.qty,
+                        unitRatePkr: idx === 0 ? 5200 : 2900,
+                        totalPkr: it.qty * (idx === 0 ? 5200 : 2900),
+                        qtyReceived: 0,
+                        qtyInvoiced: 0
+                    }))
+                });
+
+                alert(`Purchase Order ${newPo.poNumber} successfully generated! Redirecting to Purchase Orders...`);
+                window.location.href = 'purchase-orders.html';
+            }
+        }
+    </script>
+</body>
+</html>

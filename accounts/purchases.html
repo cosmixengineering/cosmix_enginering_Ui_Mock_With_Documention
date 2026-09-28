@@ -1,15 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmix ERP - Supply Purchases, Site Expense Invoicing & Field Slips</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         html { font-size: 13px !important; } 
-        body { font-family: 'Inter', sans-serif; } 
+        body { font-family: 'Poppins', sans-serif; } 
         table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; } 
         table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
         .stamp-box {
@@ -309,27 +309,26 @@
                                     <i class="fas fa-receipt text-amber-600"></i>
                                     Receive Field Purchase — "Purchased Done with Slip"
                                 </h2>
-                                <p class="text-[10.5px] text-gray-400 mt-0.5">Site ya market se khareed karne ke baad field staff apni slip ke sath yahan request drop karta hai. Accounts department inspect karke invoice banayega.</p>
+                                <p class="text-[10.5px] text-gray-400 mt-0.5">Field staff submit cash purchases with receipt slips. Accounts reviews the attachment and generates an Expense Invoice.</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="bg-amber-50 text-amber-800 text-[9px] font-bold px-2.5 py-1 rounded-full border border-amber-200 flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Field Purchase Simulator
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Field Purchase Receipt
                             </span>
                         </div>
                     </div>
 
                     <!-- Context Banner -->
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl px-5 py-3.5 mb-4 flex items-start gap-3">
+                    <div class="bg-amber-50/60 border border-amber-200 rounded-xl px-5 py-3.5 mb-4 flex items-start gap-3">
                         <div class="w-9 h-9 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 mt-0.5">
-                            <i class="fas fa-truck-loading text-amber-700"></i>
+                            <i class="fas fa-receipt text-amber-700"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-amber-900 text-xs">Field / Site Staff Purchase Simulator</h4>
+                            <h4 class="font-bold text-amber-900 text-xs">Direct Site / Market Purchase Ingestion</h4>
                             <p class="text-[10.5px] text-amber-800 mt-0.5 leading-relaxed">
-                                Company ke jo log site ya market se purchase karke aaye hain, wo slip ke sath purchase submit karte hain.
-                                Yeh request Accounts me <b class="text-amber-900">"Purchased Done with Slip"</b> status ke sath drop hogi.
-                                Accounts wala slip dekhega, verify karega, aur official Expense Invoice generate karega.
+                                Field personnel submitting emergency site/market cash purchases drop receipts here.
+                                Requests are queued with <b class="text-amber-900">"Purchased Done with Slip"</b> status for Accounts verification and AP voucher posting.
                             </p>
                         </div>
                     </div>
@@ -2672,3 +2671,4 @@
     </script>
 </body>
 </html>
+

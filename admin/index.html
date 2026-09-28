@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Admin & Operations Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+            transition: all 0.2s ease;
+        }
+        .glass-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+        }
+    </style>
+</head>
+<body class="text-slate-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <script src="../assets/js/shared.js"></script>
+    <script src="../assets/js/admin-store.js"></script>
+    <script>
+        renderLayout('dashboard');
+
+        const state = window.CosmixGeneralAdminStore.state;
+        const fleetCount = state.fleet.length;
+        const pendingFuel = state.fuelClaims.filter(f => f.status === 'Pending').length;
+        const facilitiesCount = state.facilities.length;
+        const inactiveSims = state.simCards.filter(s => !s.isActive || s.penaltyApplicable).length;
+
+        setPageContent('Admin & Operations Console', `
+            <div class="space-y-4">
+                
+                <!-- Welcome Banner & Header -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-lg text-blue-700 font-bold">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-base font-black text-slate-900 tracking-tight">Admin & General Operations Command</h2>
+                                    <span class="badge-pill bg-blue-50 text-blue-700 border border-blue-200">OPERATIONS</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-0.5">Site Staff Policy (28 km/L Fuel), Company Fleet, Facility Masters & Corporate SIM Audits</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Quick Action CTA Buttons -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="site-staff-policy.html" class="bg-[#1e2552] hover:bg-[#121736] text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                                <i class="fas fa-person-digging text-amber-300"></i> Site Staff Policy
+                            </a>
+                            <a href="fleet-vehicles.html" class="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                                <i class="fas fa-motorcycle text-white"></i> Fleet & Fuel (${pendingFuel} Pending)
+                            </a>
+                            <a href="facilities.html" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs">
+                                <i class="fas fa-building text-blue-600"></i> Facilities (${facilitiesCount})
+                            </a>
+                            <a href="sim-cards.html" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs">
+                                <i class="fas fa-sim-card text-rose-600"></i> SIM Audit (${inactiveSims})
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Top Executive KPI Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    
+                    <!-- KPI 1: Site Travel Policy Formula -->
+                    <div class="glass-card p-4 cursor-pointer" onclick="window.location.href='site-staff-policy.html'">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Site Fuel Standard</p>
+                            <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs">
+                                <i class="fas fa-gas-pump"></i>
+                            </span>
+                        </div>
+                        <h4 class="text-xl font-black font-mono text-indigo-900 mt-1">28.0 km/L</h4>
+                        <div class="flex items-center justify-between text-[10px] mt-2 pt-2 border-t border-slate-100">
+                            <span class="text-indigo-600 font-semibold">Site-to-Site Transit</span>
+                            <span class="text-slate-400">Home Excluded</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2: Company Fleet Assets -->
+                    <div class="glass-card p-4 cursor-pointer" onclick="window.location.href='fleet-vehicles.html'">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Fleet Assets</p>
+                            <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center text-xs">
+                                <i class="fas fa-motorcycle"></i>
+                            </span>
+                        </div>
+                        <h4 class="text-xl font-black font-mono text-amber-700 mt-1">${fleetCount} Vehicles</h4>
+                        <div class="flex items-center justify-between text-[10px] mt-2 pt-2 border-t border-slate-100">
+                            <span class="text-amber-700 font-semibold">${pendingFuel} Claims Pending</span>
+                            <span class="text-slate-400">100% Monitored</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3: Facilities -->
+                    <div class="glass-card p-4 cursor-pointer" onclick="window.location.href='facilities.html'">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Facility & Offices</p>
+                            <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs">
+                                <i class="fas fa-city"></i>
+                            </span>
+                        </div>
+                        <h4 class="text-xl font-black font-mono text-slate-900 mt-1">${facilitiesCount} Sites</h4>
+                        <div class="flex items-center justify-between text-[10px] mt-2 pt-2 border-t border-slate-100">
+                            <span class="text-emerald-600 font-semibold">HQ, Workshop & Stores</span>
+                            <span class="text-slate-400">All Active</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4: SIMs -->
+                    <div class="glass-card p-4 cursor-pointer" onclick="window.location.href='sim-cards.html'">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Corporate SIMs</p>
+                            <span class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xs">
+                                <i class="fas fa-sim-card"></i>
+                            </span>
+                        </div>
+                        <h4 class="text-xl font-black font-mono text-rose-700 mt-1">${state.simCards.length} Assigned</h4>
+                        <div class="flex items-center justify-between text-[10px] mt-2 pt-2 border-t border-slate-100">
+                            <span class="text-rose-600 font-semibold">${inactiveSims} Audit Flagged</span>
+                            <span class="text-slate-400">KPI Sync</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 2-Column Summary Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    
+                    <!-- Left: Fleet Summary -->
+                    <div class="glass-card p-4 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                <i class="fas fa-motorcycle text-amber-600"></i> Fleet Vehicles & Maintenance Status
+                            </h3>
+                            <a href="fleet-vehicles.html" class="text-[11px] font-bold text-blue-600 hover:underline">View All &rarr;</a>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            ${state.fleet.map(v => `
+                                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                                    <div>
+                                        <p class="font-bold text-slate-900">${v.makeModel} (${v.regNo})</p>
+                                        <p class="text-[10px] text-slate-500">Custodian: ${v.assignedTo} · ${v.site}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="font-mono font-bold text-[#1e2552]">${v.currentOdo.toLocaleString()} km</span>
+                                        <span class="block text-[9.5px] text-slate-400">Next Tune: ${1000 - (v.currentOdo % 1000)} km</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Right: Facilities Master -->
+                    <div class="glass-card p-4 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                <i class="fas fa-building text-blue-600"></i> Corporate Facilities & Warehouses
+                            </h3>
+                            <a href="facilities.html" class="text-[11px] font-bold text-blue-600 hover:underline">View All &rarr;</a>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            ${state.facilities.map(f => `
+                                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                                    <div>
+                                        <p class="font-bold text-slate-900">${f.name}</p>
+                                        <p class="text-[10px] text-slate-500">${f.type} · ${f.city}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="badge-pill bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>
+                                        <span class="block text-[9.5px] text-slate-400 mt-0.5">${f.staffCount || 12} Staff</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        `);
+    </script>
+</body>
+</html>
+

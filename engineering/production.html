@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Orders & 8 SOP Stages - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <script src="../assets/js/engineering-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('production');
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-12">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-orange-600 text-[11px]"><i class="fas fa-arrow-left mr-1"></i> Operations</a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-orange-700 uppercase tracking-wider">Workshop Fabrication</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-slate-800 mt-0.5">Workshop Production Orders (8 SOP Stages)</h1>
+                            <p class="text-[11px] text-slate-500">Track 1 Factory Routing: Planned &rarr; Material Issued &rarr; Fabrication &rarr; Assembly &rarr; Factory QC &rarr; Packing &rarr; Ready &rarr; Dispatched.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="factory-qc.html" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                                <i class="fas fa-clipboard-check"></i> Factory QC Gate
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Production Orders Stepper Cards -->
+                    <div class="space-y-4" id="production-cards-container">
+                        <!-- Populated Dynamically -->
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderProductionCards();
+        });
+
+        function renderProductionCards() {
+            const orders = CosmixEngineering.getProductionOrders();
+            const stages = CosmixEngineering.getSopStages();
+            const container = document.getElementById('production-cards-container');
+            if (!container) return;
+
+            container.innerHTML = orders.map(order => {
+                const currentStageIdx = stages.indexOf(order.currentStage);
+
+                // Build 8-step visual bar
+                const stepsHtml = stages.map((st, idx) => {
+                    const isCompleted = idx < currentStageIdx;
+                    const isCurrent = idx === currentStageIdx;
+                    const isPending = idx > currentStageIdx;
+
+                    let circleClass = 'bg-slate-100 text-slate-400 border-slate-300';
+                    let textClass = 'text-slate-400';
+                    if (isCompleted) {
+                        circleClass = 'bg-emerald-600 text-white border-emerald-600';
+                        textClass = 'text-emerald-700 font-bold';
+                    } else if (isCurrent) {
+                        circleClass = 'bg-orange-600 text-white border-orange-600 ring-2 ring-orange-200';
+                        textClass = 'text-orange-700 font-extrabold';
+                    }
+
+                    return `
+                        <div class="flex-1 flex flex-col items-center relative text-center min-w-[70px]">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] border ${circleClass} z-10 transition-all">
+                                ${isCompleted ? '<i class="fas fa-check text-[9px]"></i>' : idx + 1}
+                            </div>
+                            <div class="text-[9px] mt-1.5 leading-tight ${textClass}">${st}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                const materialsHtml = (order.materialsIssued || []).map(m => `
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[10px]">
+                        <strong>${m.itemCode}</strong>: ${m.qty} ${m.uom} (${m.description})
+                    </span>
+                `).join('');
+
+                return `
+                    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-4">
+                        
+                        <!-- Order Header -->
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded bg-orange-50 text-orange-700 border border-orange-200 font-mono font-bold text-xs">${order.orderNo}</span>
+                                    <span class="text-slate-300">•</span>
+                                    <span class="font-bold text-slate-800 text-xs">${order.productName}</span>
+                                </div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">
+                                    Project: <strong class="text-slate-700">${order.projectRef}</strong> | Bay: <strong class="text-slate-700">${order.bay}</strong>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <div class="text-right pr-2">
+                                    <div class="text-[10px] text-slate-400 uppercase font-semibold">Total Quantity</div>
+                                    <div class="font-mono font-bold text-slate-800 text-xs">${order.quantity} ${order.uom}</div>
+                                </div>
+                                ${currentStageIdx < stages.length - 1 ? `
+                                    <button onclick="advanceStage('${order.id}')" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                                        <span>Advance to ${stages[currentStageIdx + 1]}</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                ` : `
+                                    <span class="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold">
+                                        <i class="fas fa-check-double mr-1"></i> Order Dispatched
+                                    </span>
+                                `}
+                            </div>
+                        </div>
+
+                        <!-- 8 SOP Stepper Bar -->
+                        <div class="relative py-2 overflow-x-auto">
+                            <div class="flex items-center justify-between relative z-0">
+                                ${stepsHtml}
+                            </div>
+                        </div>
+
+                        <!-- Meta details & Materials -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100 text-[11px]">
+                            <div>
+                                <span class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Assigned Fabrication Team:</span>
+                                <div class="text-slate-800 font-medium mt-0.5">Line Leader: <strong>${order.lineLeader}</strong></div>
+                                <div class="text-slate-500">Supervising: ${(order.assignedEngineers || []).join(', ')}</div>
+                            </div>
+                            <div>
+                                <span class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Materials Issued from Stores:</span>
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    ${materialsHtml}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes & QC Status -->
+                        <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100">
+                            <div class="text-slate-500">
+                                <strong>Instructions:</strong> ${order.notes}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-400">QC Status:</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${order.qcStatus === 'Passed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                    ${order.qcStatus}
+                                </span>
+                                <a href="factory-qc.html" class="text-emerald-700 hover:underline font-bold text-[10.5px]">Open QC Inspection &rarr;</a>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function advanceStage(orderId) {
+            const updated = CosmixEngineering.advanceProductionStage(orderId);
+            if (updated) {
+                renderProductionCards();
+            }
+        }
+    </script>
+</body>
+</html>

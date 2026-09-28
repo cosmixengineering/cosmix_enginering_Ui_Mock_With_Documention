@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Installation & 4-Point HSE Jobs - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <script src="../assets/js/engineering-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('jobs');
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-12">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-orange-600 text-[11px]"><i class="fas fa-arrow-left mr-1"></i> Operations</a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-indigo-700 uppercase tracking-wider">Field Installation</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-slate-800 mt-0.5">Site Installation & 4-Point HSE Execution</h1>
+                            <p class="text-[11px] text-slate-500">Mandatory on-site protocol: 1. Safety Briefing &rarr; 2. Work Completed &rarr; 3. Site Cleaned &rarr; 4. Customer Signoff.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                                <i class="fas fa-hard-hat"></i> HSE Zero Incident Policy
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Field Jobs Container -->
+                    <div class="space-y-4" id="jobs-container">
+                        <!-- Populated Dynamically -->
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderFieldJobs();
+        });
+
+        function renderFieldJobs() {
+            const jobs = CosmixEngineering.getFieldJobs();
+            const container = document.getElementById('jobs-container');
+            if (!container) return;
+
+            container.innerHTML = jobs.map(job => {
+                const hse = job.hseChecklist || {};
+                const isComplete = job.status === 'HandoverComplete';
+
+                const logsHtml = (job.dailyLogs || []).map(l => `
+                    <div class="p-2 rounded bg-slate-50 border border-slate-100 text-[10.5px]">
+                        <div class="flex justify-between font-mono text-[10px] text-slate-400">
+                            <span>Date: ${l.date}</span>
+                            <span>Manpower: ${l.manpower} Techs (${l.hours} hrs)</span>
+                        </div>
+                        <p class="text-slate-700 mt-0.5">${l.progress}</p>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="bg-white rounded-xl border ${isComplete ? 'border-emerald-300' : 'border-slate-200/80'} shadow-xs p-4 space-y-4">
+                        
+                        <!-- Job Header -->
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-mono font-bold text-xs border border-indigo-200">${job.jobNo}</span>
+                                    <span class="text-slate-300">•</span>
+                                    <h3 class="font-bold text-slate-800 text-xs">${job.siteName}</h3>
+                                </div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">
+                                    Lead: <strong class="text-slate-700">${job.assignedLead}</strong> | Team: <strong class="text-slate-700">${job.teamSize} Technicians</strong> | Project: <span class="text-slate-600">${job.projectRef}</span>
+                                </div>
+                            </div>
+
+                            <span class="px-2.5 py-1 rounded text-[10px] font-bold ${isComplete ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}">
+                                ${job.status}
+                            </span>
+                        </div>
+
+                        <!-- 4-Point HSE Checklist Row -->
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">4-Point HSE Compliance Checklist</span>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                                
+                                <!-- Step 1 -->
+                                <div class="p-3 rounded-lg border ${hse.safetyBriefing?.completed ? 'bg-emerald-50/50 border-emerald-200' : 'bg-slate-50 border-slate-200'} flex flex-col justify-between space-y-2">
+                                    <div>
+                                        <div class="flex items-center justify-between text-slate-800 font-bold text-[11px]">
+                                            <span>1. Safety Briefing</span>
+                                            <i class="fas ${hse.safetyBriefing?.completed ? 'fa-check-circle text-emerald-600' : 'fa-circle text-slate-300'}"></i>
+                                        </div>
+                                        <p class="text-[10px] text-slate-500 mt-1">Conducted: ${hse.safetyBriefing?.timestamp || 'Pending'}</p>
+                                    </div>
+                                    <button onclick="toggleHse('${job.id}', 'safetyBriefing', ${!hse.safetyBriefing?.completed})" class="w-full py-1 rounded text-[10px] font-bold ${hse.safetyBriefing?.completed ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}">
+                                        ${hse.safetyBriefing?.completed ? 'Completed' : 'Mark Done'}
+                                    </button>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div class="p-3 rounded-lg border ${hse.workCompleted?.completed ? 'bg-emerald-50/50 border-emerald-200' : 'bg-slate-50 border-slate-200'} flex flex-col justify-between space-y-2">
+                                    <div>
+                                        <div class="flex items-center justify-between text-slate-800 font-bold text-[11px]">
+                                            <span>2. Work Completed</span>
+                                            <i class="fas ${hse.workCompleted?.completed ? 'fa-check-circle text-emerald-600' : 'fa-circle text-slate-300'}"></i>
+                                        </div>
+                                        <p class="text-[10px] text-slate-500 mt-1">${hse.workCompleted?.remarks || 'Mounting & connection'}</p>
+                                    </div>
+                                    <button onclick="toggleHse('${job.id}', 'workCompleted', ${!hse.workCompleted?.completed})" class="w-full py-1 rounded text-[10px] font-bold ${hse.workCompleted?.completed ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}">
+                                        ${hse.workCompleted?.completed ? 'Completed' : 'Mark Done'}
+                                    </button>
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div class="p-3 rounded-lg border ${hse.siteCleaned?.completed ? 'bg-emerald-50/50 border-emerald-200' : 'bg-slate-50 border-slate-200'} flex flex-col justify-between space-y-2">
+                                    <div>
+                                        <div class="flex items-center justify-between text-slate-800 font-bold text-[11px]">
+                                            <span>3. Site Cleaned</span>
+                                            <i class="fas ${hse.siteCleaned?.completed ? 'fa-check-circle text-emerald-600' : 'fa-circle text-slate-300'}"></i>
+                                        </div>
+                                        <p class="text-[10px] text-slate-500 mt-1">${hse.siteCleaned?.remarks || 'Scrap and debris cleared'}</p>
+                                    </div>
+                                    <button onclick="toggleHse('${job.id}', 'siteCleaned', ${!hse.siteCleaned?.completed})" class="w-full py-1 rounded text-[10px] font-bold ${hse.siteCleaned?.completed ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}">
+                                        ${hse.siteCleaned?.completed ? 'Completed' : 'Mark Done'}
+                                    </button>
+                                </div>
+
+                                <!-- Step 4 -->
+                                <div class="p-3 rounded-lg border ${hse.customerSignoff?.completed ? 'bg-emerald-50/50 border-emerald-200' : 'bg-slate-50 border-slate-200'} flex flex-col justify-between space-y-2">
+                                    <div>
+                                        <div class="flex items-center justify-between text-slate-800 font-bold text-[11px]">
+                                            <span>4. Customer Signoff</span>
+                                            <i class="fas ${hse.customerSignoff?.completed ? 'fa-check-circle text-emerald-600' : 'fa-circle text-slate-300'}"></i>
+                                        </div>
+                                        <p class="text-[10px] text-slate-500 mt-1">Signer: ${hse.customerSignoff?.signerName || 'Client Engineer'}</p>
+                                    </div>
+                                    <button onclick="signoffCustomer('${job.id}')" class="w-full py-1 rounded text-[10px] font-bold ${hse.customerSignoff?.completed ? 'bg-emerald-600 text-white' : 'bg-indigo-600 text-white'}">
+                                        ${hse.customerSignoff?.completed ? 'Signed Off' : 'Obtain Client Signoff'}
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- DPR Daily Progress Logs -->
+                        <div class="pt-2 border-t border-slate-100">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Daily Progress Reports (DPR)</span>
+                            <div class="space-y-1.5">
+                                ${logsHtml}
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleHse(jobId, stepKey, newState) {
+            CosmixEngineering.updateHseCheck(jobId, stepKey, newState, 'Verified compliant by site supervisor');
+            renderFieldJobs();
+        }
+
+        function signoffCustomer(jobId) {
+            const name = prompt('Enter Client Representative / Engineer Name for Signoff:', 'Engr. Kamran (Client Project Lead)');
+            if (name) {
+                CosmixEngineering.updateHseCheck(jobId, 'customerSignoff', true, 'Client approved installation handover.', name);
+                renderFieldJobs();
+            }
+        }
+    </script>
+</body>
+</html>

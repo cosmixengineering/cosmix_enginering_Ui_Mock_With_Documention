@@ -1,0 +1,353 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Corporate Facilities & Workshop Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+            transition: all 0.2s ease;
+        }
+        .glass-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.06);
+        }
+    </style>
+</head>
+<body class="text-slate-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <script src="../assets/js/shared.js"></script>
+    <script src="../assets/js/admin-store.js"></script>
+    <script>
+        renderLayout('facilities');
+
+        window.currentFacilityTab = 'all';
+
+        function renderFacilitiesUI() {
+            const state = window.CosmixGeneralAdminStore.state;
+
+            const facilitiesData = [
+                {
+                    id: 'FAC-HQ-01',
+                    name: 'Cosmix Corporate Headquarters',
+                    type: 'Corporate Headquarters',
+                    city: 'Karachi',
+                    address: 'Suite 402, Business Center, Main Shahrah-e-Faisal, Karachi',
+                    incharge: 'Zeeshan Ashraf',
+                    role: 'Chief Executive Officer',
+                    phone: '+92 21 34567890',
+                    email: 'ceo@cosmixengineering.com',
+                    capacity: 35,
+                    currentStaff: 28,
+                    areaSqFt: 6500,
+                    rentPkr: 380000,
+                    utilities: ['100 Mbps Fiber', '24/7 Backup Genset', 'Biometric Access', 'Fire Alarm Sys'],
+                    status: 'Operational'
+                },
+                {
+                    id: 'FAC-MFG-02',
+                    name: 'Korangi Manufacturing & CAC Assembly Yard',
+                    type: 'Production & CAC Factory',
+                    city: 'Karachi',
+                    address: 'Plot 88, Sector 15, Korangi Industrial Area, Karachi',
+                    incharge: 'Engr. Rashid Khan',
+                    role: 'Factory & Production Manager',
+                    phone: '+92 21 35012345',
+                    email: 'factory@cosmixengineering.com',
+                    capacity: 65,
+                    currentStaff: 54,
+                    areaSqFt: 28000,
+                    rentPkr: 520000,
+                    utilities: ['5-Ton EOT Crane', 'Sheet Metal CNC', 'Hydro Test Rig', '3-Phase Substation'],
+                    status: 'Operational'
+                },
+                {
+                    id: 'FAC-WH-03',
+                    name: 'Central Logistics & Heavy Storage Hub',
+                    type: 'Central Warehouse (Store A)',
+                    city: 'Karachi',
+                    address: 'Warehouse Complex B-12, SITE Industrial Area, Karachi',
+                    incharge: 'Tariq Mehmood',
+                    role: 'Central Stores & Logistics Officer',
+                    phone: '+92 21 32598765',
+                    email: 'stores@cosmixengineering.com',
+                    capacity: 25,
+                    currentStaff: 19,
+                    areaSqFt: 18000,
+                    rentPkr: 260000,
+                    utilities: ['Racks 1-14 Heavy Duty', 'Forklift 3T', '24/7 Night Security', 'CCTV Cloud Backup'],
+                    status: 'Operational'
+                },
+                {
+                    id: 'FAC-REG-04',
+                    name: 'Islamabad Regional Engineering Office',
+                    type: 'Regional Branch Directorate',
+                    city: 'Islamabad',
+                    address: 'Office 12, Executive Heights, Blue Area, Islamabad',
+                    incharge: 'Usman Malik',
+                    role: 'Northern Regional Lead',
+                    phone: '+92 51 2890123',
+                    email: 'islamabad@cosmixengineering.com',
+                    capacity: 15,
+                    currentStaff: 11,
+                    areaSqFt: 6000,
+                    rentPkr: 120000,
+                    utilities: ['Conference Room', 'Site Survey Lab', 'Fiber Internet', 'Dedicated Parking'],
+                    status: 'Operational'
+                }
+            ];
+
+            const totalCap = facilitiesData.reduce((a, f) => a + f.capacity, 0);
+            const totalStaff = facilitiesData.reduce((a, f) => a + f.currentStaff, 0);
+            const totalArea = facilitiesData.reduce((a, f) => a + f.areaSqFt, 0);
+            const totalRent = facilitiesData.reduce((a, f) => a + f.rentPkr, 0);
+
+            const cardsHTML = facilitiesData.map(f => {
+                const occPercent = Math.round((f.currentStaff / f.capacity) * 100);
+                const icon = f.type.includes('Corporate') ? 'fa-building-columns text-indigo-600' :
+                             f.type.includes('Factory') ? 'fa-industry text-amber-600' :
+                             f.type.includes('Warehouse') ? 'fa-warehouse text-blue-600' : 'fa-building text-slate-600';
+
+                return `
+                    <div class="glass-card p-4 space-y-3.5 flex flex-col justify-between">
+                        <div>
+                            <!-- Header -->
+                            <div class="flex items-start justify-between gap-2 pb-3 border-b border-slate-100">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-sm font-bold border border-slate-200 shrink-0">
+                                        <i class="fas ${icon}"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 text-xs">${f.name}</h4>
+                                        <div class="flex items-center gap-1.5 mt-0.5">
+                                            <span class="font-mono text-[9.5px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">${f.id}</span>
+                                            <span class="text-[10px] text-slate-400 font-semibold">${f.type} · ${f.city}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="badge-pill bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ${f.status}
+                                </span>
+                            </div>
+
+                            <!-- Address & Location -->
+                            <div class="mt-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-xs space-y-1">
+                                <div class="flex items-start gap-1.5 text-slate-700">
+                                    <i class="fas fa-location-dot text-slate-400 mt-0.5 text-[10px]"></i>
+                                    <span class="text-[11px] leading-tight font-medium">${f.address}</span>
+                                </div>
+                            </div>
+
+                            <!-- Incharge & Contacts -->
+                            <div class="mt-2.5 grid grid-cols-2 gap-2 text-xs">
+                                <div class="p-2 bg-slate-50/60 rounded-lg border border-slate-100">
+                                    <span class="text-[9.5px] text-slate-400 font-bold uppercase block">Facility Incharge</span>
+                                    <span class="font-bold text-slate-900 text-[11px] block truncate">${f.incharge}</span>
+                                    <span class="text-[9.5px] text-slate-500 block truncate">${f.role}</span>
+                                </div>
+                                <div class="p-2 bg-slate-50/60 rounded-lg border border-slate-100">
+                                    <span class="text-[9.5px] text-slate-400 font-bold uppercase block">Direct Line / Email</span>
+                                    <span class="font-mono font-bold text-slate-800 text-[10.5px] block truncate">${f.phone}</span>
+                                    <span class="text-[9.5px] text-slate-500 block truncate">${f.email}</span>
+                                </div>
+                            </div>
+
+                            <!-- Occupancy & Capacity Progress Bar -->
+                            <div class="mt-3">
+                                <div class="flex justify-between items-center text-[10.5px] mb-1">
+                                    <span class="text-slate-600 font-medium">Headcount Occupancy:</span>
+                                    <span class="font-mono font-bold text-slate-900">${f.currentStaff} / ${f.capacity} Persons (${occPercent}%)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                                    <div class="h-full rounded-full bg-blue-600 transition-all duration-300" style="width: ${occPercent}%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Utility Badges -->
+                            <div class="mt-3 flex flex-wrap gap-1">
+                                ${f.utilities.map(u => `
+                                    <span class="text-[9.5px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/60">
+                                        <i class="fas fa-check text-emerald-500 mr-0.5 text-[8px]"></i> ${u}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Card Action Footer -->
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <div class="text-[10px] text-slate-500">
+                                <span>Area: <strong class="text-slate-700 font-mono">${f.areaSqFt.toLocaleString()} sq.ft</strong></span>
+                                <span class="mx-1">·</span>
+                                <span>Rent: <strong class="text-slate-700 font-mono">PKR ${(f.rentPkr/1000).toFixed(0)}k/mo</strong></span>
+                            </div>
+                            <button onclick="showToast('Facility profile for ${f.id} opened', 'info')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10.5px] transition flex items-center gap-1">
+                                Details &rarr;
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="space-y-4">
+                    
+                    <!-- Top Enterprise Command Bar -->
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Admin & Operations · Corporate Infrastructure</span>
+                                <span class="badge-pill bg-blue-50 text-blue-700 border border-blue-200">4 Active Premises</span>
+                            </div>
+                            <h2 class="text-base font-black text-slate-900 mt-0.5">Corporate Facilities, Factory Yard & Regional Offices</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Central management of executive headquarters, sheet metal fabrication yard, SITE storage warehouse, and regional projects office.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="showToast('Facility maintenance request dispatched to Admin Desk', 'success')" class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition shadow-2xs">
+                                <i class="fas fa-wrench text-amber-500 mr-1"></i> Maintenance Log
+                            </button>
+                            <button onclick="showToast('New facility registration requires CEO approval slot', 'info')" class="bg-[#1e2552] hover:bg-[#121736] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5 active:scale-95">
+                                <i class="fas fa-plus text-amber-300"></i> Register Premises
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4 KPI Metrics Grid -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Premises Managed</span>
+                                <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-building"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-slate-900">${facilitiesData.length} Facilities</div>
+                            <p class="text-[10px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 100% Operational & Inspected
+                            </p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Staff Occupancy</span>
+                                <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-users"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-indigo-900">${totalStaff} / ${totalCap} Staff</div>
+                            <p class="text-[10px] text-slate-500 mt-1">${Math.round((totalStaff/totalCap)*100)}% Overall Capacity Utilization</p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Covered Space Area</span>
+                                <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-chart-area"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-slate-900">${totalArea.toLocaleString()} Sq.Ft</div>
+                            <p class="text-[10px] text-slate-500 mt-1">Factory, Warehouse & Office Floor</p>
+                        </div>
+
+                        <div class="glass-card p-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Monthly Premises Budget</span>
+                                <span class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-file-invoice-dollar"></i></span>
+                            </div>
+                            <div class="mt-2 text-xl font-mono font-black text-purple-950">PKR ${(totalRent/1000000).toFixed(2)}M</div>
+                            <p class="text-[10px] text-slate-500 mt-1">Lease, Backup Power & Maintenance</p>
+                        </div>
+                    </div>
+
+                    <!-- Facilities 4 Cards Grid -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2.5">
+                            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fas fa-city text-blue-600"></i> Active Facility Operations & Infrastructure Matrix
+                            </h3>
+                            <span class="text-[10px] text-slate-400">HQ · Factory Yard · Central Store · Islamabad Branch</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            ${cardsHTML}
+                        </div>
+                    </div>
+
+                    <!-- Facility Equipment & Bay Allocation Register -->
+                    <div class="glass-card overflow-hidden">
+                        <div class="p-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                            <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                <i class="fas fa-layer-group text-slate-500"></i> Designated Production Bays & Heavy Machinery Deployment
+                            </h3>
+                            <span class="text-[10px] font-mono text-slate-400">cosmixhub.db Infrastructure</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr>
+                                        <th>Asset Code</th>
+                                        <th>Facility Location</th>
+                                        <th>Dedicated Purpose / Bay</th>
+                                        <th>Equipment / Machinery</th>
+                                        <th class="text-center">Power Backup</th>
+                                        <th class="text-center">Inspection Status</th>
+                                        <th class="text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-slate-50/80 border-b border-slate-100 transition text-xs">
+                                        <td class="font-mono font-bold text-[#1e2552]">EQP-CNC-01</td>
+                                        <td><strong>Korangi CAC Factory</strong></td>
+                                        <td>Bay A: Sheet Metal Duct Fabrication</td>
+                                        <td>CNC Plasma Cutting Table & Hydraulic Folder</td>
+                                        <td class="text-center"><span class="badge-pill bg-emerald-50 text-emerald-700">Dedicated Genset 250kVA</span></td>
+                                        <td class="text-center"><span class="badge-pill bg-emerald-50 text-emerald-700 border border-emerald-200">Certified Valid</span></td>
+                                        <td class="text-right"><button onclick="showToast('Maintenance schedule up to date', 'info')" class="text-blue-600 font-bold hover:underline">Log Service</button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50/80 border-b border-slate-100 transition text-xs">
+                                        <td class="font-mono font-bold text-[#1e2552]">EQP-CRN-02</td>
+                                        <td><strong>Korangi CAC Factory</strong></td>
+                                        <td>Bay B: Heavy AHU Rigging & Assembly</td>
+                                        <td>5-Ton Overhead Electric Travelling Crane</td>
+                                        <td class="text-center"><span class="badge-pill bg-emerald-50 text-emerald-700">Dedicated Genset 250kVA</span></td>
+                                        <td class="text-center"><span class="badge-pill bg-emerald-50 text-emerald-700 border border-emerald-200">Certified Valid</span></td>
+                                        <td class="text-right"><button onclick="showToast('Maintenance schedule up to date', 'info')" class="text-blue-600 font-bold hover:underline">Log Service</button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50/80 border-b border-slate-100 transition text-xs">
+                                        <td class="font-mono font-bold text-[#1e2552]">EQP-RCK-03</td>
+                                        <td><strong>SITE Central Warehouse</strong></td>
+                                        <td>Store A: Heavy Pipe & Valve Racks</td>
+                                        <td>High-Density Industrial Heavy Racks 1-14</td>
+                                        <td class="text-center"><span class="badge-pill bg-blue-50 text-blue-700">UPS Inverter Backup</span></td>
+                                        <td class="text-center"><span class="badge-pill bg-emerald-50 text-emerald-700 border border-emerald-200">Safety Pass</span></td>
+                                        <td class="text-right"><button onclick="showToast('Audit recorded', 'info')" class="text-blue-600 font-bold hover:underline">Inspect</button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50/80 transition text-xs">
+                                        <td class="font-mono font-bold text-[#1e2552]">EQP-SRV-04</td>
+                                        <td><strong>Islamabad Regional Branch</strong></td>
+                                        <td>Field Testing & Survey Equipment</td>
+                                        <td>Fluke Power Quality Analyzer & Ultrasonic Flowmeters</td>
+                                        <td class="text-center"><span class="badge-pill bg-blue-50 text-blue-700">Solar Backup 5kW</span></td>
+                                        <td class="text-center"><span class="badge-pill bg-emerald-50 text-emerald-700 border border-emerald-200">Calibrated</span></td>
+                                        <td class="text-right"><button onclick="showToast('Calibration cert verified', 'info')" class="text-blue-600 font-bold hover:underline">Calibrate</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function refreshUI() {
+            setPageContent('Facilities & Corporate Offices', renderFacilitiesUI());
+        }
+
+        refreshUI();
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - Centralized Enterprise Audit Trail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; }
+        body { font-family: 'Poppins', sans-serif; }
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+        .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+        pre.code-diff { font-family: 'JetBrains Mono', monospace !important; font-size: 11px; line-height: 1.4; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <!-- Audit Record Detail & JSON Diff Modal -->
+    <div id="audit-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-5 shadow-2xl border border-gray-200 space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold border border-amber-200">
+                        <i class="fas fa-fingerprint"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900" id="modal-audit-title">Audit Record Details</h3>
+                        <p class="text-[10px] text-gray-400 font-mono" id="modal-audit-id"></p>
+                    </div>
+                </div>
+                <button onclick="closeAuditModal()" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 overflow-y-auto flex-1 pr-1 text-xs">
+                <!-- Actor & Action Metadata Card -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between"><span class="text-gray-500">Action:</span><span class="font-bold text-gray-900" id="modal-action"></span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Entity Type:</span><span class="font-bold text-indigo-700" id="modal-entity-type"></span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Entity ID:</span><span class="font-mono text-gray-800 font-bold" id="modal-entity-id"></span></div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between"><span class="text-gray-500">Actor Name:</span><span class="font-bold text-gray-900" id="modal-user-name"></span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Actor Role:</span><span class="font-semibold text-purple-700" id="modal-user-role"></span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">IP Address:</span><span class="font-mono text-gray-700" id="modal-ip"></span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Timestamp (UTC):</span><span class="font-mono text-gray-600" id="modal-time"></span></div>
+                    </div>
+                </div>
+
+                <!-- Justification / Reason -->
+                <div>
+                    <span class="text-[11px] font-bold text-gray-700 block mb-1">Audit Justification / Business Reason:</span>
+                    <p class="p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 italic text-[11px]" id="modal-reason"></p>
+                </div>
+
+                <!-- Visual JSON State Comparison (Before vs After) -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[11px] font-bold text-gray-800 flex items-center gap-1.5">
+                            <i class="fas fa-code-compare text-indigo-600"></i> Before / After State Diff
+                        </span>
+                        <span class="text-[9.5px] font-mono text-gray-400">JSON Representation</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <!-- Before State -->
+                        <div class="p-3 bg-rose-50/40 border border-rose-200 rounded-xl space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-rose-700 uppercase tracking-wider flex items-center gap-1">
+                                    <i class="fas fa-minus-circle"></i> Previous State (From)
+                                </span>
+                            </div>
+                            <pre class="code-diff bg-white p-2 rounded-lg border border-rose-100 text-rose-900 max-h-40 overflow-auto whitespace-pre-wrap" id="modal-before-json"></pre>
+                        </div>
+
+                        <!-- After State -->
+                        <div class="p-3 bg-emerald-50/40 border border-emerald-200 rounded-xl space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider flex items-center gap-1">
+                                    <i class="fas fa-plus-circle"></i> New State (To)
+                                </span>
+                            </div>
+                            <pre class="code-diff bg-white p-2 rounded-lg border border-emerald-100 text-emerald-900 max-h-40 overflow-auto whitespace-pre-wrap" id="modal-after-json"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                <button onclick="copyAuditJson()" class="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold transition flex items-center gap-1.5">
+                    <i class="fas fa-copy"></i> Copy Record JSON
+                </button>
+                <button onclick="closeAuditModal()" class="px-4 py-1.5 rounded-lg bg-[#1e2552] hover:bg-[#151a3a] text-white text-xs font-bold shadow-xs transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Audit Event Simulation Modal -->
+    <div id="simulate-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-gray-200 space-y-3">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold border border-indigo-200">
+                        <i class="fas fa-terminal"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900">Record Live Audit Event (Simulate)</h3>
+                        <p class="text-[10px] text-gray-400">Append test immutable transaction to Central Audit Trail</p>
+                    </div>
+                </div>
+                <button onclick="closeSimulateModal()" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="space-y-2.5 text-xs">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-1">Entity Type</label>
+                        <select id="sim-entity-type" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-indigo-500">
+                            <option value="CustomerQuotation">CustomerQuotation</option>
+                            <option value="PurchaseOrder">PurchaseOrder</option>
+                            <option value="GoodsReceiptNote">GoodsReceiptNote</option>
+                            <option value="SalesInvoice">SalesInvoice</option>
+                            <option value="CommercialMargin">CommercialMargin</option>
+                            <option value="PolicySlot">PolicySlot</option>
+                            <option value="JournalEntry">JournalEntry</option>
+                            <option value="ProductionOrder">ProductionOrder</option>
+                            <option value="Auth">Auth</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-1">Action</label>
+                        <select id="sim-action" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-indigo-500">
+                            <option value="Create">Create</option>
+                            <option value="Update">Update</option>
+                            <option value="Approve">Approve</option>
+                            <option value="Override">Override (CEO)</option>
+                            <option value="Void">Void</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-1">Entity Identifier</label>
+                        <input type="text" id="sim-entity-id" value="QTN-2609-089" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs font-mono outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-1">Actor Role</label>
+                        <select id="sim-actor-role" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-indigo-500">
+                            <option value="Managing Director">Managing Director</option>
+                            <option value="Commercial Director">Commercial Director</option>
+                            <option value="Sales Engineer">Sales Engineer</option>
+                            <option value="Warehouse Manager">Warehouse Manager</option>
+                            <option value="Accounts Officer">Accounts Officer</option>
+                            <option value="QC Inspector">QC Inspector</option>
+                            <option value="Site Lead">Site Lead</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-bold mb-1">Audit Justification / Note <span class="text-rose-500">*</span></label>
+                    <textarea id="sim-reason" rows="2" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-indigo-500" placeholder="e.g., Authorized commercial scope variation and price discount."></textarea>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                <button onclick="closeSimulateModal()" class="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50">Cancel</button>
+                <button onclick="submitSimulateEvent()" class="px-4 py-1.5 rounded-lg bg-[#1e2552] hover:bg-[#151a3a] text-white text-xs font-bold shadow-xs">Append Audit Log</button>
+            </div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script src="../assets/js/administrator-store.js"></script>
+    <script>
+        renderLayout('audit-logs');
+
+        let currentFilter = 'all';
+        let currentActionFilter = 'all';
+        let currentSearch = '';
+        let activeModalLog = null;
+
+        function renderAuditUI() {
+            const allLogs = window.CosmixAdminStore.state.auditLogs || [];
+            const logs = window.CosmixAdminStore.getAuditLogs(currentFilter, currentActionFilter, currentSearch);
+
+            const totalCount = allLogs.length;
+            const overrideCount = allLogs.filter(l => l.isOverride === 1 || l.action === 'Override').length;
+            const createCount = allLogs.filter(l => l.action === 'Create').length;
+            const approveCount = allLogs.filter(l => l.action === 'Approve').length;
+
+            const filterPills = [
+                { id: 'all', label: 'All Entities' },
+                { id: 'overrides', label: 'CEO Overrides', badge: overrideCount },
+                { id: 'CustomerQuotation', label: 'Quotations' },
+                { id: 'PurchaseOrder', label: 'Purchase Orders' },
+                { id: 'GoodsReceiptNote', label: 'GRN Inward' },
+                { id: 'SalesInvoice', label: 'Invoices' },
+                { id: 'CommercialMargin', label: 'Margins' },
+                { id: 'PolicySlot', label: 'Policy Slots' },
+                { id: 'Auth', label: 'Auth Events' }
+            ];
+
+            const actionPills = [
+                { id: 'all', label: 'All Actions' },
+                { id: 'Create', label: 'Create' },
+                { id: 'Update', label: 'Update' },
+                { id: 'Approve', label: 'Approve' },
+                { id: 'Override', label: 'Override' },
+                { id: 'Void', label: 'Void' }
+            ];
+
+            const rowsHTML = logs.length ? logs.map(l => {
+                const isOvr = l.isOverride === 1 || l.action === 'Override';
+                
+                // Action badge color
+                const actionColor = l.action === 'Create' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                    l.action === 'Update' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                    l.action === 'Approve' ? 'bg-teal-50 text-teal-700 border-teal-200' :
+                                    l.action === 'Override' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                                    l.action === 'Void' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-100 text-slate-700 border-slate-200';
+
+                // Entity type badge
+                const entityColor = l.entityType === 'PolicySlot' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                                    l.entityType === 'CommercialMargin' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                    l.entityType === 'CustomerQuotation' ? 'bg-sky-50 text-sky-700 border-sky-200' :
+                                    l.entityType === 'PurchaseOrder' ? 'bg-teal-50 text-teal-700 border-teal-200' :
+                                    l.entityType === 'GoodsReceiptNote' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                    l.entityType === 'SalesInvoice' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                    l.entityType === 'Auth' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-100 text-slate-700 border-slate-200';
+
+                return `
+                    <tr class="hover:bg-slate-50/70 border-b border-gray-100 transition text-xs">
+                        <td>
+                            <div class="font-mono text-[10.5px] font-bold text-gray-800">${l.id}</div>
+                            <div class="font-mono text-[9.5px] text-gray-400 mt-0.5">${l.timestamp}</div>
+                        </td>
+                        <td>
+                            <span class="px-2 py-0.5 rounded text-[9.5px] font-extrabold border ${entityColor} block w-max">
+                                ${l.entityType}
+                            </span>
+                            <div class="font-mono text-[10px] text-gray-700 font-semibold mt-1">${l.entityId}</div>
+                        </td>
+                        <td>
+                            <span class="px-2 py-0.5 rounded text-[9.5px] font-bold border ${actionColor} inline-flex items-center gap-1">
+                                ${isOvr ? '<i class="fas fa-shield-halved text-rose-500"></i>' : ''}
+                                ${l.action}
+                            </span>
+                            ${isOvr ? '<span class="block text-[8.5px] font-extrabold text-rose-600 mt-0.5">CEO SIGN-OFF</span>' : ''}
+                        </td>
+                        <td>
+                            <div class="font-bold text-gray-900">${l.actorName || l.user || 'System'}</div>
+                            <div class="text-[9.5px] text-indigo-700 font-semibold">${l.actorRole || 'Administrator'}</div>
+                            <div class="font-mono text-[8.5px] text-gray-400">${l.ipAddress || '192.168.10.45'} · ${l.channel || 'Web'}</div>
+                        </td>
+                        <td>
+                            <div class="text-[11px] text-gray-700 max-w-xs truncate" title="${l.reason || ''}">${l.reason || '-'}</div>
+                            ${l.toValue ? `<div class="font-mono text-[9.5px] text-gray-500 truncate max-w-xs mt-0.5">To: ${l.toValue}</div>` : ''}
+                        </td>
+                        <td class="text-right">
+                            <button onclick="openAuditModal('${l.id}')" class="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-[10.5px] font-semibold transition flex items-center gap-1 ml-auto shadow-2xs">
+                                <i class="fas fa-eye text-indigo-500"></i> Diff
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('') : `
+                <tr><td colspan="6" class="text-center py-10 text-gray-400 text-xs">No audit records match the current filter criteria.</td></tr>
+            `;
+
+            return `
+                <div class="space-y-4">
+                    
+                    <!-- Header Banner -->
+                    <div class="bg-white p-4 rounded-xl shadow-xs border border-gray-200 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                                    <i class="fas fa-clipboard-list text-amber-600"></i> Centralized Enterprise Audit Trail
+                                </h2>
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-100 text-amber-800 border border-amber-200">IMMUTABLE LEDGER</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Strict append-only compliance trail recording entities, actions, actor names/roles, client IP addresses, and state JSON diffs.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="window.CosmixAdminStore.exportAuditLogsJson()" class="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold shadow-2xs transition flex items-center gap-1.5">
+                                <i class="fas fa-file-code text-indigo-600"></i> Export JSON
+                            </button>
+                            <button onclick="window.CosmixAdminStore.exportAuditLogsCsv()" class="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold shadow-2xs transition flex items-center gap-1.5">
+                                <i class="fas fa-file-csv text-emerald-600"></i> Export CSV
+                            </button>
+                            <button onclick="openSimulateModal()" class="px-3.5 py-1.5 rounded-lg bg-[#1e2552] hover:bg-[#151a3a] text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5">
+                                <i class="fas fa-plus-circle text-xs"></i> Record Event
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4 Summary KPI Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-2xs">
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Total Logged Events</span>
+                            <span class="text-lg font-extrabold text-gray-900 mt-0.5 block font-mono">${totalCount}</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-2xs">
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">CEO Margin Overrides</span>
+                            <span class="text-lg font-extrabold text-rose-600 mt-0.5 block font-mono">${overrideCount}</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-2xs">
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Created Records</span>
+                            <span class="text-lg font-extrabold text-emerald-600 mt-0.5 block font-mono">${createCount}</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-2xs">
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Formal Approvals</span>
+                            <span class="text-lg font-extrabold text-teal-600 mt-0.5 block font-mono">${approveCount}</span>
+                        </div>
+                    </div>
+
+                    <!-- Multi-Filter & Search Strip -->
+                    <div class="bg-white p-3.5 rounded-xl shadow-xs border border-gray-200 space-y-2.5">
+                        <div class="flex flex-wrap items-center justify-between gap-2.5">
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1">Entities:</span>
+                                ${filterPills.map(f => `
+                                    <button onclick="setAuditFilter('${f.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${currentFilter.toLowerCase() === f.id.toLowerCase() ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'}">
+                                        ${f.label}
+                                        ${f.badge ? `<span class="px-1 py-0.2 rounded text-[8.5px] font-extrabold bg-rose-500 text-white">${f.badge}</span>` : ''}
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <div class="relative w-full sm:w-64">
+                                <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                                <input type="text" id="audit-search" value="${currentSearch}" onkeyup="handleSearch(this.value)" placeholder="Search entity, action, actor, IP..." class="w-full pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-indigo-500 bg-slate-50/50 focus:bg-white">
+                            </div>
+                        </div>
+
+                        <!-- Action Filter Strip -->
+                        <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-gray-100">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1">Actions:</span>
+                            ${actionPills.map(a => `
+                                <button onclick="setActionFilter('${a.id}')" class="px-2 py-0.5 rounded text-[11px] font-medium transition ${currentActionFilter.toLowerCase() === a.id.toLowerCase() ? 'bg-indigo-600 text-white font-bold' : 'text-gray-600 hover:bg-gray-100'}">
+                                    ${a.label}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Audit Records Table -->
+                    <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 border-b border-gray-200 text-gray-600 font-extrabold text-[10px] uppercase tracking-wider">
+                                    <tr>
+                                        <th class="w-36">Log ID & Timestamp</th>
+                                        <th class="w-40">Entity & Ref</th>
+                                        <th class="w-28">Action</th>
+                                        <th class="w-48">Actor Name & Role</th>
+                                        <th>Reason & State Description</th>
+                                        <th class="w-20 text-right">Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHTML}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function refreshUI() {
+            setPageContent('Centralized Enterprise Audit Trail', renderAuditUI());
+        }
+
+        function setAuditFilter(f) {
+            currentFilter = f;
+            refreshUI();
+        }
+
+        function setActionFilter(a) {
+            currentActionFilter = a;
+            refreshUI();
+        }
+
+        function handleSearch(val) {
+            currentSearch = val;
+            refreshUI();
+        }
+
+        function openAuditModal(id) {
+            const log = window.CosmixAdminStore.state.auditLogs.find(l => l.id === id);
+            if (!log) return;
+            activeModalLog = log;
+
+            document.getElementById('modal-audit-title').innerText = `Audit Record: ${log.id}`;
+            document.getElementById('modal-audit-id').innerText = `Entity Ref: ${log.entityType} (${log.entityId})`;
+            document.getElementById('modal-action').innerText = log.action;
+            document.getElementById('modal-entity-type').innerText = log.entityType;
+            document.getElementById('modal-entity-id').innerText = log.entityId;
+            document.getElementById('modal-user-name').innerText = log.actorName || log.user || 'System';
+            document.getElementById('modal-user-role').innerText = log.actorRole || 'Administrator';
+            document.getElementById('modal-ip').innerText = log.ipAddress || '192.168.10.45';
+            document.getElementById('modal-time').innerText = log.timestamp;
+            document.getElementById('modal-reason').innerText = log.reason || 'No justification recorded';
+
+            const beforeText = log.beforeJson ? JSON.stringify(log.beforeJson, null, 2) : (log.fromValue || '(Initial state / None)');
+            const afterText = log.afterJson ? JSON.stringify(log.afterJson, null, 2) : (log.toValue || '(Cleared state / None)');
+
+            document.getElementById('modal-before-json').innerText = beforeText;
+            document.getElementById('modal-after-json').innerText = afterText;
+
+            document.getElementById('audit-detail-modal').classList.remove('hidden');
+        }
+
+        function closeAuditModal() {
+            document.getElementById('audit-detail-modal').classList.add('hidden');
+            activeModalLog = null;
+        }
+
+        function copyAuditJson() {
+            if (!activeModalLog) return;
+            navigator.clipboard.writeText(JSON.stringify(activeModalLog, null, 2));
+            showToast('Audit record JSON copied to clipboard', 'success');
+        }
+
+        function openSimulateModal() {
+            document.getElementById('sim-reason').value = '';
+            document.getElementById('simulate-modal').classList.remove('hidden');
+        }
+
+        function closeSimulateModal() {
+            document.getElementById('simulate-modal').classList.add('hidden');
+        }
+
+        function submitSimulateEvent() {
+            const entityType = document.getElementById('sim-entity-type').value;
+            const action = document.getElementById('sim-action').value;
+            const entityId = document.getElementById('sim-entity-id').value.trim() || 'ENT-2026-TEST';
+            const actorRole = document.getElementById('sim-actor-role').value;
+            const reason = document.getElementById('sim-reason').value.trim();
+
+            if (!reason) {
+                alert('Please enter an audit reason / justification.');
+                return;
+            }
+
+            const isOvr = action === 'Override';
+            const actorName = actorRole === 'Managing Director' ? 'Zeeshan Ashraf' :
+                              actorRole === 'Commercial Director' ? 'Kamran Akmal' :
+                              actorRole === 'Sales Engineer' ? 'Bilal Tariq' :
+                              actorRole === 'Warehouse Manager' ? 'Muhammad Nasir' :
+                              actorRole === 'Accounts Officer' ? 'Muddasir Siddiqui' :
+                              actorRole === 'QC Inspector' ? 'Engr. Noman Baig' : 'Engr. Tahir Iqbal';
+
+            window.CosmixAdminStore.logAction(
+                entityType,
+                entityId,
+                action,
+                "State.Previous",
+                "State.Updated",
+                reason,
+                isOvr ? 1 : 0,
+                {
+                    actorName,
+                    actorRole,
+                    actorEmail: `${actorName.toLowerCase().replace(/[\s.]+/g, '')}@cosmixengineering.com`,
+                    ipAddress: '192.168.10.55',
+                    beforeJson: { entityId, status: "Draft", timestamp: new Date().toISOString() },
+                    afterJson: { entityId, status: action, reason, timestamp: new Date().toISOString() }
+                }
+            );
+
+            closeSimulateModal();
+            showToast('Audit record successfully appended to immutable ledger', 'success');
+            refreshUI();
+        }
+
+        refreshUI();
+    </script>
+</body>
+</html>

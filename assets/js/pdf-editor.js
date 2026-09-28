@@ -12,14 +12,14 @@
 
     function shell() {
         return `<div class="sales-page pdf-editor-page space-y-3">
-            <section class="sales-workspace-head"><div><h1>PDF Editor</h1><p>PDF upload karein, existing text select karein ya area draw karein, aur replacement ko usi position par export karein.</p></div><div class="flex flex-wrap gap-2"><a href="tender-documents.html" class="sales-btn"><i class="fas fa-layer-group"></i> Tender Documents</a><button onclick="pdfEditorReset()" class="sales-btn"><i class="fas fa-rotate-left"></i> New PDF</button><button id="pdf-export-btn" onclick="pdfEditorExport()" class="sales-btn sales-btn-primary" disabled><i class="fas fa-download"></i> Export edited PDF</button></div></section>
-            <div id="pdf-editor-empty" class="sales-panel"><div id="pdf-editor-drop" class="pdf-editor-drop" role="button" tabindex="0" aria-label="Choose or drop a PDF"><i class="fas fa-file-arrow-up"></i><strong>Upload a PDF to edit</strong><span>Text-based aur scanned dono PDFs supported hain. File isi browser mein process hogi.</span><div class="flex flex-wrap items-center justify-center gap-2"><button type="button" onclick="pdfEditorChoose(event)" class="sales-btn sales-btn-primary"><i class="fas fa-folder-open"></i> Choose PDF</button><span class="pdf-editor-drop-copy">or drop PDF here</span></div><input id="pdf-file-input" type="file" accept="application/pdf,.pdf" onchange="pdfEditorLoad(this.files && this.files[0])"></div></div>
+            <section class="sales-workspace-head"><div><h1>PDF Editor</h1><p>Upload PDF documents, select text regions or draw bounding boxes, and export revised copies.</p></div><div class="flex flex-wrap gap-2"><a href="tender-documents.html" class="sales-btn"><i class="fas fa-layer-group"></i> Tender Documents</a><button onclick="pdfEditorReset()" class="sales-btn"><i class="fas fa-rotate-left"></i> New PDF</button><button id="pdf-export-btn" onclick="pdfEditorExport()" class="sales-btn sales-btn-primary" disabled><i class="fas fa-download"></i> Export edited PDF</button></div></section>
+            <div id="pdf-editor-empty" class="sales-panel"><div id="pdf-editor-drop" class="pdf-editor-drop" role="button" tabindex="0" aria-label="Choose or drop a PDF"><i class="fas fa-file-arrow-up"></i><strong>Upload a PDF to edit</strong><span>Vector and scanned PDFs supported. Document processed locally in browser.</span><div class="flex flex-wrap items-center justify-center gap-2"><button type="button" onclick="pdfEditorChoose(event)" class="sales-btn sales-btn-primary"><i class="fas fa-folder-open"></i> Choose PDF</button><span class="pdf-editor-drop-copy">or drop PDF here</span></div><input id="pdf-file-input" type="file" accept="application/pdf,.pdf" onchange="pdfEditorLoad(this.files && this.files[0])"></div></div>
             <div id="pdf-editor-workspace" class="hidden grid items-start gap-3 xl:grid-cols-[210px_minmax(560px,1fr)_290px]">
-                <aside class="sales-panel pdf-editor-sidebar"><div class="sales-panel-head"><div><p class="sales-label">Document</p><h3 id="pdf-file-name">PDF</h3></div></div><div class="p-3"><div class="pdf-source-meta"><span>Pages</span><strong id="pdf-page-count">0</strong></div><div class="pdf-source-meta"><span>Detected text</span><strong id="pdf-text-count">0 items</strong></div><div id="pdf-page-list" class="pdf-page-list"></div></div><div class="border-t border-slate-100 p-3 text-[8.5px] leading-relaxed text-slate-500">Source PDF read-only rahegi. Export ek nayi edited copy banata hai.</div></aside>
-                <main class="sales-panel min-w-0 overflow-hidden"><div class="pdf-editor-toolbar no-print"><div class="flex items-center gap-1"><button onclick="pdfEditorPage(-1)" class="sales-icon-btn" title="Previous page"><i class="fas fa-chevron-left"></i></button><span class="pdf-page-indicator">Page <strong id="pdf-current-page">1</strong> / <span id="pdf-total-pages">1</span></span><button onclick="pdfEditorPage(1)" class="sales-icon-btn" title="Next page"><i class="fas fa-chevron-right"></i></button></div><div class="flex items-center gap-1"><button onclick="pdfEditorZoom(-.15)" class="sales-icon-btn" title="Zoom out"><i class="fas fa-minus"></i></button><span id="pdf-zoom-label" class="pdf-page-indicator">115%</span><button onclick="pdfEditorZoom(.15)" class="sales-icon-btn" title="Zoom in"><i class="fas fa-plus"></i></button><span id="pdf-quality-label" class="sales-badge bg-slate-50 text-slate-600 border-slate-200">HD 2x</span></div><div class="pdf-editor-hint"><i class="fas fa-arrow-pointer"></i> Text par click karein ya mouse se rectangle draw karein</div></div><div id="pdf-view-scroll" class="pdf-view-scroll"><div id="pdf-stage" class="pdf-stage"><canvas id="pdf-canvas"></canvas><div id="pdf-text-layer" class="pdf-text-layer"></div><div id="pdf-edit-layer" class="pdf-edit-layer"></div><div id="pdf-selection-box" class="pdf-selection-box hidden"></div></div></div><div id="pdf-render-status" class="pdf-render-status">PDF upload karein</div></main>
-                <aside class="space-y-3"><section class="sales-panel"><div class="sales-panel-head"><div><p class="sales-label">Replacement</p><h3>Selected text area</h3></div><span id="pdf-selection-status" class="sales-badge bg-slate-50 text-slate-500 border-slate-200">None</span></div><div class="space-y-3 p-3"><div class="sales-field"><label>Detected / original text</label><textarea id="pdf-original-text" class="sales-textarea" rows="2" readonly placeholder="Area select karein"></textarea></div><div id="pdf-format-summary" class="pdf-format-summary"><i class="fas fa-wand-magic-sparkles"></i> Text select karne par original formatting yahan detect hogi.</div><div class="sales-field"><label>Replacement text *</label><textarea id="pdf-replacement-text" oninput="pdfEditorLivePreview()" class="sales-textarea" rows="3" placeholder="Naya text yahan likhein"></textarea></div><div class="grid grid-cols-2 gap-2"><div class="sales-field"><label>Font family</label><select id="pdf-font-family" onchange="pdfEditorLivePreview()" class="sales-select"><option value="Inter">Inter</option><option value="JetBrains Mono">JetBrains Mono</option><option value="Arial">Arial</option><option value="Helvetica">Helvetica</option><option value="Times New Roman">Times New Roman</option><option value="Courier New">Courier New</option></select></div><div class="sales-field"><label>Font style</label><select id="pdf-font-style" onchange="pdfEditorLivePreview()" class="sales-select"><option value="400-normal">Regular</option><option value="500-normal">Medium</option><option value="600-normal">Semi Bold</option><option value="700-normal">Bold</option><option value="800-normal">Extra Bold</option><option value="400-italic">Italic</option><option value="700-italic">Bold Italic</option></select></div><div class="sales-field"><label>Font size</label><input id="pdf-font-size" oninput="pdfEditorLivePreview()" type="number" min="5" max="72" step="0.1" value="11" class="sales-input"></div><div class="sales-field"><label>Alignment</label><select id="pdf-text-align" onchange="pdfEditorLivePreview()" class="sales-select"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></div><div class="sales-field"><label>Text colour</label><input id="pdf-text-color" oninput="pdfEditorLivePreview()" type="color" value="#111827" class="pdf-color-input"></div><div class="sales-field"><label>Area background</label><input id="pdf-background-color" oninput="pdfEditorLivePreview()" type="color" value="#ffffff" class="pdf-color-input"></div></div><label class="flex items-center gap-2 text-[9px] text-slate-600"><input id="pdf-cover-old" onchange="pdfEditorLivePreview()" type="checkbox" checked> Old text/background cover karein</label><div class="grid grid-cols-2 gap-2"><button onclick="pdfEditorApply()" class="sales-btn sales-btn-primary justify-center"><i class="fas fa-check"></i> Apply text</button><button onclick="pdfEditorDeleteSelected()" class="sales-btn justify-center"><i class="fas fa-trash"></i> Remove edit</button></div></div></section>
+                <aside class="sales-panel pdf-editor-sidebar"><div class="sales-panel-head"><div><p class="sales-label">Document</p><h3 id="pdf-file-name">PDF</h3></div></div><div class="p-3"><div class="pdf-source-meta"><span>Pages</span><strong id="pdf-page-count">0</strong></div><div class="pdf-source-meta"><span>Detected text</span><strong id="pdf-text-count">0 items</strong></div><div id="pdf-page-list" class="pdf-page-list"></div></div><div class="border-t border-slate-100 p-3 text-[8.5px] leading-relaxed text-slate-500">Source PDF remains unmodified. Export creates a new versioned copy.</div></aside>
+                <main class="sales-panel min-w-0 overflow-hidden"><div class="pdf-editor-toolbar no-print"><div class="flex items-center gap-1"><button onclick="pdfEditorPage(-1)" class="sales-icon-btn" title="Previous page"><i class="fas fa-chevron-left"></i></button><span class="pdf-page-indicator">Page <strong id="pdf-current-page">1</strong> / <span id="pdf-total-pages">1</span></span><button onclick="pdfEditorPage(1)" class="sales-icon-btn" title="Next page"><i class="fas fa-chevron-right"></i></button></div><div class="flex items-center gap-1"><button onclick="pdfEditorZoom(-.15)" class="sales-icon-btn" title="Zoom out"><i class="fas fa-minus"></i></button><span id="pdf-zoom-label" class="pdf-page-indicator">115%</span><button onclick="pdfEditorZoom(.15)" class="sales-icon-btn" title="Zoom in"><i class="fas fa-plus"></i></button><span id="pdf-quality-label" class="sales-badge bg-slate-50 text-slate-600 border-slate-200">HD 2x</span></div><div class="pdf-editor-hint"><i class="fas fa-arrow-pointer"></i> Click text element or drag to define replacement region</div></div><div id="pdf-view-scroll" class="pdf-view-scroll"><div id="pdf-stage" class="pdf-stage"><canvas id="pdf-canvas"></canvas><div id="pdf-text-layer" class="pdf-text-layer"></div><div id="pdf-edit-layer" class="pdf-edit-layer"></div><div id="pdf-selection-box" class="pdf-selection-box hidden"></div></div></div><div id="pdf-render-status" class="pdf-render-status">Upload PDF to begin</div></main>
+                <aside class="space-y-3"><section class="sales-panel"><div class="sales-panel-head"><div><p class="sales-label">Replacement</p><h3>Selected text area</h3></div><span id="pdf-selection-status" class="sales-badge bg-slate-50 text-slate-500 border-slate-200">None</span></div><div class="space-y-3 p-3"><div class="sales-field"><label>Detected / original text</label><textarea id="pdf-original-text" class="sales-textarea" rows="2" readonly placeholder="Select area"></textarea></div><div id="pdf-format-summary" class="pdf-format-summary"><i class="fas fa-wand-magic-sparkles"></i> Formatting properties will appear here upon selection.</div><div class="sales-field"><label>Replacement text *</label><textarea id="pdf-replacement-text" oninput="pdfEditorLivePreview()" class="sales-textarea" rows="3" placeholder="Enter replacement text"></textarea></div><div class="grid grid-cols-2 gap-2"><div class="sales-field"><label>Font family</label><select id="pdf-font-family" onchange="pdfEditorLivePreview()" class="sales-select"><option value="Inter">Inter</option><option value="JetBrains Mono">JetBrains Mono</option><option value="Arial">Arial</option><option value="Helvetica">Helvetica</option><option value="Times New Roman">Times New Roman</option><option value="Courier New">Courier New</option></select></div><div class="sales-field"><label>Font style</label><select id="pdf-font-style" onchange="pdfEditorLivePreview()" class="sales-select"><option value="400-normal">Regular</option><option value="500-normal">Medium</option><option value="600-normal">Semi Bold</option><option value="700-normal">Bold</option><option value="800-normal">Extra Bold</option><option value="400-italic">Italic</option><option value="700-italic">Bold Italic</option></select></div><div class="sales-field"><label>Font size</label><input id="pdf-font-size" oninput="pdfEditorLivePreview()" type="number" min="5" max="72" step="0.1" value="11" class="sales-input"></div><div class="sales-field"><label>Alignment</label><select id="pdf-text-align" onchange="pdfEditorLivePreview()" class="sales-select"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></div><div class="sales-field"><label>Text colour</label><input id="pdf-text-color" oninput="pdfEditorLivePreview()" type="color" value="#111827" class="pdf-color-input"></div><div class="sales-field"><label>Area background</label><input id="pdf-background-color" oninput="pdfEditorLivePreview()" type="color" value="#ffffff" class="pdf-color-input"></div></div><label class="flex items-center gap-2 text-[9px] text-slate-600"><input id="pdf-cover-old" onchange="pdfEditorLivePreview()" type="checkbox" checked> Cover underlying text/background</label><div class="grid grid-cols-2 gap-2"><button onclick="pdfEditorApply()" class="sales-btn sales-btn-primary justify-center"><i class="fas fa-check"></i> Apply text</button><button onclick="pdfEditorDeleteSelected()" class="sales-btn justify-center"><i class="fas fa-trash"></i> Remove edit</button></div></div></section>
                     <section class="sales-panel"><div class="sales-panel-head"><div><p class="sales-label">Changes</p><h3>Replacement list</h3></div><span id="pdf-edit-count" class="sales-badge bg-slate-50 text-slate-600 border-slate-200">0</span></div><div id="pdf-edit-list" class="pdf-edit-list"><div class="pdf-empty-list">No replacements added</div></div><div class="border-t border-slate-100 p-3"><button onclick="pdfEditorUndo()" class="sales-btn w-full justify-center"><i class="fas fa-rotate-left"></i> Undo last change</button></div></section>
-                    <div class="sales-note border-l-amber-500"><p class="font-bold">How replacement works</p><p class="mt-1 text-[8.5px] leading-relaxed text-slate-500">Editor original text ko Word ki tarah rewrite nahi karta. Selected area cover hota hai aur naya text same coordinates par paint hota hai. Scanned page par area manually draw karein. Signed PDF edit karne se digital signature valid nahi rahegi.</p></div>
+                    <div class="sales-note border-l-amber-500"><p class="font-bold">How replacement works</p><p class="mt-1 text-[8.5px] leading-relaxed text-slate-500">The editor overlays replacement text at matching coordinates with automated background fill. For scanned documents, manually draw replacement boxes. Digital signatures will be invalidated upon modification.</p></div>
                 </aside>
             </div>
             <section id="pdf-output-panel" class="sales-panel hidden"><div class="sales-panel-head"><div><p class="sales-label">Output ready</p><h3 id="pdf-output-name">Edited PDF</h3></div><button onclick="pdfEditorDownload()" class="sales-btn sales-btn-primary"><i class="fas fa-download"></i> Download again</button></div><div class="grid gap-3 p-3 sm:grid-cols-3"><div class="pdf-output-stat"><span>Pages</span><strong id="pdf-output-pages">0</strong></div><div class="pdf-output-stat"><span>Replacements</span><strong id="pdf-output-edits">0</strong></div><div class="pdf-output-stat"><span>Output size</span><strong id="pdf-output-size">0 KB</strong></div></div></section>
@@ -32,7 +32,7 @@
         if (!window.pdfjsLib || !window.PDFLib || !window.CosmixPdfEditorCore) {
             const drop = byId('pdf-editor-drop');
             if (drop) drop.innerHTML = '<i class="fas fa-triangle-exclamation text-rose-600"></i><strong>PDF tools could not start</strong><span>Required local PDF libraries are missing. Reload this folder copy and try again.</span>';
-            showToast('PDF tools load nahi huay. Page reload karein.', 'error');
+            showToast('PDF tools failed to load. Please reload the page.', 'error');
             return;
         }
         window.pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('../assets/vendor/pdf-tools/pdf.worker.min.js', window.location.href).href;
@@ -49,7 +49,7 @@
         drop.addEventListener('drop', event => {
             stop(event); drop.classList.remove('is-dragging');
             const file = Array.from(event.dataTransfer?.files || []).find(row => row.type === 'application/pdf' || /\.pdf$/i.test(row.name));
-            if (!file) { showToast('Drop ki hui files mein PDF nahi mili', 'warning'); return; }
+            if (!file) { showToast('No PDF file found in dropped files', 'warning'); return; }
             load(file);
         });
         drop.addEventListener('keydown', event => {
@@ -60,7 +60,7 @@
     function chooseFile(event) {
         event?.preventDefault(); event?.stopPropagation();
         const input = byId('pdf-file-input');
-        if (!input) { showToast('PDF file picker available nahi hai', 'error'); return; }
+        if (!input) { showToast('PDF file input unavailable', 'error'); return; }
         input.value = '';
         input.click();
     }
@@ -86,12 +86,13 @@
         const weight = /extra[- ]?bold|black|heavy/i.test(raw) ? 800 : /semi[- ]?bold/i.test(raw) ? 600 : /bold/i.test(raw) ? 700 : /medium/i.test(raw) ? 500 : 400;
         let family = raw.replace(/[- ]?(ExtraBold|SemiBold|Bold|Medium|Regular|Italic|Oblique|Black|Heavy).*$/i, '').replace(/MT$/i, '').trim();
         if (/jetbrains/i.test(raw)) family = 'JetBrains Mono';
-        else if (/inter/i.test(raw)) family = 'Inter';
+        else if (/poppins/i.test(raw)) family = 'Poppins';
+        else if (/inter/i.test(raw)) family = 'Poppins';
         else if (/arial/i.test(raw)) family = 'Arial';
         else if (/helvetica/i.test(raw)) family = 'Helvetica';
         else if (/times/i.test(raw)) family = 'Times New Roman';
         else if (/courier|mono/i.test(raw) || style?.fontFamily === 'monospace') family = 'Courier New';
-        else if (!family || family === 'sans-serif') family = 'Arial';
+        else if (!family || family === 'sans-serif') family = 'Poppins';
         return { fontFamily: family, fontLabel: raw, fontWeight: weight, fontStyle: italic, pdfFontName: item.fontName };
     }
 
@@ -131,7 +132,7 @@
 
     async function load(file) {
         if (!file) return;
-        if (!(file.type === 'application/pdf' || /\.pdf$/i.test(file.name))) { showToast('Sirf PDF file select karein', 'warning'); return; }
+        if (!(file.type === 'application/pdf' || /\.pdf$/i.test(file.name))) { showToast('Please select a valid PDF file', 'warning'); return; }
         resetRuntime();
         state.file = file;
         setBusy('Opening PDF...');
@@ -152,7 +153,7 @@
             showToast(`${file.name} opened - ${state.pages} pages`, 'success');
         } catch (error) {
             console.error(error);
-            const reason = /password/i.test(String(error?.message || '')) ? 'PDF password-protected hai.' : 'PDF open nahi hui. File damaged ho sakti hai.';
+            const reason = /password/i.test(String(error?.message || '')) ? 'PDF is password-protected.' : 'Failed to open PDF. File may be corrupted.';
             showToast(reason, 'error');
             resetRuntime();
         }
@@ -247,7 +248,7 @@
         Object.assign(box.style, { left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.width}px`, height: `${rect.height}px` });
         byId('pdf-original-text').value = original;
         byId('pdf-selection-status').textContent = editId ? 'Edit selected' : 'Area selected';
-        if (!original && !editId && byId('pdf-format-summary')) byId('pdf-format-summary').innerHTML = '<i class="fas fa-pen-ruler"></i> Manual area: current font controls export par apply hongay.';
+        if (!original && !editId && byId('pdf-format-summary')) byId('pdf-format-summary').innerHTML = '<i class="fas fa-pen-ruler"></i> Manual area: current font controls will apply on export.';
         renderEditLayer();
     }
 
@@ -306,8 +307,8 @@
 
     function apply() {
         const text = byId('pdf-replacement-text').value.trim();
-        if (!state.selection) { showToast('Pehle text ya page area select karein', 'warning'); return; }
-        if (!text) { showToast('Replacement text likhein', 'warning'); return; }
+        if (!state.selection) { showToast('Please select text or draw an area first', 'warning'); return; }
+        if (!text) { showToast('Please enter replacement text', 'warning'); return; }
         const row = editFromControls(state.selectedEditId || `EDIT-${Date.now()}`);
         row.text = text;
         if (state.viewport) {
@@ -324,7 +325,7 @@
 
     async function exportPdf() {
         if (!state.sourceBytes) return;
-        if (!state.edits.length) { showToast('Export se pehle kam az kam aik replacement add karein', 'warning'); return; }
+        if (!state.edits.length) { showToast('Add at least one replacement before exporting', 'warning'); return; }
         const button = byId('pdf-export-btn'); button.disabled = true; setBusy('Building edited PDF...');
         try {
             const bytes = await window.CosmixPdfEditorCore.createEditedPdfBytes(state.sourceBytes, state.edits);
@@ -339,7 +340,7 @@
             byId('pdf-output-size').textContent = blob.size < 1048576 ? `${Math.max(1, Math.round(blob.size / 1024))} KB` : `${(blob.size / 1048576).toFixed(1)} MB`;
             download(); setBusy('Edited PDF ready'); showToast('Edited PDF ready and downloaded', 'success');
         } catch (error) {
-            console.error(error); showToast('Edited PDF export nahi hui. File protection check karein.', 'error'); setBusy('Export stopped');
+            console.error(error); showToast('Failed to export edited PDF. Check file permissions.', 'error'); setBusy('Export stopped');
         } finally { button.disabled = false; }
     }
 
@@ -356,7 +357,7 @@
         if (clearInputs) {
             if (byId('pdf-original-text')) byId('pdf-original-text').value = '';
             if (byId('pdf-replacement-text')) byId('pdf-replacement-text').value = '';
-            if (byId('pdf-format-summary')) byId('pdf-format-summary').innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Text select karne par original formatting yahan detect hogi.';
+            if (byId('pdf-format-summary')) byId('pdf-format-summary').innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Formatting properties will appear here upon selection.';
         }
     }
 
@@ -375,8 +376,8 @@
     window.pdfEditorSelectText = index => selectText(index);
     window.pdfEditorSelectEdit = id => selectEdit(id);
     window.pdfEditorApply = apply;
-    window.pdfEditorDeleteSelected = () => { if (!state.selectedEditId) { showToast('Saved replacement select karein', 'warning'); return; } state.edits = state.edits.filter(edit => edit.id !== state.selectedEditId); clearSelection(); renderEditLayer(); renderPageList(); showToast('Replacement removed', 'success'); };
-    window.pdfEditorUndo = () => { const row = state.edits.pop(); if (!row) { showToast('Undo ke liye koi change nahi', 'warning'); return; } clearSelection(); if (row.page === state.page) renderEditLayer(); else renderEditList(); renderPageList(); showToast('Last replacement removed', 'success'); };
+    window.pdfEditorDeleteSelected = () => { if (!state.selectedEditId) { showToast('Please select a replacement to delete', 'warning'); return; } state.edits = state.edits.filter(edit => edit.id !== state.selectedEditId); clearSelection(); renderEditLayer(); renderPageList(); showToast('Replacement removed', 'success'); };
+    window.pdfEditorUndo = () => { const row = state.edits.pop(); if (!row) { showToast('No actions to undo', 'warning'); return; } clearSelection(); if (row.page === state.page) renderEditLayer(); else renderEditList(); renderPageList(); showToast('Last replacement removed', 'success'); };
     window.pdfEditorPage = direction => { if (!state.pdf) return; state.page = clamp(state.page + direction, 1, state.pages); renderPage(); };
     window.pdfEditorGoToPage = page => { state.page = clamp(page, 1, state.pages); renderPage(); };
     window.pdfEditorZoom = amount => { state.zoom = clamp(Math.round((state.zoom + amount) * 100) / 100, .6, 2); renderPage(); };

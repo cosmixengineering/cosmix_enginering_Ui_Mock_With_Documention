@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal Entries (JV) - Cosmix ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden text-xs">
+
+    <div id="app-layout" class="flex w-full h-full"></div>
+
+    <!-- Create JV Modal -->
+    <div id="jv-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white w-full max-w-3xl rounded-xl shadow-xl border border-slate-200 flex flex-col max-h-[90vh]">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-sm text-slate-800">New Double-Entry Journal Voucher (JV)</h3>
+                    <p class="text-[11px] text-slate-500">Must satisfy strict balance rule: Total Debit = Total Credit.</p>
+                </div>
+                <button onclick="closeJvModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="jv-form" class="p-5 overflow-y-auto space-y-3.5 flex-1">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Voucher Date *</label>
+                        <input type="date" id="modal-jv-date" required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Reference / Document Ref *</label>
+                        <input type="text" id="modal-jv-ref" placeholder="e.g. ADJ-2026-042 (Depreciation / Bank Charges)" required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-emerald-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Narration / Description *</label>
+                    <textarea id="modal-jv-narration" rows="2" placeholder="Being entry for..." required class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-emerald-500 outline-none"></textarea>
+                </div>
+
+                <!-- Lines Builder -->
+                <div class="border-t border-slate-100 pt-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-[11px] font-bold text-slate-700">Journal Lines (Debit / Credit Allocation)</label>
+                        <button type="button" onclick="addModalJvLine()" class="text-[10.5px] font-semibold text-emerald-600 hover:text-emerald-700">
+                            <i class="fas fa-plus mr-1"></i> Add Line
+                        </button>
+                    </div>
+                    <div id="modal-jv-lines" class="space-y-2">
+                        <!-- Dynamic rows -->
+                    </div>
+                </div>
+
+                <!-- Balance Check Strip -->
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex items-center justify-between text-xs">
+                    <div>
+                        <span class="text-slate-500">Total Debit:</span>
+                        <strong id="modal-debit-total" class="font-mono text-slate-800 ml-1">PKR 0</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-500">Total Credit:</span>
+                        <strong id="modal-credit-total" class="font-mono text-slate-800 ml-1">PKR 0</strong>
+                    </div>
+                    <div id="modal-balance-status" class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800">
+                        UNBALANCED (Diff: PKR 0)
+                    </div>
+                </div>
+            </form>
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2">
+                <button type="button" onclick="closeJvModal()" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
+                <button type="button" onclick="submitNewJv()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs">Post Journal Voucher</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/finance-store.js"></script>
+    <script src="../assets/js/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLayout('journals');
+
+            const content = `
+                <div class="p-4 space-y-4 max-w-7xl mx-auto pb-12">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <a href="index.html" class="text-slate-400 hover:text-indigo-600 text-[11px]"><i class="fas fa-arrow-left mr-1"></i> Dashboard</a>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">General Ledger</span>
+                            </div>
+                            <h1 class="text-lg font-bold text-slate-800 mt-0.5">Double-Entry Journal Entries (JVs)</h1>
+                            <p class="text-[11px] text-slate-500">General ledger journal vouchers with rigorous $Dr = Cr$ validation and audit trails.</p>
+                        </div>
+                        <button onclick="openJvModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                            <i class="fas fa-plus"></i> Post Journal Entry
+                        </button>
+                    </div>
+
+                    <!-- Journal Entries List -->
+                    <div class="space-y-4" id="jv-container">
+                        <!-- Dynamic Cards -->
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('main-content').innerHTML = content;
+            renderJvList();
+        });
+
+        function renderJvList() {
+            const jvs = CosmixFinance.getJournalEntries();
+            const container = document.getElementById('jv-container');
+            if (!container) return;
+
+            container.innerHTML = jvs.map(j => {
+                const linesHtml = (j.lines || []).map(l => `
+                    <tr class="border-b border-slate-100 text-[11px] hover:bg-slate-50">
+                        <td class="py-2 px-3 font-mono font-bold text-indigo-700">${l.accountCode}</td>
+                        <td class="py-2 px-3 font-medium text-slate-800">${l.accountName}</td>
+                        <td class="py-2 px-3 text-slate-500 text-[10px]">${l.memo || '-'}</td>
+                        <td class="py-2 px-3 text-right font-mono font-semibold text-slate-800">
+                            ${l.debitPkr > 0 ? 'PKR ' + l.debitPkr.toLocaleString() : '-'}
+                        </td>
+                        <td class="py-2 px-3 text-right font-mono font-semibold text-slate-800">
+                            ${l.creditPkr > 0 ? 'PKR ' + l.creditPkr.toLocaleString() : '-'}
+                        </td>
+                    </tr>
+                `).join('');
+
+                return `
+                    <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+                        <!-- JV Header -->
+                        <div class="p-3.5 bg-slate-50/80 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-2">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono font-bold text-xs">${j.voucherNo}</span>
+                                    <span class="text-slate-300">•</span>
+                                    <span class="font-bold text-slate-800 text-xs">${j.reference}</span>
+                                    <span class="text-slate-300">•</span>
+                                    <span class="text-[10px] text-slate-400 font-mono">Date: ${j.voucherDate}</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 mt-1">${j.narration}</p>
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="px-2.5 py-1 rounded bg-emerald-100 text-emerald-800 text-[9.5px] font-bold">
+                                    <i class="fas fa-check-double mr-1"></i> POSTED TO GL
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Lines Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-100/60 text-slate-600 font-bold border-b border-slate-200 text-[10.5px]">
+                                    <tr>
+                                        <th class="py-2 px-3">GL Code</th>
+                                        <th class="py-2 px-3">Account Title</th>
+                                        <th class="py-2 px-3">Line Memo</th>
+                                        <th class="py-2 px-3 text-right">Debit (PKR)</th>
+                                        <th class="py-2 px-3 text-right">Credit (PKR)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${linesHtml}
+                                </tbody>
+                                <tfoot class="bg-slate-50 font-bold text-xs border-t border-slate-200 font-mono">
+                                    <tr>
+                                        <td colspan="3" class="py-2 px-3 text-right font-sans text-slate-500">Totals:</td>
+                                        <td class="py-2 px-3 text-right text-emerald-700">PKR ${j.totalDebitPkr.toLocaleString()}</td>
+                                        <td class="py-2 px-3 text-right text-emerald-700">PKR ${j.totalCreditPkr.toLocaleString()}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        let jvLineCount = 0;
+        function openJvModal() {
+            document.getElementById('jv-modal').classList.remove('hidden');
+            document.getElementById('modal-jv-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('modal-jv-lines').innerHTML = '';
+            addModalJvLine('1500', 'Inventory & Stores Stock', 0, 0);
+            addModalJvLine('2100', 'Accounts Payable', 0, 0);
+        }
+
+        function closeJvModal() {
+            document.getElementById('jv-modal').classList.add('hidden');
+        }
+
+        function addModalJvLine(defCode = '', defName = '', defDr = 0, defCr = 0) {
+            jvLineCount++;
+            const coa = CosmixFinance.getChartOfAccounts();
+            const options = coa.map(a => `<option value="${a.code}" ${a.code === defCode ? 'selected' : ''}>${a.code} - ${a.name}</option>`).join('');
+
+            const container = document.getElementById('modal-jv-lines');
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-12 gap-2 items-center bg-slate-50 p-2 rounded border border-slate-200 text-[11px] jv-line-row';
+            row.id = 'jv-line-' + jvLineCount;
+            row.innerHTML = `
+                <div class="col-span-5">
+                    <select class="jv-acc-select w-full px-2 py-1 border border-slate-200 rounded outline-none text-[11px]">
+                        ${options}
+                    </select>
+                </div>
+                <div class="col-span-3">
+                    <input type="number" placeholder="Debit PKR" value="${defDr || ''}" oninput="calcJvTotals()" class="jv-debit w-full px-2 py-1 border border-slate-200 rounded outline-none text-right font-mono">
+                </div>
+                <div class="col-span-3">
+                    <input type="number" placeholder="Credit PKR" value="${defCr || ''}" oninput="calcJvTotals()" class="jv-credit w-full px-2 py-1 border border-slate-200 rounded outline-none text-right font-mono">
+                </div>
+                <div class="col-span-1 text-center">
+                    <button type="button" onclick="document.getElementById('jv-line-${jvLineCount}').remove(); calcJvTotals();" class="text-rose-500 hover:text-rose-700"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(row);
+            calcJvTotals();
+        }
+
+        function calcJvTotals() {
+            const rows = document.querySelectorAll('.jv-line-row');
+            let totalDr = 0;
+            let totalCr = 0;
+
+            rows.forEach(r => {
+                const dr = parseFloat(r.querySelector('.jv-debit')?.value) || 0;
+                const cr = parseFloat(r.querySelector('.jv-credit')?.value) || 0;
+                totalDr += dr;
+                totalCr += cr;
+            });
+
+            document.getElementById('modal-debit-total').innerText = 'PKR ' + totalDr.toLocaleString();
+            document.getElementById('modal-credit-total').innerText = 'PKR ' + totalCr.toLocaleString();
+
+            const status = document.getElementById('modal-balance-status');
+            const diff = Math.abs(totalDr - totalCr);
+
+            if (totalDr > 0 && totalDr === totalCr) {
+                status.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800';
+                status.innerText = 'BALANCED (Dr = Cr)';
+            } else {
+                status.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800';
+                status.innerText = `UNBALANCED (Diff: PKR ${diff.toLocaleString()})`;
+            }
+        }
+
+        function submitNewJv() {
+            const date = document.getElementById('modal-jv-date').value;
+            const ref = document.getElementById('modal-jv-ref').value;
+            const narration = document.getElementById('modal-jv-narration').value;
+
+            if (!ref || !narration) {
+                alert('Please enter reference and narration');
+                return;
+            }
+
+            const rows = document.querySelectorAll('.jv-line-row');
+            const lines = [];
+            const coa = CosmixFinance.getChartOfAccounts();
+
+            rows.forEach(r => {
+                const code = r.querySelector('.jv-acc-select').value;
+                const acc = coa.find(a => a.code === code);
+                const dr = parseFloat(r.querySelector('.jv-debit').value) || 0;
+                const cr = parseFloat(r.querySelector('.jv-credit').value) || 0;
+                if (dr > 0 || cr > 0) {
+                    lines.push({
+                        accountCode: code,
+                        accountName: acc ? acc.name : code,
+                        debitPkr: dr,
+                        creditPkr: cr,
+                        memo: narration.substring(0, 30)
+                    });
+                }
+            });
+
+            const res = CosmixFinance.createJournalEntry({
+                voucherDate: date,
+                reference: ref,
+                narration: narration,
+                lines: lines
+            });
+
+            if (!res.success) {
+                alert(res.message);
+                return;
+            }
+
+            alert(res.message);
+            closeJvModal();
+            renderJvList();
+        }
+    </script>
+</body>
+</html>

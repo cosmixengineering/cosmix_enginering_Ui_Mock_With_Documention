@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmix ERP - 17 SOP Stage Definitions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html { font-size: 13px !important; }
+        body { font-family: 'Poppins', sans-serif; }
+        table th { padding: 0.45rem 0.75rem !important; font-size: 0.72rem !important; }
+        table td { padding: 0.45rem 0.75rem !important; font-size: 0.78rem !important; }
+    </style>
+</head>
+<body class="text-gray-800 bg-[#f8fafc]">
+    <div id="app-layout" class="flex min-h-screen"></div>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/shared.js"></script>
+    <script src="../assets/js/administrator-store.js"></script>
+    <script>
+        renderLayout('sop-stages');
+
+        let currentTrack = 'all';
+
+        function renderSopUI() {
+            const stages = window.CosmixAdminStore.getSopStages(currentTrack);
+
+            const pills = [
+                { id: 'all', label: 'All 17 Stages', count: 17 },
+                { id: '0', label: 'Track 0: Project Execution (9)', count: 9 },
+                { id: '1', label: 'Track 1: Factory Production (8)', count: 8 }
+            ];
+
+            const pillsHTML = pills.map(p => `
+                <button onclick="setTrackFilter('${p.id}')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${currentTrack === p.id ? 'bg-[#1e2552] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}">
+                    ${p.label}
+                </button>
+            `).join('');
+
+            const rowsHTML = stages.map(s => {
+                const trackBadge = s.track === 0 
+                    ? '<span class="px-2 py-0.5 rounded text-[9.5px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200">Track 0 · Project</span>'
+                    : '<span class="px-2 py-0.5 rounded text-[9.5px] font-extrabold bg-orange-50 text-orange-700 border border-orange-200">Track 1 · Factory</span>';
+
+                const checklistBadges = s.mandatoryKeys.length 
+                    ? s.mandatoryKeys.map(k => `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-mono text-[9px] mr-1 inline-block"><i class="fas fa-check-square text-indigo-500 mr-0.5"></i> ${k}</span>`).join('')
+                    : '<span class="text-gray-400 text-[10px] italic">No gate prerequisite</span>';
+
+                return `
+                    <tr class="hover:bg-slate-50/60 border-b border-gray-100 transition text-xs">
+                        <td class="text-center font-mono font-bold text-gray-500 text-[11px]">${s.seq}</td>
+                        <td>${trackBadge}</td>
+                        <td>
+                            <div class="font-bold text-gray-900">${s.displayName}</div>
+                            <div class="font-mono text-[9.5px] text-gray-400 mt-0.5">${s.stageKey}</div>
+                        </td>
+                        <td class="text-gray-600 text-[11px]">
+                            ${s.description}
+                        </td>
+                        <td>
+                            <div class="flex flex-wrap gap-1">
+                                ${checklistBadges}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="text-[10px] font-extrabold text-emerald-600">
+                                <i class="fas fa-lock text-[9px] mr-0.5"></i> Gated SOP
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="space-y-4">
+                    
+                    <!-- Header -->
+                    <div class="bg-white p-4 rounded-xl shadow-xs border border-gray-200 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                                <i class="fas fa-route text-slate-700"></i> 17 Standard Operating Procedure (SOP) Stage Definitions
+                            </h2>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Dual-track state machine controlling step-by-step gate progressions and mandatory quality checklists.</p>
+                        </div>
+                    </div>
+
+                    <!-- Filter Strip -->
+                    <div class="bg-white p-3 rounded-xl shadow-xs border border-gray-200 flex flex-wrap items-center gap-2">
+                        ${pillsHTML}
+                    </div>
+
+                    <!-- Stages Table -->
+                    <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 border-b border-gray-200 text-gray-600 font-extrabold text-[10px] uppercase tracking-wider">
+                                    <tr>
+                                        <th class="w-12 text-center">Seq</th>
+                                        <th class="w-36">Operational Track</th>
+                                        <th class="w-48">Stage Name & System Key</th>
+                                        <th>Workflow Scope & Gating Purpose</th>
+                                        <th class="w-72">Mandatory Checklist Keys (Prerequisites)</th>
+                                        <th class="w-24 text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHTML}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function refreshUI() {
+            setPageContent('17 SOP Stage Definitions', renderSopUI());
+        }
+
+        function setTrackFilter(tr) {
+            currentTrack = tr;
+            refreshUI();
+        }
+
+        refreshUI();
+    </script>
+</body>
+</html>
+
